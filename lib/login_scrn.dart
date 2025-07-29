@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:shakti_hormann/app/presentation/ui/app_home_page.dart';
 import 'package:shakti_hormann/forgot_password.dart';
-import 'package:shakti_hormann/home_page.dart';
+import 'package:shakti_hormann/styles/app_color.dart';
 
 class LoginScrnWidget extends StatefulWidget {
   const LoginScrnWidget({super.key});
@@ -22,16 +23,29 @@ class _LoginScrnWidgetState extends State<LoginScrnWidget> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                IconButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  icon: const Icon(Icons.arrow_back_ios_new_rounded),
-                  style: IconButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    shadowColor: Colors.black12,
-                    elevation: 2,
-                  ),
+                Row(
+          
+                  children: [
+                    IconButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      icon: const Icon(Icons.arrow_back_ios_new_rounded,color: AppColors.liteyellow,),
+                      style: IconButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        shadowColor: AppColors.liteyellow,
+                        elevation: 2,
+                      ),
+                    ),
+                     SizedBox(width: 20),
+                    SizedBox(
+                      width: 200,
+                      child: Image.asset(
+                        'assets/logo/hormann-logo-new-1 1.png',
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 30),
 
@@ -130,7 +144,7 @@ class _LoginScrnWidgetState extends State<LoginScrnWidget> {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => HomePage()),
+                        MaterialPageRoute(builder: (context) => AppHomePage()),
                       );
                     },
                     style: ElevatedButton.styleFrom(

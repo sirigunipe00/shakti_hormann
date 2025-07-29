@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shakti_hormann/pincode_field.dart';
+import 'package:shakti_hormann/styles/app_color.dart';
 
 class OtpVerificationPage extends StatelessWidget {
   const OtpVerificationPage({super.key});
@@ -13,14 +14,26 @@ class OtpVerificationPage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              IconButton(
-                onPressed: () {},
-                icon: const Icon(Icons.arrow_back_ios_new_rounded),
-                style: IconButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  shadowColor: Colors.black12,
-                  elevation: 2,
-                ),
+              Row(
+                children: [
+                  IconButton(
+                    onPressed: () {},
+                    icon: const Icon(Icons.arrow_back_ios_new_rounded,color:AppColors.liteyellow),
+                    style: IconButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      shadowColor: Colors.black12,
+                      elevation: 2,
+                    ),
+                  ),
+                     SizedBox(width: 20),
+                    SizedBox(
+                      width: 200,
+                      child: Image.asset(
+                        'assets/images/hormann-logo-new-1 1.png',
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                ],
               ),
               const SizedBox(height: 30),
 

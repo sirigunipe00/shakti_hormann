@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shakti_hormann/styles/app_color.dart';
 
 class ForgotPasswordPage extends StatelessWidget {
   const ForgotPasswordPage({super.key});
@@ -12,18 +13,33 @@ class ForgotPasswordPage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              IconButton(
-                onPressed: () {},
-                icon: const Icon(
-                  Icons.arrow_back_ios_new_rounded,
-                  color: Colors.black,
-                ),
-                style: IconButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  shadowColor: Colors.black12,
-                  elevation: 2,
-                ),
+              Row(
+               
+                children: [
+                  IconButton(
+                    onPressed: () {},
+                    icon: const Icon(
+                      Icons.arrow_back_ios_new_rounded,
+                      color: AppColors.liteyellow,
+                    ),
+                    style: IconButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      shadowColor: Colors.black12,
+                      elevation: 2,
+                    ),
+                  ),
+                  SizedBox(width:20),
+                  
+                  SizedBox(
+                    width: 200,
+                    child: Image.asset(
+                      'assets/images/hormann-logo-new-1 1.png',
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                ],
               ),
+
               const SizedBox(height: 30),
 
               const Text(
@@ -50,20 +66,15 @@ class ForgotPasswordPage extends StatelessWidget {
                   hintText: 'Enter your email',
                   filled: true,
                   fillColor: const Color(0xFFF5F6FA),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(
-                        color: Colors.grey,
-                      ), 
-                    ),
-                   
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(
-                        color: Colors.black,
-                        width: 2,
-                      ), 
-                    ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: Colors.grey),
+                  ),
+
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: Colors.black, width: 2),
+                  ),
                 ),
               ),
               const SizedBox(height: 30),

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:shakti_hormann/gate_entry_list.dart';
+import 'package:shakti_hormann/features/gate_entry/gate_entry_list.dart';
+import 'package:shakti_hormann/features/gate_exit/gate_exit_list.dart';
+import 'package:shakti_hormann/features/logistic_request/logistic_request_list.dart';
+import 'package:shakti_hormann/styles/app_color.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -44,7 +47,44 @@ class _HomePageState extends State<HomePage> {
             MaterialPageRoute(builder: (context) => const GateEntryScreen()),
           );
         }
-        // Add other screens similarly if needed
+        if (title == "Gate Exit") {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => GateExitScreen()),
+          );
+        }
+        if (title == "Logistic Request") {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const LogisticRequestScreen(),
+            ),
+          );
+        }
+        if (title == "Transport\nConfirmation") {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const LogisticRequestScreen(),
+            ),
+          );
+        }
+        if (title == "Vehicle Reporting\nEntry") {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const LogisticRequestScreen(),
+            ),
+          );
+        }
+        if (title == "Loading\nConfirmation") {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const LogisticRequestScreen(),
+            ),
+          );
+        }
       },
       child: Container(
         decoration: BoxDecoration(
@@ -93,41 +133,65 @@ class _HomePageState extends State<HomePage> {
                 children: [
                   Padding(
                     padding: const EdgeInsets.all(16),
-                    child: Card(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 5,
                       ),
-                      elevation: 2,
-                      color: Colors.white,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 5,
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: const [
-                            Text(
-                              "Good Morning,\nUser",
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black87,
-                              ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Good Morning,",
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    // fontWeight: FontWeight.bold,
+                                    color: Colors.black87,
+                                  ),
+                                ),
+                                Text(
+                                  "User,",
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black87,
+                                  ),
+                                ),
+                              ],
                             ),
-                            Icon(
+                          ),
+
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black12,
+                                  blurRadius: 4,
+                                  offset: Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: const Icon(
                               Icons.notifications_none,
                               size: 30,
                               color: Colors.orange,
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
                 ],
               ),
             ),
+
             Container(
               margin: const EdgeInsets.all(16),
               padding: const EdgeInsets.all(10),
@@ -136,8 +200,20 @@ class _HomePageState extends State<HomePage> {
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Row(
-                children: const [
-                  Icon(Icons.check_circle, color: Colors.white, size: 30),
+                children: [
+                  Container(
+                    height: 50,
+                    width: 50,
+                    decoration: BoxDecoration(
+                      color: AppColors.litegreen,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.check_circle,
+                      color: Color(0xFF00CC88),
+                      size: 30,
+                    ),
+                  ),
                   SizedBox(width: 16),
                   Expanded(
                     child: Column(

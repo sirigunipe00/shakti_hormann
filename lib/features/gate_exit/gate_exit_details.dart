@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:shakti_hormann/styles/app_color.dart';
 
-class GateEntryDetailScreen extends StatelessWidget {
-  const GateEntryDetailScreen({super.key});
+class GateExitDetailScreen extends StatelessWidget {
+  const GateExitDetailScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +16,7 @@ class GateEntryDetailScreen extends StatelessWidget {
             children: [
               Container(
                 decoration: const BoxDecoration(
-                  color: Color(0xFF0D326E), // Navy Blue
+                  color: Color(0xFF0D326E),
                   borderRadius: BorderRadius.only(
                     bottomLeft: Radius.circular(24),
                     bottomRight: Radius.circular(24),
@@ -28,21 +29,26 @@ class GateEntryDetailScreen extends StatelessWidget {
                     // Top Row: Back Button, Title, Submit/Reject
                     Row(
                       children: [
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: const BoxDecoration(
-                            color: Colors.white,
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(
-                            Icons.arrow_back,
-                            color: Color(0xFFFFC107),
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.pop(context);
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: const BoxDecoration(
+                              color: Colors.white,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.arrow_back,
+                              color: Color(0xFFFFC107),
+                            ),
                           ),
                         ),
                         const SizedBox(width: 12),
                         const Expanded(
                           child: Text(
-                            'GI-SHM-0001',
+                            'GO-SINV-0001',
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 18,
@@ -53,31 +59,37 @@ class GateEntryDetailScreen extends StatelessWidget {
                         ElevatedButton(
                           onPressed: () {},
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.grey[400],
+                            backgroundColor: AppColors.grey,
                             padding: const EdgeInsets.symmetric(horizontal: 16),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),
                             ),
                           ),
-                          child: const Text('Submit'),
+                          child: const Text(
+                            'Submit',
+                            style: TextStyle(color: AppColors.white),
+                          ),
                         ),
                         const SizedBox(width: 8),
                         ElevatedButton(
                           onPressed: () {},
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.grey[400],
+                            backgroundColor: AppColors.grey,
                             padding: const EdgeInsets.symmetric(horizontal: 16),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),
                             ),
                           ),
-                          child: const Text('Reject'),
+                          child: const Text(
+                            'Reject',
+                            style: TextStyle(color: AppColors.white),
+                          ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 24),
                     const Text(
-                      'IRN Scan',
+                      'Invoice Scan',
                       style: TextStyle(color: Colors.white, fontSize: 16),
                     ),
                     const SizedBox(height: 8),
@@ -92,7 +104,7 @@ class GateEntryDetailScreen extends StatelessWidget {
                           const Expanded(
                             child: TextField(
                               decoration: InputDecoration(
-                                hintText: 'Scan / Enter IRN',
+                                hintText: 'Scan / Enter Invoice No',
                                 hintStyle: TextStyle(
                                   color: Colors.grey,
                                   fontWeight: FontWeight.w500,
@@ -113,21 +125,19 @@ class GateEntryDetailScreen extends StatelessWidget {
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   children: [
-                    sectionHeader(Icons.local_shipping, "Gate Entry Details"),
+                    sectionHeader(Icons.local_shipping, "Gate Exit Details"),
                     entryFormTile("Plant Name", "SHM Medchal"),
-                    entryFormTile("Gate Entry Number", "Enter GI No."),
+                    entryFormTile("Gate Exit Number", "Enter GO No."),
                     entryFormTile(
-                      "Gate Entry Date",
+                      "Gate Exit Date",
                       "Enter Date",
                       trailing: const Icon(Icons.calendar_month),
                     ),
-                    entryFormTile("Purchase Order Number", "Enter PO No."),
-                    entryFormTile("Vehicle Number", "Enter Vehicle No."),
 
                     const SizedBox(height: 24),
 
-                    sectionHeader(Icons.list_alt, "Invoice Details"),
-                    entryFormTile("Vendor Invoice", "Enter Vendor Invoice No."),
+                    sectionHeader(Icons.list_alt, "Sales Invoice Details"),
+                    entryFormTile("Sales Invoice", "Enter Sales Invoice No."),
                     entryFormTile(
                       "Date",
                       "Enter Vendor Invoice Date",
