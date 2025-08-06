@@ -90,9 +90,8 @@ class _UploadPhotoWidgetState extends State<UploadPhotoWidget>
           ),
           if(!widget.readOnly)...[
             AppButton(
-              onPressed: selectedFile.isNotNull ? () async => await _capture() : null,
-              margin: const EdgeInsets.all(12.0),
-              label: 'Retake',
+              
+              label: 'Retake', onPressed: () {  },
             ),
           ],
         ],

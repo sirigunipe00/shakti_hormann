@@ -7,11 +7,11 @@ class GreetingHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final greeting = context.dayOfTimeGreeting();
-    // final userName = context.user.userName;
+    final userName = context.user.username;
 
     return Container(
-      height: 110,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      height: 70,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -21,14 +21,15 @@ class GreetingHeader extends StatelessWidget {
             children: [
               Text(
                 greeting,
-                style: const TextStyle(fontSize: 20, color: Colors.black87),
+                style: const TextStyle(fontSize: 20, color: Colors.black87,fontFamily: 'Urbanist'),
               ),
               Text(
-                "User,",
+                "$userName",
                 style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                   color: Colors.black87,
+                  fontFamily: 'Urbanist'
                 ),
               ),
             ],

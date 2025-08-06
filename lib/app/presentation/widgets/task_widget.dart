@@ -18,7 +18,7 @@ class TaskWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.all(16),
+      margin: const EdgeInsets.only(left: 16, right: 16,bottom: 15),
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: const Color(0xFF00CC88),
@@ -33,11 +33,7 @@ class TaskWidget extends StatelessWidget {
               color: AppColors.litegreen,
               shape: BoxShape.circle,
             ),
-            child: Icon(
-              icon,
-              color: const Color(0xFF00CC88),
-              size: 30,
-            ),
+            child: Icon(icon, color: const Color(0xFF00CC88), size: 30),
           ),
           const SizedBox(width: 16),
           Expanded(

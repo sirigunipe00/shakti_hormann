@@ -1,5 +1,5 @@
-// export 'app_router/app_route.dart';
-// export 'app_router/route_config.dart';
+export 'app_router/app_route.dart';
+export 'app_router/route_config.dart';
 
 export 'consts/urls.dart';
 

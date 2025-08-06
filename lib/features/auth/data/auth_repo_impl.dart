@@ -1,20 +1,20 @@
 import 'dart:convert';
-import 'dart:developer';
+
+import 'package:shakti_hormann/core/core.dart';
 
 import 'package:dartz/dartz.dart';
 import 'package:injectable/injectable.dart';
-import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/features/auth/data/auth_repo.dart';
 import 'package:shakti_hormann/features/auth/model/logged_in_user.dart';
-import 'package:shakti_hormann/features/auth/model/registration_form.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+
+
 
 @LazySingleton(as: AuthRepo)
 class AuthRepoImpl extends BaseApiRepository implements AuthRepo {
   const AuthRepoImpl(super.client, this.storage);
 
   final KeyValueStorage storage;
-
+  
   @override
   Future<bool> isLoggedIn() async {
     try {
@@ -27,33 +27,18 @@ class AuthRepoImpl extends BaseApiRepository implements AuthRepo {
   }
 
   @override
-  AsyncValueOf<bool> register(RegistrationForm form) async {
-    final requestConfig = RequestConfig(
-      url: Urls.createUser,
-      parser: (p0) => p0,
-      body: jsonEncode(form.toJson()),
-    );
-    $logger.devLog(requestConfig);
-    final res = await post(requestConfig, includeAuthHeader: false);
-    return res.process((r) => right(true));
-  }
-
-
-
-  @override
   AsyncValueOf<LoggedInUser> logIn(String username, String pswd) async {
     return await executeSafely(() async {
 
-      final prefs = await SharedPreferences.getInstance();
+      print('user psdw:=====$username');
       final requestConfig = RequestConfig(
         url: Urls.getUsers,
         parser: (res) {
           final data = res['message']['data'] as List<dynamic>;
           return LoggedInUser.fromJson(data.first);
         },
-        body: jsonEncode({'usr': username, 'pwd': pswd}),
+        body: jsonEncode({'usr' : username, 'pwd' : pswd}),
       );
-      $logger.devLog(requestConfig);
 
       final response = await post(requestConfig, includeAuthHeader: false);
 
@@ -63,9 +48,8 @@ class AuthRepoImpl extends BaseApiRepository implements AuthRepo {
         }
         final userWithPswd = r.data!.copyWith(password: pswd);
         await _persistUser(userWithPswd);
-        await prefs.setString('userToken', userWithPswd.apiKey ?? '');
-        await storage.setString(LocalKeys.apiKey, userWithPswd.apiKey ?? '');
-        await storage.setString(LocalKeys.apiSecret, userWithPswd.apiSecret ?? '');
+        await storage.setString(LocalKeys.apiKey, userWithPswd.apiKey);
+        await storage.setString(LocalKeys.apiSecret, userWithPswd.apiSecret);
         return right(userWithPswd);
       });
     });
@@ -111,34 +95,4 @@ class AuthRepoImpl extends BaseApiRepository implements AuthRepo {
     }
   }
 
-  @override
-  AsyncValueOf<bool> shareOTP(String email) async {
-    return await executeSafely(() async {
-      final requestConfig = RequestConfig(
-        url: Urls.forgotPswd,
-        parser: (res) {
-          final data = res['message']['data'] as List<dynamic>;
-          return LoggedInUser.fromJson(data.first);
-        },
-        body: jsonEncode({'email': email}),
-      );
-      final response = await post(requestConfig);
-      return response.process((r) => right(true));
-    });
-  }
-
-  @override
-  AsyncValueOf<bool> validateOTP(String otp, String token) async {
-    return await executeSafely(() async {
-      if (otp != '1111') {
-        return 'Invalid OTP'.asFailure();
-      }
-      return right(true);
-    });
-  }
-
-  @override
-  AsyncValueOf<bool> confirmPassword(String pswd) async {
-    return right(true);
-  }
 }

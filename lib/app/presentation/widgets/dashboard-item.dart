@@ -11,4 +11,6 @@ class DashboardItem {
     required this.icon,
     required this.onTap
   });
+
+  
 }

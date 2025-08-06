@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:shakti_hormann/styles/app_color.dart';
+import 'package:shakti_hormann/app_bar.dart';
+import 'package:shakti_hormann/widgets/buttons/app_btn.dart';
+import 'package:shakti_hormann/widgets/inputs/app_text_field.dart';
 
 class CreateNewPasswordPage extends StatelessWidget {
   const CreateNewPasswordPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    TextEditingController newController = TextEditingController();
+    TextEditingController confirmController = TextEditingController();
+
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -14,34 +19,11 @@ class CreateNewPasswordPage extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    IconButton(
-                      onPressed: () {},
-                      icon: const Icon(Icons.arrow_back_ios_new_rounded, color: AppColors.liteyellow),
-                      style: IconButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        elevation: 2,
-                        shadowColor: Colors.black12,
-                      ),
-                    ),
-                    SizedBox(width:20),
-                      SizedBox(
-                    width: 200,
-                    child: Image.asset(
-                      'assets/images/hormann-logo-new-1 1.png',
-                      fit: BoxFit.contain,
-                    ),
-                  ),
-                  ],
-                ),
+                CustomAppBar(),
                 const SizedBox(height: 30),
                 const Text(
                   'Create new password',
-                  style: TextStyle(
-                    fontSize: 30,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 10),
                 const Text(
@@ -53,70 +35,33 @@ class CreateNewPasswordPage extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 30),
-                const Text('New Password', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
-                const SizedBox(height: 10),
-                TextField(
-                  obscureText: true,
-                  decoration: InputDecoration(
-                    filled: true,
-                    fillColor: const Color(0xFFF5F6FA),
-                      enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(
-                        color: Colors.grey,
-                      ), 
-                    ),
-                   
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(
-                        color: Colors.black,
-                        width: 2,
-                      ), 
-                    ),
-                  ),
+                AppTextField(
+                  title: 'Email',
+                  hintText: 'Enter Your Email',
+
+                  prefixIcon: const Icon(Icons.email_outlined),
+                  controller: newController,
+                  inputType: TextInputType.emailAddress,
+                  onPressed: () {},
                 ),
+
                 const SizedBox(height: 20),
-                const Text('Confirm Password', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
-                const SizedBox(height: 10),
-                TextField(
-                  obscureText: true,
-                  decoration: InputDecoration(
-                    filled: true,
-                    fillColor: const Color(0xFFF5F6FA),
-                      enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(
-                        color: Colors.grey,
-                      ), 
-                    ),
-                   
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(
-                        color: Colors.black,
-                        width: 2,
-                      ), 
-                    ),
-                  ),
+                AppTextField(
+                  title: 'Email',
+                  hintText: 'Enter Your Email',
+
+                  prefixIcon: const Icon(Icons.email_outlined),
+                  controller: confirmController,
+                  inputType: TextInputType.emailAddress,
+                  onPressed: () {},
                 ),
+
                 const SizedBox(height: 30),
-                SizedBox(
-                  width: double.infinity,
-                  height: 55,
-                  child: ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.grey.shade600,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: const Text(
-                      'Reset Password',
-                      style: TextStyle(fontSize: 18),
-                    ),
-                  ),
+               AppButton(
+                  label: 'Reset Password',
+                  onPressed: () {
+                   
+                  },
                 ),
               ],
             ),

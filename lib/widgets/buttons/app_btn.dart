@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:shakti_hormann/core/core.dart';
-
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/styles/text_styles.dart';
 import 'package:shakti_hormann/widgets/loading_indicator.dart';
@@ -10,7 +9,7 @@ class AppButton extends StatelessWidget {
     super.key,
     this.margin,
     required this.label,
-    this.bgColor = AppColors.green,
+    this.bgColor = AppColors.darkBlue,
     this.isLoading = false,
     this.onPressed,
     this.textStyle,
@@ -34,25 +33,31 @@ class AppButton extends StatelessWidget {
       child: ElevatedButton.icon(
         style: ElevatedButton.styleFrom(
           backgroundColor: bgColor,
+              // onPressed == null ? AppColors.grey : AppColors.darkBlue,
           disabledBackgroundColor: AppColors.chimneySweep,
           fixedSize: Size.fromWidth(context.sizeOfWidth),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(4.0),
-            side: BorderSide(color: bgColor),
+            borderRadius: BorderRadius.circular(8.0),
+            side: BorderSide(
+              color: onPressed == null ? AppColors.chimneySweep : bgColor,
+            ),
           ),
-          padding: const EdgeInsets.all(10.0),
+          padding: const EdgeInsets.all(14.0),
         ),
         onPressed: isLoading ? null : onPressed,
         icon: icon,
-        label: (isLoading && loadingText.doesNotHaveValue)
-            ? const LoadingIndicator(color: AppColors.white)
-            : Text(
-                isLoading ? loadingText.valueOrEmpty : label,
-                style: (textStyle ?? TextStyles.btnTextStyle(context)).copyWith(
-                  color: onPressed.isNull ? AppColors.white : null,
+        label:
+            (isLoading && loadingText.doesNotHaveValue)
+                ? const LoadingIndicator(color: AppColors.white)
+                : Text(
+                  isLoading ? loadingText.valueOrEmpty : label,
+                  style: (textStyle ?? TextStyles.btnTextStyle(context))
+                      .copyWith(
+                        color: onPressed.isNull ? AppColors.grey : null,
+                      ),
                 ),
-              ),
       ),
     );
   }
 }
+       

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shakti_hormann/app/presentation/widgets/dashboard-item.dart';
 import 'package:shakti_hormann/app/presentation/widgets/greeting_widget.dart';
 import 'package:shakti_hormann/app/presentation/widgets/task_widget.dart';
-import 'package:shakti_hormann/features/gate_entry/gate_entry_list.dart';
+import 'package:shakti_hormann/core/app_router/app_route.dart';
 import 'package:shakti_hormann/styles/app_icons.dart';
 
 class AppHomePage extends StatefulWidget {
@@ -16,40 +16,49 @@ class _AppHomePageState extends State<AppHomePage> {
   int _selectedIndex = 0;
 
   final List<DashboardItem> dashboardItems = [
-   DashboardItem(
-    title: "Gate Entry",
-    icon: AppIcons.gateeEntry,
-    onTap: (context) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const GateEntryScreen()),
-      );
-    },
-  ),
+    DashboardItem(
+      title: "Gate Entry",
+      icon: AppIcons.gateeEntry,
+      onTap: (context) {
+        print('ontap---');
+        AppRoute.gateEntry.push<bool?>(context);
+      },
+    ),
     DashboardItem(
       title: "Gate Exit",
       icon: AppIcons.gateExit,
-      onTap: (context) {},
+      onTap: (context) {
+          print('ontap---');
+        AppRoute.gatexit.push<bool?>(context);
+      },
     ),
     DashboardItem(
       title: "Logistic Request",
       icon: AppIcons.logisticRequest,
-      onTap: (context) {},
+      onTap: (context) {
+        AppRoute.logisticRequest.push<bool?>(context);
+      },
     ),
     DashboardItem(
       title: "Transport\nConfirmation",
       icon: AppIcons.transportrterConfirmation,
-      onTap: (context) {},
+      onTap: (context) {
+        AppRoute.transportConfirmation.push<bool?>(context);
+      },
     ),
     DashboardItem(
       title: "Vehicle Reporting\nEntry",
       icon: AppIcons.vehicleReporting,
-      onTap: (context) {},
+      onTap: (context) {
+        AppRoute.vehcileReporting.push<bool?>(context);
+      },
     ),
     DashboardItem(
       title: "Loading\nConfirmation",
       icon: AppIcons.loadingConfirmation,
-      onTap: (context) {},
+      onTap: (context) {
+         AppRoute.loadingConfirmation.push<bool?>(context);
+      },
     ),
   ];
 
@@ -65,12 +74,13 @@ class _AppHomePageState extends State<AppHomePage> {
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
+
           color: Colors.white,
-          border: Border.all(color: Colors.grey.shade400, width: 0.5),
+          border: Border.all(color: Color(0xFFE8ECF4), width: 2),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.shade100,
-              blurRadius: 6,
+              color: Color(0xFFFFFFFF),
+              blurRadius: 5,
               offset: const Offset(0, 2),
             ),
           ],
@@ -78,15 +88,16 @@ class _AppHomePageState extends State<AppHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            item.icon.toWidget(height: 60, width: 60),
+            item.icon.toWidget(height: 60, width: 100),
             const SizedBox(height: 10),
             Text(
               item.title,
               textAlign: TextAlign.center,
               style: const TextStyle(
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.w600,
                 fontSize: 16,
-                color: Color(0xFF0D0D0D),
+                fontFamily: 'Urbanist',
+                color: Color(0xFF0E1446),
               ),
             ),
           ],
@@ -104,36 +115,64 @@ class _AppHomePageState extends State<AppHomePage> {
           children: [
             // Greeting + Notification
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              padding: const EdgeInsets.all(8.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  GreetingHeader(
-                   
-                  ),
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black12,
-                          blurRadius: 4,
-                          offset: Offset(0, 2),
+                  GreetingHeader(),
+                  Padding(
+                    padding: const EdgeInsets.only(right: 20),
+                    child: GestureDetector(
+                      onTap: () => AppRoute.notifications.push(context),
+                      child: Container(
+                        width: 50,
+                        height: 50,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.05),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                    child: const Icon(
-                      Icons.notifications_none,
-                      size: 30,
-                      color: Colors.orange,
+                        child: Stack(
+                          clipBehavior: Clip.none,
+                          children: [
+                            Center(
+                              child: Image.asset(
+                                'assets/images/notification.png', // your bell icon
+                                height: 24,
+                                width: 24,
+                              ),
+                            ),
+                            Positioned(
+                              top: -2,
+                              right: -2,
+                              child: Container(
+                                width: 12,
+                                height: 12,
+                                decoration: BoxDecoration(
+                                  color: Colors.redAccent,
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: Colors.white,
+                                    width: 1.5,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
                 ],
               ),
             ),
-
+         
             // Task Widget
             const TaskWidget(
               title: "Your Today's Task",
@@ -162,28 +201,6 @@ class _AppHomePageState extends State<AppHomePage> {
             ),
           ],
         ),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-        selectedIconTheme: const IconThemeData(color: Colors.orange),
-        unselectedIconTheme: const IconThemeData(color: Colors.black),
-        showSelectedLabels: true,
-        showUnselectedLabels: true,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home_outlined),
-            label: "Home",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.dashboard_outlined),
-            label: "Dashboard",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person_2_outlined),
-            label: "Profile",
-          ),
-        ],
       ),
     );
   }

@@ -65,6 +65,7 @@ class AppDialog {
         barrierDismissible: barrierDismissible,
         pageBuilder: (_, __, ___) => SuccessContent(
           title: title,
+          imagePath: 'assets/images/success.png',
           content: content,
           buttonText: buttonText,
           onTapDismiss: onTapDismiss,
@@ -87,7 +88,7 @@ class AppDialog {
         barrierDismissible: barrierDismissible,
         barrierLabel: 'ConfirmationDialog',
         pageBuilder: (_, __, ___) => DialogWidget(
-          title: title,
+          title: 'Gate Entry Successfull!',
           content: content,
           buttonText: buttonText,
           onTapDismiss: onTapDismiss,

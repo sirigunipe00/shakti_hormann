@@ -1,0 +1,49 @@
+import 'package:flutter/material.dart';
+import 'package:shakti_hormann/styles/app_color.dart';
+import 'package:shakti_hormann/styles/app_text_styles.dart';
+
+class DocStatusWidget extends StatelessWidget {
+  const DocStatusWidget({super.key, required this.status});
+
+  final String status;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 50, // Fixed width for uniformity
+      height: 20, // Fixed height for uniformity
+      alignment: Alignment.center, // Center the text
+      decoration: BoxDecoration(
+        color: toColor(),
+        border: Border.all(color: toColor()),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Text(
+        status,
+        textAlign: TextAlign.center,
+        overflow: TextOverflow.ellipsis,
+        maxLines: 1,
+        style: AppTextStyles.labelLarge(context).copyWith(
+          color: toTextColor(),
+          fontSize: 10,
+          fontFamily: 'Urbanist',
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+
+  Color toColor() => switch (status.trim()) {
+    'Submitted' => const Color(0xFFEAFFF6),
+    'Draft' => const Color(0xFFE3F2FE),
+    'Rejected' => const Color(0xFFC16D67),
+    String() => AppColors.black,
+  };
+
+  Color toTextColor() => switch (status.trim()) {
+    'Submitted' => const Color(0xFF35C285),
+    'Draft' => const Color(0xFF0087FF),
+    'Rejected' => const Color(0xFFFFE2DA),
+    String() => AppColors.white,
+  };
+}

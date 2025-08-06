@@ -81,19 +81,15 @@ class DialogWidget extends StatelessWidget {
                     child: AppButton(
                       label: buttonText,
                       onPressed: onTapDismiss,
-                      bgColor: AppColors.white,
-                      textStyle: TextStyles.btnTextStyle(context)
-                          .copyWith(color: AppColors.black),
+                   
                     ),
                   ),
                   if (dialogType == DialogType.confirmRetry) ...[
                     const SizedBox(width: 24),
                     Expanded(
                       child: AppButton(
-                        label: confirmBtnText!,
-                        onPressed: onTapConfirm,
-                        textStyle: TextStyles.btnTextStyle(context)
-                            .copyWith(color: AppColors.white),
+                        label: confirmBtnText!, onPressed: onTapConfirm, 
+                      
                       ),
                     ),
                   ],

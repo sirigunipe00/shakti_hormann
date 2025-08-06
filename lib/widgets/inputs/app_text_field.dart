@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shakti_hormann/core/core.dart';
-import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/widgets/caption_text.dart';
 import 'package:shakti_hormann/widgets/spaced_column.dart';
 
@@ -23,6 +22,7 @@ class AppTextField extends StatelessWidget {
     this.prefixIcon,
     this.suffixIcon,
     this.suffix,
+
     this.autofocus = false,
     this.obscureText = false,
     this.textCapitalization = TextCapitalization.none,
@@ -32,8 +32,9 @@ class AppTextField extends StatelessWidget {
     this.validator,
     this.textInputAction = TextInputAction.done,
     TextEditingController? controller,
-  })  : controller = controller ?? TextEditingController(),
-        super() {
+    Null Function()? onPressed,
+  }) : controller = controller ?? TextEditingController(),
+       super() {
     if (initialValue?.isNotEmpty == true) {
       this.controller.text = initialValue!;
     }
@@ -47,6 +48,7 @@ class AppTextField extends StatelessWidget {
   final TextInputType inputType;
   final int minLines;
   final int maxLines;
+
   final int maxLength;
   final bool readOnly;
   final String? helperText;
@@ -66,43 +68,63 @@ class AppTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textFieldBorder = OutlineInputBorder(
-      borderRadius: BorderRadius.circular(4.0),
-      borderSide: const BorderSide(color: AppColors.green),
-    );
+    const borderRadius = BorderRadius.all(Radius.circular(12));
 
     return SpacedColumn(
       crossAxisAlignment: CrossAxisAlignment.start,
       defaultHeight: 4.0,
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (title.containsValidValue) ...[
+        if (title.containsValidValue)
           CaptionText(title: title.valueOrEmpty, isRequired: isRequired),
-        ],
         TextFormField(
           controller: controller,
           obscureText: obscureText,
+
           decoration: InputDecoration(
+            contentPadding: const EdgeInsets.symmetric(
+              vertical: 15.0,
+              horizontal: 10.0,
+            ),
             labelText: labelText,
+            labelStyle: context.textTheme.labelLarge?.copyWith(
+              fontSize: 30,
+              fontWeight: FontWeight.w500,
+              color: Color(0xFFF78F9),
+            ),
+
             hintText: hintText ?? title?.replaceAll(':', ''),
             hintStyle: context.textTheme.labelSmall?.copyWith(
-              color: AppColors.chimneySweep,
+              color: const Color(0xFF8391A1),
+              fontSize: 15,
+              fontWeight: FontWeight.w500,
+              fontFamily: 'Urbanist',
             ),
-            border: textFieldBorder,
-            enabledBorder: textFieldBorder,
-            focusedBorder: textFieldBorder,
-            contentPadding: contentPadding,
-            suffix: suffix,
+            filled: true,
+            fillColor: const Color(0xFFF7F8F9),
+
             prefixIcon: prefixIcon,
+            suffix: suffix,
             suffixIcon: suffixIcon,
-            filled: readOnly,
-            fillColor: AppColors.bleachedSilk.withOpacity(0.5),
-            counterText: '',
             helperText: helperText,
+            counterText: '',
+            border: const OutlineInputBorder(
+              borderRadius: borderRadius,
+              borderSide: BorderSide(color: Color(0xFFE8ECF4),width: 1),
+            ),
+            enabledBorder: const OutlineInputBorder(
+              borderRadius: borderRadius,
+              borderSide: BorderSide(color: Colors.grey),
+            ),
+            focusedBorder: const OutlineInputBorder(
+              borderRadius: borderRadius,
+              borderSide: BorderSide(color: Color(0xFF35C2C1), width: 1),
+            ),
           ),
           validator: validator,
           onFieldSubmitted: onFieldSubmitted,
-          onTapOutside: (event) => FocusManager.instance.primaryFocus?.unfocus(),
+          onTapOutside:
+              (event) => FocusManager.instance.primaryFocus?.unfocus(),
           obscuringCharacter: '*',
           inputFormatters: inputFormatters,
           keyboardType: inputType,

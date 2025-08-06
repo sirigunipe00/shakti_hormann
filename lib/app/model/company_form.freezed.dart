@@ -12,7 +12,8 @@ part of 'company_form.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
+  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
+);
 
 CompanyForm _$CompanyFormFromJson(Map<String, dynamic> json) {
   return _CompanyForm.fromJson(json);
@@ -40,13 +41,15 @@ mixin _$CompanyForm {
 /// @nodoc
 abstract class $CompanyFormCopyWith<$Res> {
   factory $CompanyFormCopyWith(
-          CompanyForm value, $Res Function(CompanyForm) then) =
-      _$CompanyFormCopyWithImpl<$Res, CompanyForm>;
+    CompanyForm value,
+    $Res Function(CompanyForm) then,
+  ) = _$CompanyFormCopyWithImpl<$Res, CompanyForm>;
   @useResult
-  $Res call(
-      {@JsonKey(name: 'name') String? name,
-      @JsonKey(name: 'company_name') String? companyName,
-      @JsonKey(name: 'custom_company_type') String? companyType});
+  $Res call({
+    @JsonKey(name: 'name') String? name,
+    @JsonKey(name: 'company_name') String? companyName,
+    @JsonKey(name: 'custom_company_type') String? companyType,
+  });
 }
 
 /// @nodoc
@@ -68,20 +71,26 @@ class _$CompanyFormCopyWithImpl<$Res, $Val extends CompanyForm>
     Object? companyName = freezed,
     Object? companyType = freezed,
   }) {
-    return _then(_value.copyWith(
-      name: freezed == name
-          ? _value.name
-          : name // ignore: cast_nullable_to_non_nullable
-              as String?,
-      companyName: freezed == companyName
-          ? _value.companyName
-          : companyName // ignore: cast_nullable_to_non_nullable
-              as String?,
-      companyType: freezed == companyType
-          ? _value.companyType
-          : companyType // ignore: cast_nullable_to_non_nullable
-              as String?,
-    ) as $Val);
+    return _then(
+      _value.copyWith(
+            name:
+                freezed == name
+                    ? _value.name
+                    : name // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            companyName:
+                freezed == companyName
+                    ? _value.companyName
+                    : companyName // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            companyType:
+                freezed == companyType
+                    ? _value.companyType
+                    : companyType // ignore: cast_nullable_to_non_nullable
+                        as String?,
+          )
+          as $Val,
+    );
   }
 }
 
@@ -89,14 +98,16 @@ class _$CompanyFormCopyWithImpl<$Res, $Val extends CompanyForm>
 abstract class _$$CompanyFormImplCopyWith<$Res>
     implements $CompanyFormCopyWith<$Res> {
   factory _$$CompanyFormImplCopyWith(
-          _$CompanyFormImpl value, $Res Function(_$CompanyFormImpl) then) =
-      __$$CompanyFormImplCopyWithImpl<$Res>;
+    _$CompanyFormImpl value,
+    $Res Function(_$CompanyFormImpl) then,
+  ) = __$$CompanyFormImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call(
-      {@JsonKey(name: 'name') String? name,
-      @JsonKey(name: 'company_name') String? companyName,
-      @JsonKey(name: 'custom_company_type') String? companyType});
+  $Res call({
+    @JsonKey(name: 'name') String? name,
+    @JsonKey(name: 'company_name') String? companyName,
+    @JsonKey(name: 'custom_company_type') String? companyType,
+  });
 }
 
 /// @nodoc
@@ -104,8 +115,9 @@ class __$$CompanyFormImplCopyWithImpl<$Res>
     extends _$CompanyFormCopyWithImpl<$Res, _$CompanyFormImpl>
     implements _$$CompanyFormImplCopyWith<$Res> {
   __$$CompanyFormImplCopyWithImpl(
-      _$CompanyFormImpl _value, $Res Function(_$CompanyFormImpl) _then)
-      : super(_value, _then);
+    _$CompanyFormImpl _value,
+    $Res Function(_$CompanyFormImpl) _then,
+  ) : super(_value, _then);
 
   /// Create a copy of CompanyForm
   /// with the given fields replaced by the non-null parameter values.
@@ -116,30 +128,36 @@ class __$$CompanyFormImplCopyWithImpl<$Res>
     Object? companyName = freezed,
     Object? companyType = freezed,
   }) {
-    return _then(_$CompanyFormImpl(
-      name: freezed == name
-          ? _value.name
-          : name // ignore: cast_nullable_to_non_nullable
-              as String?,
-      companyName: freezed == companyName
-          ? _value.companyName
-          : companyName // ignore: cast_nullable_to_non_nullable
-              as String?,
-      companyType: freezed == companyType
-          ? _value.companyType
-          : companyType // ignore: cast_nullable_to_non_nullable
-              as String?,
-    ));
+    return _then(
+      _$CompanyFormImpl(
+        name:
+            freezed == name
+                ? _value.name
+                : name // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        companyName:
+            freezed == companyName
+                ? _value.companyName
+                : companyName // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        companyType:
+            freezed == companyType
+                ? _value.companyType
+                : companyType // ignore: cast_nullable_to_non_nullable
+                    as String?,
+      ),
+    );
   }
 }
 
 /// @nodoc
 @JsonSerializable()
 class _$CompanyFormImpl implements _CompanyForm {
-  const _$CompanyFormImpl(
-      {@JsonKey(name: 'name') this.name,
-      @JsonKey(name: 'company_name') this.companyName,
-      @JsonKey(name: 'custom_company_type') this.companyType});
+  const _$CompanyFormImpl({
+    @JsonKey(name: 'name') this.name,
+    @JsonKey(name: 'company_name') this.companyName,
+    @JsonKey(name: 'custom_company_type') this.companyType,
+  });
 
   factory _$CompanyFormImpl.fromJson(Map<String, dynamic> json) =>
       _$$CompanyFormImplFromJson(json);
@@ -185,18 +203,16 @@ class _$CompanyFormImpl implements _CompanyForm {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$CompanyFormImplToJson(
-      this,
-    );
+    return _$$CompanyFormImplToJson(this);
   }
 }
 
 abstract class _CompanyForm implements CompanyForm {
-  const factory _CompanyForm(
-          {@JsonKey(name: 'name') final String? name,
-          @JsonKey(name: 'company_name') final String? companyName,
-          @JsonKey(name: 'custom_company_type') final String? companyType}) =
-      _$CompanyFormImpl;
+  const factory _CompanyForm({
+    @JsonKey(name: 'name') final String? name,
+    @JsonKey(name: 'company_name') final String? companyName,
+    @JsonKey(name: 'custom_company_type') final String? companyType,
+  }) = _$CompanyFormImpl;
 
   factory _CompanyForm.fromJson(Map<String, dynamic> json) =
       _$CompanyFormImpl.fromJson;

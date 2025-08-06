@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:shakti_hormann/app_bar.dart';
 import 'package:shakti_hormann/pincode_field.dart';
-import 'package:shakti_hormann/styles/app_color.dart';
+import 'package:shakti_hormann/widgets/buttons/app_btn.dart';
 
 class OtpVerificationPage extends StatelessWidget {
   const OtpVerificationPage({super.key});
@@ -14,27 +15,7 @@ class OtpVerificationPage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  IconButton(
-                    onPressed: () {},
-                    icon: const Icon(Icons.arrow_back_ios_new_rounded,color:AppColors.liteyellow),
-                    style: IconButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      shadowColor: Colors.black12,
-                      elevation: 2,
-                    ),
-                  ),
-                     SizedBox(width: 20),
-                    SizedBox(
-                      width: 200,
-                      child: Image.asset(
-                        'assets/images/hormann-logo-new-1 1.png',
-                        fit: BoxFit.contain,
-                      ),
-                    ),
-                ],
-              ),
+            CustomAppBar(),
               const SizedBox(height: 30),
 
               const Text(
@@ -57,20 +38,12 @@ class OtpVerificationPage extends StatelessWidget {
               ),
               const SizedBox(height: 20),
 
-              SizedBox(
-                width: double.infinity,
-                height: 55,
-                child: ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.grey.shade600,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: const Text('Verify', style: TextStyle(fontSize: 18)),
+               AppButton(
+                  label: 'Login',
+                  onPressed: () {
+                    
+                  },
                 ),
-              ),
               const SizedBox(height: 20),
               Center(
                 child: RichText(

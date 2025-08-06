@@ -69,6 +69,20 @@ class BaseApiRepository {
     return res;
   }
 
+   Map<String, dynamic> removeNullValues(Map<String, dynamic> map) {
+    map.removeWhere((key, value) => value == null);
+    Map<String, dynamic> stringifiedMap = {};
+
+    map.forEach((key, value) {
+      if (value is! File) {
+        stringifiedMap[key] = value;
+      } else {
+        stringifiedMap[key] = value;
+      }
+    });
+    return stringifiedMap;
+  }
+
   StandardApiResponse<T> _request<T>(
       ApiCall<T> apiCall, RequestConfig<T> config,
       {bool includeAuthHeader = true}) async {

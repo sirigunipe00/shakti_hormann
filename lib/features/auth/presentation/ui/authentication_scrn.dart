@@ -1,238 +1,192 @@
-// import 'dart:math' as math;
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:shakti_hormann/app_bar.dart';
+import 'package:shakti_hormann/core/core.dart';
+import 'package:shakti_hormann/features/auth/presentation/bloc/auth/auth_cubit.dart';
+import 'package:shakti_hormann/features/auth/presentation/ui/sign_in/sign_in_cubit.dart';
+import 'package:shakti_hormann/forgot_password.dart';
+import 'package:shakti_hormann/styles/app_color.dart';
+import 'package:shakti_hormann/widgets/buttons/app_btn.dart';
+import 'package:shakti_hormann/widgets/dailogs/app_dialogs.dart';
+import 'package:shakti_hormann/widgets/inputs/app_text_field.dart';
 
-// import 'package:flutter/foundation.dart';
-// import 'package:flutter/gestures.dart';
-// import 'package:flutter/material.dart';
-// import 'package:flutter_bloc/flutter_bloc.dart';
-// import 'package:shakti_hormann/app/model/otp_request_type.dart';
-// import 'package:shakti_hormann/core/core.dart';
-// import 'package:shakti_hormann/features/auth/presentation/bloc/auth/auth_cubit.dart';
-// import 'package:shakti_hormann/features/auth/presentation/bloc/sign_in/sign_in_cubit.dart';
-// import 'package:shakti_hormann/styles/app_color.dart';
-// import 'package:shakti_hormann/styles/app_icons.dart';
-// import 'package:shakti_hormann/widgets/app_spacer.dart';
-// import 'package:shakti_hormann/widgets/buttons/app_btn.dart';
-// import 'package:shakti_hormann/widgets/dailogs/app_dialogs.dart';
-// import 'package:shakti_hormann/widgets/inputs/app_text_field.dart';
-// import 'package:shakti_hormann/widgets/otp_verf_dialog.dart';
-// import 'package:shakti_hormann/widgets/spaced_column.dart';
+class LoginScrnWidget extends StatefulWidget {
+  const LoginScrnWidget({super.key});
 
+  @override
+  State<LoginScrnWidget> createState() => _LoginScrnWidgetState();
+}
 
-// class AuthenticationScrn extends StatefulWidget {
-//   const AuthenticationScrn({super.key});
+class _LoginScrnWidgetState extends State<LoginScrnWidget> {
+  bool _obscureText = true;
+  late final TextEditingController username;
+  late final TextEditingController pswd;
 
-//   @override
-//   State<AuthenticationScrn> createState() => _AuthenticationScrnState();
-// }
+  @override
+  void initState() {
+    super.initState();
+    username = TextEditingController();
+    pswd = TextEditingController();
+  }
 
-// class _AuthenticationScrnState extends State<AuthenticationScrn> {
-//   late final TextEditingController username;
-//   late final TextEditingController pswd;
-//   bool showPswd = true;
+  @override
+  void dispose() {
+    username.dispose();
+    pswd.dispose();
+    super.dispose();
+  }
 
-//   @override
-//   void initState() {
-//     super.initState();
-//     username = TextEditingController();
-//     pswd = TextEditingController();
-//   }
+  bool get isFormFilled => username.text.isNotEmpty && pswd.text.isNotEmpty;
 
-//   void togglePswd() => setState(() {
-//         showPswd = !showPswd;
-//       });
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.white,
+      body: GestureDetector(
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  CustomAppBar(),
+                  const SizedBox(height: 20),
 
-//   String generateOTP() {
-//     final secureRandom = math.Random.secure();
-//     final otp = secureRandom.nextInt(900000) + 100000;
-//     return otp.toString();
-//   }
+                  const Text(
+                    'Welcome back! Glad\nto see you, Again!',
+                    style: TextStyle(
+                      fontSize: 30,
+                      fontWeight: FontWeight.w700,
+                      fontFamily: 'Urbanist',
+                      color: Colors.black,
+                    ),
+                  ),
+                  const SizedBox(height: 30),
 
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       body: SafeArea(
-//         child: SingleChildScrollView(
-//           child: SpacedColumn(
-//             crossAxisAlignment: CrossAxisAlignment.center,
-//             margin: const EdgeInsets.all(12.0),
-//             defaultHeight: 12.0,
-//             children: [
-//               SizedBox(
-//                 width: context.sizeOfWidth,
-//                 child: AppIcons.m11BgLogo.toWidget(height: 120),
-//               ),
-//               Text(
-//                 'Sign In',
-//                 style: context.textTheme.labelLarge?.copyWith(
-//                   color: AppColors.black,
-//                   fontWeight: FontWeight.bold,
-//                   fontSize: 16,
-//                 ),
-//               ),
-//               Text(
-//                 "Hi Welcome back, you've been missed",
-//                 style: context.textTheme.labelLarge?.copyWith(
-//                   color: AppColors.black,
-//                   fontWeight: FontWeight.w600,
-//                 ),
-//               ),
-//               AppSpacer.p12(),
-//               AppTextField(
-//                 title: 'User ID',
-//                 isRequired: true,
-//                 controller: username,
-//               ),
-//               AppTextField(
-//                 title: 'Password',
-//                 isRequired: true,
-//                 controller: pswd,
-//                 obscureText: showPswd,
-//                 suffix: InkWell(
-//                   onTap: togglePswd,
-//                   child: Text(
-//                     showPswd ? ' show ' : ' hide ',
-//                     style: context.textTheme.titleMedium?.copyWith(
-//                       color: Colors.transparent,
-//                       shadows: [
-//                         const Shadow(
-//                             color: AppColors.green, offset: Offset(0, -5)),
-//                       ],
-//                       decorationColor: AppColors.green,
-//                       decoration: TextDecoration.underline,
-//                       height: 1.5,
-//                       fontWeight: FontWeight.bold,
-//                     ),
-//                   ),
-//                 ),
-//               ),
-//               Align(
-//                 alignment: Alignment.bottomRight,
-//                 child: GestureDetector(
-//                   // onTap: () => AppRoute.forgotpswd.push(context),
-//                   child: Text(
-//                     'Forgot Password?',
-//                     style: context.textTheme.labelLarge?.copyWith(
-//                       color: AppColors.darkBlue,
-//                       decoration: TextDecoration.underline,
-//                       decorationColor: AppColors.darkBlue,
-//                     ),
-//                   ),
-//                 ),
-//               ),
-//               BlocConsumer<SignInCubit, SignInState>(
-//                 listener: (_, state) {
-//                   state.maybeWhen(
-//                     orElse: () {},
-//                     success: (data) async {
-//                       // final generatedOTP = generateOTP();
-//                       // context.cubit<ResendOTPCubit>().request(OTPInput(
-//                       //       type: OTPRequestType.registration,
-//                       //       number: data.mobileNo ?? '',
-//                       //       otp: generatedOTP,
-//                       //     ));
+                  AppTextField(
+                    title: 'Email',
+                    hintText: 'Enter your email',
+                    prefixIcon: Padding(
+                      padding: const EdgeInsets.all(
+                        12.0,
+                      ), 
+                      child: SvgPicture.asset(
+                        'assets/images/mail.svg',
+                        width: 24,
+                        height: 24,
+                      ),
+                    ),
+                    controller: username,
+                    inputType: TextInputType.emailAddress,
+                    onChanged: (_) => setState(() {}),
+                  ),
+                  const SizedBox(height: 16),
 
-//                       // final cubit = context.cubit<RegistrationCubit>();
+                  AppTextField(
+                    obscureText: _obscureText,
+                    title: 'Password',
+                    hintText: 'Enter your password',
+                    controller: pswd,
+                    prefixIcon: const Icon(Icons.lock_outline),
+                    suffixIcon: GestureDetector(
+                      onTap: () {
+                        setState(() => _obscureText = !_obscureText);
+                      },
+                      child: Icon(
+                        _obscureText ? Icons.visibility_off : Icons.visibility,
+                        color: Colors.grey,
+                      ),
+                    ),
+                    inputType: TextInputType.visiblePassword,
+                    onChanged: (_) => setState(() {}),
+                  ),
+                  const SizedBox(height: 4),
 
-//                       if (data.mobileNo == null || data.mobileNo == '') {
-//                         if (!context.mounted) return;
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => ForgotPasswordPage(),
+                          ),
+                        );
+                      },
+                      child: const Text(
+                        'Forgot Password?',
+                        style: TextStyle(
+                          color: Color(0xFF0095FF),
+                          fontWeight: FontWeight.w600,
+                          fontFamily: 'Urbanist',
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
 
-//                         AppDialog.showErrorDialog(context,
-//                             content:
-//                                 'No mobile number is linked to this account. Please contact the administrator.',
-//                             onTapDismiss: context.exit);
-//                         return;
-//                       }
+                  BlocConsumer<SignInCubit, SignInState>(
+                    listener: (context, state) {
+                      state.maybeWhen(
+                        orElse: () {},
+                        success: context.cubit<AuthCubit>().authCheckRequested,
+                        failure:
+                            (failure) => AppDialog.showErrorDialog(
+                              context,
+                              title: failure.title,
+                              content: failure.error,
+                              onTapDismiss: context.close,
+                            ),
+                      );
+                    },
+                    builder: (context, state) {
+                      return AppButton(
+                        bgColor:
+                            isFormFilled ? AppColors.darkBlue : AppColors.grey,
+                        label: 'Login',
+                        onPressed: () {
+                          context.cubit<SignInCubit>().login(
+                            username.text,
+                            pswd.text,
+                          );
+                        },
+                      );
+                    },
+                  ),
 
-//                       if (!Urls.isTest) {
-//                         final isVerified =
-//                             await OTPVerfDialog.launchOTPVerfDialog(
-//                           context,
-//                           mobileNumber: data.mobileNo ?? '',
-//                           type: OTPRequestType.registration,
-//                         );
-//                         if (isVerified && context.mounted) {
-//                           context
-//                               .cubit<AuthCubit>()
-//                               .authCheckRequested(isOtpverified: true);
-//                         }
-//                       } else {
-//                          context
-//                               .cubit<AuthCubit>()
-//                               .authCheckRequested(isOtpverified: true);
-//                       }
-//                     },
-//                     failure: (failure) => AppDialog.showErrorDialog(context,
-//                         content: failure.error, onTapDismiss: context.exit),
-//                   );
-//                 },
-//                 builder: (_, state) {
-//                   return AppButton(
-//                     label: 'Sign In',
-//                     bgColor: AppColors.darkBlue,
-//                     isLoading: state.isLoading,
-//                     margin: const EdgeInsets.all(12),
-//                     onPressed: () => context
-//                         .cubit<SignInCubit>()
-//                         .login(username.text, pswd.text),
-//                   );
-//                 },
-//               ),
-//               const _TermsAndConditions(),
-//               AppSpacer.p12(),
-//               _registerWidget(),
-//             ],
-//           ),
-//         ),
-//       ),
-//     );
-//   }
+                  const SizedBox(height: 250),
 
-//   Widget _registerWidget() => Padding(
-//         padding: const EdgeInsets.symmetric(horizontal: 8.0),
-//         child: RichText(
-//           textAlign: TextAlign.center,
-//           text: TextSpan(
-//             style: context.textTheme.labelLarge?.copyWith(
-//               fontWeight: FontWeight.bold,
-//             ),
-//             children: [
-//               const TextSpan(text: 'Dont have an account? '),
-//               // TextSpan(
-//               //   recognizer: TapGestureRecognizer()..onTap = _goToRegistration,
-//               //   text: ' Sign Up',
-//               //   style: const TextStyle(color: AppColors.darkBlue),
-//               // ),
-//             ],
-//           ),
-//         ),
-//       );
-
-//   // void _goToRegistration() => AppRoute.register.push(context);
-// }
-
-// class _TermsAndConditions extends StatelessWidget {
-//   const _TermsAndConditions();
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Column(
-//       children: [
-//         const Text('By continuing you agree to'),
-//         RichText(
-//           text: TextSpan(
-//             style: context.textTheme.titleSmall?.copyWith(
-//               color: AppColors.darkBlue,
-//               fontSize: 12,
-//               fontWeight: FontWeight.w600,
-//             ),
-//             children: const [
-//               TextSpan(text: 'Our Terms'),
-//               TextSpan(text: '  &  ', style: TextStyle(color: AppColors.black)),
-//               TextSpan(text: 'Privacy'),
-//             ],
-//           ),
-//         ),
-//       ],
-//     );
-//   }
-// }
+                  Center(
+                    child: Column(
+                      children: [
+                        Image.asset(
+                          'assets/logo/easycloud 245x132 1.png',
+                          width: 78,
+                          height: 40,
+                          fit: BoxFit.fitWidth,
+                        ),
+                        const SizedBox(height: 8),
+                        const Text(
+                          "Powered by EasyCloud",
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.black54,
+                            fontWeight: FontWeight.w700,
+                            fontFamily: 'Urbanist',
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}

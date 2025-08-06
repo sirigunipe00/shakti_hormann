@@ -12,7 +12,8 @@ part of 'infinite_list_cubit.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
+  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
+);
 
 /// @nodoc
 mixin _$InfiniteListState<T> {
@@ -31,23 +32,28 @@ mixin _$InfiniteListState<T> {
 
 /// @nodoc
 abstract class $InfiniteListStateCopyWith<T, $Res> {
-  factory $InfiniteListStateCopyWith(InfiniteListState<T> value,
-          $Res Function(InfiniteListState<T>) then) =
-      _$InfiniteListStateCopyWithImpl<T, $Res, InfiniteListState<T>>;
+  factory $InfiniteListStateCopyWith(
+    InfiniteListState<T> value,
+    $Res Function(InfiniteListState<T>) then,
+  ) = _$InfiniteListStateCopyWithImpl<T, $Res, InfiniteListState<T>>;
   @useResult
-  $Res call(
-      {ApiState apiState,
-      List<T> records,
-      bool hasReachedMax,
-      String? query,
-      Failure? failure});
+  $Res call({
+    ApiState apiState,
+    List<T> records,
+    bool hasReachedMax,
+    String? query,
+    Failure? failure,
+  });
 
   $FailureCopyWith<$Res>? get failure;
 }
 
 /// @nodoc
-class _$InfiniteListStateCopyWithImpl<T, $Res,
-        $Val extends InfiniteListState<T>>
+class _$InfiniteListStateCopyWithImpl<
+  T,
+  $Res,
+  $Val extends InfiniteListState<T>
+>
     implements $InfiniteListStateCopyWith<T, $Res> {
   _$InfiniteListStateCopyWithImpl(this._value, this._then);
 
@@ -67,28 +73,36 @@ class _$InfiniteListStateCopyWithImpl<T, $Res,
     Object? query = freezed,
     Object? failure = freezed,
   }) {
-    return _then(_value.copyWith(
-      apiState: null == apiState
-          ? _value.apiState
-          : apiState // ignore: cast_nullable_to_non_nullable
-              as ApiState,
-      records: null == records
-          ? _value.records
-          : records // ignore: cast_nullable_to_non_nullable
-              as List<T>,
-      hasReachedMax: null == hasReachedMax
-          ? _value.hasReachedMax
-          : hasReachedMax // ignore: cast_nullable_to_non_nullable
-              as bool,
-      query: freezed == query
-          ? _value.query
-          : query // ignore: cast_nullable_to_non_nullable
-              as String?,
-      failure: freezed == failure
-          ? _value.failure
-          : failure // ignore: cast_nullable_to_non_nullable
-              as Failure?,
-    ) as $Val);
+    return _then(
+      _value.copyWith(
+            apiState:
+                null == apiState
+                    ? _value.apiState
+                    : apiState // ignore: cast_nullable_to_non_nullable
+                        as ApiState,
+            records:
+                null == records
+                    ? _value.records
+                    : records // ignore: cast_nullable_to_non_nullable
+                        as List<T>,
+            hasReachedMax:
+                null == hasReachedMax
+                    ? _value.hasReachedMax
+                    : hasReachedMax // ignore: cast_nullable_to_non_nullable
+                        as bool,
+            query:
+                freezed == query
+                    ? _value.query
+                    : query // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            failure:
+                freezed == failure
+                    ? _value.failure
+                    : failure // ignore: cast_nullable_to_non_nullable
+                        as Failure?,
+          )
+          as $Val,
+    );
   }
 
   /// Create a copy of InfiniteListState
@@ -109,17 +123,19 @@ class _$InfiniteListStateCopyWithImpl<T, $Res,
 /// @nodoc
 abstract class _$$InfiniteListStateImplCopyWith<T, $Res>
     implements $InfiniteListStateCopyWith<T, $Res> {
-  factory _$$InfiniteListStateImplCopyWith(_$InfiniteListStateImpl<T> value,
-          $Res Function(_$InfiniteListStateImpl<T>) then) =
-      __$$InfiniteListStateImplCopyWithImpl<T, $Res>;
+  factory _$$InfiniteListStateImplCopyWith(
+    _$InfiniteListStateImpl<T> value,
+    $Res Function(_$InfiniteListStateImpl<T>) then,
+  ) = __$$InfiniteListStateImplCopyWithImpl<T, $Res>;
   @override
   @useResult
-  $Res call(
-      {ApiState apiState,
-      List<T> records,
-      bool hasReachedMax,
-      String? query,
-      Failure? failure});
+  $Res call({
+    ApiState apiState,
+    List<T> records,
+    bool hasReachedMax,
+    String? query,
+    Failure? failure,
+  });
 
   @override
   $FailureCopyWith<$Res>? get failure;
@@ -129,9 +145,10 @@ abstract class _$$InfiniteListStateImplCopyWith<T, $Res>
 class __$$InfiniteListStateImplCopyWithImpl<T, $Res>
     extends _$InfiniteListStateCopyWithImpl<T, $Res, _$InfiniteListStateImpl<T>>
     implements _$$InfiniteListStateImplCopyWith<T, $Res> {
-  __$$InfiniteListStateImplCopyWithImpl(_$InfiniteListStateImpl<T> _value,
-      $Res Function(_$InfiniteListStateImpl<T>) _then)
-      : super(_value, _then);
+  __$$InfiniteListStateImplCopyWithImpl(
+    _$InfiniteListStateImpl<T> _value,
+    $Res Function(_$InfiniteListStateImpl<T>) _then,
+  ) : super(_value, _then);
 
   /// Create a copy of InfiniteListState
   /// with the given fields replaced by the non-null parameter values.
@@ -144,42 +161,49 @@ class __$$InfiniteListStateImplCopyWithImpl<T, $Res>
     Object? query = freezed,
     Object? failure = freezed,
   }) {
-    return _then(_$InfiniteListStateImpl<T>(
-      apiState: null == apiState
-          ? _value.apiState
-          : apiState // ignore: cast_nullable_to_non_nullable
-              as ApiState,
-      records: null == records
-          ? _value._records
-          : records // ignore: cast_nullable_to_non_nullable
-              as List<T>,
-      hasReachedMax: null == hasReachedMax
-          ? _value.hasReachedMax
-          : hasReachedMax // ignore: cast_nullable_to_non_nullable
-              as bool,
-      query: freezed == query
-          ? _value.query
-          : query // ignore: cast_nullable_to_non_nullable
-              as String?,
-      failure: freezed == failure
-          ? _value.failure
-          : failure // ignore: cast_nullable_to_non_nullable
-              as Failure?,
-    ));
+    return _then(
+      _$InfiniteListStateImpl<T>(
+        apiState:
+            null == apiState
+                ? _value.apiState
+                : apiState // ignore: cast_nullable_to_non_nullable
+                    as ApiState,
+        records:
+            null == records
+                ? _value._records
+                : records // ignore: cast_nullable_to_non_nullable
+                    as List<T>,
+        hasReachedMax:
+            null == hasReachedMax
+                ? _value.hasReachedMax
+                : hasReachedMax // ignore: cast_nullable_to_non_nullable
+                    as bool,
+        query:
+            freezed == query
+                ? _value.query
+                : query // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        failure:
+            freezed == failure
+                ? _value.failure
+                : failure // ignore: cast_nullable_to_non_nullable
+                    as Failure?,
+      ),
+    );
   }
 }
 
 /// @nodoc
 
 class _$InfiniteListStateImpl<T> extends _InfiniteListState<T> {
-  const _$InfiniteListStateImpl(
-      {required this.apiState,
-      required final List<T> records,
-      required this.hasReachedMax,
-      this.query,
-      this.failure})
-      : _records = records,
-        super._();
+  const _$InfiniteListStateImpl({
+    required this.apiState,
+    required final List<T> records,
+    required this.hasReachedMax,
+    this.query,
+    this.failure,
+  }) : _records = records,
+       super._();
 
   @override
   final ApiState apiState;
@@ -219,12 +243,13 @@ class _$InfiniteListStateImpl<T> extends _InfiniteListState<T> {
 
   @override
   int get hashCode => Object.hash(
-      runtimeType,
-      apiState,
-      const DeepCollectionEquality().hash(_records),
-      hasReachedMax,
-      query,
-      failure);
+    runtimeType,
+    apiState,
+    const DeepCollectionEquality().hash(_records),
+    hasReachedMax,
+    query,
+    failure,
+  );
 
   /// Create a copy of InfiniteListState
   /// with the given fields replaced by the non-null parameter values.
@@ -232,18 +257,21 @@ class _$InfiniteListStateImpl<T> extends _InfiniteListState<T> {
   @override
   @pragma('vm:prefer-inline')
   _$$InfiniteListStateImplCopyWith<T, _$InfiniteListStateImpl<T>>
-      get copyWith =>
-          __$$InfiniteListStateImplCopyWithImpl<T, _$InfiniteListStateImpl<T>>(
-              this, _$identity);
+  get copyWith =>
+      __$$InfiniteListStateImplCopyWithImpl<T, _$InfiniteListStateImpl<T>>(
+        this,
+        _$identity,
+      );
 }
 
 abstract class _InfiniteListState<T> extends InfiniteListState<T> {
-  const factory _InfiniteListState(
-      {required final ApiState apiState,
-      required final List<T> records,
-      required final bool hasReachedMax,
-      final String? query,
-      final Failure? failure}) = _$InfiniteListStateImpl<T>;
+  const factory _InfiniteListState({
+    required final ApiState apiState,
+    required final List<T> records,
+    required final bool hasReachedMax,
+    final String? query,
+    final Failure? failure,
+  }) = _$InfiniteListStateImpl<T>;
   const _InfiniteListState._() : super._();
 
   @override
@@ -262,5 +290,5 @@ abstract class _InfiniteListState<T> extends InfiniteListState<T> {
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
   _$$InfiniteListStateImplCopyWith<T, _$InfiniteListStateImpl<T>>
-      get copyWith => throw _privateConstructorUsedError;
+  get copyWith => throw _privateConstructorUsedError;
 }

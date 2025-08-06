@@ -12,7 +12,8 @@ part of 'id_name.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
+  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
+);
 
 IdName _$IdNameFromJson(Map<String, dynamic> json) {
   return _IdName.fromJson(json);
@@ -55,28 +56,31 @@ class _$IdNameCopyWithImpl<$Res, $Val extends IdName>
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({
-    Object? id = null,
-    Object? name = null,
-  }) {
-    return _then(_value.copyWith(
-      id: null == id
-          ? _value.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as String,
-      name: null == name
-          ? _value.name
-          : name // ignore: cast_nullable_to_non_nullable
-              as String,
-    ) as $Val);
+  $Res call({Object? id = null, Object? name = null}) {
+    return _then(
+      _value.copyWith(
+            id:
+                null == id
+                    ? _value.id
+                    : id // ignore: cast_nullable_to_non_nullable
+                        as String,
+            name:
+                null == name
+                    ? _value.name
+                    : name // ignore: cast_nullable_to_non_nullable
+                        as String,
+          )
+          as $Val,
+    );
   }
 }
 
 /// @nodoc
 abstract class _$$IdNameImplCopyWith<$Res> implements $IdNameCopyWith<$Res> {
   factory _$$IdNameImplCopyWith(
-          _$IdNameImpl value, $Res Function(_$IdNameImpl) then) =
-      __$$IdNameImplCopyWithImpl<$Res>;
+    _$IdNameImpl value,
+    $Res Function(_$IdNameImpl) then,
+  ) = __$$IdNameImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call({String id, @JsonKey(defaultValue: '') String name});
@@ -87,35 +91,39 @@ class __$$IdNameImplCopyWithImpl<$Res>
     extends _$IdNameCopyWithImpl<$Res, _$IdNameImpl>
     implements _$$IdNameImplCopyWith<$Res> {
   __$$IdNameImplCopyWithImpl(
-      _$IdNameImpl _value, $Res Function(_$IdNameImpl) _then)
-      : super(_value, _then);
+    _$IdNameImpl _value,
+    $Res Function(_$IdNameImpl) _then,
+  ) : super(_value, _then);
 
   /// Create a copy of IdName
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({
-    Object? id = null,
-    Object? name = null,
-  }) {
-    return _then(_$IdNameImpl(
-      id: null == id
-          ? _value.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as String,
-      name: null == name
-          ? _value.name
-          : name // ignore: cast_nullable_to_non_nullable
-              as String,
-    ));
+  $Res call({Object? id = null, Object? name = null}) {
+    return _then(
+      _$IdNameImpl(
+        id:
+            null == id
+                ? _value.id
+                : id // ignore: cast_nullable_to_non_nullable
+                    as String,
+        name:
+            null == name
+                ? _value.name
+                : name // ignore: cast_nullable_to_non_nullable
+                    as String,
+      ),
+    );
   }
 }
 
 /// @nodoc
 @JsonSerializable()
 class _$IdNameImpl implements _IdName {
-  _$IdNameImpl(
-      {required this.id, @JsonKey(defaultValue: '') required this.name});
+  _$IdNameImpl({
+    required this.id,
+    @JsonKey(defaultValue: '') required this.name,
+  });
 
   factory _$IdNameImpl.fromJson(Map<String, dynamic> json) =>
       _$$IdNameImplFromJson(json);
@@ -154,16 +162,15 @@ class _$IdNameImpl implements _IdName {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$IdNameImplToJson(
-      this,
-    );
+    return _$$IdNameImplToJson(this);
   }
 }
 
 abstract class _IdName implements IdName {
-  factory _IdName(
-      {required final String id,
-      @JsonKey(defaultValue: '') required final String name}) = _$IdNameImpl;
+  factory _IdName({
+    required final String id,
+    @JsonKey(defaultValue: '') required final String name,
+  }) = _$IdNameImpl;
 
   factory _IdName.fromJson(Map<String, dynamic> json) = _$IdNameImpl.fromJson;
 

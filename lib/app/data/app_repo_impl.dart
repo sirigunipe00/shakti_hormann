@@ -9,10 +9,10 @@
 
 // @LazySingleton(as: AppRepo)
 // class AppRepoImpl extends BaseApiRepository implements AppRepo {
-//   const AppRepoImpl(super.client,this.appVersion);
+//   const AppRepoImpl(super.client);
   
 
-//   final AppVersion appVersion;
+//   // final AppVersion appVersion;
 //   @override
 //   AsyncValueOf<bool> sendOTP(OTPInput inp) async {
 //     return await executeSafely(() async {

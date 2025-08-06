@@ -1,13 +1,14 @@
 import 'package:animated_custom_dropdown/custom_dropdown.dart';
-import 'package:flutter/material.dart';
+
 import 'package:shakti_hormann/core/core.dart';
+import 'package:flutter/material.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
+import 'package:shakti_hormann/styles/app_text_styles.dart';
 import 'package:shakti_hormann/widgets/caption_text.dart';
-import 'package:shakti_hormann/widgets/spaced_column.dart';
 
 
-class AppDropDown<T> extends StatefulWidget {
-  const AppDropDown({
+class AppDropDownWidget<T> extends StatefulWidget {
+  const AppDropDownWidget({
     super.key,
     this.title,
     this.hint,
@@ -18,29 +19,30 @@ class AppDropDown<T> extends StatefulWidget {
     this.readOnly = false,
     this.listItemBuilder,
     this.headerBuilder,
-    this.hintBuilder,
-    this.closedFillColor,
-    this.titleColor,
+    this.futureRequest, 
+    required this.color,
+    this.focusNode,
   });
 
   final String? title;
+  final FocusNode? focusNode;
   final String? hint;
   final List<T> items;
-  final HeaderBuilder<T>? headerBuilder;
+   final HeaderBuilder<T>? headerBuilder;
+  final Future<List<T>> Function(String)? futureRequest;
   final Widget Function(BuildContext, T, bool, void Function())?
       listItemBuilder;
   final T? defaultSelection;
   final bool isMandatory;
   final bool readOnly;
-  final Function(T?)? onSelected;
-  final HintBuilder? hintBuilder;
-  final Color? closedFillColor;
-  final Color? titleColor;
+  final dynamic Function(T? item)? onSelected;
+  final Color color;
+
   @override
-  State<AppDropDown<T>> createState() => _AppDropDownState<T>();
+  State<AppDropDownWidget<T>> createState() => _AppDropDownWidgetState<T>();
 }
 
-class _AppDropDownState<T> extends State<AppDropDown<T>> {
+class _AppDropDownWidgetState<T> extends State<AppDropDownWidget<T>> {
   T? _selectedValue;
 
   @override
@@ -51,43 +53,44 @@ class _AppDropDownState<T> extends State<AppDropDown<T>> {
 
   @override
   Widget build(BuildContext context) {
-    return SpacedColumn(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      defaultHeight: 6.0,
-      children: [
-        if(widget.title.containsValidValue)...[
-          CaptionText(
-            title: widget.title.valueOrEmpty, 
-            isRequired: widget.isMandatory,
-            color: widget.titleColor ?? AppColors.black,
-          ),
-        ],
-        AbsorbPointer(
-          absorbing: widget.readOnly,
-          child: CustomDropdown<T>(
-            hideSelectedFieldWhenExpanded: true,
-            excludeSelected: false,
-            closedHeaderPadding: const EdgeInsets.all(10.0),
-            expandedHeaderPadding: const EdgeInsets.all(10.0),
-            decoration: CustomDropdownDecoration(
-              closedBorderRadius: BorderRadius.circular(4.0),
-              expandedBorderRadius: BorderRadius.circular(4.0),
-              closedBorder: Border.all(color: AppColors.green),
-              closedFillColor: widget.closedFillColor?.withOpacity(0.5),
-              expandedBorder: Border.all(color: AppColors.green),
-              hintStyle: context.textTheme.labelSmall?.copyWith(
-                  color: AppColors.black, fontWeight: FontWeight.w500),
+    return Focus(
+      focusNode: widget.focusNode,
+      child: AbsorbPointer(
+        absorbing: widget.readOnly,
+        child: Column(
+          key: widget.key,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (widget.title.containsValidValue) ...[
+              CaptionText(title: widget.title!, isRequired: widget.isMandatory),
+            ],
+            const SizedBox(height: 4),
+            CustomDropdown<T>.searchRequest(
+              decoration: CustomDropdownDecoration(
+                hintStyle: AppTextStyles.titleLarge(context)
+                    .copyWith(color: AppColors.grey),
+                closedBorder: Border.all(width: 0.8),
+                expandedBorder: Border.all(width: 0.8),
+                closedShadow: [
+                  BoxShadow(
+                    color: widget.color,
+                    blurRadius: 2,
+                    offset: const Offset(2, 2),
+                  ),
+                ],
+              ),
+              futureRequest: widget.futureRequest,
+              hintText: widget.hint,
+              items: widget.items,
+              headerBuilder: widget.headerBuilder,
+              listItemBuilder: widget.listItemBuilder,
+              onChanged: widget.onSelected,
+              initialItem: _selectedValue,
             ),
-            items: widget.items,
-            hintText: widget.hint ?? 'Select ${widget.title}'.replaceAll(':', ''),
-            hintBuilder: widget.hintBuilder,
-            headerBuilder: widget.headerBuilder,
-            listItemBuilder: widget.listItemBuilder,
-            onChanged: widget.onSelected,
-            initialItem: _selectedValue,
-          ),
+            const SizedBox(height: 8),
+          ],
         ),
-      ],
+      ),
     );
   }
 }

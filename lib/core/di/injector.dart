@@ -8,7 +8,6 @@ import 'package:get_it/get_it.dart';
 import 'package:http/http.dart';
 import 'package:http/io_client.dart';
 import 'package:injectable/injectable.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'injector.config.dart';
 
@@ -19,10 +18,13 @@ final GetIt $sl = GetIt.instance;
   preferRelativeImports: true,
   asExtension: true,
 )
+
 Future<void> configureDependencies({required String env}) async {
   await $sl.init(environment: env);
-
   $sl.registerSingleton(env, instanceName: 'env');
+
+ 
+
 }
 
 @module
@@ -42,16 +44,11 @@ abstract class ThirdPartyDependencies {
   @singleton
   FlutterSecureStorage get secureStorage => const FlutterSecureStorage();
 
-     @singleton
-  @preResolve
-  Future<PackageInfo> get packageInfo => PackageInfo.fromPlatform();
-
   @singleton
   @preResolve
   Future<SharedPreferences> get sharedPreferences =>
       SharedPreferences.getInstance();
 
-  @factory
   DateTime get defaultDateTime => DateTime.now();
 }
 
@@ -61,10 +58,4 @@ Future<void> register<T extends Object>(T value, {String? instanceName}) async {
   }
 
   $sl.registerSingleton(value, instanceName: instanceName);
-}
-
-Future<void> unregister<T extends Object>({String? instanceName}) async {
-  if ($sl.isRegistered<T>(instanceName: instanceName)) {
-    await $sl.unregister<T>(instanceName: instanceName);
-  }
 }

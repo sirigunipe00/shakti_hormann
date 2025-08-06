@@ -8,8 +8,8 @@ part of 'logged_in_user.dart';
 
 _$LoggedInUserImpl _$$LoggedInUserImplFromJson(Map<String, dynamic> json) =>
     _$LoggedInUserImpl(
-      name: json['name'] as String?,
-      username: json['username'] as String?,
+      name: json['name'] as String,
+      username: json['username'] as String,
       firstName: json['first_name'] as String? ?? '',
       lastName: json['last_name'] as String? ?? '',
       apiKey: json['api_key'] as String? ?? '',
@@ -21,6 +21,7 @@ _$LoggedInUserImpl _$$LoggedInUserImplFromJson(Map<String, dynamic> json) =>
       gender: json['gender'] as String?,
       bithDate: json['birth_date'] as String?,
       depoName: json['depo_name'] as String?,
+      fullName: json['full_name'] as String?,
       phone: json['phone'] as String?,
       location: json['location'] as String?,
       bio: json['bio'] as String?,
@@ -43,6 +44,7 @@ Map<String, dynamic> _$$LoggedInUserImplToJson(_$LoggedInUserImpl instance) =>
       'gender': instance.gender,
       'birth_date': instance.bithDate,
       'depo_name': instance.depoName,
+      'full_name': instance.fullName,
       'phone': instance.phone,
       'location': instance.location,
       'bio': instance.bio,

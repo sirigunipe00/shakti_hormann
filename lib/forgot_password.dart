@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:shakti_hormann/styles/app_color.dart';
+import 'package:shakti_hormann/app_bar.dart';
+import 'package:shakti_hormann/widgets/inputs/app_text_field.dart';
 
 class ForgotPasswordPage extends StatelessWidget {
   const ForgotPasswordPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    TextEditingController emailController = TextEditingController();
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -13,32 +15,7 @@ class ForgotPasswordPage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-               
-                children: [
-                  IconButton(
-                    onPressed: () {},
-                    icon: const Icon(
-                      Icons.arrow_back_ios_new_rounded,
-                      color: AppColors.liteyellow,
-                    ),
-                    style: IconButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      shadowColor: Colors.black12,
-                      elevation: 2,
-                    ),
-                  ),
-                  SizedBox(width:20),
-                  
-                  SizedBox(
-                    width: 200,
-                    child: Image.asset(
-                      'assets/images/hormann-logo-new-1 1.png',
-                      fit: BoxFit.contain,
-                    ),
-                  ),
-                ],
-              ),
+              CustomAppBar(),
 
               const SizedBox(height: 30),
 
@@ -53,30 +30,16 @@ class ForgotPasswordPage extends StatelessWidget {
                 style: TextStyle(fontSize: 14, color: Colors.grey, height: 1.5),
               ),
               const SizedBox(height: 30),
+              AppTextField(
+                title: 'Email',
+                hintText: 'Enter Your Email',
 
-              const Text(
-                "Email",
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                prefixIcon: const Icon(Icons.email_outlined),
+                controller: emailController,
+                inputType: TextInputType.emailAddress,
+                onPressed: () {},
               ),
-              const SizedBox(height: 10),
 
-              TextField(
-                decoration: InputDecoration(
-                  prefixIcon: const Icon(Icons.mail_outline),
-                  hintText: 'Enter your email',
-                  filled: true,
-                  fillColor: const Color(0xFFF5F6FA),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: Colors.grey),
-                  ),
-
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: Colors.black, width: 2),
-                  ),
-                ),
-              ),
               const SizedBox(height: 30),
 
               SizedBox(

@@ -1,11 +1,9 @@
 import 'package:animated_custom_dropdown/custom_dropdown.dart';
-import 'package:flutter/material.dart';
 import 'package:shakti_hormann/core/core.dart';
-import 'package:shakti_hormann/core/utils/typedefs.dart';
+import 'package:flutter/material.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
+import 'package:shakti_hormann/widgets/app_spacer.dart';
 import 'package:shakti_hormann/widgets/caption_text.dart';
-import 'package:shakti_hormann/widgets/loading_indicator.dart';
-import 'package:shakti_hormann/widgets/spaced_column.dart';
 
 class SearchDropDownList<T> extends StatefulWidget {
   const SearchDropDownList({
@@ -17,25 +15,33 @@ class SearchDropDownList<T> extends StatefulWidget {
     this.defaultSelection,
     this.isMandatory = false,
     this.readOnly = false,
+    this.isloading = false,
     this.listItemBuilder,
     this.headerBuilder,
     this.futureRequest,
+    this.fontSize,
     this.hintBuilder,
     this.closedFillColor,
+    this.focusNode,
+    required this.color,
   });
 
   final String? title;
   final String? hint;
+  final double? fontSize;
   final List<T> items;
-  final HintBuilder? hintBuilder;
   final HeaderBuilder<T>? headerBuilder;
-  final Future<List<T>> Function(String)? futureRequest;
   final ListItemBuilder<T>? listItemBuilder;
+  final HintBuilder? hintBuilder;
+  final Future<List<T>> Function(String)? futureRequest;
   final T? defaultSelection;
   final bool isMandatory;
   final bool readOnly;
+  final bool isloading;
+  final Color color;
   final Color? closedFillColor;
-  final void Function(T? item) onSelected;
+  final void Function(T item) onSelected;
+  final FocusNode? focusNode;
 
   @override
   State<SearchDropDownList<T>> createState() => _SearchDropDownListState<T>();
@@ -43,50 +49,69 @@ class SearchDropDownList<T> extends StatefulWidget {
 
 class _SearchDropDownListState<T> extends State<SearchDropDownList<T>> {
   T? _selectedValue;
+  final scrollCtlr = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedValue = widget.defaultSelection;
+  }
 
   @override
   Widget build(BuildContext context) {
-    _selectedValue = widget.defaultSelection;
+    return Focus(
+      focusNode: widget.focusNode,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (widget.title?.isNotEmpty == true) ...[
+            CaptionText(
+              title: widget.title ?? '',
 
-    return SpacedColumn(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      defaultHeight: 6.0,
-      children: [
-        CaptionText(
-          title: widget.title.valueOrEmpty, 
-          isRequired: widget.isMandatory,
-        ),
-        AbsorbPointer(
-          absorbing: widget.readOnly,
-          child: CustomDropdown<T>.searchRequest(
-            hideSelectedFieldWhenExpanded: true,
-            excludeSelected: false,
-            futureRequestDelay: const Duration(milliseconds: 500),
-            closedHeaderPadding: const EdgeInsets.all(14.0),
-            expandedHeaderPadding: const EdgeInsets.all(14.0),
-            searchRequestLoadingIndicator: const LoadingIndicator(),
-            decoration: CustomDropdownDecoration(
-              closedBorder: Border.all(color: AppColors.green),
-              expandedBorder: Border.all(color: AppColors.green),
-              closedBorderRadius: BorderRadius.circular(4.0),
-              expandedBorderRadius: BorderRadius.circular(4.0),
-              closedFillColor: widget.closedFillColor?.withOpacity(0.5),
-              hintStyle: context.textTheme.labelSmall?.copyWith(
-                color: AppColors.black, 
-                fontWeight: FontWeight.w500,
-              ),
+              color: widget.color,
+              isRequired: widget.isMandatory,
             ),
-            hintBuilder: widget.hintBuilder,
-            futureRequest: widget.futureRequest,
-            hintText: widget.hint,
-            items: widget.items,
-            headerBuilder: widget.headerBuilder,
-            listItemBuilder: widget.listItemBuilder,
-            onChanged: widget.onSelected,
-            initialItem: _selectedValue,
+            AppSpacer.p4(),
+          ],
+          AbsorbPointer(
+            absorbing: widget.readOnly || widget.isloading,
+            child: CustomDropdown<T>.searchRequest(
+              hideSelectedFieldWhenExpanded: true,
+              excludeSelected: false,
+              closedHeaderPadding: const EdgeInsets.all(16.0),
+              expandedHeaderPadding: const EdgeInsets.all(16.0),
+              decoration: CustomDropdownDecoration(
+                closedFillColor: Colors.grey[100],
+                expandedFillColor: Colors.grey[100],
+                // closedBorder: InputBorder.none,
+                // expandedBorder: InputBorder.none,
+                closedBorderRadius: BorderRadius.circular(8.0),
+                expandedBorderRadius: BorderRadius.circular(8.0),
+                hintStyle: context.textTheme.titleMedium?.copyWith(
+                  color: AppColors.black,
+                  fontWeight: FontWeight.w600,
+                  fontFamily: 'Urbanist',
+                ),
+              ),
+              listItemPadding: const EdgeInsets.all(4.0),
+              hintBuilder: widget.hintBuilder,
+              futureRequest: widget.futureRequest,
+              hintText: widget.hint,
+              
+              items: widget.items,
+              headerBuilder: widget.headerBuilder,
+              listItemBuilder: widget.listItemBuilder,
+              onChanged: (value) {
+                if (value != null) {
+                  widget.onSelected(value);
+                }
+              },
+              initialItem: _selectedValue,
+            ),
           ),
-        ),
-      ],
+          AppSpacer.p4(),
+        ],
+      ),
     );
   }
 }

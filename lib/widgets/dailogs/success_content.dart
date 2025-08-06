@@ -9,6 +9,7 @@ class SuccessContent extends StatelessWidget {
   const SuccessContent({
     super.key,
     this.title,
+    required this.imagePath,
     required this.content,
     this.buttonText = 'Thank you',
     required this.onTapDismiss,
@@ -16,6 +17,7 @@ class SuccessContent extends StatelessWidget {
 
   final String? title;
   final String content;
+  final String imagePath;
   final String buttonText;
   final VoidCallback onTapDismiss;
 
@@ -30,7 +32,7 @@ class SuccessContent extends StatelessWidget {
           margin: const EdgeInsets.all(24),
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
-            color: AppColors.carla,
+            color: Colors.white,
             borderRadius: BorderRadius.circular(0),
           ),
           child: SpacedColumn(
@@ -38,17 +40,35 @@ class SuccessContent extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              if (title.containsValidValue) ...[
+              Stack(
+                alignment: Alignment.center,
+                children: [
+                  Image.asset(
+                    imagePath, 
+                    width: 64,
+                    height: 64,
+                  ),
+                  const Icon(Icons.check, size: 32, color: Colors.white),
+                ],
+              ),
+
+              const SizedBox(height: 16),
+             if (title.containsValidValue)
                 Text(
                   title.valueOrEmpty,
-                  style: TextStyles.labelLarge(context)
-                ),
-              ],
+                  textAlign: TextAlign.center,
+                  style: context.textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),  // if (title.containsValidValue) ...[
+              //   Text(title.valueOrEmpty, style: TextStyles.labelLarge(context)),
+              // ],
+              // Text(title.valueOrEmpty, style: TextStyles.labelLarge(context)),
               Text(
                 content,
                 textAlign: TextAlign.center,
                 style: context.textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
               AppSpacer.p32(),
@@ -57,8 +77,8 @@ class SuccessContent extends StatelessWidget {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.green,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(0)
-                  )
+                    borderRadius: BorderRadius.circular(0),
+                  ),
                 ),
                 child: Text(
                   buttonText,

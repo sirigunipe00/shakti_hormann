@@ -1,11 +1,9 @@
-import 'dart:convert';
+
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
-import 'package:shakti_hormann/core/core.dart';
-
 import 'package:shakti_hormann/core/cubit/base/base_cubit.dart';
-import 'package:shakti_hormann/core/local_storage/key_vale_storage.dart';
-import 'package:shakti_hormann/core/local_storage/local_keys.dart';
+import 'package:shakti_hormann/core/di/injector.dart';
+import 'package:shakti_hormann/core/logger/app_logger.dart';
 import 'package:shakti_hormann/features/auth/data/auth_repo.dart';
 import 'package:shakti_hormann/features/auth/model/logged_in_user.dart';
 
@@ -13,49 +11,33 @@ part 'auth_cubit.freezed.dart';
 
 @injectable
 class AuthCubit extends AppBaseCubit<AuthState> {
-  AuthCubit(this.repo, this.storage) : super(const AuthState.loading());
+  AuthCubit(this.repo) : super(const AuthState.loading());
 
   final AuthRepo repo;
-  final KeyValueStorage storage;
 
-  void authCheckRequested({bool? isOtpverified}) async {
+  void authCheckRequested() async {
     emitSafeState(const _Loading());
-    try {
-
+    try {  
       final isloggedIn = await repo.isLoggedIn();
- 
-      if (isloggedIn) {
-        final userdata = await repo.getPersistedUser();
-        userdata.fold(
-          (l) => l,
-          (user) async {
-            LoggedInUser updatedUser = user;
-
-            if (isOtpverified == true) {
-              updatedUser = user.copyWith(isOtpVerfied: true);
-
-              final userJson = json.encode(updatedUser.toJson());
-
-              await storage.setSecureString(LocalKeys.user, userJson);
-            }
-
-            if (updatedUser.isOtpVerfied != true) {
-              emitSafeState(const _UnAuthenticated());
-              return;
-            }
-
-            await register<LoggedInUser>(updatedUser);
-            emitSafeState(const _Authenticated());
-          },
-        );
-      }
       if (!isloggedIn) {
         emitSafeState(const _UnAuthenticated());
         return;
       }
-    } on Exception catch (e, st) {
-      $logger.error('[AuthCheck Exception]', e, st);
-      emitSafeState(const _UnAuthenticated());
+
+      final user = await repo.getPersistedUser();
+
+      print('usr----:$user');
+      user.fold(
+        (l) => emitSafeState(const _UnAuthenticated()),
+        (r) async {
+          await register<LoggedInUser>(r);
+          print('rr---:$r');
+          emitSafeState(const _Authenticated());
+        },
+      );
+    } on Exception catch (e,st) {
+      $logger.error('[AuthCheck Exception]',e,st);
+      emitSafeState(const _UnAuthenticated()); 
     }
   }
 
@@ -63,13 +45,10 @@ class AuthCubit extends AppBaseCubit<AuthState> {
     try {
       emitSafeState(const _Loading());
       await repo.signOut();
-      await Future.wait([
-        unregister<LoggedInUser>(),
-        unregister<String>(instanceName: 'fbo_id'),
-      ]);
+      await $sl.unregister<LoggedInUser>();
       emitSafeState(const _UnAuthenticated());
-    } on Exception catch (e, st) {
-      $logger.error('[Auth Cubit] cant able to logout', e, st);
+    } on Exception catch (e,st) {
+      $logger.error('[Auth Cubit] cant able to logout', e,st);
       emitSafeState(const _UnAuthenticated());
     }
   }

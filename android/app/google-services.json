@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "697946700598",
+    "project_id": "shakti-hormann",
+    "storage_bucket": "shakti-hormann.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:697946700598:android:68f089e86097bb39479197",
+        "android_client_info": {
+          "package_name": "com.example.shakti_hormann"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDfNG07YhCuiM-EIVY91RxhwYRzJxSTJ9I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:697946700598:android:9904913ff0636538479197",
+        "android_client_info": {
+          "package_name": "com.shaktihormann.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDfNG07YhCuiM-EIVY91RxhwYRzJxSTJ9I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

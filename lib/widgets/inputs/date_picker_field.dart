@@ -51,10 +51,10 @@ class _AppDateFieldState extends State<AppDateField> {
     }
   }
 
-  final textFieldBorder = OutlineInputBorder(
-    borderRadius: BorderRadius.circular(4.0),
-    borderSide: const BorderSide(color: AppColors.green),
-  );
+  // final textFieldBorder = OutlineInputBorder(
+  //   borderRadius: BorderRadius.circular(10.0),
+  //   borderSide: const BorderSide(color: AppColors.black, width: 0.8),
+  // );
   @override
   Widget build(BuildContext context) {
     return SpacedColumn(
@@ -62,33 +62,62 @@ class _AppDateFieldState extends State<AppDateField> {
       defaultHeight: 4.0,
       children: [
         CaptionText(title: widget.title, isRequired: widget.isRequired),
-        TextField(
-          onTap: () {
-            if (widget.readOnly) return;
-            _showDatePicker();
-          },
-          controller: controller,
-          decoration: InputDecoration(
-            hintText: widget.hintText,
-            hintStyle: context.textTheme.labelSmall?.copyWith(
-              color: AppColors.chimneySweep
-            ),
-            fillColor: widget.fillColor,
-            filled: widget.fillColor.isNotNull,
-            border: textFieldBorder,
-            enabledBorder: textFieldBorder,
-            focusedBorder: textFieldBorder,
-            disabledBorder: textFieldBorder,
-            contentPadding: const EdgeInsets.all(12.0),
-            suffixIcon: widget.suffixIcon,
-            counterText: '',
+        Container(
+          margin: EdgeInsets.zero,
+          padding: EdgeInsets.zero,
+          decoration: BoxDecoration(
+            color: Colors.grey[100],
+            // border: Border.all(color: AppColors.white),
+            // boxShadow: [
+            //   BoxShadow(
+            //     color: borderColor ?? AppColors.white,
+            //     blurRadius: 2,
+            //     offset: const Offset(2, 2)
+            //   ),
+            // ],
+            borderRadius: BorderRadius.circular(10.0),
           ),
-          obscuringCharacter: '*',
-          textInputAction: TextInputAction.done,
-          maxLengthEnforcement: MaxLengthEnforcement.enforced,
-          textCapitalization: TextCapitalization.none,
-          readOnly: true,
-          autocorrect: false,
+          child: TextField(
+            style: TextStyle(color: Colors.black.withOpacity(0.6)),
+            onTap: () {
+              if (widget.readOnly) return;
+              _showDatePicker();
+            },
+            controller: controller,
+            decoration: InputDecoration(
+              hintText: widget.hintText,
+              hintStyle: context.textTheme.labelSmall?.copyWith(
+                color: AppColors.grey,
+                fontFamily: 'Urbanist',
+                fontWeight: FontWeight.w500,
+              ),
+              fillColor:  Colors.grey[100],
+              filled: true,
+              contentPadding: const EdgeInsets.all(16.0),
+              suffixIcon: widget.suffixIcon,
+              counterText: '',
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.0),
+                borderSide:
+                    BorderSide.none, 
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.0),
+                borderSide: BorderSide.none,
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.0),
+                borderSide: BorderSide.none,
+              ),
+            ),
+
+            obscuringCharacter: '*',
+            textInputAction: TextInputAction.done,
+            maxLengthEnforcement: MaxLengthEnforcement.enforced,
+            textCapitalization: TextCapitalization.none,
+            readOnly: true,
+            autocorrect: false,
+          ),
         ),
       ],
     );

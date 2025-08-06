@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shakti_hormann/login_scrn.dart';
+import 'package:shakti_hormann/features/auth/presentation/ui/authentication_scrn.dart';
 
 
 class PasswordChangedPage extends StatelessWidget {

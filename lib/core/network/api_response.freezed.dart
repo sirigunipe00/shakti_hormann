@@ -12,7 +12,8 @@ part of 'api_response.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
+  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
+);
 
 /// @nodoc
 mixin _$ApiResponse<T> {
@@ -30,8 +31,9 @@ mixin _$ApiResponse<T> {
 /// @nodoc
 abstract class $ApiResponseCopyWith<T, $Res> {
   factory $ApiResponseCopyWith(
-          ApiResponse<T> value, $Res Function(ApiResponse<T>) then) =
-      _$ApiResponseCopyWithImpl<T, $Res, ApiResponse<T>>;
+    ApiResponse<T> value,
+    $Res Function(ApiResponse<T>) then,
+  ) = _$ApiResponseCopyWithImpl<T, $Res, ApiResponse<T>>;
   @useResult
   $Res call({T? data, String? error, int? status});
 }
@@ -55,29 +57,36 @@ class _$ApiResponseCopyWithImpl<T, $Res, $Val extends ApiResponse<T>>
     Object? error = freezed,
     Object? status = freezed,
   }) {
-    return _then(_value.copyWith(
-      data: freezed == data
-          ? _value.data
-          : data // ignore: cast_nullable_to_non_nullable
-              as T?,
-      error: freezed == error
-          ? _value.error
-          : error // ignore: cast_nullable_to_non_nullable
-              as String?,
-      status: freezed == status
-          ? _value.status
-          : status // ignore: cast_nullable_to_non_nullable
-              as int?,
-    ) as $Val);
+    return _then(
+      _value.copyWith(
+            data:
+                freezed == data
+                    ? _value.data
+                    : data // ignore: cast_nullable_to_non_nullable
+                        as T?,
+            error:
+                freezed == error
+                    ? _value.error
+                    : error // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            status:
+                freezed == status
+                    ? _value.status
+                    : status // ignore: cast_nullable_to_non_nullable
+                        as int?,
+          )
+          as $Val,
+    );
   }
 }
 
 /// @nodoc
 abstract class _$$ApiResponseImplCopyWith<T, $Res>
     implements $ApiResponseCopyWith<T, $Res> {
-  factory _$$ApiResponseImplCopyWith(_$ApiResponseImpl<T> value,
-          $Res Function(_$ApiResponseImpl<T>) then) =
-      __$$ApiResponseImplCopyWithImpl<T, $Res>;
+  factory _$$ApiResponseImplCopyWith(
+    _$ApiResponseImpl<T> value,
+    $Res Function(_$ApiResponseImpl<T>) then,
+  ) = __$$ApiResponseImplCopyWithImpl<T, $Res>;
   @override
   @useResult
   $Res call({T? data, String? error, int? status});
@@ -88,8 +97,9 @@ class __$$ApiResponseImplCopyWithImpl<T, $Res>
     extends _$ApiResponseCopyWithImpl<T, $Res, _$ApiResponseImpl<T>>
     implements _$$ApiResponseImplCopyWith<T, $Res> {
   __$$ApiResponseImplCopyWithImpl(
-      _$ApiResponseImpl<T> _value, $Res Function(_$ApiResponseImpl<T>) _then)
-      : super(_value, _then);
+    _$ApiResponseImpl<T> _value,
+    $Res Function(_$ApiResponseImpl<T>) _then,
+  ) : super(_value, _then);
 
   /// Create a copy of ApiResponse
   /// with the given fields replaced by the non-null parameter values.
@@ -100,20 +110,25 @@ class __$$ApiResponseImplCopyWithImpl<T, $Res>
     Object? error = freezed,
     Object? status = freezed,
   }) {
-    return _then(_$ApiResponseImpl<T>(
-      data: freezed == data
-          ? _value.data
-          : data // ignore: cast_nullable_to_non_nullable
-              as T?,
-      error: freezed == error
-          ? _value.error
-          : error // ignore: cast_nullable_to_non_nullable
-              as String?,
-      status: freezed == status
-          ? _value.status
-          : status // ignore: cast_nullable_to_non_nullable
-              as int?,
-    ));
+    return _then(
+      _$ApiResponseImpl<T>(
+        data:
+            freezed == data
+                ? _value.data
+                : data // ignore: cast_nullable_to_non_nullable
+                    as T?,
+        error:
+            freezed == error
+                ? _value.error
+                : error // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        status:
+            freezed == status
+                ? _value.status
+                : status // ignore: cast_nullable_to_non_nullable
+                    as int?,
+      ),
+    );
   }
 }
 
@@ -146,7 +161,11 @@ class _$ApiResponseImpl<T> extends _ApiResponse<T> {
 
   @override
   int get hashCode => Object.hash(
-      runtimeType, const DeepCollectionEquality().hash(data), error, status);
+    runtimeType,
+    const DeepCollectionEquality().hash(data),
+    error,
+    status,
+  );
 
   /// Create a copy of ApiResponse
   /// with the given fields replaced by the non-null parameter values.
@@ -155,14 +174,17 @@ class _$ApiResponseImpl<T> extends _ApiResponse<T> {
   @pragma('vm:prefer-inline')
   _$$ApiResponseImplCopyWith<T, _$ApiResponseImpl<T>> get copyWith =>
       __$$ApiResponseImplCopyWithImpl<T, _$ApiResponseImpl<T>>(
-          this, _$identity);
+        this,
+        _$identity,
+      );
 }
 
 abstract class _ApiResponse<T> extends ApiResponse<T> {
-  const factory _ApiResponse(
-      {final T? data,
-      final String? error,
-      final int? status}) = _$ApiResponseImpl<T>;
+  const factory _ApiResponse({
+    final T? data,
+    final String? error,
+    final int? status,
+  }) = _$ApiResponseImpl<T>;
   const _ApiResponse._() : super._();
 
   @override

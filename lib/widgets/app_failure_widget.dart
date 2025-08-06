@@ -42,9 +42,7 @@ class AppFailureWidget extends StatelessWidget {
                   .copyWith(color: AppColors.black),
             ),
             AppButton(
-              label: btnText.toUpperCase(),
-              onPressed: onPress,
-              bgColor: onPress==null ? Colors.transparent : AppColors.red,
+              label: btnText.toUpperCase(), onPressed: () {  },
             ),
           ],
         ),

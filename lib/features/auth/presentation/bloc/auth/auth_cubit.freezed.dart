@@ -12,7 +12,8 @@ part of 'auth_cubit.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
+  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
+);
 
 /// @nodoc
 mixin _$AuthState {
@@ -21,45 +22,39 @@ mixin _$AuthState {
     required TResult Function() loading,
     required TResult Function() authenticated,
     required TResult Function() unAuthenticated,
-  }) =>
-      throw _privateConstructorUsedError;
+  }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function()? loading,
     TResult? Function()? authenticated,
     TResult? Function()? unAuthenticated,
-  }) =>
-      throw _privateConstructorUsedError;
+  }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? loading,
     TResult Function()? authenticated,
     TResult Function()? unAuthenticated,
     required TResult orElse(),
-  }) =>
-      throw _privateConstructorUsedError;
+  }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(_Loading value) loading,
     required TResult Function(_Authenticated value) authenticated,
     required TResult Function(_UnAuthenticated value) unAuthenticated,
-  }) =>
-      throw _privateConstructorUsedError;
+  }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult? Function(_Loading value)? loading,
     TResult? Function(_Authenticated value)? authenticated,
     TResult? Function(_UnAuthenticated value)? unAuthenticated,
-  }) =>
-      throw _privateConstructorUsedError;
+  }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(_Loading value)? loading,
     TResult Function(_Authenticated value)? authenticated,
     TResult Function(_UnAuthenticated value)? unAuthenticated,
     required TResult orElse(),
-  }) =>
-      throw _privateConstructorUsedError;
+  }) => throw _privateConstructorUsedError;
 }
 
 /// @nodoc
@@ -85,8 +80,9 @@ class _$AuthStateCopyWithImpl<$Res, $Val extends AuthState>
 /// @nodoc
 abstract class _$$LoadingImplCopyWith<$Res> {
   factory _$$LoadingImplCopyWith(
-          _$LoadingImpl value, $Res Function(_$LoadingImpl) then) =
-      __$$LoadingImplCopyWithImpl<$Res>;
+    _$LoadingImpl value,
+    $Res Function(_$LoadingImpl) then,
+  ) = __$$LoadingImplCopyWithImpl<$Res>;
 }
 
 /// @nodoc
@@ -94,8 +90,9 @@ class __$$LoadingImplCopyWithImpl<$Res>
     extends _$AuthStateCopyWithImpl<$Res, _$LoadingImpl>
     implements _$$LoadingImplCopyWith<$Res> {
   __$$LoadingImplCopyWithImpl(
-      _$LoadingImpl _value, $Res Function(_$LoadingImpl) _then)
-      : super(_value, _then);
+    _$LoadingImpl _value,
+    $Res Function(_$LoadingImpl) _then,
+  ) : super(_value, _then);
 
   /// Create a copy of AuthState
   /// with the given fields replaced by the non-null parameter values.
@@ -196,8 +193,9 @@ abstract class _Loading implements AuthState {
 /// @nodoc
 abstract class _$$AuthenticatedImplCopyWith<$Res> {
   factory _$$AuthenticatedImplCopyWith(
-          _$AuthenticatedImpl value, $Res Function(_$AuthenticatedImpl) then) =
-      __$$AuthenticatedImplCopyWithImpl<$Res>;
+    _$AuthenticatedImpl value,
+    $Res Function(_$AuthenticatedImpl) then,
+  ) = __$$AuthenticatedImplCopyWithImpl<$Res>;
 }
 
 /// @nodoc
@@ -205,8 +203,9 @@ class __$$AuthenticatedImplCopyWithImpl<$Res>
     extends _$AuthStateCopyWithImpl<$Res, _$AuthenticatedImpl>
     implements _$$AuthenticatedImplCopyWith<$Res> {
   __$$AuthenticatedImplCopyWithImpl(
-      _$AuthenticatedImpl _value, $Res Function(_$AuthenticatedImpl) _then)
-      : super(_value, _then);
+    _$AuthenticatedImpl _value,
+    $Res Function(_$AuthenticatedImpl) _then,
+  ) : super(_value, _then);
 
   /// Create a copy of AuthState
   /// with the given fields replaced by the non-null parameter values.
@@ -306,9 +305,10 @@ abstract class _Authenticated implements AuthState {
 
 /// @nodoc
 abstract class _$$UnAuthenticatedImplCopyWith<$Res> {
-  factory _$$UnAuthenticatedImplCopyWith(_$UnAuthenticatedImpl value,
-          $Res Function(_$UnAuthenticatedImpl) then) =
-      __$$UnAuthenticatedImplCopyWithImpl<$Res>;
+  factory _$$UnAuthenticatedImplCopyWith(
+    _$UnAuthenticatedImpl value,
+    $Res Function(_$UnAuthenticatedImpl) then,
+  ) = __$$UnAuthenticatedImplCopyWithImpl<$Res>;
 }
 
 /// @nodoc
@@ -316,8 +316,9 @@ class __$$UnAuthenticatedImplCopyWithImpl<$Res>
     extends _$AuthStateCopyWithImpl<$Res, _$UnAuthenticatedImpl>
     implements _$$UnAuthenticatedImplCopyWith<$Res> {
   __$$UnAuthenticatedImplCopyWithImpl(
-      _$UnAuthenticatedImpl _value, $Res Function(_$UnAuthenticatedImpl) _then)
-      : super(_value, _then);
+    _$UnAuthenticatedImpl _value,
+    $Res Function(_$UnAuthenticatedImpl) _then,
+  ) : super(_value, _then);
 
   /// Create a copy of AuthState
   /// with the given fields replaced by the non-null parameter values.

@@ -12,7 +12,8 @@ part of 'network_request_cubit.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
+  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
+);
 
 /// @nodoc
 mixin _$NetworkRequestState<T> {
@@ -22,16 +23,14 @@ mixin _$NetworkRequestState<T> {
     required TResult Function() loading,
     required TResult Function(T data) success,
     required TResult Function(Failure failure) failure,
-  }) =>
-      throw _privateConstructorUsedError;
+  }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function()? initial,
     TResult? Function()? loading,
     TResult? Function(T data)? success,
     TResult? Function(Failure failure)? failure,
-  }) =>
-      throw _privateConstructorUsedError;
+  }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
@@ -39,24 +38,21 @@ mixin _$NetworkRequestState<T> {
     TResult Function(T data)? success,
     TResult Function(Failure failure)? failure,
     required TResult orElse(),
-  }) =>
-      throw _privateConstructorUsedError;
+  }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(_NetworkRequestInitial<T> value) initial,
     required TResult Function(_NetworkRequestLoading<T> value) loading,
     required TResult Function(_NetworkRequestSuccess<T> value) success,
     required TResult Function(_NetworkRequestFailure<T> value) failure,
-  }) =>
-      throw _privateConstructorUsedError;
+  }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult? Function(_NetworkRequestInitial<T> value)? initial,
     TResult? Function(_NetworkRequestLoading<T> value)? loading,
     TResult? Function(_NetworkRequestSuccess<T> value)? success,
     TResult? Function(_NetworkRequestFailure<T> value)? failure,
-  }) =>
-      throw _privateConstructorUsedError;
+  }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(_NetworkRequestInitial<T> value)? initial,
@@ -64,20 +60,23 @@ mixin _$NetworkRequestState<T> {
     TResult Function(_NetworkRequestSuccess<T> value)? success,
     TResult Function(_NetworkRequestFailure<T> value)? failure,
     required TResult orElse(),
-  }) =>
-      throw _privateConstructorUsedError;
+  }) => throw _privateConstructorUsedError;
 }
 
 /// @nodoc
 abstract class $NetworkRequestStateCopyWith<T, $Res> {
-  factory $NetworkRequestStateCopyWith(NetworkRequestState<T> value,
-          $Res Function(NetworkRequestState<T>) then) =
-      _$NetworkRequestStateCopyWithImpl<T, $Res, NetworkRequestState<T>>;
+  factory $NetworkRequestStateCopyWith(
+    NetworkRequestState<T> value,
+    $Res Function(NetworkRequestState<T>) then,
+  ) = _$NetworkRequestStateCopyWithImpl<T, $Res, NetworkRequestState<T>>;
 }
 
 /// @nodoc
-class _$NetworkRequestStateCopyWithImpl<T, $Res,
-        $Val extends NetworkRequestState<T>>
+class _$NetworkRequestStateCopyWithImpl<
+  T,
+  $Res,
+  $Val extends NetworkRequestState<T>
+>
     implements $NetworkRequestStateCopyWith<T, $Res> {
   _$NetworkRequestStateCopyWithImpl(this._value, this._then);
 
@@ -93,20 +92,24 @@ class _$NetworkRequestStateCopyWithImpl<T, $Res,
 /// @nodoc
 abstract class _$$NetworkRequestInitialImplCopyWith<T, $Res> {
   factory _$$NetworkRequestInitialImplCopyWith(
-          _$NetworkRequestInitialImpl<T> value,
-          $Res Function(_$NetworkRequestInitialImpl<T>) then) =
-      __$$NetworkRequestInitialImplCopyWithImpl<T, $Res>;
+    _$NetworkRequestInitialImpl<T> value,
+    $Res Function(_$NetworkRequestInitialImpl<T>) then,
+  ) = __$$NetworkRequestInitialImplCopyWithImpl<T, $Res>;
 }
 
 /// @nodoc
 class __$$NetworkRequestInitialImplCopyWithImpl<T, $Res>
-    extends _$NetworkRequestStateCopyWithImpl<T, $Res,
-        _$NetworkRequestInitialImpl<T>>
+    extends
+        _$NetworkRequestStateCopyWithImpl<
+          T,
+          $Res,
+          _$NetworkRequestInitialImpl<T>
+        >
     implements _$$NetworkRequestInitialImplCopyWith<T, $Res> {
   __$$NetworkRequestInitialImplCopyWithImpl(
-      _$NetworkRequestInitialImpl<T> _value,
-      $Res Function(_$NetworkRequestInitialImpl<T>) _then)
-      : super(_value, _then);
+    _$NetworkRequestInitialImpl<T> _value,
+    $Res Function(_$NetworkRequestInitialImpl<T>) _then,
+  ) : super(_value, _then);
 
   /// Create a copy of NetworkRequestState
   /// with the given fields replaced by the non-null parameter values.
@@ -215,20 +218,24 @@ abstract class _NetworkRequestInitial<T> extends NetworkRequestState<T> {
 /// @nodoc
 abstract class _$$NetworkRequestLoadingImplCopyWith<T, $Res> {
   factory _$$NetworkRequestLoadingImplCopyWith(
-          _$NetworkRequestLoadingImpl<T> value,
-          $Res Function(_$NetworkRequestLoadingImpl<T>) then) =
-      __$$NetworkRequestLoadingImplCopyWithImpl<T, $Res>;
+    _$NetworkRequestLoadingImpl<T> value,
+    $Res Function(_$NetworkRequestLoadingImpl<T>) then,
+  ) = __$$NetworkRequestLoadingImplCopyWithImpl<T, $Res>;
 }
 
 /// @nodoc
 class __$$NetworkRequestLoadingImplCopyWithImpl<T, $Res>
-    extends _$NetworkRequestStateCopyWithImpl<T, $Res,
-        _$NetworkRequestLoadingImpl<T>>
+    extends
+        _$NetworkRequestStateCopyWithImpl<
+          T,
+          $Res,
+          _$NetworkRequestLoadingImpl<T>
+        >
     implements _$$NetworkRequestLoadingImplCopyWith<T, $Res> {
   __$$NetworkRequestLoadingImplCopyWithImpl(
-      _$NetworkRequestLoadingImpl<T> _value,
-      $Res Function(_$NetworkRequestLoadingImpl<T>) _then)
-      : super(_value, _then);
+    _$NetworkRequestLoadingImpl<T> _value,
+    $Res Function(_$NetworkRequestLoadingImpl<T>) _then,
+  ) : super(_value, _then);
 
   /// Create a copy of NetworkRequestState
   /// with the given fields replaced by the non-null parameter values.
@@ -337,36 +344,40 @@ abstract class _NetworkRequestLoading<T> extends NetworkRequestState<T> {
 /// @nodoc
 abstract class _$$NetworkRequestSuccessImplCopyWith<T, $Res> {
   factory _$$NetworkRequestSuccessImplCopyWith(
-          _$NetworkRequestSuccessImpl<T> value,
-          $Res Function(_$NetworkRequestSuccessImpl<T>) then) =
-      __$$NetworkRequestSuccessImplCopyWithImpl<T, $Res>;
+    _$NetworkRequestSuccessImpl<T> value,
+    $Res Function(_$NetworkRequestSuccessImpl<T>) then,
+  ) = __$$NetworkRequestSuccessImplCopyWithImpl<T, $Res>;
   @useResult
   $Res call({T data});
 }
 
 /// @nodoc
 class __$$NetworkRequestSuccessImplCopyWithImpl<T, $Res>
-    extends _$NetworkRequestStateCopyWithImpl<T, $Res,
-        _$NetworkRequestSuccessImpl<T>>
+    extends
+        _$NetworkRequestStateCopyWithImpl<
+          T,
+          $Res,
+          _$NetworkRequestSuccessImpl<T>
+        >
     implements _$$NetworkRequestSuccessImplCopyWith<T, $Res> {
   __$$NetworkRequestSuccessImplCopyWithImpl(
-      _$NetworkRequestSuccessImpl<T> _value,
-      $Res Function(_$NetworkRequestSuccessImpl<T>) _then)
-      : super(_value, _then);
+    _$NetworkRequestSuccessImpl<T> _value,
+    $Res Function(_$NetworkRequestSuccessImpl<T>) _then,
+  ) : super(_value, _then);
 
   /// Create a copy of NetworkRequestState
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({
-    Object? data = freezed,
-  }) {
-    return _then(_$NetworkRequestSuccessImpl<T>(
-      freezed == data
-          ? _value.data
-          : data // ignore: cast_nullable_to_non_nullable
-              as T,
-    ));
+  $Res call({Object? data = freezed}) {
+    return _then(
+      _$NetworkRequestSuccessImpl<T>(
+        freezed == data
+            ? _value.data
+            : data // ignore: cast_nullable_to_non_nullable
+                as T,
+      ),
+    );
   }
 }
 
@@ -401,8 +412,10 @@ class _$NetworkRequestSuccessImpl<T> extends _NetworkRequestSuccess<T> {
   @override
   @pragma('vm:prefer-inline')
   _$$NetworkRequestSuccessImplCopyWith<T, _$NetworkRequestSuccessImpl<T>>
-      get copyWith => __$$NetworkRequestSuccessImplCopyWithImpl<T,
-          _$NetworkRequestSuccessImpl<T>>(this, _$identity);
+  get copyWith => __$$NetworkRequestSuccessImplCopyWithImpl<
+    T,
+    _$NetworkRequestSuccessImpl<T>
+  >(this, _$identity);
 
   @override
   @optionalTypeArgs
@@ -490,15 +503,15 @@ abstract class _NetworkRequestSuccess<T> extends NetworkRequestState<T> {
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
   _$$NetworkRequestSuccessImplCopyWith<T, _$NetworkRequestSuccessImpl<T>>
-      get copyWith => throw _privateConstructorUsedError;
+  get copyWith => throw _privateConstructorUsedError;
 }
 
 /// @nodoc
 abstract class _$$NetworkRequestFailureImplCopyWith<T, $Res> {
   factory _$$NetworkRequestFailureImplCopyWith(
-          _$NetworkRequestFailureImpl<T> value,
-          $Res Function(_$NetworkRequestFailureImpl<T>) then) =
-      __$$NetworkRequestFailureImplCopyWithImpl<T, $Res>;
+    _$NetworkRequestFailureImpl<T> value,
+    $Res Function(_$NetworkRequestFailureImpl<T>) then,
+  ) = __$$NetworkRequestFailureImplCopyWithImpl<T, $Res>;
   @useResult
   $Res call({Failure failure});
 
@@ -507,27 +520,31 @@ abstract class _$$NetworkRequestFailureImplCopyWith<T, $Res> {
 
 /// @nodoc
 class __$$NetworkRequestFailureImplCopyWithImpl<T, $Res>
-    extends _$NetworkRequestStateCopyWithImpl<T, $Res,
-        _$NetworkRequestFailureImpl<T>>
+    extends
+        _$NetworkRequestStateCopyWithImpl<
+          T,
+          $Res,
+          _$NetworkRequestFailureImpl<T>
+        >
     implements _$$NetworkRequestFailureImplCopyWith<T, $Res> {
   __$$NetworkRequestFailureImplCopyWithImpl(
-      _$NetworkRequestFailureImpl<T> _value,
-      $Res Function(_$NetworkRequestFailureImpl<T>) _then)
-      : super(_value, _then);
+    _$NetworkRequestFailureImpl<T> _value,
+    $Res Function(_$NetworkRequestFailureImpl<T>) _then,
+  ) : super(_value, _then);
 
   /// Create a copy of NetworkRequestState
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({
-    Object? failure = null,
-  }) {
-    return _then(_$NetworkRequestFailureImpl<T>(
-      null == failure
-          ? _value.failure
-          : failure // ignore: cast_nullable_to_non_nullable
-              as Failure,
-    ));
+  $Res call({Object? failure = null}) {
+    return _then(
+      _$NetworkRequestFailureImpl<T>(
+        null == failure
+            ? _value.failure
+            : failure // ignore: cast_nullable_to_non_nullable
+                as Failure,
+      ),
+    );
   }
 
   /// Create a copy of NetworkRequestState
@@ -571,8 +588,10 @@ class _$NetworkRequestFailureImpl<T> extends _NetworkRequestFailure<T> {
   @override
   @pragma('vm:prefer-inline')
   _$$NetworkRequestFailureImplCopyWith<T, _$NetworkRequestFailureImpl<T>>
-      get copyWith => __$$NetworkRequestFailureImplCopyWithImpl<T,
-          _$NetworkRequestFailureImpl<T>>(this, _$identity);
+  get copyWith => __$$NetworkRequestFailureImplCopyWithImpl<
+    T,
+    _$NetworkRequestFailureImpl<T>
+  >(this, _$identity);
 
   @override
   @optionalTypeArgs
@@ -660,5 +679,5 @@ abstract class _NetworkRequestFailure<T> extends NetworkRequestState<T> {
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
   _$$NetworkRequestFailureImplCopyWith<T, _$NetworkRequestFailureImpl<T>>
-      get copyWith => throw _privateConstructorUsedError;
+  get copyWith => throw _privateConstructorUsedError;
 }

@@ -6,8 +6,10 @@ class AppIcons {
   static const basePath = 'assets';
   static const imagesPath = '$basePath/images';
   static const iconsPath = '$basePath/logo';
+  
 
-  static const m11BgLogo = AppIcon('$basePath/hormann-logo-new-1 1.png');
+
+  static const ShaktiHormannLogo = AppIcon('$iconsPath/hormann-logo-new-1 1.png');
 
   static const bubbles = AppIcon('$imagesPath/bubbles.svg');
 
@@ -19,6 +21,7 @@ class AppIcons {
   );
   static const vehicleReporting = AppIcon('$imagesPath/vehiclereporting.png');
   static const loadingConfirmation = AppIcon('$imagesPath/loadingconfirmation.png');
+ 
 
 }
 
@@ -28,7 +31,7 @@ class AppIcon {
   final String path;
 
   Widget toWidget({
-    double width = 30,
+    double width = 60,
     double height = 30,
     Color? color,
     BoxFit fit = BoxFit.contain,

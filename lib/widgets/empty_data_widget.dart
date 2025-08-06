@@ -33,10 +33,8 @@ class EmptyDataWidget extends StatelessWidget {
             Text(emptyText.trim(), style: context.textTheme.titleMedium, textAlign: TextAlign.center),
             if(onRefresh.isNotNull)...[
               AppButton(
-                label: title,
-                onPressed: onRefresh,
-                textStyle: context.textTheme.titleLarge,
-                bgColor: AppColors.bleachedSilk,
+                label: title, onPressed: () {  },
+               
               ),
             ],
           ],

@@ -1,169 +1,241 @@
-import 'package:flutter/material.dart';
-import 'package:shakti_hormann/app/presentation/ui/app_home_page.dart';
-import 'package:shakti_hormann/forgot_password.dart';
-import 'package:shakti_hormann/styles/app_color.dart';
 
-class LoginScrnWidget extends StatefulWidget {
-  const LoginScrnWidget({super.key});
 
-  @override
-  State<LoginScrnWidget> createState() => _LoginScrnWidgetState();
-}
+// import 'dart:math' as math;
 
-class _LoginScrnWidgetState extends State<LoginScrnWidget> {
-  bool _obscureText = true;
+// import 'package:flutter/foundation.dart';
+// import 'package:flutter/gestures.dart';
+// import 'package:flutter/material.dart';
+// import 'package:flutter_bloc/flutter_bloc.dart';
+// import 'package:shakti_hormann/app/model/otp_request_type.dart';
+// import 'package:shakti_hormann/core/core.dart';
+// import 'package:shakti_hormann/features/auth/presentation/bloc/auth/auth_cubit.dart';
+// import 'package:shakti_hormann/features/auth/presentation/bloc/sign_in/sign_in_cubit.dart';
+// import 'package:shakti_hormann/styles/app_color.dart';
+// import 'package:shakti_hormann/styles/app_icons.dart';
+// import 'package:shakti_hormann/widgets/app_spacer.dart';
+// import 'package:shakti_hormann/widgets/buttons/app_btn.dart';
+// import 'package:shakti_hormann/widgets/dailogs/app_dialogs.dart';
+// import 'package:shakti_hormann/widgets/inputs/app_text_field.dart';
+// import 'package:shakti_hormann/widgets/otp_verf_dialog.dart';
+// import 'package:shakti_hormann/widgets/spaced_column.dart';
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-          
-                  children: [
-                    IconButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      icon: const Icon(Icons.arrow_back_ios_new_rounded,color: AppColors.liteyellow,),
-                      style: IconButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        shadowColor: AppColors.liteyellow,
-                        elevation: 2,
-                      ),
-                    ),
-                     SizedBox(width: 20),
-                    SizedBox(
-                      width: 200,
-                      child: Image.asset(
-                        'assets/logo/hormann-logo-new-1 1.png',
-                        fit: BoxFit.contain,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 30),
 
-                const Text(
-                  'Welcome back! Glad\nto see you, Again!',
-                  style: TextStyle(fontSize: 30, fontWeight: FontWeight.w800),
-                ),
-                const SizedBox(height: 30),
+// class AuthenticationScrn extends StatefulWidget {
+//   const AuthenticationScrn({super.key});
 
-                const Text(
-                  "Email",
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-                ),
-                const SizedBox(height: 10),
-                TextField(
-                  decoration: InputDecoration(
-                    prefixIcon: const Icon(Icons.mail_outline),
-                    hintText: 'Enter your email',
-                    filled: true,
-                    fillColor: const Color(0xFFF5F6FA),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Colors.grey),
-                    ),
+//   @override
+//   State<AuthenticationScrn> createState() => _AuthenticationScrnState();
+// }
 
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(
-                        color: Colors.black,
-                        width: 2,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
+// class _AuthenticationScrnState extends State<AuthenticationScrn> {
+//   late final TextEditingController username;
+//   late final TextEditingController pswd;
+//   bool showPswd = true;
 
-                const Text(
-                  "Password",
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-                ),
-                const SizedBox(height: 10),
-                TextField(
-                  obscureText: _obscureText,
-                  decoration: InputDecoration(
-                    prefixIcon: const Icon(Icons.lock_outline),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _obscureText ? Icons.visibility_off : Icons.visibility,
-                        color: Colors.grey,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _obscureText = !_obscureText;
-                        });
-                      },
-                    ),
-                    hintText: 'Enter your password',
-                    filled: true,
-                    fillColor: const Color(0xFFF5F6FA),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Colors.grey),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(
-                        color: Colors.black,
-                        width: 2,
-                      ),
-                    ),
-                  ),
-                ),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ForgotPasswordPage(),
-                        ),
-                      );
-                    },
-                    child: const Text(
-                      'Forgot Password?',
-                      style: TextStyle(color: Colors.blue),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
+//   @override
+//   void initState() {
+//     super.initState();
+//     username = TextEditingController();
+//     pswd = TextEditingController();
+//   }
 
-                SizedBox(
-                  width: double.infinity,
-                  height: 55,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => AppHomePage()),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.grey,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: const Text(
-                      'Login',
-                      style: TextStyle(fontSize: 18, color: Colors.white),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
+//   void togglePswd() => setState(() {
+//         showPswd = !showPswd;
+//       });
+
+//   String generateOTP() {
+//     final secureRandom = math.Random.secure();
+//     final otp = secureRandom.nextInt(900000) + 100000;
+//     return otp.toString();
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       body: SafeArea(
+//         child: SingleChildScrollView(
+//           child: SpacedColumn(
+//             crossAxisAlignment: CrossAxisAlignment.center,
+//             margin: const EdgeInsets.all(12.0),
+//             defaultHeight: 12.0,
+//             children: [
+//               SizedBox(
+//                 width: context.sizeOfWidth,
+//                 child: AppIcons.m11BgLogo.toWidget(height: 120),
+//               ),
+//               Text(
+//                 'Sign In',
+//                 style: context.textTheme.labelLarge?.copyWith(
+//                   color: AppColors.black,
+//                   fontWeight: FontWeight.bold,
+//                   fontSize: 16,
+//                 ),
+//               ),
+//               Text(
+//                 "Hi Welcome back, you've been missed",
+//                 style: context.textTheme.labelLarge?.copyWith(
+//                   color: AppColors.black,
+//                   fontWeight: FontWeight.w600,
+//                 ),
+//               ),
+//               AppSpacer.p12(),
+//               AppTextField(
+//                 title: 'User ID',
+//                 isRequired: true,
+//                 controller: username,
+//               ),
+//               AppTextField(
+//                 title: 'Password',
+//                 isRequired: true,
+//                 controller: pswd,
+//                 obscureText: showPswd,
+//                 suffix: InkWell(
+//                   onTap: togglePswd,
+//                   child: Text(
+//                     showPswd ? ' show ' : ' hide ',
+//                     style: context.textTheme.titleMedium?.copyWith(
+//                       color: Colors.transparent,
+//                       shadows: [
+//                         const Shadow(
+//                             color: AppColors.green, offset: Offset(0, -5)),
+//                       ],
+//                       decorationColor: AppColors.green,
+//                       decoration: TextDecoration.underline,
+//                       height: 1.5,
+//                       fontWeight: FontWeight.bold,
+//                     ),
+//                   ),
+//                 ),
+//               ),
+//               Align(
+//                 alignment: Alignment.bottomRight,
+//                 child: GestureDetector(
+//                   // onTap: () => AppRoute.forgotpswd.push(context),
+//                   child: Text(
+//                     'Forgot Password?',
+//                     style: context.textTheme.labelLarge?.copyWith(
+//                       color: AppColors.darkBlue,
+//                       decoration: TextDecoration.underline,
+//                       decorationColor: AppColors.darkBlue,
+//                     ),
+//                   ),
+//                 ),
+//               ),
+//               BlocConsumer<SignInCubit, SignInState>(
+//                 listener: (_, state) {
+//                   state.maybeWhen(
+//                     orElse: () {},
+//                     success: (data) async {
+//                       // final generatedOTP = generateOTP();
+//                       // context.cubit<ResendOTPCubit>().request(OTPInput(
+//                       //       type: OTPRequestType.registration,
+//                       //       number: data.mobileNo ?? '',
+//                       //       otp: generatedOTP,
+//                       //     ));
+
+//                       // final cubit = context.cubit<RegistrationCubit>();
+
+//                       if (data.mobileNo == null || data.mobileNo == '') {
+//                         if (!context.mounted) return;
+
+//                         AppDialog.showErrorDialog(context,
+//                             content:
+//                                 'No mobile number is linked to this account. Please contact the administrator.',
+//                             onTapDismiss: context.exit);
+//                         return;
+//                       }
+
+//                       if (!Urls.isTest) {
+//                         final isVerified =
+//                             await OTPVerfDialog.launchOTPVerfDialog(
+//                           context,
+//                           mobileNumber: data.mobileNo ?? '',
+//                           type: OTPRequestType.registration,
+//                         );
+//                         if (isVerified && context.mounted) {
+//                           context
+//                               .cubit<AuthCubit>()
+//                               .authCheckRequested(isOtpverified: true);
+//                         }
+//                       } else {
+//                          context
+//                               .cubit<AuthCubit>()
+//                               .authCheckRequested(isOtpverified: true);
+//                       }
+//                     },
+//                     failure: (failure) => AppDialog.showErrorDialog(context,
+//                         content: failure.error, onTapDismiss: context.exit),
+//                   );
+//                 },
+//                 builder: (_, state) {
+//                   return AppButton(
+//                     label: 'Sign In',
+//                     bgColor: AppColors.darkBlue,
+//                     isLoading: state.isLoading,
+//                     margin: const EdgeInsets.all(12),
+//                     onPressed: () => context
+//                         .cubit<SignInCubit>()
+//                         .login(username.text, pswd.text),
+//                   );
+//                 },
+//               ),
+//               const _TermsAndConditions(),
+//               AppSpacer.p12(),
+//               _registerWidget(),
+//             ],
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+
+//   Widget _registerWidget() => Padding(
+//         padding: const EdgeInsets.symmetric(horizontal: 8.0),
+//         child: RichText(
+//           textAlign: TextAlign.center,
+//           text: TextSpan(
+//             style: context.textTheme.labelLarge?.copyWith(
+//               fontWeight: FontWeight.bold,
+//             ),
+//             children: [
+//               const TextSpan(text: 'Dont have an account? '),
+//               // TextSpan(
+//               //   recognizer: TapGestureRecognizer()..onTap = _goToRegistration,
+//               //   text: ' Sign Up',
+//               //   style: const TextStyle(color: AppColors.darkBlue),
+//               // ),
+//             ],
+//           ),
+//         ),
+//       );
+
+//   // void _goToRegistration() => AppRoute.register.push(context);
+// }
+
+// class _TermsAndConditions extends StatelessWidget {
+//   const _TermsAndConditions();
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Column(
+//       children: [
+//         const Text('By continuing you agree to'),
+//         RichText(
+//           text: TextSpan(
+//             style: context.textTheme.titleSmall?.copyWith(
+//               color: AppColors.darkBlue,
+//               fontSize: 12,
+//               fontWeight: FontWeight.w600,
+//             ),
+//             children: const [
+//               TextSpan(text: 'Our Terms'),
+//               TextSpan(text: '  &  ', style: TextStyle(color: AppColors.black)),
+//               TextSpan(text: 'Privacy'),
+//             ],
+//           ),
+//         ),
+//       ],
+//     );
+//   }
+// }
+

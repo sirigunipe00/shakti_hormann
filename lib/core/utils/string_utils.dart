@@ -1,14 +1,15 @@
 import 'package:dartz/dartz.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:shakti_hormann/core/core.dart';
+
 class StringUtils {
   static bool equals(String? str1, String? str2) {
-    if(str1 == null || str2 == null) return false;
+    if (str1 == null || str2 == null) return false;
     return str1 == str2;
   }
 
   static bool equalsIgnoreCase(String? str1, String? str2) {
-    if(str1 == null || str2 == null) return false;
+    if (str1 == null || str2 == null) return false;
     return str1.trim().toLowerCase() == str2.trim().toLowerCase();
   }
 
@@ -23,7 +24,8 @@ class StringUtils {
   }
 
   static bool validateGSTIn(String value) {
-    const pattern = r'^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$';
+    const pattern =
+        r'^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$';
     return RegExp(pattern).hasMatch(value);
   }
 
@@ -38,19 +40,32 @@ class StringUtils {
   }
 
   static bool isValidIndianMobile(String number) {
-  // Regex pattern: ^[6-9] - starts with 6-9, \d{9} - followed by 9 digits
-  return RegExp(r'^[6-9]\d{9}$').hasMatch(number);
-}
+    // Regex pattern: ^[6-9] - starts with 6-9, \d{9} - followed by 9 digits
+    return RegExp(r'^[6-9]\d{9}$').hasMatch(number);
+  }
 
   static bool isIPv4(String baseUrl) {
     final ipv4Pattern = RegExp(r'^(\d{1,3}\.){3}\d{1,3}(:\d+)?$');
     return ipv4Pattern.hasMatch(baseUrl);
   }
 
-   static bool isValidFSSAINumber(String fssaiNumber) {
-  final fssaiRegExp = RegExp(r'^\d{14}$');
-  return fssaiRegExp.hasMatch(fssaiNumber);
+static int docStatusInt(String? status) {
+  switch (status?.toLowerCase()) {
+    case 'draft':
+      return 0;
+    case 'submitted':
+      return 1;
+    case 'rejected':
+      return 2;
+    default:
+      return 0; 
+  }
 }
+
+  static bool isValidFSSAINumber(String fssaiNumber) {
+    final fssaiRegExp = RegExp(r'^\d{14}$');
+    return fssaiRegExp.hasMatch(fssaiNumber);
+  }
 
   static String readPlacemark(Placemark? placeMark) {
     final name = placeMark?.name;
@@ -59,7 +74,26 @@ class StringUtils {
     final administrativeArea = placeMark?.administrativeArea;
     final postalCode = placeMark?.postalCode;
     final country = placeMark?.country;
-    return [name, subLocality, locality, administrativeArea, postalCode, country].nonNulls.join(', ');
+    return [
+      name,
+      subLocality,
+      locality,
+      administrativeArea,
+      postalCode,
+      country,
+    ].nonNulls.join(', ');
+  }
+
+  static String docStatus(int status) {
+    if (status == 0) {
+      return 'Draft';
+    } else if (status == 1) {
+      return 'Submitted';
+    } else if (status == 2) {
+      return 'Rejected';
+    } else {
+      return 'Draft';
+    }
   }
 }
 
