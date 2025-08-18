@@ -1,12 +1,10 @@
-import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shakti_hormann/app/presentation/widgets/app_page_view3.dart';
-import 'package:shakti_hormann/app/presentation/widgets/app_page_view4.dart';
+import 'package:shakti_hormann/app/presentation/widgets/app_page_view2.dart';
 import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/core/model/page_view_filters.dart';
 import 'package:shakti_hormann/features/gate_entry/presentation/bloc/bloc_provider.dart';
-import 'package:shakti_hormann/features/gate_exit/model/gate%20_exit_form.dart';
+import 'package:shakti_hormann/features/gate_exit/model/gate_exit_form.dart';
 import 'package:shakti_hormann/features/gate_exit/presentation/bloc/bloc_provider.dart';
 import 'package:shakti_hormann/features/gate_exit/presentation/bloc/gate_exit_filter_cubit.dart';
 import 'package:shakti_hormann/features/loading_confirmation/presentation/ui/widgets/loading_cnfm_widget.dart';
@@ -18,13 +16,14 @@ class LoadingCnfrmList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AppPageView4<GateExitFilterCubit>(
-      mode: PageMode4.loadingConfirmation,
+    return AppPageView2<GateExitFilterCubit>(
+      mode: PageMode2.loadingConfirmation,
 
       backgroundColor: AppColors.white,
       onNew: () => AppRoute.newGateExit.push(context),
 
       scaffoldBg: '',
+
       child: BlocListener<GateExitFilterCubit, PageViewFilters>(
         listener: (_, state) => _fetchInital(context),
         child: InfiniteListViewWidget<GateExitCubit, GateExitForm>(
@@ -32,7 +31,6 @@ class LoadingCnfrmList extends StatelessWidget {
               (context, entry) => LoadingCnfmWidget(
                 gateExit: entry,
                 onTap: () {
-                  log('entry----:$entry');
                   AppRoute.newGateExit.push<bool?>(context, extra: entry);
                 },
               ),

@@ -24,18 +24,18 @@ class Urls {
   static final login = '$cusWs/login';
   static final getList = '$cusWs/frappe.client.get_list';
   static final getUsers = '$cusWs/shaktihormann.api.getUsers';
-  
-  
 
   static final appVersion = '$cusWs/easy_common.api.get_app_version';
 
-  // gateEntry
   static final companyName = '$jsonWs/Company';
-  static final  createGateEntry= '$cusWs/shaktihormann.api.createGateEntry';
-  static final  submitGateEntry= '$cusWs/shaktihormann.api.submit_gate_entry';
-
- 
-
+  static final createGateEntry = '$cusWs/shaktihormann.api.createGateEntry';
+  static final submitGateEntry = '$cusWs/shaktihormann.api.submit_gate_entry';
+  static final createGateExit = '$cusWs/shaktihormann.api.create_gate_exit';
+  static final submitGateExit = '$cusWs/shaktihormann.api.submit_gate_exit';
+  static final createLogisticPlanning =
+      '$cusWs/shaktihormann.api.create_logistic_planning';
+  static final updateLogisticPlanning =
+      '$cusWs/shaktihormann.api.update_logistic_planning';
+  static final updateTransport='$cusWs/shaktihormann.api.update_logistic_transporter';
+  static final createVehicleReporting='$cusWs/shaktihormann.api.create_vehicle_reporting';
 }
-
-  

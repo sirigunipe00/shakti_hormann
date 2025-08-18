@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
 
 class NotificationCard extends StatelessWidget {
-  final String title;
-  final String description;
-  final String time;
-  final VoidCallback? onTap;
 
   const NotificationCard({
     super.key,
@@ -13,6 +9,10 @@ class NotificationCard extends StatelessWidget {
     required this.time,
     this.onTap,
   });
+  final String title;
+  final String description;
+  final String time;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {

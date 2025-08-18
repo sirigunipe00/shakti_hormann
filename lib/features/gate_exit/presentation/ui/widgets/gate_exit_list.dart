@@ -1,11 +1,9 @@
-import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shakti_hormann/app/presentation/widgets/app_page_view3.dart';
+import 'package:shakti_hormann/app/presentation/widgets/app_page_view2.dart';
 import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/core/model/page_view_filters.dart';
-import 'package:shakti_hormann/features/gate_entry/presentation/bloc/bloc_provider.dart';
-import 'package:shakti_hormann/features/gate_exit/model/gate%20_exit_form.dart';
+import 'package:shakti_hormann/features/gate_exit/model/gate_exit_form.dart';
 import 'package:shakti_hormann/features/gate_exit/presentation/bloc/bloc_provider.dart';
 import 'package:shakti_hormann/features/gate_exit/presentation/bloc/gate_exit_filter_cubit.dart';
 import 'package:shakti_hormann/features/gate_exit/presentation/ui/widgets/gate_exit_widget.dart';
@@ -17,8 +15,8 @@ class GateExitListScrn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AppPageView3<GateExitFilterCubit>(
-      mode: PageMode3.gateexit,
+    return AppPageView2<GateExitFilterCubit>(
+      mode: PageMode2.gateexit,
 
       backgroundColor: AppColors.white,
       onNew: () => AppRoute.newGateExit.push(context),
@@ -31,7 +29,6 @@ class GateExitListScrn extends StatelessWidget {
               (context, entry) => GateExitWidget(
                 gateExit: entry,
                 onTap: () {
-                  log('entry----:$entry');
                   AppRoute.newGateExit.push<bool?>(context, extra: entry);
                 },
               ),
@@ -45,7 +42,7 @@ class GateExitListScrn extends StatelessWidget {
 
   void _fetchInital(BuildContext context) {
     final filters = context.read<GateExitFilterCubit>().state;
-    context.cubit<GateEntriesCubit>().fetchInitial(
+    context.cubit<GateExitCubit>().fetchInitial(
       Pair(StringUtils.docStatusInt(filters.status), filters.query),
     );
   }
@@ -53,7 +50,7 @@ class GateExitListScrn extends StatelessWidget {
   void fetchMore(BuildContext context) {
     final filters = context.read<GateExitFilterCubit>().state;
 
-    context.cubit<GateEntriesCubit>().fetchMore(
+    context.cubit<GateExitCubit>().fetchMore(
       Pair(StringUtils.docStatusInt(filters.status), filters.query),
     );
   }

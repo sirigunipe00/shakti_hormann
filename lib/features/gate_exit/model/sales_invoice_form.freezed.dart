@@ -22,9 +22,9 @@ SalesInvoiceForm _$SalesInvoiceFormFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$SalesInvoiceForm {
   @JsonKey(name: 'name')
-  String get name => throw _privateConstructorUsedError;
+  String? get name => throw _privateConstructorUsedError;
   @JsonKey(name: 'company')
-  String get companyName => throw _privateConstructorUsedError;
+  String? get plantName => throw _privateConstructorUsedError;
   @JsonKey(name: 'posting_date', defaultValue: '')
   String? get postingDate => throw _privateConstructorUsedError;
   @JsonKey(name: 'vehicle_no', defaultValue: '')
@@ -50,8 +50,8 @@ abstract class $SalesInvoiceFormCopyWith<$Res> {
   ) = _$SalesInvoiceFormCopyWithImpl<$Res, SalesInvoiceForm>;
   @useResult
   $Res call({
-    @JsonKey(name: 'name') String name,
-    @JsonKey(name: 'company') String companyName,
+    @JsonKey(name: 'name') String? name,
+    @JsonKey(name: 'company') String? plantName,
     @JsonKey(name: 'posting_date', defaultValue: '') String? postingDate,
     @JsonKey(name: 'vehicle_no', defaultValue: '') String? vehicleNo,
     @JsonKey(name: 'remarks') String? remarks,
@@ -73,8 +73,8 @@ class _$SalesInvoiceFormCopyWithImpl<$Res, $Val extends SalesInvoiceForm>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? name = null,
-    Object? companyName = null,
+    Object? name = freezed,
+    Object? plantName = freezed,
     Object? postingDate = freezed,
     Object? vehicleNo = freezed,
     Object? remarks = freezed,
@@ -82,15 +82,15 @@ class _$SalesInvoiceFormCopyWithImpl<$Res, $Val extends SalesInvoiceForm>
     return _then(
       _value.copyWith(
             name:
-                null == name
+                freezed == name
                     ? _value.name
                     : name // ignore: cast_nullable_to_non_nullable
-                        as String,
-            companyName:
-                null == companyName
-                    ? _value.companyName
-                    : companyName // ignore: cast_nullable_to_non_nullable
-                        as String,
+                        as String?,
+            plantName:
+                freezed == plantName
+                    ? _value.plantName
+                    : plantName // ignore: cast_nullable_to_non_nullable
+                        as String?,
             postingDate:
                 freezed == postingDate
                     ? _value.postingDate
@@ -122,8 +122,8 @@ abstract class _$$SalesInvoiceFormImplCopyWith<$Res>
   @override
   @useResult
   $Res call({
-    @JsonKey(name: 'name') String name,
-    @JsonKey(name: 'company') String companyName,
+    @JsonKey(name: 'name') String? name,
+    @JsonKey(name: 'company') String? plantName,
     @JsonKey(name: 'posting_date', defaultValue: '') String? postingDate,
     @JsonKey(name: 'vehicle_no', defaultValue: '') String? vehicleNo,
     @JsonKey(name: 'remarks') String? remarks,
@@ -144,8 +144,8 @@ class __$$SalesInvoiceFormImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? name = null,
-    Object? companyName = null,
+    Object? name = freezed,
+    Object? plantName = freezed,
     Object? postingDate = freezed,
     Object? vehicleNo = freezed,
     Object? remarks = freezed,
@@ -153,15 +153,15 @@ class __$$SalesInvoiceFormImplCopyWithImpl<$Res>
     return _then(
       _$SalesInvoiceFormImpl(
         name:
-            null == name
+            freezed == name
                 ? _value.name
                 : name // ignore: cast_nullable_to_non_nullable
-                    as String,
-        companyName:
-            null == companyName
-                ? _value.companyName
-                : companyName // ignore: cast_nullable_to_non_nullable
-                    as String,
+                    as String?,
+        plantName:
+            freezed == plantName
+                ? _value.plantName
+                : plantName // ignore: cast_nullable_to_non_nullable
+                    as String?,
         postingDate:
             freezed == postingDate
                 ? _value.postingDate
@@ -186,8 +186,8 @@ class __$$SalesInvoiceFormImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$SalesInvoiceFormImpl implements _SalesInvoiceForm {
   const _$SalesInvoiceFormImpl({
-    @JsonKey(name: 'name') required this.name,
-    @JsonKey(name: 'company') required this.companyName,
+    @JsonKey(name: 'name') this.name,
+    @JsonKey(name: 'company') this.plantName,
     @JsonKey(name: 'posting_date', defaultValue: '') this.postingDate,
     @JsonKey(name: 'vehicle_no', defaultValue: '') this.vehicleNo,
     @JsonKey(name: 'remarks') this.remarks,
@@ -198,10 +198,10 @@ class _$SalesInvoiceFormImpl implements _SalesInvoiceForm {
 
   @override
   @JsonKey(name: 'name')
-  final String name;
+  final String? name;
   @override
   @JsonKey(name: 'company')
-  final String companyName;
+  final String? plantName;
   @override
   @JsonKey(name: 'posting_date', defaultValue: '')
   final String? postingDate;
@@ -214,7 +214,7 @@ class _$SalesInvoiceFormImpl implements _SalesInvoiceForm {
 
   @override
   String toString() {
-    return 'SalesInvoiceForm(name: $name, companyName: $companyName, postingDate: $postingDate, vehicleNo: $vehicleNo, remarks: $remarks)';
+    return 'SalesInvoiceForm(name: $name, plantName: $plantName, postingDate: $postingDate, vehicleNo: $vehicleNo, remarks: $remarks)';
   }
 
   @override
@@ -223,8 +223,8 @@ class _$SalesInvoiceFormImpl implements _SalesInvoiceForm {
         (other.runtimeType == runtimeType &&
             other is _$SalesInvoiceFormImpl &&
             (identical(other.name, name) || other.name == name) &&
-            (identical(other.companyName, companyName) ||
-                other.companyName == companyName) &&
+            (identical(other.plantName, plantName) ||
+                other.plantName == plantName) &&
             (identical(other.postingDate, postingDate) ||
                 other.postingDate == postingDate) &&
             (identical(other.vehicleNo, vehicleNo) ||
@@ -237,7 +237,7 @@ class _$SalesInvoiceFormImpl implements _SalesInvoiceForm {
   int get hashCode => Object.hash(
     runtimeType,
     name,
-    companyName,
+    plantName,
     postingDate,
     vehicleNo,
     remarks,
@@ -262,8 +262,8 @@ class _$SalesInvoiceFormImpl implements _SalesInvoiceForm {
 
 abstract class _SalesInvoiceForm implements SalesInvoiceForm {
   const factory _SalesInvoiceForm({
-    @JsonKey(name: 'name') required final String name,
-    @JsonKey(name: 'company') required final String companyName,
+    @JsonKey(name: 'name') final String? name,
+    @JsonKey(name: 'company') final String? plantName,
     @JsonKey(name: 'posting_date', defaultValue: '') final String? postingDate,
     @JsonKey(name: 'vehicle_no', defaultValue: '') final String? vehicleNo,
     @JsonKey(name: 'remarks') final String? remarks,
@@ -274,10 +274,10 @@ abstract class _SalesInvoiceForm implements SalesInvoiceForm {
 
   @override
   @JsonKey(name: 'name')
-  String get name;
+  String? get name;
   @override
   @JsonKey(name: 'company')
-  String get companyName;
+  String? get plantName;
   @override
   @JsonKey(name: 'posting_date', defaultValue: '')
   String? get postingDate;

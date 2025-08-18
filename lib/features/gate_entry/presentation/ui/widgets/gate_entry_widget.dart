@@ -4,9 +4,9 @@ import 'package:shakti_hormann/core/utils/date_format_util.dart';
 import 'package:shakti_hormann/core/utils/string_utils.dart';
 import 'package:shakti_hormann/doc_status_widget.dart';
 import 'package:shakti_hormann/features/gate_entry/model/gate_entry_form.dart';
+import 'package:shakti_hormann/features/gate_entry/model/purchase_order_form.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/styles/app_text_styles.dart';
-import 'package:shakti_hormann/widgets/app_spacer.dart';
 import 'package:shakti_hormann/widgets/spaced_column.dart';
 
 class GateEntryWidget extends StatelessWidget {
@@ -14,14 +14,15 @@ class GateEntryWidget extends StatelessWidget {
     super.key,
     required this.gateEntry,
     required this.onTap,
+    this.purchaseOrderForm,
   });
 
   final GateEntryForm gateEntry;
   final VoidCallback onTap;
+  final PurchaseOrderForm? purchaseOrderForm;
 
   @override
   Widget build(BuildContext context) {
-    print('gateEntry.docStatu---:${gateEntry.docStatus}');
     return GestureDetector(
       onTap: onTap,
       child: Card(
@@ -29,25 +30,25 @@ class GateEntryWidget extends StatelessWidget {
         surfaceTintColor: AppColors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10.0),
-          side: const BorderSide(color: AppColors.white, width: 2),
+          side: const BorderSide(color: AppColors.white),
         ),
         child: SpacedColumn(
-          defaultHeight: 4,
-          margin: const EdgeInsets.all(8),
+          defaultHeight: 2,
+          margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
           children: [
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  width: 80,
-                  height: 80,
+                  width: 70,
+                  height: 70,
                   decoration: BoxDecoration(
-                    color: Color(0xFFAB94FF).withOpacity(0.30),
+                    color: const Color(0xFFAB94FF).withOpacity(0.30),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   alignment: Alignment.center,
                   child: const Text(
-                    "QL",
+                    'QL',
                     style: TextStyle(
                       fontFamily: 'Urbanist',
                       fontSize: 20,
@@ -62,7 +63,7 @@ class GateEntryWidget extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Column(
@@ -70,28 +71,43 @@ class GateEntryWidget extends StatelessWidget {
                             children: [
                               Text(
                                 gateEntry.name ?? '',
-                                style: AppTextStyles.titleLarge(context).copyWith(
+                                style: AppTextStyles.titleLarge(
+                                  context,
+                                ).copyWith(
                                   color: AppColors.black,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                               SizedBox(height: 5),
-                              Text(
-                                gateEntry.vehicleNo ?? '',
-                                style: AppTextStyles.titleLarge(
-                                  context,
-                                ).copyWith(
-                                  color: AppColors.grey,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                              const SizedBox(height: 5),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    purchaseOrderForm?.supplier ?? '',
+                                    style: const TextStyle(
+                                      color: AppColors.grey,
+                                      fontWeight: FontWeight.normal,
+                                      letterSpacing: 0,
+                                    ),
+                                  ),
+                                  Text(
+                                    gateEntry.vehicleNo ?? '',
+                                    style: const TextStyle(
+                                      color: AppColors.grey,
+                                      fontWeight: FontWeight.normal,
+                                      letterSpacing: 0,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
-                      
+
                           Text(
                             '(SHM)',
                             style: AppTextStyles.titleLarge(context).copyWith(
-                              color: Color(0xFF2957A4),
+                              color: const Color(0xFF2957A4),
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -100,34 +116,43 @@ class GateEntryWidget extends StatelessWidget {
 
                       const SizedBox(height: 5),
                       Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Icon(
-                            Icons.calendar_today,
-                            size: 14,
-                            color: Color(0xFF163A6B),
+                          Row(
+                            children: [
+                              const Icon(
+                                Icons.calendar_today,
+                                size: 14,
+                                color: Color(0xFF163A6B),
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                DFU.ddMMyyyyFromStr(
+                                  gateEntry.creationDate ?? '',
+                                ),
+                                style: AppTextStyles.titleMedium(
+                                  context,
+                                  const Color(0xFF163A6B),
+                                ).copyWith(color: const Color(0xFF163A6B)),
+                              ),
+                            ],
                           ),
-                          const SizedBox(width: 4),
-                          Text(
-                            DFU.ddMMyyyyFromStr(gateEntry.creationDate ?? ''),
-                            style: AppTextStyles.titleMedium(
-                              context,
-                              Color(0xFF163A6B),
-                            ).copyWith(
-                              color:  Color(0xFF163A6B),
-                            ),
-                          ),
-                          SizedBox(width: 120),
-                          const Icon(
-                            Icons.timelapse_rounded,
-                            size: 14,
-                            color: Color(0xFF53A5DF),
-                          ),
-                          Text(
-                            DFU.timeFromStr(gateEntry.creationDate ?? ''),
-                            style: AppTextStyles.titleMedium(
-                              context,
-                              AppColors.darkBlue,
-                            ).copyWith(color: AppColors.litecyan),
+
+                          Row(
+                            children: [
+                              const Icon(
+                                Icons.timelapse_rounded,
+                                size: 14,
+                                color: Color(0xFF53A5DF),
+                              ),
+                              Text(
+                                DFU.timeFromStr(gateEntry.creationDate ?? ''),
+                                style: AppTextStyles.titleMedium(
+                                  context,
+                                  AppColors.darkBlue,
+                                ).copyWith(color: AppColors.litecyan),
+                              ),
+                            ],
                           ),
                         ],
                       ),
@@ -137,26 +162,27 @@ class GateEntryWidget extends StatelessWidget {
               ],
             ),
             const Padding(
-              padding: EdgeInsets.symmetric(vertical: 8.0),
+              padding: EdgeInsets.symmetric(vertical: 4.0),
               child: DottedLine(
                 direction: Axis.horizontal,
                 lineLength: double.infinity,
-                lineThickness: 1.0,
-                dashLength: 4.0,
+                lineThickness: 0.5,
+                dashLength: 6.0,
                 dashColor: Color.fromARGB(255, 184, 184, 192),
                 dashGapLength: 4.0,
               ),
             ),
-            AppSpacer.empty(),
+
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   gateEntry.purchaseOrder ?? '',
-                  style: AppTextStyles.titleLarge(context).copyWith(
+                  style: const TextStyle(
                     color: Color(0xFF2957A4),
                     fontWeight: FontWeight.bold,
+                    fontSize: 15,
                   ),
                 ),
                 DocStatusWidget(

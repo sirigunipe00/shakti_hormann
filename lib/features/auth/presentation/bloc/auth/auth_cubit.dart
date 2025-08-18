@@ -26,12 +26,12 @@ class AuthCubit extends AppBaseCubit<AuthState> {
 
       final user = await repo.getPersistedUser();
 
-      print('usr----:$user');
+      
       user.fold(
         (l) => emitSafeState(const _UnAuthenticated()),
         (r) async {
           await register<LoggedInUser>(r);
-          print('rr---:$r');
+       
           emitSafeState(const _Authenticated());
         },
       );

@@ -52,7 +52,7 @@ class _LoginScrnWidgetState extends State<LoginScrnWidget> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  CustomAppBar(),
+                  const CustomAppBar(),
                   const SizedBox(height: 20),
 
                   const Text(
@@ -112,7 +112,7 @@ class _LoginScrnWidgetState extends State<LoginScrnWidget> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => ForgotPasswordPage(),
+                            builder: (_) => const ForgotPasswordPage(),
                           ),
                         );
                       },
@@ -170,7 +170,7 @@ class _LoginScrnWidgetState extends State<LoginScrnWidget> {
                         ),
                         const SizedBox(height: 8),
                         const Text(
-                          "Powered by EasyCloud",
+                          'Powered by EasyCloud',
                           style: TextStyle(
                             fontSize: 14,
                             color: Colors.black54,

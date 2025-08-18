@@ -3,7 +3,7 @@ enum OTPRequestType {
   ucoDeposit('UcoDeposit'),
   enroll('Enroll'),
   registration('Reg');
-
+const OTPRequestType(this.code);
   final String code;
-  const OTPRequestType(this.code);
+  
 }

@@ -2,10 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
 
 class TaskWidget extends StatelessWidget {
-  final String title;
-  final String subtitle;
-  final IconData icon;
-  final VoidCallback? onCancel;
 
   const TaskWidget({
     super.key,
@@ -14,6 +10,10 @@ class TaskWidget extends StatelessWidget {
     required this.icon,
     this.onCancel,
   });
+  final String title;
+  final String subtitle;
+  final IconData icon;
+  final VoidCallback? onCancel;
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +29,7 @@ class TaskWidget extends StatelessWidget {
           Container(
             height: 50,
             width: 50,
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: AppColors.litegreen,
               shape: BoxShape.circle,
             ),

@@ -1,40 +1,43 @@
 import 'package:flutter/material.dart';
 import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
-import 'package:shakti_hormann/widgets/spaced_column.dart';
 
 class SimpleAppBar extends StatelessWidget implements PreferredSizeWidget {
   const SimpleAppBar({
     super.key,
     required this.title,
-    required this.onSubmit,
-    required this.status,
-    this.dropdown, 
+    this.isLoading = false,
+    this.dropdown,
+    this.onPressed,
+    this.textStyle,
+    required this.actionButton,
   });
 
   final String title;
-  final VoidCallback onSubmit;
-  final String status;
-  final Widget? dropdown; 
-
+  final Widget? dropdown;
+  final VoidCallback? onPressed;
+  final bool isLoading;
+  final TextStyle? textStyle;
+  final Widget? actionButton;
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(top: 35.0),
+      padding: const EdgeInsets.only(top: 35.0, bottom: 0),
       child: Container(
-        height: 180,
+        height: 185,
         width: MediaQuery.of(context).size.width,
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           color: AppColors.darkBlue,
-          borderRadius: const BorderRadius.only(
+          borderRadius: BorderRadius.only(
             topLeft: Radius.circular(25),
             bottomLeft: Radius.circular(25),
             topRight: Radius.circular(20.0),
           ),
         ),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+
           children: [
             Row(
               children: [
@@ -47,8 +50,11 @@ class SimpleAppBar extends StatelessWidget implements PreferredSizeWidget {
                     color: Colors.white,
                   ),
                   child: IconButton(
-                    padding: EdgeInsets.zero,
-                    icon: Icon(Icons.arrow_back, color: AppColors.liteyellow),
+                    padding: const EdgeInsets.only(left: 2),
+                    icon: const Icon(
+                      Icons.arrow_back_ios,
+                      color: AppColors.liteyellow,
+                    ),
                     onPressed: context.close,
                   ),
                 ),
@@ -64,39 +70,13 @@ class SimpleAppBar extends StatelessWidget implements PreferredSizeWidget {
                     ),
                   ),
                 ),
-                SpacedColumn(
-                  margin: const EdgeInsets.only(right: 8),
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    ElevatedButton(
-                      onPressed: status == 'Submitted' ? null : onSubmit,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor:
-                            status == 'Submitted' ? Colors.grey : Colors.green,
-                        minimumSize: const Size(80, 40),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        padding: EdgeInsets.zero,
-                      ),
-                      child: const Text(
-                        "Submit",
-                        style: TextStyle(
-                          fontFamily: 'Urbanist',
-                          fontWeight: FontWeight.w500,
-                          fontSize: 15,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+                if (actionButton != null) ...[
+                  const SizedBox(height: 12),
+                  actionButton!,
+                ],
               ],
             ),
-            if (dropdown != null) ...[
-              const SizedBox(height: 12),
-              dropdown!, 
-            ],
+            if (dropdown != null) ...[const SizedBox(height: 12), dropdown!],
           ],
         ),
       ),

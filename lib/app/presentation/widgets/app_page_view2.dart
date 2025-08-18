@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/core/model/page_view_filters_cubit.dart';
@@ -16,8 +15,9 @@ enum PageMode2 {
   vehicleReporting('Vehicle Reporting Entry'),
   loadingConfirmation('Laoding Confirmation');
 
-  final String name;
   const PageMode2(this.name);
+
+  final String name;
 }
 
 class AppPageView2<T extends PageViewFiltersCubit> extends StatefulWidget {
@@ -27,7 +27,7 @@ class AppPageView2<T extends PageViewFiltersCubit> extends StatefulWidget {
     required this.mode,
     required this.onNew,
     required this.backgroundColor,
-    required this.scaffoldBg,
+    required this.scaffoldBg, this.onSearch,
   });
 
   final Widget child;
@@ -35,48 +35,60 @@ class AppPageView2<T extends PageViewFiltersCubit> extends StatefulWidget {
   final VoidCallback onNew;
   final Color backgroundColor;
   final String scaffoldBg;
+  final VoidCallback? onSearch;
 
   @override
   State<AppPageView2<T>> createState() => _AppPageView2State<T>();
 }
 
 class _AppPageView2State<T extends PageViewFiltersCubit>
-    extends State<AppPageView2<T>> {
+    extends State<AppPageView2<T>>
+    {
   bool isTodaySelected = true;
 
   String get hintText => switch (widget.mode) {
-        PageMode2.gateentry => 'Search GI / PO',
-        PageMode2.gateexit => 'Search GO / SINV',
-        PageMode2.logisticRequest => 'Search LR / SO ID',
-        PageMode2.transportConfirmation => 'Search LR / TC',
-        PageMode2.vehicleReporting => 'Search VRE / TC',
-        PageMode2.loadingConfirmation => 'Search LC / TC',
-      };
+    PageMode2.gateentry => 'Search GI / PO',
+    PageMode2.gateexit => 'Search GO / SINV',
+    PageMode2.logisticRequest => 'Search LR / SO ID',
+    PageMode2.transportConfirmation => 'Search LR / TC',
+    PageMode2.vehicleReporting => 'Search VRE / TC',
+    PageMode2.loadingConfirmation => 'Search LC / TC',
+  };
 
   Color get bgColor => switch (widget.mode) {
-        PageMode2.gateentry => Colors.white,
-        PageMode2.gateexit => AppColors.white,
-        PageMode2.logisticRequest => const Color(0xFF808080),
-        PageMode2.transportConfirmation => AppColors.white,
-        PageMode2.vehicleReporting => AppColors.white,
-        PageMode2.loadingConfirmation => AppColors.white,
-      };
+    PageMode2.gateentry => Colors.white,
+    PageMode2.gateexit => AppColors.white,
+    PageMode2.logisticRequest => const Color(0xFF808080),
+    PageMode2.transportConfirmation => AppColors.white,
+    PageMode2.vehicleReporting => AppColors.white,
+    PageMode2.loadingConfirmation => AppColors.white,
+  };
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(70),
+        preferredSize: const Size.fromHeight(60),
         child: AppBar(
           actions: [
             Padding(
-              padding: const EdgeInsets.only(right: 40.0),
-              child: SvgPicture.asset(
-                'assets/images/filter.svg',
-                color: const Color(0xFFFFB800),
-                fit: BoxFit.contain,
-                width: 35,
+              padding: const EdgeInsets.only(right: 20),
+              child: Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  border: Border.all(color: Colors.grey.shade200),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: IconButton(
+                  icon: const Icon(Icons.filter_list),
+                  onPressed: widget.onSearch
+                  
+                  
+                  
+                ),
               ),
             ),
           ],
@@ -95,24 +107,27 @@ class _AppPageView2State<T extends PageViewFiltersCubit>
                     height: 40,
                     decoration: BoxDecoration(
                       color: Colors.white,
+                      border: Border.all(color: Colors.grey.shade200),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Icon(
-                      Icons.arrow_back,
-                      color: AppColors.liteyellow,
-                      size: 22,
+                    child: const Padding(
+                      padding: EdgeInsets.only(left: 4),
+                      child: Icon(
+                        Icons.arrow_back_ios,
+                        color: Color.fromARGB(255, 255, 183, 0),
+                        size: 20,
+                      ),
                     ),
                   ),
                 ),
+                const SizedBox(width: 12),
                 Expanded(
-                  child: Center(
-                    child: Text(
-                      widget.mode.name,
-                      style: AppTextStyles.titleLarge(context).copyWith(
-                        color: AppColors.black,
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                      ),
+                  child: Text(
+                    widget.mode.name,
+                    style: AppTextStyles.titleLarge(context).copyWith(
+                      color: AppColors.black,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
@@ -124,7 +139,7 @@ class _AppPageView2State<T extends PageViewFiltersCubit>
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(6.0),
             child: Row(
               children: [
                 Expanded(
@@ -139,10 +154,11 @@ class _AppPageView2State<T extends PageViewFiltersCubit>
               ],
             ),
           ),
+          const SizedBox(height: 3),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Container(
-              height: 50,
+              height: 45,
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(10),
@@ -163,9 +179,10 @@ class _AppPageView2State<T extends PageViewFiltersCubit>
                       child: AnimatedContainer(
                         duration: const Duration(milliseconds: 200),
                         decoration: BoxDecoration(
-                          color: isTodaySelected
-                              ? AppColors.darkBlue
-                              : Colors.transparent,
+                          color:
+                              isTodaySelected
+                                  ? AppColors.darkBlue
+                                  : Colors.transparent,
                           borderRadius: BorderRadius.circular(10),
                         ),
                         alignment: Alignment.center,
@@ -174,9 +191,7 @@ class _AppPageView2State<T extends PageViewFiltersCubit>
                           style: TextStyle(
                             fontWeight: FontWeight.w600,
                             fontFamily: 'Urbanist',
-                            color: isTodaySelected
-                                ? Colors.white
-                                : Colors.grey,
+                            color: isTodaySelected ? Colors.white : Colors.grey,
                           ),
                         ),
                       ),
@@ -188,9 +203,10 @@ class _AppPageView2State<T extends PageViewFiltersCubit>
                       child: AnimatedContainer(
                         duration: const Duration(milliseconds: 200),
                         decoration: BoxDecoration(
-                          color: !isTodaySelected
-                              ? AppColors.darkBlue
-                              : Colors.transparent,
+                          color:
+                              !isTodaySelected
+                                  ? AppColors.darkBlue
+                                  : Colors.transparent,
                           borderRadius: BorderRadius.circular(10),
                         ),
                         alignment: Alignment.center,
@@ -199,9 +215,8 @@ class _AppPageView2State<T extends PageViewFiltersCubit>
                           style: TextStyle(
                             fontWeight: FontWeight.w600,
                             fontFamily: 'Urbanist',
-                            color: !isTodaySelected
-                                ? Colors.white
-                                : Colors.grey,
+                            color:
+                                !isTodaySelected ? Colors.white : Colors.grey,
                           ),
                         ),
                       ),
@@ -211,23 +226,33 @@ class _AppPageView2State<T extends PageViewFiltersCubit>
               ),
             ),
           ),
+
           Expanded(
-            child: Container(
-              margin: const EdgeInsets.only(top: 16.0),
-              padding: const EdgeInsets.all(8.0),
-              decoration: BoxDecoration(
-                color: AppColors.white,
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(32.0),
-                  topRight: Radius.circular(32.0),
-                ),
-                border: Border.all(color: AppColors.white),
-              ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
               child: widget.child,
             ),
           ),
         ],
       ),
+      floatingActionButton:
+          widget.mode != PageMode2.transportConfirmation
+              ? FloatingActionButton.extended(
+                extendedPadding: const EdgeInsets.symmetric(horizontal: 28),
+                onPressed: widget.onNew,
+                backgroundColor: AppColors.darkBlue,
+                icon: const Icon(Icons.add, color: AppColors.white),
+                label: Text(
+                  'New',
+                  style: AppTextStyles.titleLarge(
+                    context,
+                  ).copyWith(color: AppColors.white, fontSize: 22),
+                ),
+              )
+              : null,
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
+
+ 
 }

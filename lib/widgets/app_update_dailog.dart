@@ -1,10 +1,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:shakti_hormann/core/core.dart';
-import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/widgets/buttons/app_btn.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:url_launcher/url_launcher_string.dart';
 
 
 class AppUpdateDialog extends StatelessWidget {
@@ -35,8 +33,7 @@ class AppUpdateDialog extends StatelessWidget {
             ),
             const Row(
               children: [
-                //Text('New Version: '),
-                //AppVersionText(),
+               
               ],
             ),
           ],
@@ -54,7 +51,7 @@ class AppUpdateDialog extends StatelessWidget {
   void launchPlayStore(String appId) async {
     var url =
         Uri.parse('https://play.google.com/store/apps/details?id=$appId&hl=en');
-        print('URL:$url');
+    
     if (await canLaunchUrl(url)) {
       await launchUrl(url, mode: LaunchMode.externalApplication);
     } else {

@@ -9,7 +9,7 @@ class AppIcons {
   
 
 
-  static const ShaktiHormannLogo = AppIcon('$iconsPath/hormann-logo-new-1 1.png');
+  static const shaktiHormannLogo = AppIcon('$iconsPath/hormann-logo-new-1 1.png');
 
   static const bubbles = AppIcon('$imagesPath/bubbles.svg');
 
@@ -43,7 +43,7 @@ class AppIcon {
         width: width,
         height: height,
         colorFilter:
-            color != null ? ColorFilter.mode(color!, BlendMode.srcIn) : null,
+            color != null ? ColorFilter.mode(color, BlendMode.srcIn) : null,
         fit: fit,
       );
     }

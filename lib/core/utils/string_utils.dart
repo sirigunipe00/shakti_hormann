@@ -49,18 +49,18 @@ class StringUtils {
     return ipv4Pattern.hasMatch(baseUrl);
   }
 
-static int docStatusInt(String? status) {
-  switch (status?.toLowerCase()) {
-    case 'draft':
-      return 0;
-    case 'submitted':
-      return 1;
-    case 'rejected':
-      return 2;
-    default:
-      return 0; 
+  static int docStatusInt(String? status) {
+    switch (status?.toLowerCase()) {
+      case 'draft':
+        return 0;
+      case 'submitted':
+        return 1;
+      case 'all':
+        return 2;
+      default:
+        return 0;
+    }
   }
-}
 
   static bool isValidFSSAINumber(String fssaiNumber) {
     final fssaiRegExp = RegExp(r'^\d{14}$');
@@ -89,8 +89,6 @@ static int docStatusInt(String? status) {
       return 'Draft';
     } else if (status == 1) {
       return 'Submitted';
-    } else if (status == 2) {
-      return 'Rejected';
     } else {
       return 'Draft';
     }

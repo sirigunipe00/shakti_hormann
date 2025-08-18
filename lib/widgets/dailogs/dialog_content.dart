@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
-import 'package:shakti_hormann/styles/text_styles.dart';
 import 'package:shakti_hormann/widgets/app_spacer.dart';
 import 'package:shakti_hormann/widgets/buttons/app_btn.dart';
 import 'package:shakti_hormann/widgets/dailogs/app_dialogs.dart';
@@ -38,7 +37,7 @@ class DialogWidget extends StatelessWidget {
           margin: const EdgeInsets.all(24),
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
-            color: AppColors.carla,
+            color: AppColors.white,
             borderRadius: BorderRadius.circular(15),
           ),
           child: Column(

@@ -90,7 +90,7 @@ class AppTextField extends StatelessWidget {
             labelStyle: context.textTheme.labelLarge?.copyWith(
               fontSize: 30,
               fontWeight: FontWeight.w500,
-              color: Color(0xFFF78F9),
+              color: const Color(0x0fff78f9),
             ),
 
             hintText: hintText ?? title?.replaceAll(':', ''),

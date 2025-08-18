@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
-import 'package:shakti_hormann/styles/text_styles.dart';
 import 'package:shakti_hormann/widgets/app_spacer.dart';
 import 'package:shakti_hormann/widgets/spaced_column.dart';
 

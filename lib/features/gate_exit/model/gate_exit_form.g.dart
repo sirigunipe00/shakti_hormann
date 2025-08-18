@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'gate _exit_form.dart';
+part of 'gate_exit_form.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator

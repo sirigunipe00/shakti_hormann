@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 
 class PincodeTextField extends StatefulWidget {
-  final int length;
-  final void Function(String)? onChanged;
 
   const PincodeTextField({
     super.key,
     this.length = 4,
     this.onChanged,
   });
+  final int length;
+  final void Function(String)? onChanged;
 
   @override
   State<PincodeTextField> createState() => _PincodeTextFieldState();

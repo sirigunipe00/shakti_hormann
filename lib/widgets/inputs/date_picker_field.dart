@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
 import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/widgets/caption_text.dart';
@@ -20,6 +19,7 @@ class AppDateField extends StatefulWidget {
     this.isRequired = false,
     this.dateformat = 'dd-MM-yyyy',
     this.fillColor,
+    this.initialValue,
   });
 
   final String title;
@@ -31,6 +31,7 @@ class AppDateField extends StatefulWidget {
   final Function(DateTime date) onSelected;
   final String? hintText;
   final Widget? suffixIcon;
+  final String? initialValue;
   final Color? fillColor;
   final bool isRequired;
 
@@ -39,22 +40,38 @@ class AppDateField extends StatefulWidget {
 }
 
 class _AppDateFieldState extends State<AppDateField> {
-  final controller = TextEditingController();
-  DateTime? selectedDate;
+  late TextEditingController controller;
 
   @override
   void initState() {
     super.initState();
-    if (widget.initialDate.containsValidValue) {
-      controller.text = widget.initialDate!;
-      selectedDate = DateTime.tryParse(widget.initialDate!);
+
+    String dateToShow;
+
+    if (widget.initialValue != null && widget.initialValue!.isNotEmpty) {
+      dateToShow = widget.initialValue!;
+    } else if (widget.initialDate != null && widget.initialDate!.isNotEmpty) {
+      dateToShow = widget.initialDate!;
+    } else {
+      dateToShow = DFU.ddMMyyyy(DateTime.now());
     }
+
+    controller = TextEditingController(text: dateToShow);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final parts = dateToShow.split('-');
+      if (parts.length == 3) {
+        final day = int.tryParse(parts[0]) ?? 1;
+        final month = int.tryParse(parts[1]) ?? 1;
+        final year = int.tryParse(parts[2]) ?? 2000;
+        final parsedDate = DateTime(year, month, day);
+        widget.onSelected(parsedDate);
+      }
+    });
+
+    controller = TextEditingController(text: dateToShow);
   }
 
-  // final textFieldBorder = OutlineInputBorder(
-  //   borderRadius: BorderRadius.circular(10.0),
-  //   borderSide: const BorderSide(color: AppColors.black, width: 0.8),
-  // );
   @override
   Widget build(BuildContext context) {
     return SpacedColumn(
@@ -66,20 +83,13 @@ class _AppDateFieldState extends State<AppDateField> {
           margin: EdgeInsets.zero,
           padding: EdgeInsets.zero,
           decoration: BoxDecoration(
-            color: Colors.grey[100],
-            // border: Border.all(color: AppColors.white),
-            // boxShadow: [
-            //   BoxShadow(
-            //     color: borderColor ?? AppColors.white,
-            //     blurRadius: 2,
-            //     offset: const Offset(2, 2)
-            //   ),
-            // ],
+            color: widget.fillColor ?? Colors.grey[100],
             borderRadius: BorderRadius.circular(10.0),
           ),
           child: TextField(
             style: TextStyle(color: Colors.black.withOpacity(0.6)),
             onTap: () {
+           
               if (widget.readOnly) return;
               _showDatePicker();
             },
@@ -91,15 +101,17 @@ class _AppDateFieldState extends State<AppDateField> {
                 fontFamily: 'Urbanist',
                 fontWeight: FontWeight.w500,
               ),
-              fillColor:  Colors.grey[100],
+              fillColor: widget.fillColor ?? Colors.grey[100],
               filled: true,
-              contentPadding: const EdgeInsets.all(16.0),
-              suffixIcon: widget.suffixIcon,
+              contentPadding: const EdgeInsets.symmetric(
+                vertical: 8.0,
+                horizontal: 12.0,
+              ),
+              suffixIcon: widget.readOnly ? null : widget.suffixIcon,
               counterText: '',
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10.0),
-                borderSide:
-                    BorderSide.none, 
+                borderSide: BorderSide.none,
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10.0),
@@ -123,19 +135,19 @@ class _AppDateFieldState extends State<AppDateField> {
     );
   }
 
-  void _showDatePicker() {
-    showDatePicker(
+  void _showDatePicker() async {
+    final selectedDate = await showDatePicker(
       context: context,
-      initialDate: selectedDate ?? DateTime.now(),
+      initialDate: DateTime.now(),
       firstDate: widget.startDate,
       lastDate: widget.endDate,
-    ).then((value) {
-      if (value != null) {
-        widget.onSelected(value);
-        selectedDate = value;
-        controller.text = DateFormat(widget.dateformat).format(value);
-        setState(() {});
-      }
-    });
+    );
+    if (selectedDate != null) {
+      final formattedDate = DFU.ddMMyyyy(selectedDate);
+      setState(() {
+        controller.text = formattedDate;
+      });
+      widget.onSelected(selectedDate);
+    }
   }
 }

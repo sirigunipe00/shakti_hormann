@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/widgets/caption_text.dart';
 import 'package:shakti_hormann/widgets/spaced_column.dart';
@@ -22,7 +23,7 @@ class InputField extends StatelessWidget {
     this.maxLines,
     this.inputFormatters,
     this.focusNode,
-    this.color=AppColors.black,
+    this.color = AppColors.black,
     this.isRequired = false,
     TextEditingController? controller,
     this.validator,
@@ -55,39 +56,31 @@ class InputField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textFieldBorder = OutlineInputBorder(
-      borderRadius: BorderRadius.circular(10.0),
-      borderSide: const BorderSide(color: AppColors.black, width: 0.8),
-    );
-
+   
     return Focus(
       focusNode: focusNode,
       child: SpacedColumn(
         crossAxisAlignment: CrossAxisAlignment.start,
         defaultHeight: 4.0,
         children: [
-          CaptionText(title: title, isRequired: isRequired, color:color ,),
+          CaptionText(title: title, isRequired: isRequired, color: color),
           Container(
             margin: EdgeInsets.zero,
             padding: EdgeInsets.zero,
             decoration: BoxDecoration(
-              color: Colors.grey[100],
-              // border: Border.all(color: AppColors.white),
-              // boxShadow: [
-              //   BoxShadow(
-              //     color: borderColor ?? AppColors.white,
-              //     blurRadius: 2,
-              //     offset: const Offset(2, 2)
-              //   ),
-              // ],
-              borderRadius: BorderRadius.circular(10.0),
+              color: Colors.grey.shade100,
+
+              borderRadius: BorderRadius.circular(6),
             ),
             child: TextFormField(
-              style: TextStyle(color: Colors.black.withOpacity(0.6)),
+              style:const TextStyle(color: Colors.black,fontSize: 14),
               controller: controller,
 
               decoration: InputDecoration(
-                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 12,
+                ),
                 border: InputBorder.none,
                 enabledBorder: InputBorder.none,
                 focusedBorder: InputBorder.none,
@@ -95,14 +88,19 @@ class InputField extends StatelessWidget {
                 suffixIcon: suffixIcon,
                 counterText: '',
                 hintText: hintText,
-                hintStyle: TextStyle(fontFamily: 'Urabnist',fontWeight: FontWeight.w500,fontSize: 10)
+                hintStyle: context.textTheme.labelSmall?.copyWith(
+                  color: AppColors.grey,
+                  fontFamily: 'Urbanist',
+                  fontWeight: FontWeight.w500,
+                  fontSize: 14,
+                ),
               ),
               obscuringCharacter: '*',
               textInputAction: TextInputAction.done,
               maxLengthEnforcement: MaxLengthEnforcement.enforced,
               onChanged: onChanged,
               validator: validator,
-              // onSubmitted: onSubmitted,
+     
               keyboardType: inputType,
               inputFormatters: inputFormatters,
               maxLength: maxLength,

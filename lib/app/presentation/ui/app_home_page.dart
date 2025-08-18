@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shakti_hormann/app/presentation/widgets/dashboard-item.dart';
+import 'package:shakti_hormann/app/presentation/widgets/dashboard_item.dart';
 import 'package:shakti_hormann/app/presentation/widgets/greeting_widget.dart';
 import 'package:shakti_hormann/app/presentation/widgets/task_widget.dart';
 import 'package:shakti_hormann/core/app_router/app_route.dart';
@@ -13,60 +13,52 @@ class AppHomePage extends StatefulWidget {
 }
 
 class _AppHomePageState extends State<AppHomePage> {
-  int _selectedIndex = 0;
-
   final List<DashboardItem> dashboardItems = [
     DashboardItem(
-      title: "Gate Entry",
+      title: 'Gate Entry',
       icon: AppIcons.gateeEntry,
       onTap: (context) {
-        print('ontap---');
+       
         AppRoute.gateEntry.push<bool?>(context);
       },
     ),
     DashboardItem(
-      title: "Gate Exit",
+      title: 'Gate Exit',
       icon: AppIcons.gateExit,
       onTap: (context) {
-          print('ontap---');
+        
         AppRoute.gatexit.push<bool?>(context);
       },
     ),
     DashboardItem(
-      title: "Logistic Request",
+      title: 'Logistic Request',
       icon: AppIcons.logisticRequest,
       onTap: (context) {
         AppRoute.logisticRequest.push<bool?>(context);
       },
     ),
     DashboardItem(
-      title: "Transport\nConfirmation",
+      title: 'Transport\nConfirmation',
       icon: AppIcons.transportrterConfirmation,
       onTap: (context) {
         AppRoute.transportConfirmation.push<bool?>(context);
       },
     ),
     DashboardItem(
-      title: "Vehicle Reporting\nEntry",
+      title: 'Vehicle Reporting\nEntry',
       icon: AppIcons.vehicleReporting,
       onTap: (context) {
         AppRoute.vehcileReporting.push<bool?>(context);
       },
     ),
     DashboardItem(
-      title: "Loading\nConfirmation",
+      title: 'Loading\nConfirmation',
       icon: AppIcons.loadingConfirmation,
       onTap: (context) {
-         AppRoute.loadingConfirmation.push<bool?>(context);
+        AppRoute.loadingConfirmation.push<bool?>(context);
       },
     ),
   ];
-
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
 
   Widget buildDashboardCard(DashboardItem item) {
     return GestureDetector(
@@ -76,12 +68,12 @@ class _AppHomePageState extends State<AppHomePage> {
           borderRadius: BorderRadius.circular(20),
 
           color: Colors.white,
-          border: Border.all(color: Color(0xFFE8ECF4), width: 2),
+          border: Border.all(color: const Color(0xFFE8ECF4), width: 2),
           boxShadow: [
-            BoxShadow(
+            const BoxShadow(
               color: Color(0xFFFFFFFF),
               blurRadius: 5,
-              offset: const Offset(0, 2),
+              offset: Offset(0, 2),
             ),
           ],
         ),
@@ -113,13 +105,12 @@ class _AppHomePageState extends State<AppHomePage> {
       body: SafeArea(
         child: Column(
           children: [
-            // Greeting + Notification
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  GreetingHeader(),
+                  const GreetingHeader(),
                   Padding(
                     padding: const EdgeInsets.only(right: 20),
                     child: GestureDetector(
@@ -143,7 +134,7 @@ class _AppHomePageState extends State<AppHomePage> {
                           children: [
                             Center(
                               child: Image.asset(
-                                'assets/images/notification.png', // your bell icon
+                                'assets/images/notification.png',
                                 height: 24,
                                 width: 24,
                               ),
@@ -172,16 +163,14 @@ class _AppHomePageState extends State<AppHomePage> {
                 ],
               ),
             ),
-         
-            // Task Widget
+
             const TaskWidget(
               title: "Your Today's Task",
-              subtitle: "Almost done!",
+              subtitle: 'Almost done!',
               icon: Icons.check_circle,
               onCancel: null,
             ),
 
-            // Dashboard Grid
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),

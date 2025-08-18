@@ -3,9 +3,9 @@ import 'package:go_router/go_router.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
 
 class CustomAppBar extends StatelessWidget {
-  final VoidCallback? onBack;
 
   const CustomAppBar({super.key, this.onBack});
+  final VoidCallback? onBack;
 
   @override
   Widget build(BuildContext context) {

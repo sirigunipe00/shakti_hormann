@@ -1,12 +1,10 @@
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:permission_handler_platform_interface/permission_handler_platform_interface.dart';
 
 import 'package:shakti_hormann/core/core.dart';
 
 import 'package:shakti_hormann/app/presentation/bloc/geo_permission/geo_permission_state.dart';
-import 'package:shakti_hormann/core/cubit/base/base_cubit.dart';
 
 class GeoPermissionHandler extends AppBaseCubit<GeoPermissionState> {
   GeoPermissionHandler() : super(const Initial());

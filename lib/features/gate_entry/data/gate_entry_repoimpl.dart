@@ -5,63 +5,97 @@ import 'package:injectable/injectable.dart';
 import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/features/gate_entry/data/gate_entry.repo.dart';
 import 'package:shakti_hormann/features/gate_entry/model/gate_entry_form.dart';
-import 'package:shakti_hormann/features/gate_entry/model/receiver_name_form.dart';
+import 'package:shakti_hormann/features/gate_entry/model/purchase_order_form.dart';
 
 @LazySingleton(as: GateEntryRepo)
 class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
   const GateEntryRepoimpl(super.client);
-
   @override
   AsyncValueOf<List<GateEntryForm>> fetchEntries(
     int start,
     int? docStatus,
-    String? serach,
+    String? search,
   ) async {
+    print('docstatus...$docStatus');
+    print('search...$search');
+    final filters = <List<dynamic>>[];
+
+    if (docStatus != null &&
+        docStatus != 2  ) {
+      filters.add(['docstatus', '=', docStatus]);
+    }
+
+    if (search != null && search.isNotEmpty) {
+      filters.add(['name', 'like', '%$search%']);
+    }
+
     final requestConfig = RequestConfig(
       url: Urls.getList,
       parser: (json) {
-        final data = json['message'];
-        final listdata = data as List<dynamic>;
-        return listdata.map((e) => GateEntryForm.fromJson(e)).toList();
+        final data = json['message'] as List<dynamic>;
+        return data.map((e) => GateEntryForm.fromJson(e)).toList();
       },
       reqParams: {
-        if (!(docStatus == null)) ...{
-          'filters': [
-            ["docstatus", "=", docStatus],
-            if (serach.containsValidValue) ...{
-              ["name", "Like", "%$serach"],
-            },
-          ],
-        },
+        if (filters.isNotEmpty) 'filters': jsonEncode(filters),
         'limit_start': start,
         'limit': 20,
-        'oreder_by': 'create desc',
+        'order_by': 'creation desc',
         'doctype': 'Gate Entry',
-        'fields': ["*"],
+        'fields': jsonEncode(['*']),
       },
       headers: {HttpHeaders.contentTypeHeader: 'application/json'},
     );
-    $logger.devLog("requestConfig....$requestConfig");
+
+    $logger.devLog('requestConfig....$requestConfig');
+
     final response = await get(requestConfig);
     return response.process((r) => right(r.data!));
   }
 
+  // @override
+  // AsyncValueOf<List<String>> fetchCompanyList() async {
+  //   return await executeSafely(() async {
+  //     final config = RequestConfig(
+  //       url: Urls.companyName,
+  //       reqParams: {
+  //         'fields': ReceiverNameForm.fields,
+  //         'limit_page_length': 'None',
+  //       },
+  //       parser: (p0) {
+  //         final data = p0['data'] as List<dynamic>;
+  //         return data.map((e) => e['name'].toString()).toList();
+  //       },
+  //     );
+  //     final response = await get(config);
+  //     return response.process((r) => right(r.data!));
+  //   });
+  // }
+
   @override
-  AsyncValueOf<List<String>> fetchCompanyList() async {
+  AsyncValueOf<List<PurchaseOrderForm>> fetchPurchaseOrders(String name) async {
     return await executeSafely(() async {
       final config = RequestConfig(
-        url: Urls.companyName,
+        url: Urls.getList,
+
+        parser: (json) {
+          final data = json['message'];
+          final listdata = data as List<dynamic>;
+          return listdata.map((e) => PurchaseOrderForm.fromJson(e)).toList();
+        },
         reqParams: {
-          'fields': ReceiverNameForm.fields,
-          'limit_page_length': 'None',
+          'limit': 20,
+          'oreder_by': 'creat desc',
+          'doctype': 'Purchase Order',
+          'fields': ['*'],
         },
-        parser: (p0) {
-          final data = p0['data'] as List<dynamic>;
-          return data.map((e) => e['name'].toString()).toList();
-        },
+        headers: {HttpHeaders.contentTypeHeader: 'application/json'},
       );
+      $logger.devLog('salesinvoice.....$config');
       final response = await get(config);
-      return response.process((r) => right(r.data!));
+      $logger.devLog('response.....$response');
+      return response.processAsync((r) async {
+        return right((r.data!));
+      });
     });
   }
 
@@ -74,9 +108,7 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
           final data = json['message']['message'] as String;
           return Pair(data, '');
         },
-        body: jsonEncode({
-          "gate_entry_id": form.name, // as per your curl
-        }),
+        body: jsonEncode({'gate_entry_id': form.name}),
         headers: {HttpHeaders.contentTypeHeader: 'application/json'},
       );
 
@@ -91,12 +123,15 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
   AsyncValueOf<Pair<String, String>> createGateEntry(GateEntryForm form) async {
     final formJson = form.toJson();
 
-    $logger.devLog('form....$form');
-
     formJson['status'] = 'Draft';
-    $logger.devLog('formJson.....$formJson');
 
-    final finalMap = {...removeNullValues(form.toJson()), ...formJson};
+    String? formatDateToDDMMYYYY(String? date) {
+      final parsedDate = DateTime.parse(date!);
+      final day = parsedDate.day.toString().padLeft(2, '0');
+      final month = parsedDate.month.toString().padLeft(2, '0');
+      final year = parsedDate.year.toString();
+      return '$day-$month-$year';
+    }
 
     final config = RequestConfig(
       url: Urls.createGateEntry,
@@ -106,12 +141,19 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
       },
 
       body: jsonEncode({
-        "plant_name": form.plantName,
-        // "po_number":"PUR-ORD-2025-00002",
-        "vehicle_number": form.vehicleNo,
-        "invoice_date": form.vendorInvoiceDate,
-        "entry_date": form.gateEntryDate,
-        "vendor_invoice_no": form.vendorInvoiceNo,
+        'plant_name': form.plantName,
+        'po_number': form.purchaseOrder,
+        'invoice_amount': form.invoiceAmount,
+        'invoice_date': formatDateToDDMMYYYY(form.vendorInvoiceDate),
+        'entry_date': formatDateToDDMMYYYY(form.gateEntryDate),
+        'vendor_invoice_no': form.vendorInvoiceNo,
+        'vehicle_photo': form.vehiclePhoto,
+        'invoice_photo': form.invoicePhoto,
+        'vehicle_back_photo': form.vehicleBackPhoto,
+        'vehicle_no': form.vehicleNo,
+        'invoice_qty': form.invoiceQuantity,
+        'remarks': form.remarks,
+        'scan_irn': form.scanIrn,
       }),
       headers: {HttpHeaders.contentTypeHeader: 'application/json'},
     );
@@ -124,31 +166,4 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
       return right(Pair(r.data!.first, r.data!.second));
     });
   }
-
-  //  @override
-  //   AsyncValueOf<String> updateGateEntry(
-  //       GateEntryForm form) async {
-  //     final formData = form.toJson();
-  //     formData
-  //       ..remove('name')
-  //       ..remove('creation')
-  //       ..remove('gate_entry_date')
-  //       ..remove('weighment_date');
-
-  //     final requestConfig = RequestConfig(
-  //       url: Urls.updateGateEntry,
-  //       body: jsonEncode(removeNullValues({
-  //         'ge_id': form.name,
-  //         'gate_entry_lines': reqMap,
-  //         ...formData,
-  //       })),
-  //       parser: (json) {
-  //         final data = json['message']['message'];
-  //         return data;
-  //       },
-  //       headers: {HttpHeaders.contentTypeHeader: 'application/json'},
-  //     );
-  //     final response = await post(requestConfig);
-  //     return response.process((r) => right(r.data!));
-  //   }
 }

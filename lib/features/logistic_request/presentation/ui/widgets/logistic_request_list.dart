@@ -1,18 +1,12 @@
-import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shakti_hormann/app/presentation/widgets/app_page_view2.dart';
-import 'package:shakti_hormann/app/presentation/widgets/app_page_view3.dart';
-import 'package:shakti_hormann/app/presentation/widgets/app_page_view4.dart';
 import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/core/model/page_view_filters.dart';
-import 'package:shakti_hormann/features/gate_entry/presentation/bloc/bloc_provider.dart';
-import 'package:shakti_hormann/features/gate_exit/model/gate%20_exit_form.dart';
-import 'package:shakti_hormann/features/gate_exit/presentation/bloc/bloc_provider.dart';
-import 'package:shakti_hormann/features/gate_exit/presentation/bloc/gate_exit_filter_cubit.dart';
-import 'package:shakti_hormann/features/gate_exit/presentation/ui/widgets/gate_exit_widget.dart';
+import 'package:shakti_hormann/features/logistic_request/model/logistic_planning_form.dart';
+import 'package:shakti_hormann/features/logistic_request/presentation/bloc/bloc_provider.dart';
+import 'package:shakti_hormann/features/logistic_request/presentation/bloc/logistic_planning_filter_cubit.dart';
 import 'package:shakti_hormann/features/logistic_request/presentation/ui/widgets/logistic_request_widget.dart';
-import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/widgets/infinite_list_widget.dart';
 
 class LogisticRequestList extends StatelessWidget {
@@ -20,43 +14,52 @@ class LogisticRequestList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AppPageView4<GateExitFilterCubit>(
-      mode: PageMode4.logisticRequest,
+    return AppPageView2<LogisticPlanningFilterCubit>(
+      mode: PageMode2.logisticRequest,
 
-      backgroundColor: AppColors.white,
-      onNew: () => AppRoute.newGateExit.push(context),
+      backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+      onNew: () async {
+        final refresh = await AppRoute.newLogisticRequest.push<bool?>(context);
+        if (refresh == true) {
+          _fetchInital(context);
+        }
+      },
 
       scaffoldBg: '',
-      child: BlocListener<GateExitFilterCubit, PageViewFilters>(
+
+      child: BlocListener<LogisticPlanningFilterCubit, PageViewFilters>(
         listener: (_, state) => _fetchInital(context),
-        child: InfiniteListViewWidget<GateExitCubit, GateExitForm>(
-          childBuilder:
-              (context, entry) => LogisticRequestWidget(
-                gateExit: entry,
-                onTap: () {
-                  log('entry----:$entry');
-                  AppRoute.newGateExit.push<bool?>(context, extra: entry);
-                },
-              ),
-          fetchInitial: () => _fetchInital(context),
-          fetchMore: () => fetchMore(context),
-          emptyListText: 'No GateExists Found.',
-        ),
+        child:
+            InfiniteListViewWidget<LogisticPlanningCubit, LogisticPlanningForm>(
+              childBuilder:
+                  (context, entry) => LogisticRequestWidget(
+                    logistic: entry,
+                    onTap: () {
+                      AppRoute.newLogisticRequest.push<bool?>(
+                        context,
+                        extra: entry,
+                      );
+                    },
+                  ),
+              fetchInitial: () => _fetchInital(context),
+              fetchMore: () => fetchMore(context),
+              emptyListText: 'No Logistic Requests Found.',
+            ),
       ),
     );
   }
 
   void _fetchInital(BuildContext context) {
-    final filters = context.read<GateExitFilterCubit>().state;
-    context.cubit<GateEntriesCubit>().fetchInitial(
+    final filters = context.read<LogisticPlanningFilterCubit>().state;
+    context.cubit<LogisticPlanningCubit>().fetchInitial(
       Pair(StringUtils.docStatusInt(filters.status), filters.query),
     );
   }
 
   void fetchMore(BuildContext context) {
-    final filters = context.read<GateExitFilterCubit>().state;
+    final filters = context.read<LogisticPlanningFilterCubit>().state;
 
-    context.cubit<GateEntriesCubit>().fetchMore(
+    context.cubit<LogisticPlanningCubit>().fetchMore(
       Pair(StringUtils.docStatusInt(filters.status), filters.query),
     );
   }

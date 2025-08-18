@@ -1,8 +1,4 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shakti_hormann/features/auth/presentation/bloc/auth/auth_cubit.dart';
 import 'package:shakti_hormann/features/auth/presentation/ui/authentication_scrn.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
 
@@ -15,15 +11,7 @@ class AppSplashScrn extends StatefulWidget {
 }
 
 class _AppSplashScrnState extends State<AppSplashScrn> {
-//   @override
-//   void initState (){
-//     super.initState();
-   
-//  Timer(const Duration(minutes: 1), () {
-//   if (!mounted) return; 
-//   context.read<AuthCubit>().authCheckRequested();
-// });
-//   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -87,7 +75,7 @@ class _AppSplashScrnState extends State<AppSplashScrn> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => LoginScrnWidget(),
+                          builder: (context) => const LoginScrnWidget(),
                         ),
                       );
                     },
@@ -116,7 +104,7 @@ class _AppSplashScrnState extends State<AppSplashScrn> {
                         ),
                         const SizedBox(height: 8),
                         const Text(
-                          "Powered by EasyCloud",
+                          'Powered by EasyCloud',
                           style: TextStyle(
                             fontSize: 14,
                             color: Colors.black54,
@@ -136,8 +124,8 @@ class _AppSplashScrnState extends State<AppSplashScrn> {
 }
 
 class Dot extends StatelessWidget {
-  final bool active;
   const Dot({super.key, this.active = false});
+  final bool active;
 
   @override
   Widget build(BuildContext context) {

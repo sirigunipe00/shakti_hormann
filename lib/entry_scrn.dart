@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:shakti_hormann/features/auth/presentation/ui/authentication_scrn.dart';
-import 'package:shakti_hormann/login_scrn.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
 
 class EntryScreen extends StatelessWidget {
@@ -68,7 +67,7 @@ class EntryScreen extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => LoginScrnWidget(),
+                        builder: (context) =>const LoginScrnWidget(),
                       ),
                     );
                   },
@@ -93,8 +92,8 @@ class EntryScreen extends StatelessWidget {
 }
 
 class Dot extends StatelessWidget {
-  final bool active;
   const Dot({super.key, this.active = false});
+  final bool active;
 
   @override
   Widget build(BuildContext context) {

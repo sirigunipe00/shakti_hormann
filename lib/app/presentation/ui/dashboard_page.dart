@@ -10,6 +10,6 @@ class AppDashboardPage extends StatefulWidget {
 class _AppDashboardPageState extends State<AppDashboardPage> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold();
+    return const Scaffold();
   }
 }

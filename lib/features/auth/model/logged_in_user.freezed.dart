@@ -37,7 +37,7 @@ mixin _$LoggedInUser {
   String? get password => throw _privateConstructorUsedError;
   @JsonKey(name: 'role_profile_name', defaultValue: '')
   String? get roleProfileName => throw _privateConstructorUsedError;
-  @JsonKey(name: 'user_list', defaultValue: '')
+  @JsonKey(name: 'user_type')
   String? get userType => throw _privateConstructorUsedError;
   @JsonKey(name: 'gender')
   String? get gender => throw _privateConstructorUsedError;
@@ -83,7 +83,7 @@ abstract class $LoggedInUserCopyWith<$Res> {
     @JsonKey(defaultValue: '') String? password,
     @JsonKey(name: 'role_profile_name', defaultValue: '')
     String? roleProfileName,
-    @JsonKey(name: 'user_list', defaultValue: '') String? userType,
+    @JsonKey(name: 'user_type') String? userType,
     @JsonKey(name: 'gender') String? gender,
     @JsonKey(name: 'birth_date') String? bithDate,
     @JsonKey(name: 'depo_name') String? depoName,
@@ -254,7 +254,7 @@ abstract class _$$LoggedInUserImplCopyWith<$Res>
     @JsonKey(defaultValue: '') String? password,
     @JsonKey(name: 'role_profile_name', defaultValue: '')
     String? roleProfileName,
-    @JsonKey(name: 'user_list', defaultValue: '') String? userType,
+    @JsonKey(name: 'user_type') String? userType,
     @JsonKey(name: 'gender') String? gender,
     @JsonKey(name: 'birth_date') String? bithDate,
     @JsonKey(name: 'depo_name') String? depoName,
@@ -416,7 +416,7 @@ class _$LoggedInUserImpl extends _LoggedInUser {
     @JsonKey(name: 'email', defaultValue: '') this.email,
     @JsonKey(defaultValue: '') this.password,
     @JsonKey(name: 'role_profile_name', defaultValue: '') this.roleProfileName,
-    @JsonKey(name: 'user_list', defaultValue: '') this.userType,
+    @JsonKey(name: 'user_type') this.userType,
     @JsonKey(name: 'gender') this.gender,
     @JsonKey(name: 'birth_date') this.bithDate,
     @JsonKey(name: 'depo_name') this.depoName,
@@ -457,7 +457,7 @@ class _$LoggedInUserImpl extends _LoggedInUser {
   @JsonKey(name: 'role_profile_name', defaultValue: '')
   final String? roleProfileName;
   @override
-  @JsonKey(name: 'user_list', defaultValue: '')
+  @JsonKey(name: 'user_type')
   final String? userType;
   @override
   @JsonKey(name: 'gender')
@@ -580,7 +580,7 @@ abstract class _LoggedInUser extends LoggedInUser {
     @JsonKey(defaultValue: '') final String? password,
     @JsonKey(name: 'role_profile_name', defaultValue: '')
     final String? roleProfileName,
-    @JsonKey(name: 'user_list', defaultValue: '') final String? userType,
+    @JsonKey(name: 'user_type') final String? userType,
     @JsonKey(name: 'gender') final String? gender,
     @JsonKey(name: 'birth_date') final String? bithDate,
     @JsonKey(name: 'depo_name') final String? depoName,
@@ -622,7 +622,7 @@ abstract class _LoggedInUser extends LoggedInUser {
   @JsonKey(name: 'role_profile_name', defaultValue: '')
   String? get roleProfileName;
   @override
-  @JsonKey(name: 'user_list', defaultValue: '')
+  @JsonKey(name: 'user_type')
   String? get userType;
   @override
   @JsonKey(name: 'gender')

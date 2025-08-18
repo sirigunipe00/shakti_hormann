@@ -25,12 +25,12 @@ class GateEntryForm with _$GateEntryForm {
     @JsonKey(name: 'vendor_invoice_no')
     String? vendorInvoiceNo,
     @JsonKey(name: 'gate_entry_date') String? gateEntryDate,
-    @JsonKey(name: 'vendor_invoice_quantity') int? vendorInvoiceQuantity,
+    @JsonKey(name: 'invoice_qty') int? invoiceQuantity,
     @JsonKey(name: 'invoice_amount') int? invoiceAmount,
-    @JsonKey(name: 'reamraks') String? remarks,
+    @JsonKey(name: 'remarks') String? remarks,
     @JsonKey(name: 'is_purchase_receipt_created') int? receipt,
     @JsonKey(name: 'vehicle_photo') String? vehiclePhoto,
-    @JsonKey(name: 'vehicle_invoice_photo') String? vehicleInvoicePhoto,
+    @JsonKey(name: 'vendor_invoice_photo') String? invoicePhoto,
     @JsonKey(name: 'vehicle_back_photo') String? vehicleBackPhoto,
   }) = _GateEntryForm;
   factory GateEntryForm.fromJson(Map<String, dynamic> json) =>

@@ -10,9 +10,9 @@ class DocStatusWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 50, // Fixed width for uniformity
-      height: 20, // Fixed height for uniformity
-      alignment: Alignment.center, // Center the text
+      width: 50, 
+      height: 20, 
+      alignment: Alignment.center, 
       decoration: BoxDecoration(
         color: toColor(),
         border: Border.all(color: toColor()),

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shakti_hormann/core/core.dart';
-import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/styles/app_icons.dart';
 import 'package:shakti_hormann/widgets/buttons/app_btn.dart';
 import 'package:shakti_hormann/widgets/spaced_column.dart';
@@ -33,7 +32,7 @@ class EmptyDataWidget extends StatelessWidget {
             Text(emptyText.trim(), style: context.textTheme.titleMedium, textAlign: TextAlign.center),
             if(onRefresh.isNotNull)...[
               AppButton(
-                label: title, onPressed: () {  },
+                label: title, onPressed: onRefresh,
                
               ),
             ],

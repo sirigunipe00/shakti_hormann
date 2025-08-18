@@ -5,7 +5,7 @@ Future<void> showRejectBottomSheet({
   required BuildContext context,
   required void Function(String reason) onSubmit,
 }) {
-  final TextEditingController _controller = TextEditingController();
+  final TextEditingController controller = TextEditingController();
 
   return showModalBottomSheet(
     context: context,
@@ -28,7 +28,7 @@ Future<void> showRejectBottomSheet({
                   ),
                   const SizedBox(height: 12),
                   TextField(
-                    controller: _controller,
+                    controller: controller,
                     maxLines: 3,
                     decoration: const InputDecoration(
                       hintText: 'Type your reason here...',
@@ -50,22 +50,23 @@ Future<void> showRejectBottomSheet({
                       const SizedBox(width: 12),
                       ElevatedButton(
                         style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.all(
-                            _controller.text.trim().isEmpty
+                          backgroundColor: WidgetStateProperty.all(
+                            controller.text.trim().isEmpty
                                 ? const Color.fromARGB(255, 187, 174, 174)
                                 : Colors.green,
                           ),
                         ),
-                        onPressed: _controller.text.trim().isEmpty
+                        onPressed: controller.text.trim().isEmpty
                             ? null
                             : () {
-                                final reason = _controller.text.trim();
+                                final reason = controller.text.trim();
                                 Navigator.pop(ctx);
                                 onSubmit(reason);
 
                                 // Show rejection dialog after bottom sheet closes
                                 Future.delayed(const Duration(milliseconds: 300), () {
                                   showDialog(
+                                    // ignore: use_build_context_synchronously
                                     context: context,
                                     builder: (_) => const RejectionDialog(
                                       entryId: 'GI-SHM-0001',

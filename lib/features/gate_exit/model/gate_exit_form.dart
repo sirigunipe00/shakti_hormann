@@ -1,7 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-
-part 'gate _exit_form.freezed.dart';
-part 'gate _exit_form.g.dart';
+part 'gate_exit_form.freezed.dart';
+part 'gate_exit_form.g.dart';
 
 @freezed
 class GateExitForm with _$GateExitForm {
@@ -22,9 +21,10 @@ class GateExitForm with _$GateExitForm {
     @JsonKey(name: 'vehicle_no') String? vehicleNo,
 
     @JsonKey(name: 'vehicle_photo') String? vehiclePhoto,
+    
 
     @JsonKey(name: 'gate_entry_date') String? gateEntryDate,
-
+     
     @JsonKey(name: 'vehicle_back_photo') String? vehicleBackPhoto,
 
     @JsonKey(name: 'remarks') String? remarks,

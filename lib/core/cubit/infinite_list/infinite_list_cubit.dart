@@ -27,7 +27,7 @@ class InfiniteListCubit<T, FIP, FMP> extends AppBaseCubit<InfiniteListState<T>> 
       _isFetchInProgress = true;
       final result = await requestInitial(params, state);
       result.fold(
-        (l) => emitSafeState(state.copyWith(apiState: ApiState.failed, failure: l as Failure)),
+        (l) => emitSafeState(state.copyWith(apiState: ApiState.failed, failure: l)),
         (r) => emitSafeState(state.copyWith(
           apiState: ApiState.success,
           records: r,
@@ -51,7 +51,7 @@ class InfiniteListCubit<T, FIP, FMP> extends AppBaseCubit<InfiniteListState<T>> 
 
       final result = await requestMore!(params, state);
       result.fold(
-        (l) => emitSafeState(state.copyWith(apiState: ApiState.success, failure: l as Failure)),
+        (l) => emitSafeState(state.copyWith(apiState: ApiState.success, failure: l)),
         (List<T> r) {
           final hasReachedMax = (r.length < pageLength);
           emitSafeState(state.copyWith(

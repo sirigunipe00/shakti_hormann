@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
 class RejectionDialog extends StatelessWidget {
-  final String entryId;
 
   const RejectionDialog({super.key, required this.entryId});
+  final String entryId;
 
   @override
   Widget build(BuildContext context) {

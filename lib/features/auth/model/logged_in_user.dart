@@ -17,7 +17,7 @@ class LoggedInUser with _$LoggedInUser {
     @JsonKey(defaultValue: '') String? password,
     @JsonKey(name: 'role_profile_name', defaultValue: '')
     String? roleProfileName,
-    @JsonKey(name: 'user_list', defaultValue: '') String? userType,
+    @JsonKey(name: 'user_type') String? userType,
     @JsonKey(name: 'gender') String? gender,
     @JsonKey(name: 'birth_date') String? bithDate,
     @JsonKey(name: 'depo_name') String? depoName,

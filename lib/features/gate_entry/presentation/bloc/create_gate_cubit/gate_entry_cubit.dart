@@ -41,65 +41,60 @@ class CreateGateEntryCubit extends AppBaseCubit<CreateGateEntryState> {
     String? vendorInvoiceDate,
     String? vendorInvoiceNo,
     String? gateEntryDate,
-    int? vendorInvoiceQuantity,
+    int? invoiceQuantity,
     int? invoiceAmount,
     int? receipt,
     String? scanIrn,
     String? remarks,
 
     File? vehiclePhoto,
-    File? vehicleInvoicePhoto,
+    File? invoicePhoto,
     File? vehicleBackPhoto,
   }) {
     shouldAskForConfirmation.value = true;
     final today = DateFormat('yyyy-MM-dd').format(DateTime.now());
     final form = state.form;
-    plantName ??= plantName == null ? form.plantName : null;
-    name ??= name == null ? form.name : null;
+  
     final vehiclePhotos =
         vehiclePhoto.isNull
             ? form.vehiclePhoto
             : base64Encode(vehiclePhoto!.readAsBytesSync());
-    final vehicleinvoicePhotos =
-        vehicleInvoicePhoto.isNull
-            ? form.vehicleInvoicePhoto
-            : base64Encode(vehicleInvoicePhoto!.readAsBytesSync());
+   final vendorInvoicePhotoBase64 = invoicePhoto != null
+    ? base64Encode(invoicePhoto.readAsBytesSync())
+    : form.invoicePhoto ?? '';
+
     final vehiclebackPhotos =
         vehicleBackPhoto.isNull
             ? form.vehicleBackPhoto
             : base64Encode(vehicleBackPhoto!.readAsBytesSync());
 
     final newForm = form.copyWith(
-      plantName: plantName,
-      name: name,
+      plantName: plantName ?? form.plantName,
+      name: name ?? form.name,
       creationDate: today,
       owner: owner ?? form.owner,
       docStatus: docStatus ?? form.docStatus,
       modifiedBy: modifiedBy ?? form.modifiedBy,
-
+      
       modifiedDate: modifiedDate ?? form.modifiedDate,
       purchaseOrder: purchaseOrder ?? form.purchaseOrder,
       vehicleNo: vehicleNo ?? form.vehicleNo,
       vendorInvoiceDate: vendorInvoiceDate ?? form.vendorInvoiceDate,
       vendorInvoiceNo: vendorInvoiceNo ?? form.vendorInvoiceNo,
       gateEntryDate: gateEntryDate ?? form.gateEntryDate,
-      vendorInvoiceQuantity:
-          vendorInvoiceQuantity ?? form.vendorInvoiceQuantity,
+      invoiceQuantity:
+          invoiceQuantity ?? form.invoiceQuantity,
       invoiceAmount: invoiceAmount ?? form.invoiceAmount,
       receipt: receipt ?? form.receipt,
       scanIrn: scanIrn ?? form.scanIrn,
       remarks: remarks ?? form.remarks,
       vehiclePhoto: vehiclePhotos,
-      vehicleInvoicePhoto: vehicleinvoicePhotos,
+      invoicePhoto: vendorInvoicePhotoBase64,
       vehicleBackPhoto: vehiclebackPhotos,
     );
     emitSafeState(state.copyWith(form: newForm));
   }
 
-  // void addInvUrls(List<String> urls) {
-  //   final form = state.form.copyWith(addInvs: urls);
-  //   emitSafeState(state.copyWith(form: form));
-  // }
 
   void initDetails(Object? entry) {
     shouldAskForConfirmation.value = false;
@@ -109,6 +104,24 @@ class CreateGateEntryCubit extends AppBaseCubit<CreateGateEntryState> {
         'yyyy-MM-dd',
       );
       final formattedStr = DFU.friendlyFormat(parsedDate);
+      final form =state.form;
+      final updatedForm =form.copyWith(
+      docStatus: entry.docStatus,
+      name: entry.name,
+      remarks: entry.remarks,
+      plantName: entry.plantName,
+      gateEntryDate: entry.gateEntryDate,
+      vendorInvoiceNo: entry.vendorInvoiceNo,
+      vendorInvoiceDate: entry.vendorInvoiceDate,
+      vehicleNo: entry.vehicleNo,
+      vehiclePhoto: entry.vehiclePhoto,
+      vehicleBackPhoto: entry.vehicleBackPhoto,
+      invoicePhoto: entry.invoicePhoto,
+      invoiceAmount: entry.invoiceAmount,
+      invoiceQuantity: entry.invoiceQuantity,
+      scanIrn: entry.scanIrn,
+      creationDate: formattedStr
+      );
 
       final status = entry.docStatus;
 
@@ -126,20 +139,27 @@ class CreateGateEntryCubit extends AppBaseCubit<CreateGateEntryState> {
               : GateEntryView.edit;
       emitSafeState(
         state.copyWith(
-          form: entry.copyWith(creationDate: formattedStr),
+          form: updatedForm,
           view: mode,
         ),
       );
     }
     if (entry == null) return;
   }
+   void clearVehiclePhoto() {
+    final form = state.form.copyWith(vehiclePhoto: null);
+    emitSafeState(state.copyWith(form: form));
+  }
+   void clearVehicleBackPhoto() {
+    final form = state.form.copyWith(vehicleBackPhoto: null);
+    emitSafeState(state.copyWith(form: form));
+  }
+  void clearInvoicePhoto() {
+    final form = state.form.copyWith(invoicePhoto: null);
+    emitSafeState(state.copyWith(form: form));
+  }
 
-  // void removeFile(int indx) {
-  //   final invs = [...state.form.invoiceImg];
-  //   invs.removeAt(indx);
-  //   final form = state.form.copyWith(invoiceImg: invs);
-  //   emitSafeState(state.copyWith(form: form));
-  // }
+ 
 
   void save() async {
     final validation = _validate();
@@ -219,13 +239,18 @@ class CreateGateEntryCubit extends AppBaseCubit<CreateGateEntryState> {
 
   Option<Pair<String, int?>> _validate() {
     final form = state.form;
-    // final isMand = form.entryType == 'Gatepass Returnable' && form.expectedReturnDate.doesNotHaveValue;
     if (form.plantName.doesNotHaveValue) {
       return optionOf(const Pair('Select Plant Name', 0));
     } else if (form.vehicleNo.doesNotHaveValue) {
       return optionOf(const Pair('Enter Vehicle Number', 0));
-    } else if (form.invoiceAmount.isNull) {
-      return optionOf(const Pair('Enter Invoice Amount', 0));
+    } else if (form.vehiclePhoto.isNull) {
+      return optionOf(const Pair('Missing VehicleFront Photo', 0));
+    } else if (form.vehicleBackPhoto.isNull) {
+      return optionOf(const Pair('Missing VehicleBack Photo', 0));
+    } else if (form.invoicePhoto.isNull) {
+      return optionOf(const Pair('Missing VendorInvoice Photo', 0));
+    } else if (form.vendorInvoiceNo.isNull) {
+      return optionOf(const Pair('Enter VendorInvoice Number', 0));
     } 
 
     return const None();

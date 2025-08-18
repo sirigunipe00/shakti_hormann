@@ -15,9 +15,9 @@ enum PageMode3 {
   transportConfirmation('Transport Confirmation'),
   vehicleReporting('Vehicle Reporting Entry'),
   loadingConfirmation('Laoding Confirmation');
-
+ const PageMode3(this.name);
   final String name;
-  const PageMode3(this.name);
+ 
 }
 
 class AppPageView3<T extends PageViewFiltersCubit> extends StatefulWidget {
@@ -170,7 +170,7 @@ class _AppPageView3State<T extends PageViewFiltersCubit>
           color: AppColors.white,
         ),
         label: Text(
-          "New",
+          'New',
           style: AppTextStyles.titleLarge(context)
               .copyWith(color: AppColors.white, fontSize: 22),
         ),

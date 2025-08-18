@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:shakti_hormann/core/utils/date_format_util.dart';
 import 'package:shakti_hormann/core/utils/string_utils.dart';
 import 'package:shakti_hormann/doc_status_widget.dart';
-import 'package:shakti_hormann/features/gate_exit/model/gate%20_exit_form.dart';
+import 'package:shakti_hormann/features/gate_exit/model/gate_exit_form.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/styles/app_text_styles.dart';
 import 'package:shakti_hormann/widgets/app_spacer.dart';
@@ -21,7 +21,7 @@ class LoadingCnfmWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print('gateExit.docStatu---:${gateExit.docStatus}');
+    
     return GestureDetector(
       onTap: onTap,
       child: Card(
@@ -42,12 +42,12 @@ class LoadingCnfmWidget extends StatelessWidget {
                   width: 80,
                   height: 80,
                   decoration: BoxDecoration(
-                    color: Color(0xFFAB94FF).withOpacity(0.30),
+                    color: const Color(0xFFAB94FF).withOpacity(0.30),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   alignment: Alignment.center,
                   child: const Text(
-                    "QL",
+                    'QL',
                     style: TextStyle(
                       fontFamily: 'Urbanist',
                       fontSize: 20,
@@ -78,7 +78,7 @@ class LoadingCnfmWidget extends StatelessWidget {
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              SizedBox(height: 5),
+                              const SizedBox(height: 5),
                               Text(
                                 gateExit.vehicleNo ?? '',
                                 style: AppTextStyles.titleLarge(
@@ -119,7 +119,7 @@ class LoadingCnfmWidget extends StatelessWidget {
                               color: const Color.fromARGB(255, 28, 16, 205),
                             ),
                           ),
-                          SizedBox(width: 120),
+                          const SizedBox(width: 120),
                           const Icon(
                             Icons.timelapse_rounded,
                             size: 14,
@@ -130,7 +130,7 @@ class LoadingCnfmWidget extends StatelessWidget {
                             style: AppTextStyles.titleMedium(
                               context,
                               AppColors.darkBlue,
-                            ).copyWith(color: Color(0xFF53A5DF)),
+                            ).copyWith(color:  const Color(0xFF53A5DF)),
                           ),
                         ],
                       ),

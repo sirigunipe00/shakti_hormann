@@ -24,7 +24,7 @@ class GreetingHeader extends StatelessWidget {
                 style: const TextStyle(fontSize: 20, color: Colors.black87,fontFamily: 'Urbanist'),
               ),
               Text(
-                "$userName",
+                userName,
                 style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -42,7 +42,7 @@ class GreetingHeader extends StatelessWidget {
 }
 
 extension on BuildContext {
-  dayOfTimeGreeting() {
+  String dayOfTimeGreeting() {
       final currHour = DFU.now().hour;
     return switch (currHour) {
       < 12 => 'Good Morning,',

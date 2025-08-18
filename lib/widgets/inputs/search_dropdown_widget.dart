@@ -81,8 +81,8 @@ class _SearchDropDownListState<T> extends State<SearchDropDownList<T>> {
               closedHeaderPadding: const EdgeInsets.all(16.0),
               expandedHeaderPadding: const EdgeInsets.all(16.0),
               decoration: CustomDropdownDecoration(
-                closedFillColor: Colors.grey[100],
-                expandedFillColor: Colors.grey[100],
+                closedFillColor: Colors.grey.shade100,
+                expandedFillColor: Colors.grey.shade100,
                 // closedBorder: InputBorder.none,
                 // expandedBorder: InputBorder.none,
                 closedBorderRadius: BorderRadius.circular(8.0),

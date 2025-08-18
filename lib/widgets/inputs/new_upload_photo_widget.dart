@@ -1,36 +1,37 @@
-import 'dart:convert';
 import 'dart:io';
+import 'package:image_picker/image_picker.dart';
+import 'package:shakti_hormann/core/core.dart';
 import 'package:flutter/material.dart';
-import 'package:shakti_hormann/core/consts/urls.dart';
 import 'package:shakti_hormann/core/utils/attachment_selection_mixin.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/widgets/caption_text.dart';
-import 'package:shakti_hormann/widgets/fullscrn_imageviewer.dart';
 import 'package:shakti_hormann/widgets/spaced_column.dart';
-import 'package:google_mlkit_barcode_scanning/google_mlkit_barcode_scanning.dart';
 
+enum PhotoState { capture, view }
 
 class NewUploadPhotoWidget extends StatefulWidget {
   const NewUploadPhotoWidget({
     super.key,
     this.title,
-    this.defaultValue,
-    this.imageUrl,
-    this.readOnly = false,
-    required this.onFileCapture,
-    required this.isretake,
     this.isRequired = false,
-    required this.onGetUpi,
+    this.isReadOnly = false,
+    this.imageUrl,
+    this.defaultValue,
+    required this.onFileCapture,
+    this.focusNode,
+    required this.fileName,
+    this.isWarning,
   });
 
   final String? title;
-  final String? imageUrl;
-  final String? defaultValue;
-  final bool readOnly;
-  final bool isretake;
+  final String fileName;
   final bool isRequired;
+  final String? imageUrl;
+  final File? defaultValue;
   final Function(File? file) onFileCapture;
-  final Function(String? file) onGetUpi;
+  final bool isReadOnly;
+  final FocusNode? focusNode;
+  final bool? isWarning;
 
   @override
   State<NewUploadPhotoWidget> createState() => _NewUploadPhotoWidgetState();
@@ -38,193 +39,244 @@ class NewUploadPhotoWidget extends StatefulWidget {
 
 class _NewUploadPhotoWidgetState extends State<NewUploadPhotoWidget>
     with AttahcmentSelectionMixin {
-  File? capturedFile;
-  String? networkImageUrl;
+  File? _selectedImage;
+  PhotoState _photoState = PhotoState.capture;
 
   @override
   void initState() {
     super.initState();
-
-    if (widget.defaultValue != null) {
-      // Check if it's a base64 string or a URL
-      if (widget.defaultValue!.startsWith('/files/')) {
-        final baseUrl = getbaseUrl();
-        print('baseUrl----:$baseUrl');
-        networkImageUrl = '$baseUrl${widget.defaultValue}';
-
-        print('networkImageUrl---:$networkImageUrl');
-      } else {
-        try {
-          final bytes = base64Decode(widget.defaultValue!);
-          final tempFile = File('${Directory.systemTemp.path}/temp_img.jpg')
-            ..writeAsBytesSync(bytes);
-          capturedFile = tempFile;
-        } catch (_) {
-          // Not a valid base64 string, ignore
-        }
-      }
+    if (widget.defaultValue.isNotNull) {
+      _selectedImage = widget.defaultValue;
+      _photoState = PhotoState.view;
+    }
+    if (widget.imageUrl.isNotNull) {
+      _selectedImage = null;
+      _photoState = PhotoState.view;
     }
   }
 
-  String getbaseUrl() {
-    String baseUrl;
-    if (Urls.isTest) {
-      baseUrl = 'https://m11ucouat.easycloud.co.in/';
-    } else {
-      baseUrl = 'https://rucoprd.sunpure.in/';
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  Future<void> _capture() async {
+    try {
+      final picker = ImagePicker();
+      final pickedFile = await picker.pickImage(
+        source: ImageSource.camera,
+        imageQuality: 85,
+      );
+
+      if (pickedFile != null) {
+        final selectedImage = File(pickedFile.path);
+        debugPrint('🖼️ Image picked from gallery: ${selectedImage.path}');
+
+        setState(() {
+          _selectedImage = selectedImage;
+          _photoState = PhotoState.view;
+        });
+        widget.onFileCapture(selectedImage);
+      } else {
+        debugPrint('❌ No image selected');
+      }
+    } catch (e) {
+      debugPrint('❌ Error while picking image: $e');
     }
-    return baseUrl;
+  }
+
+  String getFullImageUrl(String? url) {
+    if (url == null || url.isEmpty) return '';
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return url;
+    }
+    return 'http://65.21.243.18:8000$url';
   }
 
   @override
   Widget build(BuildContext context) {
     return SpacedColumn(
       crossAxisAlignment: CrossAxisAlignment.start,
+      defaultHeight: 4,
+      margin: EdgeInsets.zero,
       children: [
-        if (widget.title!.isNotEmpty)
-          CaptionText(
-            title: widget.title ?? '',
-            isRequired: widget.isRequired,
-          ),
-        Container(
-          height: 50,
-          width: double.infinity,
-          decoration: BoxDecoration(
-            border: Border.all(color: AppColors.green),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Center(
-            child: widget.readOnly
-                ? const Text('Read-only')
-                : capturedFile == null && networkImageUrl == null
-                    ? IconButton(
-                        icon: const Icon(Icons.add_a_photo,
-                            size: 38, color: AppColors.green),
-                        onPressed: _captureImage,
-                      )
-                    : TextButton(
-                        onPressed: _viewImage,
-                        style: TextButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 70, vertical: 10),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        child: const Text(
-                          'View',
-                          style: TextStyle(
-                            fontSize: 20,
-                            color: AppColors.green,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
+        GestureDetector(
+          onTap: () {
+            if (widget.isReadOnly) return;
+
+            if (_photoState == PhotoState.view) {
+              context.goToPage(
+                ImagePreviewPage(
+                  imageUrl: widget.imageUrl,
+                  image: _selectedImage,
+                  title: widget.title.valueOrEmpty,
+                  onRetake: () async {
+                    Navigator.pop(context);
+                    await _capture();
+                  },
+                  onDone: () {
+                    Navigator.pop(context);
+                  },
+                ),
+              );
+            } else {
+              _capture();
+            }
+          },
+          child: Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Container(
+              height: 80,
+              width: 90,
+              decoration: BoxDecoration(
+                color: AppColors.white,
+                borderRadius: BorderRadius.circular(14.0),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(14.0),
+                child:
+                    _photoState == PhotoState.capture
+                        ? Image.asset(
+                          'assets/images/${widget.fileName}.png',
+                          fit: BoxFit.fill,
+                        )
+                        : (_selectedImage != null
+                            ? Image.file(_selectedImage!, fit: BoxFit.cover)
+                            : (widget.imageUrl != null
+                                ? Image.network(
+                                  getFullImageUrl(widget.imageUrl),
+                                  fit: BoxFit.cover,
+                                )
+                                : Image.asset(
+                                  'assets/images/${widget.fileName}.png',
+                                  fit: BoxFit.fill,
+                                ))),
+              ),
+            ),
           ),
         ),
+        if (widget.title != null && widget.title!.isNotEmpty)
+          CaptionText(title: widget.title!, isRequired: widget.isRequired),
       ],
     );
   }
-
-  // Future<void> _captureImage() async {
-  //   final file = await captureImage();
-  //   if (file != null) {
-  //     setState(() => capturedFile = file);
-  //     widget.onFileCapture(file);
-  //   }
-  // }
-
-  Future<void> _captureImage() async {
-    final file = await captureImage();
-    if (file != null) {
-      setState(() => capturedFile = file);
-      widget.onFileCapture(file);
-      final upiId = await extractUpiIdFromImage(file);
-      if (upiId != null) {
-        print('Extracted UPI ID: $upiId');
-        widget.onGetUpi(upiId);
-      } else {
-        widget.onGetUpi('');
-        print('No UPI ID found in QR');
-      }
-    }
-  }
-
-  // Future<String?> _extractUpiIdFromImage(File imageFile) async {
-  //   final inputImage = InputImage.fromFile(imageFile);
-  //   final barcodeScanner = GoogleMlKit.vision.barcodeScanner([
-  //     BarcodeFormat.qrCode,
-  //   ]);
-
-  //   final barcodes = await barcodeScanner.processImage(inputImage);
-  //   await barcodeScanner.close();
-
-  //   print('barcodes--:$barcodes');
-
-  //   for (final barcode in barcodes) {
-  //     final rawValue = barcode.rawValue ?? '';
-  //     if (rawValue.startsWith('upi://')) {
-  //       final uri = Uri.tryParse(rawValue);
-  //       return uri?.queryParameters['pa']; // UPI ID
-  //     }
-  //   }
-  //   return null;
-  // }
-
-
-  Future<String?> extractUpiIdFromImage(File imageFile) async {
-  final inputImage = InputImage.fromFile(imageFile);
-
-  // Only scanning for QR codes
-  final barcodeScanner = BarcodeScanner(
-    formats: [BarcodeFormat.qrCode],
-  );
-
-  final List<Barcode> barcodes = await barcodeScanner.processImage(inputImage);
-  await barcodeScanner.close();
-
-  for (final barcode in barcodes) {
-    final rawValue = barcode.rawValue ?? '';
-
-    if (rawValue.startsWith('upi://')) {
-      final uri = Uri.tryParse(rawValue);
-      return uri?.queryParameters['pa']; // pa = Payee Address (UPI ID)
-    }
-  }
-
-  return null;
 }
 
+class ImagePreviewPage extends StatelessWidget {
+  const ImagePreviewPage({
+    super.key,
+    required this.image,
+    required this.imageUrl,
+    required this.title,
+    required this.onRetake,
+    required this.onDone,
+  });
 
+  final String title;
+  final File? image;
+  final String? imageUrl;
+  final VoidCallback onRetake;
+  final VoidCallback onDone;
 
-  void _viewImage() {
-    if (capturedFile == null && networkImageUrl == null) return;
-    Navigator.of(context).push(MaterialPageRoute(
-      builder: (_) => FullScreenImageViewer(
-        isRetake: widget.isretake,
-        imageFile: capturedFile,
-        imageUrl: networkImageUrl,
-        onRetake: () async {
-          print('on retake');
-          final file = await captureImage();
-          print('file---:$file');
-          if (file != null) {
-            print(' ------- file:---:$file');
-            setState(() {
-              capturedFile = file;
-              widget.onFileCapture(capturedFile);
-            });
+  // 🔹 Add the helper here too
+  String getFullImageUrl(String? url) {
+    if (url == null || url.isEmpty) return '';
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return url;
+    }
+    return 'http://65.21.243.18:8000$url';
+  }
 
-            final upiId = await extractUpiIdFromImage(file);
-            if (upiId != null) {
-              widget.onGetUpi(upiId);
-            } else {
-              widget.onGetUpi(''); 
-            }
-          }
-          Navigator.of(context).pop();
-        },
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.white,
+      appBar: AppBar(
+        backgroundColor: AppColors.white,
+        title: Text(
+          title,
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            color: AppColors.black,
+          ),
+        ),
       ),
-    ));
+      body: Column(
+        children: [
+          if (image != null) ...[
+            SizedBox(
+              height: 400,
+              width: context.sizeOfWidth,
+              child: Card(
+                shape: Border.all(color: AppColors.green),
+                child: Image.file(image!, fit: BoxFit.fill),
+              ),
+            ),
+          ] else if (imageUrl.containsValidValue) ...[
+            SizedBox(
+              height: 400,
+              width: context.sizeOfWidth,
+              child: Card(
+                shape: Border.all(color: AppColors.green),
+                child: Image.network(
+                  getFullImageUrl(imageUrl), // ✅ Use helper
+                  fit: BoxFit.fill,
+                  loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
+                    if (loadingProgress == null) return child;
+                    return Center(
+                      child: CircularProgressIndicator(
+                        color: AppColors.grey,
+                        value: loadingProgress.expectedTotalBytes != null
+                            ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
+                            : null,
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+          ],
+          const Spacer(),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.darkBlue,
+                    ),
+                    onPressed: onRetake,
+                    child: const Text(
+                      'RETAKE',
+                      style: TextStyle(
+                        color: AppColors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.green,
+                    ),
+                    onPressed: onDone,
+                    child: const Text(
+                      'DONE',
+                      style: TextStyle(
+                        color: AppColors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

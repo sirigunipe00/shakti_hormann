@@ -1,27 +1,23 @@
 import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/material.dart';
 import 'package:shakti_hormann/core/utils/date_format_util.dart';
-import 'package:shakti_hormann/core/utils/string_utils.dart';
-import 'package:shakti_hormann/doc_status_widget.dart';
-import 'package:shakti_hormann/features/gate_exit/model/gate%20_exit_form.dart';
+import 'package:shakti_hormann/features/vehicle_reporting/model/vehicle_reporting_form.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/styles/app_text_styles.dart';
-import 'package:shakti_hormann/widgets/app_spacer.dart';
 import 'package:shakti_hormann/widgets/spaced_column.dart';
 
 class VehicleRequestWidget extends StatelessWidget {
   const VehicleRequestWidget({
     super.key,
-    required this.gateExit,
+    required this.vehicleReporting,
     required this.onTap,
   });
 
-  final GateExitForm gateExit;
+  final VehicleReportingForm vehicleReporting;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    print('gateExit.docStatu---:${gateExit.docStatus}');
     return GestureDetector(
       onTap: onTap,
       child: Card(
@@ -29,25 +25,25 @@ class VehicleRequestWidget extends StatelessWidget {
         surfaceTintColor: AppColors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10.0),
-          side: const BorderSide(color: AppColors.white, width: 2),
+          side: const BorderSide(color: AppColors.white),
         ),
         child: SpacedColumn(
           defaultHeight: 4,
-          margin: const EdgeInsets.all(8),
+          margin: const EdgeInsets.symmetric(vertical: 4,horizontal: 4),
           children: [
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  width: 80,
-                  height: 80,
+                  width: 70,
+                  height: 70,
                   decoration: BoxDecoration(
-                    color: Color(0xFFAB94FF).withOpacity(0.30),
+                    color: const Color(0xFFAB94FF).withOpacity(0.30),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   alignment: Alignment.center,
                   child: const Text(
-                    "QL",
+                    'QL',
                     style: TextStyle(
                       fontFamily: 'Urbanist',
                       fontSize: 20,
@@ -57,7 +53,7 @@ class VehicleRequestWidget extends StatelessWidget {
                   ),
                 ),
 
-                const SizedBox(width: 10),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -70,7 +66,7 @@ class VehicleRequestWidget extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                "VRE-SHM-001",
+                                vehicleReporting.name ?? '',
                                 style: AppTextStyles.titleLarge(
                                   context,
                                 ).copyWith(
@@ -78,14 +74,13 @@ class VehicleRequestWidget extends StatelessWidget {
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              SizedBox(height: 5),
+                              const SizedBox(height: 5),
                               Text(
-                                gateExit.vehicleNo ?? '',
-                                style: AppTextStyles.titleLarge(
-                                  context,
-                                ).copyWith(
+                                vehicleReporting.vehicleNumber ?? '',
+                                style: const TextStyle(
                                   color: AppColors.grey,
-                                  fontWeight: FontWeight.bold,
+                                  fontWeight: FontWeight.normal,
+                                  letterSpacing: 0,
                                 ),
                               ),
                             ],
@@ -94,7 +89,7 @@ class VehicleRequestWidget extends StatelessWidget {
                           Text(
                             '(SHM)',
                             style: AppTextStyles.titleLarge(context).copyWith(
-                              color: const Color.fromARGB(255, 12, 3, 120),
+                              color: const Color(0xFF2957A4),
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -103,34 +98,43 @@ class VehicleRequestWidget extends StatelessWidget {
 
                       const SizedBox(height: 5),
                       Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Icon(
-                            Icons.calendar_today,
-                            size: 14,
-                            color: Color.fromARGB(255, 17, 17, 226),
+                          Row(
+                            children: [
+                              const Icon(
+                                Icons.calendar_month,
+                                size: 14,
+                                color: Color(0xFF163A6B),
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                DFU.ddMMyyyyFromStr(
+                                  vehicleReporting.creation ?? '',
+                                ),
+                                style: const TextStyle(
+                                  color: Color(0xFF163A6B),
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
                           ),
-                          const SizedBox(width: 4),
-                          Text(
-                            DFU.ddMMyyyyFromStr(gateExit.creationDate ?? ''),
-                            style: AppTextStyles.titleMedium(
-                              context,
-                              AppColors.darkBlue,
-                            ).copyWith(
-                              color: const Color.fromARGB(255, 28, 16, 205),
-                            ),
-                          ),
-                          SizedBox(width: 120),
-                          const Icon(
-                            Icons.timelapse_rounded,
-                            size: 14,
-                            color: Color(0xFF53A5DF),
-                          ),
-                          Text(
-                            DFU.timeFromStr(gateExit.creationDate ?? ''),
-                            style: AppTextStyles.titleMedium(
-                              context,
-                              AppColors.darkBlue,
-                            ).copyWith(color: Color(0xFF53A5DF)),
+                          Row(
+                            children: [
+                              const Icon(
+                                Icons.alarm_add,
+                                size: 14,
+                                color: Color(0xFF53A5DF),
+                              ),
+                              Text(
+                                DFU.timeFromStr(vehicleReporting.creation ?? ''),
+                                style: AppTextStyles.titleMedium(
+                                  context,
+                                  AppColors.darkBlue,
+                                ).copyWith(color: AppColors.litecyan),
+                              ),
+                            ],
                           ),
                         ],
                       ),
@@ -144,27 +148,33 @@ class VehicleRequestWidget extends StatelessWidget {
               child: DottedLine(
                 direction: Axis.horizontal,
                 lineLength: double.infinity,
-                lineThickness: 3.0,
-                dashLength: 4.0,
+                lineThickness: 0.5,
+                dashLength: 6.0,
                 dashColor: AppColors.grey,
                 dashGapLength: 4.0,
               ),
             ),
-            AppSpacer.empty(),
+        
 
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'TC-SHM-001',
-                  style: AppTextStyles.titleLarge(context).copyWith(
-                    color: const Color.fromARGB(255, 36, 11, 226),
+                  vehicleReporting.linkedTransporterConfirmation ?? '',
+                  style:const TextStyle(
+                    color: Color(0xFF2957A4),
                     fontWeight: FontWeight.bold,
+                    fontSize: 15,
                   ),
                 ),
-                DocStatusWidget(
-                  status: StringUtils.docStatus(gateExit.docStatus ?? 0),
+               Text(
+                  vehicleReporting.status ?? '',
+                  style: AppTextStyles.titleLarge(context).copyWith(
+                    color: _getStatusColor(vehicleReporting.status),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                  ),
                 ),
               ],
             ),
@@ -172,5 +182,17 @@ class VehicleRequestWidget extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+Color _getStatusColor(String? status) {
+  switch (status?.toLowerCase()) {
+    case 'reported':
+      return Colors.green;
+    case 'rejected':
+      return Colors.red;
+    case 'cancelled':
+      return Colors.orange;
+    default:
+      return Colors.black;
   }
 }

@@ -1,6 +1,6 @@
 import 'package:shakti_hormann/core/model/pair.dart';
 import 'package:shakti_hormann/core/utils/typedefs.dart';
-import 'package:shakti_hormann/features/gate_exit/model/gate%20_exit_form.dart';
+import 'package:shakti_hormann/features/gate_exit/model/gate_exit_form.dart';
 import 'package:shakti_hormann/features/gate_exit/model/sales_invoice_form.dart';
 
 abstract interface class GateExitRepo {

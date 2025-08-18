@@ -9,11 +9,13 @@ class AppButton extends StatelessWidget {
     super.key,
     this.margin,
     required this.label,
-    this.bgColor = AppColors.darkBlue,
+    this.bgColor = AppColors.green,
     this.isLoading = false,
     this.onPressed,
     this.textStyle,
     this.loadingText,
+    this.height,
+    this.width,
     this.icon = const SizedBox.shrink(),
   });
 
@@ -25,6 +27,8 @@ class AppButton extends StatelessWidget {
   final String? loadingText;
   final VoidCallback? onPressed;
   final TextStyle? textStyle;
+  final double? width;
+  final double? height;
 
   @override
   Widget build(BuildContext context) {
@@ -33,16 +37,16 @@ class AppButton extends StatelessWidget {
       child: ElevatedButton.icon(
         style: ElevatedButton.styleFrom(
           backgroundColor: bgColor,
-              // onPressed == null ? AppColors.grey : AppColors.darkBlue,
+
           disabledBackgroundColor: AppColors.chimneySweep,
-          fixedSize: Size.fromWidth(context.sizeOfWidth),
+          fixedSize: Size(width ?? 120, height ?? 46),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8.0),
             side: BorderSide(
               color: onPressed == null ? AppColors.chimneySweep : bgColor,
             ),
           ),
-          padding: const EdgeInsets.all(14.0),
+          padding: const EdgeInsets.all(4.0),
         ),
         onPressed: isLoading ? null : onPressed,
         icon: icon,
@@ -60,4 +64,3 @@ class AppButton extends StatelessWidget {
     );
   }
 }
-       

@@ -27,11 +27,35 @@ import '../../features/gate_entry/presentation/bloc/bloc_provider.dart'
     as _i210;
 import '../../features/gate_entry/presentation/bloc/create_gate_cubit/gate_entry_cubit.dart'
     as _i92;
-import '../../features/gate_exit/data/gate_exit_repo_impl.dart' as _i699;
 import '../../features/gate_exit/data/gate_exit_repo.dart' as _i495;
+import '../../features/gate_exit/data/gate_exit_repo_impl.dart' as _i100;
 import '../../features/gate_exit/presentation/bloc/bloc_provider.dart' as _i565;
 import '../../features/gate_exit/presentation/bloc/create_gate_cubit/gate_exit_cubit.dart'
     as _i297;
+import '../../features/logistic_request/data/logistic_planning_repo.dart'
+    as _i876;
+import '../../features/logistic_request/data/logistic_planning_repoimpl.dart'
+    as _i510;
+import '../../features/logistic_request/presentation/bloc/bloc_provider.dart'
+    as _i614;
+import '../../features/logistic_request/presentation/bloc/create_lr_cubit/logistic_planning_cubit.dart'
+    as _i714;
+import '../../features/transport_confirmation/data/transport_confrimation_repo.dart'
+    as _i271;
+import '../../features/transport_confirmation/data/transport_confrimation_repoimpl.dart'
+    as _i585;
+import '../../features/transport_confirmation/presentation/bloc/bloc_provider.dart'
+    as _i351;
+import '../../features/transport_confirmation/presentation/bloc/create_transport_cubit.dart/create_transport_cubit.dart'
+    as _i0;
+import '../../features/vehicle_reporting/data/vehicle_reorting_repoimpl.dart'
+    as _i969;
+import '../../features/vehicle_reporting/data/vehicle_reporting_repo.dart'
+    as _i906;
+import '../../features/vehicle_reporting/presentation/bloc/bloc_provider.dart'
+    as _i429;
+import '../../features/vehicle_reporting/presentation/bloc/create_vr_cubit/create_vehicle_cubit.dart'
+    as _i585;
 import '../core.dart' as _i351;
 import '../local_storage/key_vale_storage.dart' as _i1012;
 import '../network/api_client.dart' as _i557;
@@ -77,11 +101,26 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i351.KeyValueStorage>(),
       ),
     );
+    gh.lazySingleton<_i876.LogisticPlanningRepo>(
+      () => _i510.LogisticPlanningRepoimpl(gh<_i351.ApiClient>()),
+    );
+    gh.lazySingleton<_i271.TransportConfrimationRepo>(
+      () => _i585.TransportCnfrmRepoimpl(gh<_i351.ApiClient>()),
+    );
+    gh.lazySingleton<_i906.VehicleReportingRepo>(
+      () => _i969.VehicleReportingRepoimpl(gh<_i351.ApiClient>()),
+    );
     gh.lazySingleton<_i495.GateExitRepo>(
-      () => _i699.GateExitRepoimpl(gh<_i351.ApiClient>()),
+      () => _i100.GateExitRepoimpl(gh<_i351.ApiClient>()),
     );
     gh.lazySingleton<_i936.GateEntryRepo>(
       () => _i403.GateEntryRepoimpl(gh<_i351.ApiClient>()),
+    );
+    gh.lazySingleton<_i429.VehicleBlocProvider>(
+      () => _i429.VehicleBlocProvider(gh<_i906.VehicleReportingRepo>()),
+    );
+    gh.factory<_i585.CreateVehicleCubit>(
+      () => _i585.CreateVehicleCubit(gh<_i906.VehicleReportingRepo>()),
     );
     gh.factory<_i947.SignInCubit>(
       () => _i947.SignInCubit(gh<_i585.AuthRepo>()),
@@ -98,6 +137,21 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i565.GateExitBlocProvider>(
       () => _i565.GateExitBlocProvider(gh<_i495.GateExitRepo>()),
+    );
+    gh.factory<_i0.CreateTransportCubit>(
+      () => _i0.CreateTransportCubit(gh<_i271.TransportConfrimationRepo>()),
+    );
+    gh.lazySingleton<_i351.TransportCnfmBlocProvider>(
+      () => _i351.TransportCnfmBlocProvider(
+        gh<_i271.TransportConfrimationRepo>(),
+      ),
+    );
+    gh.factory<_i714.CreateLogisticCubit>(
+      () => _i714.CreateLogisticCubit(gh<_i876.LogisticPlanningRepo>()),
+    );
+    gh.lazySingleton<_i614.LogisticPlanningBlocProvider>(
+      () =>
+          _i614.LogisticPlanningBlocProvider(gh<_i876.LogisticPlanningRepo>()),
     );
     return this;
   }

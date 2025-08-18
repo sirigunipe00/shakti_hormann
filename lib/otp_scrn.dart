@@ -15,7 +15,7 @@ class OtpVerificationPage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-            CustomAppBar(),
+             const CustomAppBar(),
               const SizedBox(height: 30),
 
               const Text(
@@ -33,7 +33,7 @@ class OtpVerificationPage extends StatelessWidget {
               PincodeTextField(
                 length: 4,
                 onChanged: (value) {
-                  print("Current PIN: $value");
+                  
                 },
               ),
               const SizedBox(height: 20),
@@ -47,13 +47,13 @@ class OtpVerificationPage extends StatelessWidget {
               const SizedBox(height: 20),
               Center(
                 child: RichText(
-                  text: TextSpan(
+                  text:  const TextSpan(
                     text: "Didn't received code? ",
-                    style: const TextStyle(color: Colors.black),
+                    style:  TextStyle(color: Colors.black),
                     children: [
                       TextSpan(
                         text: 'Resend',
-                        style: const TextStyle(color: Colors.blue),
+                        style:  TextStyle(color: Colors.blue),
                       ),
                     ],
                   ),

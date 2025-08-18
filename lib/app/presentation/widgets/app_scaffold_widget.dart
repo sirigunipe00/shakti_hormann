@@ -84,7 +84,7 @@ class ScaffoldWithNavigationBar extends StatelessWidget {
                       label: 'Profile',
                     ),
                   ],
-                  labelTextStyle: const MaterialStatePropertyAll(
+                  labelTextStyle: const WidgetStatePropertyAll(
                     TextStyle(
                       fontFamily: 'Urbanist',
                       fontWeight: FontWeight.w600,
@@ -122,7 +122,7 @@ NavigationDestination _buildDestination({
         const SizedBox(height: 8), // spacing between icon and label
         Text(
           label,
-          style: TextStyle(
+          style: const TextStyle(
             fontFamily: 'Urbanist',
             fontWeight: FontWeight.w600,
             fontSize: 12.5,

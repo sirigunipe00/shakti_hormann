@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
-import 'package:shakti_hormann/styles/app_icons.dart';
 import 'package:shakti_hormann/styles/text_styles.dart';
 import 'package:shakti_hormann/widgets/buttons/app_btn.dart';
 import 'package:shakti_hormann/widgets/spaced_column.dart';
-
 
 class AppFailureWidget extends StatelessWidget {
   const AppFailureWidget({
@@ -38,12 +36,11 @@ class AppFailureWidget extends StatelessWidget {
             Text(
               message,
               textAlign: TextAlign.center,
-              style: TextStyles.titleSmall(context)
-                  .copyWith(color: AppColors.black),
+              style: TextStyles.titleSmall(
+                context,
+              ).copyWith(color: AppColors.black),
             ),
-            AppButton(
-              label: btnText.toUpperCase(), onPressed: () {  },
-            ),
+            AppButton(label: btnText.toUpperCase(), onPressed: () {}),
           ],
         ),
       ),

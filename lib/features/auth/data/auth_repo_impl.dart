@@ -30,7 +30,7 @@ class AuthRepoImpl extends BaseApiRepository implements AuthRepo {
   AsyncValueOf<LoggedInUser> logIn(String username, String pswd) async {
     return await executeSafely(() async {
 
-      print('user psdw:=====$username');
+      
       final requestConfig = RequestConfig(
         url: Urls.getUsers,
         parser: (res) {

@@ -1,11 +1,9 @@
 import 'package:animated_custom_dropdown/custom_dropdown.dart';
-
-import 'package:shakti_hormann/core/core.dart';
 import 'package:flutter/material.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/styles/app_text_styles.dart';
 import 'package:shakti_hormann/widgets/caption_text.dart';
-
+import 'package:shakti_hormann/core/core.dart';
 
 class AppDropDownWidget<T> extends StatefulWidget {
   const AppDropDownWidget({
@@ -19,7 +17,7 @@ class AppDropDownWidget<T> extends StatefulWidget {
     this.readOnly = false,
     this.listItemBuilder,
     this.headerBuilder,
-    this.futureRequest, 
+    this.futureRequest,
     required this.color,
     this.focusNode,
   });
@@ -28,10 +26,10 @@ class AppDropDownWidget<T> extends StatefulWidget {
   final FocusNode? focusNode;
   final String? hint;
   final List<T> items;
-   final HeaderBuilder<T>? headerBuilder;
+  final HeaderBuilder<T>? headerBuilder;
   final Future<List<T>> Function(String)? futureRequest;
   final Widget Function(BuildContext, T, bool, void Function())?
-      listItemBuilder;
+  listItemBuilder;
   final T? defaultSelection;
   final bool isMandatory;
   final bool readOnly;
@@ -67,20 +65,15 @@ class _AppDropDownWidgetState<T> extends State<AppDropDownWidget<T>> {
             const SizedBox(height: 4),
             CustomDropdown<T>.searchRequest(
               decoration: CustomDropdownDecoration(
-                hintStyle: AppTextStyles.titleLarge(context)
-                    .copyWith(color: AppColors.grey),
-                closedBorder: Border.all(width: 0.8),
-                expandedBorder: Border.all(width: 0.8),
-                closedShadow: [
-                  BoxShadow(
-                    color: widget.color,
-                    blurRadius: 2,
-                    offset: const Offset(2, 2),
-                  ),
-                ],
+                closedFillColor: Colors.grey[100],
+                expandedFillColor: Colors.grey[100],
+                hintStyle: AppTextStyles.titleLarge(
+                  context,
+                ).copyWith(color: AppColors.grey),
               ),
               futureRequest: widget.futureRequest,
               hintText: widget.hint,
+
               items: widget.items,
               headerBuilder: widget.headerBuilder,
               listItemBuilder: widget.listItemBuilder,

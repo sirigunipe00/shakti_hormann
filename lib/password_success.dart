@@ -17,9 +17,9 @@ class PasswordChangedPage extends StatelessWidget {
               children: [
               
                 Container(
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     shape: BoxShape.circle,
-                    color: const Color(0xFF2ECC71), 
+                    color:  Color(0xFF2ECC71), 
                   ),
                   padding: const EdgeInsets.all(20),
                   child: const Icon(
@@ -58,7 +58,7 @@ class PasswordChangedPage extends StatelessWidget {
                   child: ElevatedButton(
                     onPressed: () {
                    Navigator.push(context, MaterialPageRoute(builder: (context)=>
-                   LoginScrnWidget()));
+                  const  LoginScrnWidget()));
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF0B3D91), 

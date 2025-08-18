@@ -19,7 +19,7 @@ class CreateNewPasswordPage extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                CustomAppBar(),
+                const CustomAppBar(),
                 const SizedBox(height: 30),
                 const Text(
                   'Create new password',
