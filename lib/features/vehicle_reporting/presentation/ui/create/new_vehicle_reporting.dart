@@ -91,12 +91,12 @@ class _NewVehicleReportingState extends State<NewVehicleReporting> {
                     status: StringUtils.docStatus(status ?? 0),
 
                     onSubmit:
-                        status == 'Reported'
+                        status == 1
                             ? () {}
                             : () {
                               context.cubit<CreateVehicleCubit>().save();
                             },
-                    onReject: status == 'Rejected' ? () {} : () {},
+                    onReject: status == 0 ? () {} : () {},
                     textColor: Colors.white,
                     pageMode: PageMode2.vehicleReporting,
                     showRejectButton: false,

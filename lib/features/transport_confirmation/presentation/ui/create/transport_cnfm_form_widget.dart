@@ -637,7 +637,7 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: InputField(
-                      title: 'If You Want Reject Reason is Must be Enter',
+                      title: 'If You Want Reject, Reason is Must be Enter',
                       hintText: 'enter reason...',
                       readOnly: isCompleted,
                       borderColor: AppColors.grey,

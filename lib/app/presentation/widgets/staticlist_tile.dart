@@ -1,16 +1,38 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:shakti_hormann/app/presentation/widgets/drop_down_optn.dart';
+import 'package:shakti_hormann/app/presentation/widgets/app_page_view2.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
-import 'package:shakti_hormann/widgets/buttons/app_btn.dart';
 
 mixin StatusModeSelectionMixin {
   Future<String?> showOptions(
     BuildContext context, {
     String? defaultValue,
-    List<String>? options, 
+    required PageMode2 pageMode, 
   }) async {
-    final filters = options ?? Dropdownoptions.filters;
+
+    final List<String> filters;
+    switch (pageMode) {
+      case PageMode2.gateentry:
+      case PageMode2.gateexit:
+        filters = ['Draft', 'Submitted', 'All'];
+        break;
+      case PageMode2.logisticRequest:
+      case PageMode2.transportConfirmation:
+        filters = [
+          'Transporter Confirmed',
+          'Transporter Rejected',
+          'Pending From Transporter',
+          'Draft',
+          'All'
+        ];
+        break;
+      case PageMode2.vehicleReporting:
+        filters = ['Cancelled', 'Rejected', 'Reported', 'All'];
+        break;
+      case PageMode2.loadingConfirmation:
+        filters = ['Cancelled', 'Rejected', 'Reported', 'All'];
+        break;
+    }
 
     return await showModalBottomSheet<String>(
       backgroundColor: Colors.transparent,
@@ -35,19 +57,12 @@ mixin StatusModeSelectionMixin {
             ),
           ),
           const SizedBox(height: 10),
-          // AppButton(
-          //   bgColor: Colors.white,
-          //   margin: const EdgeInsets.symmetric(horizontal: 12.0),
-          //   onPressed: () => context.pop(),
-          //   textStyle: const TextStyle(color: AppColors.red, fontWeight: FontWeight.bold),
-          //   label: 'CLOSE',
-          // ),
-          const SizedBox(height: 10),
         ],
       ),
     );
   }
 }
+
 
 class _StatusListTile extends StatelessWidget {
   const _StatusListTile({

@@ -179,8 +179,11 @@ class CreateGateEntryCubit extends AppBaseCubit<CreateGateEntryState> {
       if (state.view == GateEntryView.create) {
         final response = await repo.createGateEntry(state.form);
 
+
+        print('response....$response');
+
         return response.fold(
-          (l) => emitSafeState(state.copyWith(isLoading: false, error: l)),
+          (l) => emitSafeState(state.copyWith(isLoading: false, error: l, isSuccess: false)),
           (r) {
             shouldAskForConfirmation.value = false;
             final docstatus = r.second;

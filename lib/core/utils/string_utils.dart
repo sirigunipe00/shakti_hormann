@@ -62,6 +62,23 @@ class StringUtils {
     }
   }
 
+  static String docStatuslogistic(String? status) {
+    switch (status?.toLowerCase()) {
+      case 'transporter confirmed':
+        return 'transporter confirmed';
+      case 'transporter rejected':
+        return 'transporter rejected';
+      case 'pending from transporter':
+        return 'pending from transporter';
+      case 'draft':
+        return 'draft';
+      case 'all':
+        return '4';
+      default:
+        return 'draft';
+    }
+  }
+
   static bool isValidFSSAINumber(String fssaiNumber) {
     final fssaiRegExp = RegExp(r'^\d{14}$');
     return fssaiRegExp.hasMatch(fssaiNumber);

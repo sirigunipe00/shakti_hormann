@@ -15,9 +15,9 @@ enum PageMode3 {
   transportConfirmation('Transport Confirmation'),
   vehicleReporting('Vehicle Reporting Entry'),
   loadingConfirmation('Laoding Confirmation');
- const PageMode3(this.name);
+
+  const PageMode3(this.name);
   final String name;
- 
 }
 
 class AppPageView3<T extends PageViewFiltersCubit> extends StatefulWidget {
@@ -45,24 +45,22 @@ class _AppPageView3State<T extends PageViewFiltersCubit>
   bool isTodaySelected = true;
 
   String get hintText => switch (widget.mode) {
-        PageMode3.gateentry => 'Search GI / PO',
-        PageMode3.gateexit => 'Search GO / SINV',
-        PageMode3.logisticRequest => 'Search LR / SO ID',
-        PageMode3.transportConfirmation => 'Search LR / TC',
-        PageMode3.vehicleReporting => 'Search VRE / TC',
-        PageMode3.loadingConfirmation => 'Search LC / TC',
-      };
+    PageMode3.gateentry => 'Search GI / PO',
+    PageMode3.gateexit => 'Search GO / SINV',
+    PageMode3.logisticRequest => 'Search LR / SO ID',
+    PageMode3.transportConfirmation => 'Search LR / TC',
+    PageMode3.vehicleReporting => 'Search VRE / TC',
+    PageMode3.loadingConfirmation => 'Search LC / TC',
+  };
 
   Color get bgColor => switch (widget.mode) {
-        PageMode3.gateentry => Colors.white,
-        PageMode3.gateexit => AppColors.white,
-        PageMode3.logisticRequest => const Color(0xFF808080),
-        PageMode3.transportConfirmation => AppColors.white,
-        PageMode3.vehicleReporting => AppColors.white,
-        PageMode3.loadingConfirmation => AppColors.white,
-      };
-      
-     
+    PageMode3.gateentry => Colors.white,
+    PageMode3.gateexit => AppColors.white,
+    PageMode3.logisticRequest => const Color(0xFF808080),
+    PageMode3.transportConfirmation => AppColors.white,
+    PageMode3.vehicleReporting => AppColors.white,
+    PageMode3.loadingConfirmation => AppColors.white,
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -76,7 +74,10 @@ class _AppPageView3State<T extends PageViewFiltersCubit>
               padding: const EdgeInsets.only(right: 40.0),
               child: SvgPicture.asset(
                 'assets/images/filter.svg',
-                color: const Color(0xFFFFB800),
+                colorFilter: const ColorFilter.mode(
+                  Color(0xFFFFB800),
+                  BlendMode.srcIn,
+                ),
                 fit: BoxFit.contain,
                 width: 35,
               ),
@@ -160,19 +161,15 @@ class _AppPageView3State<T extends PageViewFiltersCubit>
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
-        extendedPadding: const EdgeInsets.symmetric(
-          horizontal: 28,
-        ),
-        onPressed:widget.onNew,
+        extendedPadding: const EdgeInsets.symmetric(horizontal: 28),
+        onPressed: widget.onNew,
         backgroundColor: AppColors.darkBlue,
-        icon: const Icon(
-          Icons.add,
-          color: AppColors.white,
-        ),
+        icon: const Icon(Icons.add, color: AppColors.white),
         label: Text(
           'New',
-          style: AppTextStyles.titleLarge(context)
-              .copyWith(color: AppColors.white, fontSize: 22),
+          style: AppTextStyles.titleLarge(
+            context,
+          ).copyWith(color: AppColors.white, fontSize: 22),
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,

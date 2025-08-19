@@ -16,8 +16,7 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
     int? docStatus,
     String? search,
   ) async {
-    print('docstatus...$docStatus');
-    print('search...$search');
+   
     final filters = <List<dynamic>>[];
 
     if (docStatus != null &&
@@ -36,7 +35,7 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
         return data.map((e) => GateEntryForm.fromJson(e)).toList();
       },
       reqParams: {
-        if (filters.isNotEmpty) 'filters': jsonEncode(filters),
+        'filters': jsonEncode(filters),
         'limit_start': start,
         'limit': 20,
         'order_by': 'creation desc',

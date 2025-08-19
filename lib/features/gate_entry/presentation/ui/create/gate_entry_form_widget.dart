@@ -29,7 +29,7 @@ class _GateEntryFormWidgetState extends State<GateEntryFormWidget> {
     final formState = context.read<CreateGateEntryCubit>().state;
     final isCompleted = formState.view == GateEntryView.completed;
     final newform = formState.form;
-print('invoice photo.....${newform.invoicePhoto}');
+
     return MultiBlocListener(
       listeners: [
         BlocListener<CreateGateEntryCubit, CreateGateEntryState>(
@@ -39,16 +39,16 @@ print('invoice photo.....${newform.invoicePhoto}');
             return prevStatus != currStatus;
           },
           listener: (_, state) async {
-            final indx = state.error?.status;
-            if (indx != null) {
-              final focus = focusNodes.elementAt(indx);
-              FocusScope.of(context).requestFocus(focus);
-              await Scrollable.ensureVisible(
-                focus.context!,
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.easeInOut,
-              );
-            }
+            // final indx = state.error?.status;
+            // if (indx != null) {
+            //   final focus = focusNodes.elementAt(indx);
+            //   FocusScope.of(context).requestFocus(focus);
+            //   await Scrollable.ensureVisible(
+            //     focus.context,
+            //     duration: const Duration(milliseconds: 300),
+            //     curve: Curves.easeInOut,
+            //   );
+            // }
           },
         ),
       ],
@@ -260,7 +260,7 @@ print('invoice photo.....${newform.invoicePhoto}');
                             MaterialPageRoute(
                               builder:
                                   (context) => const SimpleBarcodeScannerPage(
-                                    scanType: ScanType.barcode,
+                                    scanType: ScanType.qr,
                                     appBarTitle: 'Scan Machine',
                                     isShowFlashIcon: true,
                                   ),
@@ -285,12 +285,14 @@ print('invoice photo.....${newform.invoicePhoto}');
                           color: AppColors.darkBlue,
                         ),
                       ),
+                      
                       initialValue: scanVal,
                       title: 'Scan IRN',
                       onChanged: (p0) {
                         context.cubit<CreateGateEntryCubit>().onValueChanged(
                           scanIrn: p0,
                         );
+                        
                       },
                     ),
                   ],

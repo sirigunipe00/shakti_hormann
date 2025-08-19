@@ -7,8 +7,9 @@ import 'package:shakti_hormann/features/logistic_request/model/transporter_form.
 abstract interface class LogisticPlanningRepo {
   AsyncValueOf<List<LogisticPlanningForm>> fetchLogistics(
     int start,
-    int? docStatus,
+    String? status,
     String? search,
+    
   );
   AsyncValueOf<List<TransportersForm>> fetchTransporters();
   AsyncValueOf<Pair<String, String>> createLogisticPlanning(

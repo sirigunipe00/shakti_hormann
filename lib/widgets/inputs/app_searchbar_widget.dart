@@ -50,7 +50,7 @@ class _AppSearchBarWidgetState extends State<AppSearchBarWidget> {
         borderRadius: BorderRadius.circular(5.0),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.2),
+            color: Colors.grey.withValues(alpha:0.2),
             spreadRadius: 2,
             blurRadius: 5,
             offset: const Offset(0, 3),

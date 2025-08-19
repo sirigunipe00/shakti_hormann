@@ -54,10 +54,11 @@ class ShaktiHormann extends StatelessWidget {
           state.maybeWhen(
             authenticated: () {
               final filters = Pair(StringUtils.docStatusInt('Draft'), null);
+              final filter =Pair(StringUtils.docStatuslogistic('Draft'), null);
               routerCtxt.cubit<GateEntriesCubit>().fetchInitial(filters);
               routerCtxt.cubit<GateExitCubit>().fetchInitial(filters);
-              routerCtxt.cubit<LogisticPlanningCubit>().fetchInitial(filters);
-              routerCtxt.cubit<TransportCubit>().fetchInitial(filters);
+              routerCtxt.cubit<LogisticPlanningCubit>().fetchInitial(filter);
+              routerCtxt.cubit<TransportCubit>().fetchInitial(filter);
               routerCtxt.cubit<VehicleReportingCubit>().fetchInitial(filters);
 
 

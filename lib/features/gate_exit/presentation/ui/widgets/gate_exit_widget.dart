@@ -15,16 +15,11 @@ class GateExitWidget extends StatelessWidget {
     required this.onTap,
     
   });
-
-  final GateExitForm gateExit;
+   final GateExitForm gateExit;
   final VoidCallback onTap;
-
   @override
   Widget build(BuildContext context) {
-  
-
-
-    return GestureDetector(
+  return GestureDetector(
       onTap: onTap,
       child: Card(
         color: Colors.white,
@@ -45,7 +40,7 @@ class GateExitWidget extends StatelessWidget {
                   width: 70,
                   height: 70,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF2957A4).withOpacity(0.30),
+                    color: const Color(0xFF2957A4).withValues(alpha:0.30),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Center(

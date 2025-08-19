@@ -133,7 +133,7 @@ class _NewLogisticRequestState extends State<NewLogisticRequest> {
                   context.read<LogisticPlanningFilterCubit>().state;
               context.cubit<LogisticPlanningCubit>().fetchInitial(
                 Pair(
-                  StringUtils.docStatusInt(gateEntryFilters.status),
+                  StringUtils.docStatuslogistic(gateEntryFilters.status),
                   gateEntryFilters.query,
                 ),
               );

@@ -27,7 +27,6 @@ class _NewGateEntryState extends State<NewGateEntry> {
   @override
   Widget build(BuildContext context) {
     final gateEntryState = context.read<CreateGateEntryCubit>().state;
-    final isCreating = gateEntryState.view == GateEntryView.create;
     final newform = gateEntryState.form;
     final status = newform.docStatus;
     final name = newform.name;
@@ -39,11 +38,20 @@ class _NewGateEntryState extends State<NewGateEntry> {
           isNew
               ? SimpleAppBar(
                 title: 'New Gate Entry',
-                actionButton: AppButton(
-                  label: isCreating ? 'Create' : 'Submit',
+                actionButton:
+                    BlocBuilder<CreateGateEntryCubit, CreateGateEntryState>(
+                      builder: (context, state) {
+                    
+                        return AppButton(
+                          isLoading: state.isLoading,
+                          label: state.view.toName(),
+                          onPressed: () {
+                            context.cubit<CreateGateEntryCubit>().save();
+                          },
+                        );
+                      },
+                    ),
 
-                  onPressed: context.cubit<CreateGateEntryCubit>().save,
-                ),
                 dropdown: BlocBuilder<PurchaseOrderList, PurchaseOrderState>(
                   builder: (_, state) {
                     final allData = state.maybeWhen(
@@ -74,7 +82,6 @@ class _NewGateEntryState extends State<NewGateEntry> {
                         context.cubit<CreateGateEntryCubit>().onValueChanged(
                           purchaseOrder: selected.name,
                           plantName: selected.plantName,
-                          
                         );
                       },
 
@@ -116,6 +123,7 @@ class _NewGateEntryState extends State<NewGateEntry> {
       body: BlocListener<CreateGateEntryCubit, CreateGateEntryState>(
         listener: (_, state) async {
           if (state.isSuccess && state.successMsg!.isNotNull) {
+            print('success msg.....${state.successMsg}');
             AppDialog.showSuccessDialog(
               context,
               title: 'Success',
@@ -138,6 +146,8 @@ class _NewGateEntryState extends State<NewGateEntry> {
             });
           }
           if (state.error.isNotNull) {
+
+            print('error------------: ${state.error}');
             await AppDialog.showErrorDialog(
               context,
               title: state.error!.title,

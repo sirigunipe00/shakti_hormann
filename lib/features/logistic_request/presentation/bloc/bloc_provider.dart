@@ -11,8 +11,8 @@ import 'package:shakti_hormann/features/logistic_request/model/transporter_form.
 typedef LogisticPlanningCubit =
     InfiniteListCubit<
       LogisticPlanningForm,
-      Pair<int?, String?>,
-      Pair<int?, String?>
+      Pair<String?, String?>,
+      Pair<String?, String?>
     >;
 typedef LogisticPlanningState = InfiniteListState<LogisticPlanningForm>;
 

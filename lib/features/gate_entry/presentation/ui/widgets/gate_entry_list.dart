@@ -22,6 +22,13 @@ class _GateEntryListScrnState extends State<GateEntryListScrn>
     with StatusModeSelectionMixin {
   String? status;
   String? query;
+
+  @override
+  void initState() {
+    status = 'Draft';
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return AppPageView2<GateEntryFilterCubit>(
@@ -29,7 +36,6 @@ class _GateEntryListScrnState extends State<GateEntryListScrn>
 
       backgroundColor: AppColors.white,
       onNew: () => AppRoute.newGateEntry.push(context),
-
       scaffoldBg: '',
       child: RefreshIndicator(
         onRefresh:
@@ -47,15 +53,21 @@ class _GateEntryListScrnState extends State<GateEntryListScrn>
                     AppRoute.newGateEntry.push<bool?>(context, extra: entry);
                   },
                 ),
-            fetchInitial: () => _fetchInital(context, query, status),
+            fetchInitial: () {
+              query = null;
+              _fetchInital(context, query, status);
+            },
             fetchMore: () => fetchMore(context),
             emptyListText: 'No GateEntries Found.',
           ),
         ),
       ),
       onSearch: () async {
-        final selected = await showOptions(context, defaultValue: status);
-        print('Selected status: $selected');
+        final selected = await showOptions(
+          context,
+          defaultValue: status,
+          pageMode: PageMode2.gateentry,
+        );
         if (selected == null || !context.mounted) return;
 
         setState(() {
@@ -69,8 +81,7 @@ class _GateEntryListScrnState extends State<GateEntryListScrn>
   }
 
   void _fetchInital(BuildContext context, String? query, String? status) {
-    print('Fetching initial with status: $status and query: $query');
-    // final filters = context.read<GateEntryFilterCubit>().state;
+    
     context.cubit<GateEntriesCubit>().fetchInitial(
       Pair(StringUtils.docStatusInt(status), query),
     );

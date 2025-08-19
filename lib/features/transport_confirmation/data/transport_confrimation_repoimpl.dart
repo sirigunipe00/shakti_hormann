@@ -15,9 +15,18 @@ class TransportCnfrmRepoimpl extends BaseApiRepository
   @override
   AsyncValueOf<List<TransportConfirmationForm>> fetchTransports(
     int start,
-    int? docStatus,
+    String? status,
     String? serach,
   ) async {
+      final filters = <List<dynamic>>[];
+
+  if (status != null && status != 4) {
+    filters.add(['status', '=', status]);
+  }
+
+  if (serach != null && serach.isNotEmpty) {
+    filters.add(['name', 'like', '%$serach%']); 
+  }
     final requestConfig = RequestConfig(
       url: Urls.getList,
       parser: (json) {
@@ -28,6 +37,7 @@ class TransportCnfrmRepoimpl extends BaseApiRepository
             .toList();
       },
       reqParams: {
+        'filters': jsonEncode(filters),
         'limit_start': start,
         'limit': 20,
         'order_by': 'creation desc',

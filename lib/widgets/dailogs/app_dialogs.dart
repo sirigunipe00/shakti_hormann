@@ -41,12 +41,11 @@ class AppDialog {
         barrierLabel: 'ErrorDialog',
         useRootNavigator: true,
         barrierDismissible: barrierDismissible,
-        pageBuilder: (_, __, ___) => DialogWidget(
+        pageBuilder: (_, __, ___) => ErrorContent(
           title: title,
           content: content,
           buttonText: buttonText,
-          onTapDismiss: onTapDismiss,
-          dialogType: DialogType.error,
+          onTapDismiss: onTapDismiss, imagePath: 'assets/images/error.png',
         ),
       );
 
@@ -56,19 +55,20 @@ class AppDialog {
     required String content,
     required VoidCallback onTapDismiss,
     String buttonText = 'Thank you',
-    bool barrierDismissible = true,
+   
   }) async =>
       await showGeneralDialog<T>(
         context: context,
         barrierLabel: 'SuccessDialog',
         useRootNavigator: true,
-        barrierDismissible: barrierDismissible,
+        barrierDismissible: false,
         pageBuilder: (_, __, ___) => SuccessContent(
           title: title,
           imagePath: 'assets/images/success.png',
           content: content,
           buttonText: buttonText,
-          onTapDismiss: onTapDismiss
+          onTapDismiss: 
+            onTapDismiss
         ),
       );
 

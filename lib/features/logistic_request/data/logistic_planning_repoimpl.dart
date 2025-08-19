@@ -17,9 +17,20 @@ class LogisticPlanningRepoimpl extends BaseApiRepository
   @override
   AsyncValueOf<List<LogisticPlanningForm>> fetchLogistics(
     int start,
-    int? docStatus,
+    String? status,
     String? serach,
   ) async {
+
+  final filters = <List<dynamic>>[];
+
+  if (status != null && status != '4') {
+    filters.add(['status', '=', status]);
+  }
+
+  if (serach != null && serach.isNotEmpty) {
+    filters.add(['name', 'like', '%$serach%']); 
+  }
+
     final requestConfig = RequestConfig(
       url: Urls.getList,
       parser: (json) {
@@ -28,14 +39,7 @@ class LogisticPlanningRepoimpl extends BaseApiRepository
         return listdata.map((e) => LogisticPlanningForm.fromJson(e)).toList();
       },
       reqParams: {
-        if (!(docStatus == null)) ...{
-          'filters': [
-            ['docstatus', '=', docStatus],
-            if (serach.containsValidValue) ...{
-              ['name', 'Like', '%$serach'],
-            },
-          ],
-        },
+        'filters': jsonEncode(filters),
         'limit_start': start,
         'limit': 20,
         'order_by': 'creation desc',

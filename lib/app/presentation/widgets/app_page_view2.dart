@@ -27,7 +27,8 @@ class AppPageView2<T extends PageViewFiltersCubit> extends StatefulWidget {
     required this.mode,
     required this.onNew,
     required this.backgroundColor,
-    required this.scaffoldBg, this.onSearch,
+    required this.scaffoldBg,
+    this.onSearch,
   });
 
   final Widget child;
@@ -42,8 +43,7 @@ class AppPageView2<T extends PageViewFiltersCubit> extends StatefulWidget {
 }
 
 class _AppPageView2State<T extends PageViewFiltersCubit>
-    extends State<AppPageView2<T>>
-    {
+    extends State<AppPageView2<T>> {
   bool isTodaySelected = true;
 
   String get hintText => switch (widget.mode) {
@@ -82,12 +82,13 @@ class _AppPageView2State<T extends PageViewFiltersCubit>
                   border: Border.all(color: Colors.grey.shade200),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: IconButton(
-                  icon: const Icon(Icons.filter_list),
-                  onPressed: widget.onSearch
-                  
-                  
-                  
+                child: InkWell(
+                  onTap: widget.onSearch,
+                  borderRadius: BorderRadius.circular(12),
+                  child: const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Icon(Icons.filter_list, size: 20,color: AppColors.liteyellow,),
+                  ),
                 ),
               ),
             ),
@@ -165,7 +166,7 @@ class _AppPageView2State<T extends PageViewFiltersCubit>
                 border: Border.all(color: Colors.grey.shade300),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withValues(alpha:0.05),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
@@ -253,6 +254,4 @@ class _AppPageView2State<T extends PageViewFiltersCubit>
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
-
- 
 }

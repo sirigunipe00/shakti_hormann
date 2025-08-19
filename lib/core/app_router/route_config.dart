@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+
 import 'package:shakti_hormann/app/presentation/ui/app_profile_page.dart';
 import 'package:shakti_hormann/app/presentation/ui/app_home_page.dart';
 import 'package:shakti_hormann/app/presentation/ui/app_splash_scrn.dart';
 import 'package:shakti_hormann/app/presentation/ui/dashboard_page.dart';
 import 'package:shakti_hormann/app/presentation/widgets/app_scaffold_widget.dart';
 import 'package:shakti_hormann/app/presentation/widgets/notifcations_scrn.dart';
-import 'package:shakti_hormann/core/app_router/app_route.dart';
 import 'package:shakti_hormann/core/consts/messages.dart';
-import 'package:shakti_hormann/core/di/injector.dart';
-import 'package:shakti_hormann/core/utils/typedefs.dart';
+import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/features/gate_entry/model/gate_entry_form.dart';
 import 'package:shakti_hormann/features/gate_entry/presentation/bloc/bloc_provider.dart';
 import 'package:shakti_hormann/features/gate_entry/presentation/bloc/create_gate_cubit/gate_entry_cubit.dart';
@@ -27,6 +26,7 @@ import 'package:shakti_hormann/features/logistic_request/presentation/bloc/bloc_
 import 'package:shakti_hormann/features/logistic_request/presentation/bloc/create_lr_cubit/logistic_planning_cubit.dart';
 import 'package:shakti_hormann/features/logistic_request/presentation/ui/create/new_logistic_request.dart';
 import 'package:shakti_hormann/features/logistic_request/presentation/ui/widgets/logistic_request_list.dart';
+import 'package:shakti_hormann/features/transport_confirmation/presentation/bloc/bloc_provider.dart';
 import 'package:shakti_hormann/features/transport_confirmation/presentation/bloc/create_transport_cubit.dart/create_transport_cubit.dart';
 import 'package:shakti_hormann/features/transport_confirmation/presentation/ui/create/new_transport.dart';
 import 'package:shakti_hormann/features/transport_confirmation/presentation/ui/widgets/transport_cnfm_list.dart';
@@ -68,14 +68,28 @@ class AppRouterConfig {
                   ),
                   GoRoute(
                     path: _getPath(AppRoute.gateEntry),
-                    builder: (ctxt, state) => const GateEntryListScrn(),
+                    builder: (ctxt, state) {
+                      final filters = Pair(
+                        StringUtils.docStatusInt('Draft'),
+                        null,
+                      );
+                      return BlocProvider(
+                        create:
+                            (context) => GateEntryBlocProvider.get().fetchGateEntries()..fetchInitial(filters),
+                        child: const GateEntryListScrn(),
+                      );
+                    },
                     routes: [
                       GoRoute(
                         path: _getPath(AppRoute.newGateEntry),
                         onExit: (context, state) async {
                           final form = state.extra as GateEntryForm?;
-                          final formStatus = form?.docStatus == 1 ? 'Submitted' : 'Draft';
-                          return await _promptConf(context, formStatus: formStatus);
+                          final formStatus =
+                              form?.docStatus == 1 ? 'Submitted' : 'Draft';
+                          return await _promptConf(
+                            context,
+                            formStatus: formStatus,
+                          );
                         },
                         builder: (_, state) {
                           final gateEntryForm = state.extra as GateEntryForm?;
@@ -103,14 +117,29 @@ class AppRouterConfig {
                   ),
                   GoRoute(
                     path: _getPath(AppRoute.gatexit),
-                    builder: (ctxt, state) => const GateExitListScrn(),
+                   
+
+                        builder: (ctxt, state) {
+                      final filters = Pair(
+                        StringUtils.docStatusInt('Draft'),
+                        null,
+                      );
+                      return BlocProvider(
+                        create:
+                            (context) => GateExitBlocProvider.get().fetchGateExit()..fetchInitial(filters),
+                        child: const GateExitListScrn(),
+                      );
+                    },
                     routes: [
                       GoRoute(
-                        onExit:
-                            (context, state) async {
+                        onExit: (context, state) async {
                           final form = state.extra as GateExitForm?;
-                          final formStatus = form?.docStatus == 1 ? 'Submitted' : 'Draft';
-                          return await _promptConf(context, formStatus: formStatus);
+                          final formStatus =
+                              form?.docStatus == 1 ? 'Submitted' : 'Draft';
+                          return await _promptConf(
+                            context,
+                            formStatus: formStatus,
+                          );
                         },
                         path: _getPath(AppRoute.newGateExit),
                         builder: (_, state) {
@@ -139,7 +168,17 @@ class AppRouterConfig {
                   ),
                   GoRoute(
                     path: _getPath(AppRoute.logisticRequest),
-                    builder: (_, state) => const LogisticRequestList(),
+                       builder: (ctxt, state) {
+                      final filters = Pair(
+                        StringUtils.docStatuslogistic('Draft'),
+                        null,
+                      );
+                      return BlocProvider(
+                        create:
+                            (context) => LogisticPlanningBlocProvider.get().fetchLogistics()..fetchInitial(filters),
+                        child: const LogisticRequestList(),
+                      );
+                    },
                     routes: [
                       GoRoute(
                         path: _getPath(AppRoute.newLogisticRequest),
@@ -175,7 +214,17 @@ class AppRouterConfig {
                   ),
                   GoRoute(
                     path: _getPath(AppRoute.transportConfirmation),
-                    builder: (ctxt, state) => const TransportCnfmList(),
+                       builder: (ctxt, state) {
+                      final filters = Pair(
+                        StringUtils.docStatuslogistic('Draft'),
+                        null,
+                      );
+                      return BlocProvider(
+                        create:
+                            (context) => TransportCnfmBlocProvider.get().fetchTransport()..fetchInitial(filters),
+                        child: const TransportCnfmList(),
+                      );
+                    },
                     routes: [
                       GoRoute(
                         path: _getPath(AppRoute.newTarnsportCnfrm),

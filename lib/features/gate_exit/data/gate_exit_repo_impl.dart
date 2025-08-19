@@ -17,10 +17,10 @@ AsyncValueOf<List<GateExitForm>> fetchEntries(
   int? docStatus,
   String? search,
 ) async {
-  // Build filters dynamically
+
   final filters = <List<dynamic>>[];
 
-  if (docStatus != null) {
+  if (docStatus != null && docStatus != 2) {
     filters.add(['docstatus', '=', docStatus]);
   }
 

@@ -50,13 +50,13 @@ class _NewTransportCnfmState extends State<NewTransportCnfm> {
                     status: StringUtils.docStatus(status ?? 0),
 
                     onSubmit:
-                        status == 'Transporter Confirmed'
+                        status == 1
                             ? () {}
                             : () {
                               context.cubit<CreateTransportCubit>().approve();
                             },
                     onReject:
-                        status == 'Transporter Rejected'
+                        status == 1
                             ? () {}
                             : () {
                              
@@ -84,7 +84,7 @@ class _NewTransportCnfmState extends State<NewTransportCnfm> {
                   context.read<TransportFilterCubit>().state;
               context.cubit<TransportCubit>().fetchInitial(
                 Pair(
-                  StringUtils.docStatusInt(gateEntryFilters.status),
+                  StringUtils.docStatuslogistic(gateEntryFilters.status),
                   gateEntryFilters.query,
                 ),
               );

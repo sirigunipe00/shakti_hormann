@@ -43,7 +43,7 @@ class GateEntryWidget extends StatelessWidget {
                   width: 70,
                   height: 70,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFAB94FF).withOpacity(0.30),
+                    color: const Color(0xFFAB94FF).withValues(alpha:0.30),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   alignment: Alignment.center,

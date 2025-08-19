@@ -28,7 +28,6 @@ class _NewGateExitState extends State<NewGateExit> {
   Widget build(BuildContext context) {
     final gateEntryState = context.read<CreateGateExitCubit>().state;
 
-    final isCreating = gateEntryState.view == GateExitView.create;
     final newform = gateEntryState.form;
     final status = newform.docStatus;
     final name = newform.name;
@@ -40,11 +39,18 @@ class _NewGateExitState extends State<NewGateExit> {
           isNew
               ? SimpleAppBar(
                 title: 'New Gate Exit',
-                actionButton: AppButton(
-                  label: isCreating ? 'Create' : 'Submit',
-
-                  onPressed: context.cubit<CreateGateExitCubit>().save,
-                ),
+                actionButton: BlocBuilder<CreateGateExitCubit, CreateGateExitState>(
+                  builder: (context, state) {
+                    
+                        return AppButton(
+                          isLoading: state.isLoading,
+                          label: state.view.toName(),
+                          onPressed: () {
+                            context.cubit<CreateGateExitCubit>().save();
+                          },
+                        );
+                      },
+                    ),
 
                 dropdown: BlocBuilder<SalesInvoiceList, SalesInvoiceState>(
                   builder: (_, state) {

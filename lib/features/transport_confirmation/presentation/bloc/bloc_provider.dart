@@ -6,7 +6,7 @@ import 'package:shakti_hormann/features/transport_confirmation/data/transport_co
 import 'package:shakti_hormann/features/transport_confirmation/model/transport_confirmation_form.dart';
 
 typedef TransportCubit =
-    InfiniteListCubit<TransportConfirmationForm, Pair<int?, String?>, Pair<int?, String?>>;
+    InfiniteListCubit<TransportConfirmationForm, Pair<String?, String?>, Pair<String?, String?>>;
 typedef TtransportState = InfiniteListState<TransportConfirmationForm>;
 
 

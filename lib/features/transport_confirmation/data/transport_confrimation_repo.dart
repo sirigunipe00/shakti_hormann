@@ -5,7 +5,7 @@ import 'package:shakti_hormann/features/transport_confirmation/model/transport_c
 abstract interface class TransportConfrimationRepo {
   AsyncValueOf<List<TransportConfirmationForm>> fetchTransports(
     int start,
-    int? docStatus,
+    String? status,
     String? search,
   );
 
