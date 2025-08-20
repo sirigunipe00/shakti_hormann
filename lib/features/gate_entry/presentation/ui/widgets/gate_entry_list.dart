@@ -31,6 +31,9 @@ class _GateEntryListScrnState extends State<GateEntryListScrn>
 
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _fetchInital(context, query, status!);
+    });
     return AppPageView2<GateEntryFilterCubit>(
       mode: PageMode2.gateentry,
 
@@ -57,7 +60,7 @@ class _GateEntryListScrnState extends State<GateEntryListScrn>
               query = null;
               _fetchInital(context, query, status);
             },
-            fetchMore: () => fetchMore(context),
+            fetchMore: () => fetchMore(context, query, status),
             emptyListText: 'No GateEntries Found.',
           ),
         ),
@@ -81,17 +84,14 @@ class _GateEntryListScrnState extends State<GateEntryListScrn>
   }
 
   void _fetchInital(BuildContext context, String? query, String? status) {
-    
     context.cubit<GateEntriesCubit>().fetchInitial(
       Pair(StringUtils.docStatusInt(status), query),
     );
   }
 
-  void fetchMore(BuildContext context) {
-    final filters = context.read<GateEntryFilterCubit>().state;
-
+  void fetchMore(BuildContext context,String? query , String? status) {
     context.cubit<GateEntriesCubit>().fetchMore(
-      Pair(StringUtils.docStatusInt(filters.status), filters.query),
+      Pair(StringUtils.docStatusInt(status), query),
     );
   }
 }

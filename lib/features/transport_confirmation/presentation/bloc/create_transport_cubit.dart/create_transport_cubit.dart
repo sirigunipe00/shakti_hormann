@@ -89,14 +89,6 @@ class CreateTransportCubit extends AppBaseCubit<CreateTransportState> {
   void initDetails(Object? entry) {
     shouldAskForConfirmation.value = false;
     if (entry is TransportConfirmationForm) {
-      // final parsedDate = DFU.toDateTime(
-      //   entry.creation.valueOrEmpty,
-      //   'yyyy-MM-dd',
-      // );
-      // final selectedDate = DFU.toDateTime(
-      //   entry.requestedDeliveryDate.valueOrEmpty,
-      //   'dd-MM-yyyy',
-      // );
       final form = state.form;
       final updatedForm = form.copyWith(
         docstatus: entry.docstatus,
@@ -223,8 +215,6 @@ class CreateTransportCubit extends AppBaseCubit<CreateTransportState> {
     final form = state.form;
     if (form.plantName.doesNotHaveValue) {
       return optionOf(const Pair('Select Plant Name', 0));
-    } else if (form.requestedDeliveryDate.isNull) {
-      return optionOf(const Pair('Enter Request Delivery Date Date', 0));
     } else if (form.driverContact.doesNotHaveValue ||
         form.driverContact!.length != 10) {
       return optionOf(

@@ -18,15 +18,15 @@ class TransportCnfrmRepoimpl extends BaseApiRepository
     String? status,
     String? serach,
   ) async {
-      final filters = <List<dynamic>>[];
+    final filters = <List<dynamic>>[];
 
-  if (status != null && status != 4) {
-    filters.add(['status', '=', status]);
-  }
+    if (status != null && status != '4') {
+      filters.add(['status', '=', status]);
+    }
 
-  if (serach != null && serach.isNotEmpty) {
-    filters.add(['name', 'like', '%$serach%']); 
-  }
+    if (serach != null && serach.isNotEmpty) {
+      filters.add(['name', 'like', '%$serach%']);
+    }
     final requestConfig = RequestConfig(
       url: Urls.getList,
       parser: (json) {
@@ -74,16 +74,13 @@ class TransportCnfrmRepoimpl extends BaseApiRepository
 
         body: jsonEncode({
           'logistic_request_id': form.name,
-          'status': 'Transporter Confirmed',
+          'status': form.status,
           'transporter_confirmation_date': form.requestedDeliveryDate,
           'driver_name': form.driverName,
           'vehicle_number': form.vehicleNumber,
           'estimated_arrival': formatEstimatedArrival(
             form.estimatedArrival ?? '',
           ),
-
-          'driver_contact': form.driverContact,
-          'transporter_remarks': form.transporterRemarks,
         }),
 
         headers: {HttpHeaders.contentTypeHeader: 'application/json'},
@@ -92,8 +89,6 @@ class TransportCnfrmRepoimpl extends BaseApiRepository
       $logger.devLog('requestConfig.....$config');
 
       final response = await post(config);
-
-      $logger.devLog('response.....$response');
 
       return response.processAsync((r) async {
         return right(r.data!);
@@ -106,7 +101,6 @@ class TransportCnfrmRepoimpl extends BaseApiRepository
     TransportConfirmationForm form,
   ) async {
     return await executeSafely(() async {
-      $logger.devLog(form);
       final formData = removeNullValues(form.toJson());
       const keysToRemove = ['name', 'creation', 'modified', 'modified_by'];
       for (String key in keysToRemove) {
@@ -121,7 +115,7 @@ class TransportCnfrmRepoimpl extends BaseApiRepository
         },
         body: jsonEncode({
           'logistic_request_id': form.name,
-          'status': 'Transporter Rejected',
+          'status': form.status,
           'reject_reason': form.rejectReason,
         }),
         headers: {HttpHeaders.contentTypeHeader: 'application/json'},

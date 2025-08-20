@@ -82,9 +82,7 @@ class _NewGateExitState extends State<NewGateExit> {
                         context.cubit<CreateGateExitCubit>().onValueChanged(
                           salesInvoiceNo: selected.name,
                           plantName: selected.plantName,
-                          vehicleNo: selected.vehicleNo,
-                          remarks: selected.remarks,
-                          creationDate: selected.postingDate,
+        
                         );
                       },
 
@@ -131,7 +129,7 @@ class _NewGateExitState extends State<NewGateExit> {
                   gateEntryFilters.query,
                 ),
               );
-              Navigator.pop(context);
+              Navigator.pop(context,true);
               setState(() {});
             });
           }

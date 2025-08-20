@@ -97,6 +97,7 @@ class CreateGateExitCubit extends AppBaseCubit<CreateGateExitState> {
       remarks: entry.remarks,
       plantName: entry.plantName,
       gateEntryDate: entry.gateEntryDate,
+      salesInvoice: entry.salesInvoice,
       
       vehicleNo: entry.vehicleNo,
       vehiclePhoto: entry.vehiclePhoto,
@@ -221,10 +222,7 @@ class CreateGateExitCubit extends AppBaseCubit<CreateGateExitState> {
 
     if (form.plantName.doesNotHaveValue) {
       return optionOf(const Pair('Select Plant Name', 0));
-    }
-    if (form.vehicleNo == null || form.vehicleNo!.trim().isEmpty) {
-      return optionOf(const Pair('Enter Vehicle Number', 0));
-    }else if (form.vehiclePhoto.doesNotHaveValue) {
+    } else if (form.vehiclePhoto.doesNotHaveValue) {
       return optionOf(const Pair('Capture Vehicle Front Photo.',0));
     } else if (form.vehicleBackPhoto.doesNotHaveValue) {
       return optionOf(const Pair('Capture Vehicle Back Photo.',0));

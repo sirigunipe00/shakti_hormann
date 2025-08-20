@@ -8,7 +8,7 @@ class LoggedInUser with _$LoggedInUser {
   const LoggedInUser._();
   const factory LoggedInUser({
     required  String name,
-    required String username,
+     String? username,
     @JsonKey(name: 'first_name', defaultValue: '') String? firstName,
     @JsonKey(name: 'last_name', defaultValue: '') String? lastName,
     @JsonKey(name: 'api_key', defaultValue: '') required String apiKey,

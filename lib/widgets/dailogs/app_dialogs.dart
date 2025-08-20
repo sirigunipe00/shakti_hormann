@@ -45,7 +45,8 @@ class AppDialog {
           title: title,
           content: content,
           buttonText: buttonText,
-          onTapDismiss: onTapDismiss, imagePath: 'assets/images/error.png',
+          onTapDismiss: onTapDismiss,
+          imagePath: 'assets/images/error.png',
         ),
       );
 

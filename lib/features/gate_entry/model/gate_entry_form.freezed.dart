@@ -50,7 +50,7 @@ mixin _$GateEntryForm {
   String? get vendorInvoiceNo => throw _privateConstructorUsedError;
   @JsonKey(name: 'gate_entry_date')
   String? get gateEntryDate => throw _privateConstructorUsedError;
-  @JsonKey(name: 'invoice_qty')
+  @JsonKey(name: 'vendor_invoice_quantity')
   int? get invoiceQuantity => throw _privateConstructorUsedError;
   @JsonKey(name: 'invoice_amount')
   int? get invoiceAmount => throw _privateConstructorUsedError;
@@ -98,7 +98,7 @@ abstract class $GateEntryFormCopyWith<$Res> {
     @JsonKey(name: 'vendor_invoice_date') String? vendorInvoiceDate,
     @JsonKey(name: 'vendor_invoice_no') String? vendorInvoiceNo,
     @JsonKey(name: 'gate_entry_date') String? gateEntryDate,
-    @JsonKey(name: 'invoice_qty') int? invoiceQuantity,
+    @JsonKey(name: 'vendor_invoice_quantity') int? invoiceQuantity,
     @JsonKey(name: 'invoice_amount') int? invoiceAmount,
     @JsonKey(name: 'remarks') String? remarks,
     @JsonKey(name: 'is_purchase_receipt_created') int? receipt,
@@ -289,7 +289,7 @@ abstract class _$$GateEntryFormImplCopyWith<$Res>
     @JsonKey(name: 'vendor_invoice_date') String? vendorInvoiceDate,
     @JsonKey(name: 'vendor_invoice_no') String? vendorInvoiceNo,
     @JsonKey(name: 'gate_entry_date') String? gateEntryDate,
-    @JsonKey(name: 'invoice_qty') int? invoiceQuantity,
+    @JsonKey(name: 'vendor_invoice_quantity') int? invoiceQuantity,
     @JsonKey(name: 'invoice_amount') int? invoiceAmount,
     @JsonKey(name: 'remarks') String? remarks,
     @JsonKey(name: 'is_purchase_receipt_created') int? receipt,
@@ -472,7 +472,7 @@ class _$GateEntryFormImpl implements _GateEntryForm {
     @JsonKey(name: 'vendor_invoice_date') this.vendorInvoiceDate,
     @JsonKey(name: 'vendor_invoice_no') this.vendorInvoiceNo,
     @JsonKey(name: 'gate_entry_date') this.gateEntryDate,
-    @JsonKey(name: 'invoice_qty') this.invoiceQuantity,
+    @JsonKey(name: 'vendor_invoice_quantity') this.invoiceQuantity,
     @JsonKey(name: 'invoice_amount') this.invoiceAmount,
     @JsonKey(name: 'remarks') this.remarks,
     @JsonKey(name: 'is_purchase_receipt_created') this.receipt,
@@ -529,7 +529,7 @@ class _$GateEntryFormImpl implements _GateEntryForm {
   @JsonKey(name: 'gate_entry_date')
   final String? gateEntryDate;
   @override
-  @JsonKey(name: 'invoice_qty')
+  @JsonKey(name: 'vendor_invoice_quantity')
   final int? invoiceQuantity;
   @override
   @JsonKey(name: 'invoice_amount')
@@ -658,7 +658,7 @@ abstract class _GateEntryForm implements GateEntryForm {
     @JsonKey(name: 'vendor_invoice_date') final String? vendorInvoiceDate,
     @JsonKey(name: 'vendor_invoice_no') final String? vendorInvoiceNo,
     @JsonKey(name: 'gate_entry_date') final String? gateEntryDate,
-    @JsonKey(name: 'invoice_qty') final int? invoiceQuantity,
+    @JsonKey(name: 'vendor_invoice_quantity') final int? invoiceQuantity,
     @JsonKey(name: 'invoice_amount') final int? invoiceAmount,
     @JsonKey(name: 'remarks') final String? remarks,
     @JsonKey(name: 'is_purchase_receipt_created') final int? receipt,
@@ -715,7 +715,7 @@ abstract class _GateEntryForm implements GateEntryForm {
   @JsonKey(name: 'gate_entry_date')
   String? get gateEntryDate;
   @override
-  @JsonKey(name: 'invoice_qty')
+  @JsonKey(name: 'vendor_invoice_quantity')
   int? get invoiceQuantity;
   @override
   @JsonKey(name: 'invoice_amount')

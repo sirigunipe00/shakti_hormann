@@ -101,7 +101,7 @@ class _GateEntryFormWidgetState extends State<GateEntryFormWidget> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     InputField(
-                      readOnly: isCompleted,
+                      readOnly: true,
                       title: 'Plant Name',
                       hintText: 'plant name',
                       borderColor: AppColors.grey,

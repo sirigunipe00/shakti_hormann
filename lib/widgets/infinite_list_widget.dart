@@ -38,7 +38,7 @@ class InfiniteListViewWidget<T extends StateStreamable<InfiniteListState<D>>, D>
             bool isloadingMore,
             Failure? failure,
           ) {
-            log('data----:$data');
+            log('data----:${data.length}');
             if (data.isEmpty) {
               return EmptyDataWidget(
                 emptyText: emptyListText,

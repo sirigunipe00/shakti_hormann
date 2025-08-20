@@ -20,16 +20,15 @@ class LogisticPlanningRepoimpl extends BaseApiRepository
     String? status,
     String? serach,
   ) async {
+    final filters = <List<dynamic>>[];
 
-  final filters = <List<dynamic>>[];
+    if (status != null && status != '4') {
+      filters.add(['status', '=', status]);
+    }
 
-  if (status != null && status != '4') {
-    filters.add(['status', '=', status]);
-  }
-
-  if (serach != null && serach.isNotEmpty) {
-    filters.add(['name', 'like', '%$serach%']); 
-  }
+    if (serach != null && serach.isNotEmpty) {
+      filters.add(['name', 'like', '%$serach%']);
+    }
 
     final requestConfig = RequestConfig(
       url: Urls.getList,
@@ -56,7 +55,6 @@ class LogisticPlanningRepoimpl extends BaseApiRepository
   @override
   AsyncValueOf<String> updateLogisticPlanning(LogisticPlanningForm form) async {
     return await executeSafely(() async {
-      $logger.devLog(form);
       final formData = removeNullValues(form.toJson());
       const keysToRemove = ['name', 'creation', 'modified', 'modified_by'];
       for (String key in keysToRemove) {
@@ -65,81 +63,77 @@ class LogisticPlanningRepoimpl extends BaseApiRepository
 
       final requestConfig = RequestConfig(
         url: Urls.updateLogisticPlanning,
-        
+
         parser: (json) {
-          final data = json['message']['message'];
+          final data = json['message']['message'] as String;
           return data;
         },
         body: jsonEncode({'logistic_request_id': form.name}),
         headers: {HttpHeaders.contentTypeHeader: 'application/json'},
       );
-      $logger.devLog(requestConfig);
+      $logger.devLog('UpdateConfig.....$requestConfig');
 
       final response = await post(requestConfig);
       return response.process((r) => right(r.data!));
     });
   }
 
+  @override
+  AsyncValueOf<Pair<String, String>> createLogisticPlanning(
+    LogisticPlanningForm form,
+  ) async {
+    return await executeSafely(() async {
+      final formattedDate =
+          form.requestedDeliveryDate != null
+              ? DateFormat('dd-MM-yyyy').format(
+                DateFormat('dd-MM-yyyy').parse(form.requestedDeliveryDate!),
+              )
+              : null;
 
+      final formattedTime =
+          form.requestedDeliveryTime != null
+              ? DateFormat(
+                'HH:mm',
+              ).format(DateFormat('HH:mm').parse(form.requestedDeliveryTime!))
+              : null;
 
-@override
-AsyncValueOf<Pair<String, String>> createLogisticPlanning(
-  LogisticPlanningForm form,
-) async {
-  return await executeSafely(() async {
-    final formattedDate = form.requestedDeliveryDate != null
-        ? DateFormat('dd-MM-yyyy').format(
-            DateFormat('dd-MM-yyyy').parse(form.requestedDeliveryDate!),
-          )
-        : null;
+      final formattedLogisticsRequestDate =
+          form.logisticsRequestDate != null
+              ? DateFormat(
+                'dd-MM-yyyy',
+              ).format(DateTime.parse(form.logisticsRequestDate!))
+              : null;
 
-    $logger.devLog('formatted date.....$formattedDate');
+      final config = RequestConfig(
+        url: Urls.createLogisticPlanning,
+        parser: (json) {
+          final data = json['message']['data']['logistic_request_id'] as String;
+          return Pair(data, '');
+        },
+        body: jsonEncode({
+          'plant_name': form.plantName,
+          'sales_order': form.salesOrder,
+          'transporter_name': form.transporterName,
+          'preferred_vehicle_type': form.preferredVehicleType,
+          'requested_delivery_date': formattedDate,
+          'requested_delivery_time': formattedTime,
+          'any_special_instructions': form.anySpecialInstructions,
+          'delivery_address': form.deliveryAddress,
+          'status': form.status,
+          'logistics_request_date': formattedLogisticsRequestDate,
+        }),
+        headers: {HttpHeaders.contentTypeHeader: 'application/json'},
+      );
 
-    final formattedTime = form.requestedDeliveryTime != null
-        ? DateFormat('HH:mm').format(
-            DateFormat('HH:mm').parse(form.requestedDeliveryTime!),
-          )
-        : null;
+      $logger.devLog('requestConfig.....$config');
 
-    final formattedLogisticsRequestDate = form.logisticsRequestDate != null
-        ? DateFormat('dd-MM-yyyy').format(
-            DateTime.parse(form.logisticsRequestDate!), 
-        )
-        : null ;
-      
+      final response = await post(config);
 
-    final config = RequestConfig(
-      url: Urls.createLogisticPlanning,
-      parser: (json) {
-        final data = json['message']['data']['logistic_request_id'] as String;
-        return Pair(data, '');
-      },
-      body: jsonEncode({
-        'plant_name': form.plantName,
-        'sales_order': form.salesOrder,
-        'transporter_name': form.transporterName,
-        'preferred_vehicle_type': form.preferredVehicleType,
-        'requested_delivery_date': formattedDate,
-        'requested_delivery_time': formattedTime,
-        'any_special_instructions': form.anySpecialInstructions,
-        'delivery_address': form.deliveryAddress,
-        'status': form.status,
-        'logistics_request_date': formattedLogisticsRequestDate, 
-      }),
-      headers: {HttpHeaders.contentTypeHeader: 'application/json'},
-    );
-
-    $logger.devLog('requestConfig.....$config');
-
-    final response = await post(config);
-    $logger.devLog('response.....$response');
-
-    return response.processAsync((r) async {
-      return right(r.data!);
+      return response.processAsync((r) async {
+        return right(r.data!);
+      });
     });
-  });
-}
-
+  }
 
   @override
   AsyncValueOf<List<SalesOrderForm>> fetchSalesOrder(String name) async {
@@ -154,7 +148,7 @@ AsyncValueOf<Pair<String, String>> createLogisticPlanning(
         },
         reqParams: {
           'limit': 20,
-          'oreder_by': 'create desc',
+          'order_by': 'creation desc',
           'doctype': 'Sales Order',
           'fields': ['*'],
         },
@@ -162,7 +156,6 @@ AsyncValueOf<Pair<String, String>> createLogisticPlanning(
       );
       $logger.devLog('salesinvoice.....$config');
       final response = await get(config);
-      $logger.devLog('response.....$response');
       return response.processAsync((r) async {
         return right((r.data!));
       });
@@ -181,7 +174,7 @@ AsyncValueOf<Pair<String, String>> createLogisticPlanning(
           return listdata.map((e) => TransportersForm.fromJson(e)).toList();
         },
         reqParams: {
-          'oreder_by': 'create desc',
+          'order_by': 'creation desc',
           'doctype': 'Supplier',
           'filters': jsonEncode({'is_transporter': 1}),
           'fields': jsonEncode(['name']),
@@ -190,7 +183,6 @@ AsyncValueOf<Pair<String, String>> createLogisticPlanning(
       );
       $logger.devLog('transporters.....$config');
       final response = await get(config);
-      $logger.devLog('Transportersresponse.....$response');
       return response.processAsync((r) async {
         return right((r.data!));
       });

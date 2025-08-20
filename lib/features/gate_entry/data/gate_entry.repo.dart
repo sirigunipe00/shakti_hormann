@@ -8,13 +8,9 @@ abstract interface class GateEntryRepo {
     int start,
     int? docStatus,
     String? search,
-    
   );
 
-
-
-  AsyncValueOf<Pair<String,String>> createGateEntry(GateEntryForm form);
-  AsyncValueOf<Pair<String,String>> submitGateEntry(GateEntryForm form);
-    AsyncValueOf<List<PurchaseOrderForm>> fetchPurchaseOrders(String name);
-
+  AsyncValueOf<Pair<String, String>> createGateEntry(GateEntryForm form);
+  AsyncValueOf<Pair<String, String>> submitGateEntry(GateEntryForm form);
+  AsyncValueOf<List<PurchaseOrderForm>> fetchPurchaseOrders(String name);
 }

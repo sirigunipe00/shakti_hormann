@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/features/auth/presentation/bloc/auth/auth_cubit.dart';
 import 'dart:math' as math;
@@ -65,8 +66,8 @@ class AppProfilePage extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(24),
-                        boxShadow: [
-                          const BoxShadow(
+                        boxShadow: const [
+                          BoxShadow(
                             color: Colors.black12,
                             blurRadius: 10,
                             spreadRadius: 2,
@@ -81,7 +82,7 @@ class AppProfilePage extends StatelessWidget {
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               border: Border.all(
-                                color: const Color(0xFFFDCB27),
+                                color: Color(0xFFFDCB27),
                                 width: 2,
                               ),
                             ),
@@ -97,7 +98,7 @@ class AppProfilePage extends StatelessWidget {
                           ),
                           const SizedBox(height: 12),
                           Text(
-                            context.user.username,
+                            context.user.username ?? '',
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 18,
@@ -126,8 +127,44 @@ class AppProfilePage extends StatelessWidget {
                     ),
                   ),
 
-                  _infoRow('Company', 'Shakti Hormann Private Limited'),
-                  _infoRow('App Version', ''),
+                  _infoRow(
+                    'Company',
+                    const Text(
+                      'Shakti Hormann Private Limited',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.black,
+                        fontFamily: 'Urbanist',
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+
+                  _infoRow(
+                    'App Version',
+                    FutureBuilder<String>(
+                      future: _appversion(),
+                      builder: (_, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.done &&
+                            snapshot.hasData) {
+                          return Text(
+                            snapshot.data!,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: Colors.black,
+                              fontFamily: 'Urbanist',
+                              fontWeight: FontWeight.w600,
+                            ),
+                          );
+                        }
+                        return const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        );
+                      },
+                    ),
+                  ),
 
                   const SizedBox(height: 20),
 
@@ -176,7 +213,7 @@ class AppProfilePage extends StatelessWidget {
     );
   }
 
-  static Widget _infoRow(String label, String value) {
+  static Widget _infoRow(String label, Widget value) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       decoration: const BoxDecoration(
@@ -194,17 +231,16 @@ class AppProfilePage extends StatelessWidget {
               fontWeight: FontWeight.w600,
             ),
           ),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 14,
-              color: Colors.black,
-              fontFamily: 'Urbanist',
-              fontWeight: FontWeight.w600,
-            ),
-          ),
+          value,
         ],
       ),
     );
   }
+}
+
+Future<String> _appversion() async {
+  final pinfo = await PackageInfo.fromPlatform();
+  final version = pinfo.version;
+  final buildNumber = pinfo.buildNumber;
+  return '$version ($buildNumber)';
 }

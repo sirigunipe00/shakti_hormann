@@ -64,7 +64,7 @@ class _NewUploadPhotoWidgetState extends State<NewUploadPhotoWidget>
     try {
       final picker = ImagePicker();
       final pickedFile = await picker.pickImage(
-        source: ImageSource.camera,
+        source: ImageSource.gallery,
         imageQuality: 85,
       );
 
@@ -146,6 +146,12 @@ class _NewUploadPhotoWidgetState extends State<NewUploadPhotoWidget>
                                 ? Image.network(
                                   getFullImageUrl(widget.imageUrl),
                                   fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Image.asset(
+                                      'assets/images/${widget.fileName}.png', 
+                                      fit: BoxFit.cover,
+                                    );
+                                  },
                                 )
                                 : Image.asset(
                                   'assets/images/${widget.fileName}.png',
@@ -178,7 +184,6 @@ class ImagePreviewPage extends StatelessWidget {
   final VoidCallback onRetake;
   final VoidCallback onDone;
 
-  // 🔹 Add the helper here too
   String getFullImageUrl(String? url) {
     if (url == null || url.isEmpty) return '';
     if (url.startsWith('http://') || url.startsWith('https://')) {
@@ -221,14 +226,20 @@ class ImagePreviewPage extends StatelessWidget {
                 child: Image.network(
                   getFullImageUrl(imageUrl), // ✅ Use helper
                   fit: BoxFit.fill,
-                  loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
+                  loadingBuilder: (
+                    BuildContext context,
+                    Widget child,
+                    ImageChunkEvent? loadingProgress,
+                  ) {
                     if (loadingProgress == null) return child;
                     return Center(
                       child: CircularProgressIndicator(
                         color: AppColors.grey,
-                        value: loadingProgress.expectedTotalBytes != null
-                            ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
-                            : null,
+                        value:
+                            loadingProgress.expectedTotalBytes != null
+                                ? loadingProgress.cumulativeBytesLoaded /
+                                    loadingProgress.expectedTotalBytes!
+                                : null,
                       ),
                     );
                   },

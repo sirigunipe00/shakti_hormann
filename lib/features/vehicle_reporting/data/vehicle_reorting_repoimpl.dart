@@ -61,33 +61,31 @@ class VehicleReportingRepoimpl extends BaseApiRepository
                 ).parse(form.vehicleReportingEntryVreDate!),
               )
               : null;
-      $logger.devLog('formateed date.....$formattedDate');
-  final arrivalDateTimeFormatted =
-    (form.arrivalDateAndTime != null && form.arrivalDateAndTime!.isNotEmpty)
-        ? DateFormat('dd-MM-yyyy HH:mm:ss').format(
-            DateTime(
-              form.vehicleReportingEntryVreDate != null
-                  ? DateFormat('dd-MM-yyyy')
-                      .parse(form.vehicleReportingEntryVreDate!)
-                      .year
-                  : DateTime.now().year,
-              form.vehicleReportingEntryVreDate != null
-                  ? DateFormat('dd-MM-yyyy')
-                      .parse(form.vehicleReportingEntryVreDate!)
-                      .month
-                  : DateTime.now().month,
-              form.vehicleReportingEntryVreDate != null
-                  ? DateFormat('dd-MM-yyyy')
-                      .parse(form.vehicleReportingEntryVreDate!)
-                      .day
-                  : DateTime.now().day,
-              int.parse(form.arrivalDateAndTime!.split(':')[0]),
-              int.parse(form.arrivalDateAndTime!.split(':')[1]),
-            ),
-          )
-        : null;
-
-
+      final arrivalDateTimeFormatted =
+          (form.arrivalDateAndTime != null &&
+                  form.arrivalDateAndTime!.isNotEmpty)
+              ? DateFormat('dd-MM-yyyy HH:mm:ss').format(
+                DateTime(
+                  form.vehicleReportingEntryVreDate != null
+                      ? DateFormat(
+                        'dd-MM-yyyy',
+                      ).parse(form.vehicleReportingEntryVreDate!).year
+                      : DateTime.now().year,
+                  form.vehicleReportingEntryVreDate != null
+                      ? DateFormat(
+                        'dd-MM-yyyy',
+                      ).parse(form.vehicleReportingEntryVreDate!).month
+                      : DateTime.now().month,
+                  form.vehicleReportingEntryVreDate != null
+                      ? DateFormat(
+                        'dd-MM-yyyy',
+                      ).parse(form.vehicleReportingEntryVreDate!).day
+                      : DateTime.now().day,
+                  int.parse(form.arrivalDateAndTime!.split(':')[0]),
+                  int.parse(form.arrivalDateAndTime!.split(':')[1]),
+                ),
+              )
+              : null;
 
       final config = RequestConfig(
         url: Urls.createVehicleReporting,
@@ -115,14 +113,13 @@ class VehicleReportingRepoimpl extends BaseApiRepository
 
       final response = await post(config);
 
-      $logger.devLog('response.....$response');
-
       return response.processAsync((r) async {
         return right(r.data!);
       });
     });
   }
-@override
+
+  @override
   AsyncValueOf<List<LogisticPlanningForm>> fetchLogistics(String name) async {
     return await executeSafely(() async {
       final config = RequestConfig(
@@ -143,11 +140,9 @@ class VehicleReportingRepoimpl extends BaseApiRepository
       );
       $logger.devLog('LogisticList.....$config');
       final response = await get(config);
-      $logger.devLog('response.....$response');
       return response.processAsync((r) async {
         return right((r.data!));
       });
     });
   }
-
 }

@@ -16,11 +16,9 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
     int? docStatus,
     String? search,
   ) async {
-   
     final filters = <List<dynamic>>[];
 
-    if (docStatus != null &&
-        docStatus != 2  ) {
+    if (docStatus != null && docStatus != 2) {
       filters.add(['docstatus', '=', docStatus]);
     }
 
@@ -38,6 +36,7 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
         'filters': jsonEncode(filters),
         'limit_start': start,
         'limit': 20,
+        // 'limit_page_length': limit,
         'order_by': 'creation desc',
         'doctype': 'Gate Entry',
         'fields': jsonEncode(['*']),
@@ -50,25 +49,6 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
     final response = await get(requestConfig);
     return response.process((r) => right(r.data!));
   }
-
-  // @override
-  // AsyncValueOf<List<String>> fetchCompanyList() async {
-  //   return await executeSafely(() async {
-  //     final config = RequestConfig(
-  //       url: Urls.companyName,
-  //       reqParams: {
-  //         'fields': ReceiverNameForm.fields,
-  //         'limit_page_length': 'None',
-  //       },
-  //       parser: (p0) {
-  //         final data = p0['data'] as List<dynamic>;
-  //         return data.map((e) => e['name'].toString()).toList();
-  //       },
-  //     );
-  //     final response = await get(config);
-  //     return response.process((r) => right(r.data!));
-  //   });
-  // }
 
   @override
   AsyncValueOf<List<PurchaseOrderForm>> fetchPurchaseOrders(String name) async {
@@ -89,7 +69,7 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
         },
         headers: {HttpHeaders.contentTypeHeader: 'application/json'},
       );
-      $logger.devLog('salesinvoice.....$config');
+
       final response = await get(config);
       $logger.devLog('response.....$response');
       return response.processAsync((r) async {
@@ -101,17 +81,41 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
   @override
   AsyncValueOf<Pair<String, String>> submitGateEntry(GateEntryForm form) async {
     return await executeSafely(() async {
+      String? formatDateToDDMMYYYY(String? date) {
+        final parsedDate = DateTime.parse(date!);
+        final day = parsedDate.day.toString().padLeft(2, '0');
+        final month = parsedDate.month.toString().padLeft(2, '0');
+        final year = parsedDate.year.toString();
+        return '$day-$month-$year';
+      }
+
       final config = RequestConfig(
         url: Urls.submitGateEntry,
         parser: (json) {
           final data = json['message']['message'] as String;
           return Pair(data, '');
         },
-        body: jsonEncode({'gate_entry_id': form.name}),
+        body: jsonEncode({
+          'gate_entry_id': form.name,
+          'plant_name': form.plantName,
+          'purchase_order': form.purchaseOrder,
+          'invoice_amount': form.invoiceAmount,
+          'vendor_invoice_date': formatDateToDDMMYYYY(form.vendorInvoiceDate),
+          'gate_entry_date': formatDateToDDMMYYYY(form.gateEntryDate),
+          'vendor_invoice_no': form.vendorInvoiceNo,
+          'vehicle_photo': form.vehiclePhoto,
+          'vendor_invoice_photo': form.invoicePhoto,
+          'vehicle_back_photo': form.vehicleBackPhoto,
+          'vehicle_no': form.vehicleNo,
+          'vendor_invoice_quantity': form.invoiceQuantity,
+          'remarks': form.remarks,
+          'scan_irn': form.scanIrn,
+        }),
         headers: {HttpHeaders.contentTypeHeader: 'application/json'},
       );
 
       final response = await post(config);
+      $logger.devLog('updateresponse.....$config');
       return response.processAsync((r) async {
         return right(Pair(r.data!.first, r.data!.second));
       });
@@ -141,16 +145,16 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
 
       body: jsonEncode({
         'plant_name': form.plantName,
-        'po_number': form.purchaseOrder,
+        'purchase_order': form.purchaseOrder,
         'invoice_amount': form.invoiceAmount,
-        'invoice_date': formatDateToDDMMYYYY(form.vendorInvoiceDate),
-        'entry_date': formatDateToDDMMYYYY(form.gateEntryDate),
+        'vendor_invoice_date': formatDateToDDMMYYYY(form.vendorInvoiceDate),
+        'gate_entry_date': formatDateToDDMMYYYY(form.gateEntryDate),
         'vendor_invoice_no': form.vendorInvoiceNo,
         'vehicle_photo': form.vehiclePhoto,
-        'invoice_photo': form.invoicePhoto,
+        'vendor_invoice_photo': form.invoicePhoto,
         'vehicle_back_photo': form.vehicleBackPhoto,
         'vehicle_no': form.vehicleNo,
-        'invoice_qty': form.invoiceQuantity,
+        'vendor_invoice_quantity': form.invoiceQuantity,
         'remarks': form.remarks,
         'scan_irn': form.scanIrn,
       }),
@@ -160,7 +164,6 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
     $logger.devLog('requestConfig.....$config');
 
     final response = await post(config);
-    $logger.devLog('response.....$response');
     return response.processAsync((r) async {
       return right(Pair(r.data!.first, r.data!.second));
     });

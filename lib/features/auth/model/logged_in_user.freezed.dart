@@ -22,7 +22,7 @@ LoggedInUser _$LoggedInUserFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$LoggedInUser {
   String get name => throw _privateConstructorUsedError;
-  String get username => throw _privateConstructorUsedError;
+  String? get username => throw _privateConstructorUsedError;
   @JsonKey(name: 'first_name', defaultValue: '')
   String? get firstName => throw _privateConstructorUsedError;
   @JsonKey(name: 'last_name', defaultValue: '')
@@ -74,7 +74,7 @@ abstract class $LoggedInUserCopyWith<$Res> {
   @useResult
   $Res call({
     String name,
-    String username,
+    String? username,
     @JsonKey(name: 'first_name', defaultValue: '') String? firstName,
     @JsonKey(name: 'last_name', defaultValue: '') String? lastName,
     @JsonKey(name: 'api_key', defaultValue: '') String apiKey,
@@ -112,7 +112,7 @@ class _$LoggedInUserCopyWithImpl<$Res, $Val extends LoggedInUser>
   @override
   $Res call({
     Object? name = null,
-    Object? username = null,
+    Object? username = freezed,
     Object? firstName = freezed,
     Object? lastName = freezed,
     Object? apiKey = null,
@@ -139,10 +139,10 @@ class _$LoggedInUserCopyWithImpl<$Res, $Val extends LoggedInUser>
                     : name // ignore: cast_nullable_to_non_nullable
                         as String,
             username:
-                null == username
+                freezed == username
                     ? _value.username
                     : username // ignore: cast_nullable_to_non_nullable
-                        as String,
+                        as String?,
             firstName:
                 freezed == firstName
                     ? _value.firstName
@@ -245,7 +245,7 @@ abstract class _$$LoggedInUserImplCopyWith<$Res>
   @useResult
   $Res call({
     String name,
-    String username,
+    String? username,
     @JsonKey(name: 'first_name', defaultValue: '') String? firstName,
     @JsonKey(name: 'last_name', defaultValue: '') String? lastName,
     @JsonKey(name: 'api_key', defaultValue: '') String apiKey,
@@ -282,7 +282,7 @@ class __$$LoggedInUserImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? name = null,
-    Object? username = null,
+    Object? username = freezed,
     Object? firstName = freezed,
     Object? lastName = freezed,
     Object? apiKey = null,
@@ -309,10 +309,10 @@ class __$$LoggedInUserImplCopyWithImpl<$Res>
                 : name // ignore: cast_nullable_to_non_nullable
                     as String,
         username:
-            null == username
+            freezed == username
                 ? _value.username
                 : username // ignore: cast_nullable_to_non_nullable
-                    as String,
+                    as String?,
         firstName:
             freezed == firstName
                 ? _value.firstName
@@ -408,7 +408,7 @@ class __$$LoggedInUserImplCopyWithImpl<$Res>
 class _$LoggedInUserImpl extends _LoggedInUser {
   const _$LoggedInUserImpl({
     required this.name,
-    required this.username,
+    this.username,
     @JsonKey(name: 'first_name', defaultValue: '') this.firstName,
     @JsonKey(name: 'last_name', defaultValue: '') this.lastName,
     @JsonKey(name: 'api_key', defaultValue: '') required this.apiKey,
@@ -434,7 +434,7 @@ class _$LoggedInUserImpl extends _LoggedInUser {
   @override
   final String name;
   @override
-  final String username;
+  final String? username;
   @override
   @JsonKey(name: 'first_name', defaultValue: '')
   final String? firstName;
@@ -570,7 +570,7 @@ class _$LoggedInUserImpl extends _LoggedInUser {
 abstract class _LoggedInUser extends LoggedInUser {
   const factory _LoggedInUser({
     required final String name,
-    required final String username,
+    final String? username,
     @JsonKey(name: 'first_name', defaultValue: '') final String? firstName,
     @JsonKey(name: 'last_name', defaultValue: '') final String? lastName,
     @JsonKey(name: 'api_key', defaultValue: '') required final String apiKey,
@@ -599,7 +599,7 @@ abstract class _LoggedInUser extends LoggedInUser {
   @override
   String get name;
   @override
-  String get username;
+  String? get username;
   @override
   @JsonKey(name: 'first_name', defaultValue: '')
   String? get firstName;

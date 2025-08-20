@@ -11,47 +11,45 @@ import 'package:shakti_hormann/features/gate_exit/model/sales_invoice_form.dart'
 @LazySingleton(as: GateExitRepo)
 class GateExitRepoimpl extends BaseApiRepository implements GateExitRepo {
   const GateExitRepoimpl(super.client);
-@override
-AsyncValueOf<List<GateExitForm>> fetchEntries(
-  int start,
-  int? docStatus,
-  String? search,
-) async {
+  @override
+  AsyncValueOf<List<GateExitForm>> fetchEntries(
+    int start,
+    int? docStatus,
+    String? search,
+  ) async {
+    final filters = <List<dynamic>>[];
 
-  final filters = <List<dynamic>>[];
+    if (docStatus != null && docStatus != 2) {
+      filters.add(['docstatus', '=', docStatus]);
+    }
 
-  if (docStatus != null && docStatus != 2) {
-    filters.add(['docstatus', '=', docStatus]);
+    if (search != null && search.isNotEmpty) {
+      filters.add(['name', 'like', '%$search%']);
+    }
+
+    final requestConfig = RequestConfig(
+      url: Urls.getList,
+      parser: (json) {
+        final data = json['message'];
+        final listData = data as List<dynamic>;
+        return listData.map((e) => GateExitForm.fromJson(e)).toList();
+      },
+      reqParams: {
+        'filters': jsonEncode(filters),
+        'limit_start': start,
+        'limit': 20,
+        'order_by': 'creation desc',
+        'doctype': 'Gate Exit',
+        'fields': jsonEncode(['*']),
+      },
+      headers: {HttpHeaders.contentTypeHeader: 'application/json'},
+    );
+
+    $logger.devLog('requestConfig....$requestConfig');
+
+    final response = await get(requestConfig);
+    return response.process((r) => right(r.data!));
   }
-
-  if (search != null && search.isNotEmpty) {
-    filters.add(['name', 'like', '%$search%']); 
-  }
-
-  final requestConfig = RequestConfig(
-    url: Urls.getList,
-    parser: (json) {
-      final data = json['message'];
-      final listData = data as List<dynamic>;
-      return listData.map((e) => GateExitForm.fromJson(e)).toList();
-    },
-    reqParams: {
-      'filters': jsonEncode(filters), 
-      'limit_start': start,
-      'limit': 20,
-      'order_by': 'creation desc',
-      'doctype': 'Gate Exit',
-      'fields': jsonEncode(['*']), 
-    },
-    headers: {HttpHeaders.contentTypeHeader: 'application/json'},
-  );
-
-  $logger.devLog('requestConfig....$requestConfig');
-
-  final response = await get(requestConfig);
-  return response.process((r) => right(r.data!));
-}
-
 
   @override
   AsyncValueOf<Pair<String, String>> submitGateExit(GateExitForm form) async {
@@ -62,7 +60,22 @@ AsyncValueOf<List<GateExitForm>> fetchEntries(
           final data = json['message']['message'] as String;
           return Pair(data, '');
         },
-        body: jsonEncode({'gate_exit_id': form.name}),
+        body: jsonEncode({
+          'gate_exit_id': form.name,
+          'plant_name': form.plantName,
+          'sales_invoice': form.salesInvoice,
+          'vehicle_no': form.vehicleNo,
+          'vehicle_back_photo': form.vehicleBackPhoto,
+          'vehicle_photo': form.vehiclePhoto,
+          'gate_entry_date':
+              form.gateEntryDate != null
+                  ? DateFormat(
+                    'yyyy-MM-dd',
+                  ).format(DateTime.parse(form.gateEntryDate!))
+                  : null,
+          'remarks': form.remarks,
+          'by_mobile_app': 1,
+        }),
         headers: {HttpHeaders.contentTypeHeader: 'application/json'},
       );
       $logger.devLog('submit .....$config');
@@ -73,22 +86,14 @@ AsyncValueOf<List<GateExitForm>> fetchEntries(
     });
   }
 
-
-
- 
   @override
   AsyncValueOf<Pair<String, String>> createGateExit(GateExitForm form) async {
     final formJson = form.toJson();
 
-    $logger.devLog('form....$form');
-
     formJson['status'] = 'Draft';
-    $logger.devLog('formJson.....$formJson');
 
     final cleanedJson = removeNullValues(form.toJson());
     cleanedJson['status'] = 'Draft';
-
-   
 
     final config = RequestConfig(
       url: Urls.createGateExit,
@@ -103,15 +108,17 @@ AsyncValueOf<List<GateExitForm>> fetchEntries(
         'vehicle_no': form.vehicleNo,
         'vehicle_back_photo': form.vehicleBackPhoto,
         'vehicle_photo': form.vehiclePhoto,
-       'gate_entry_date': form.gateEntryDate != null
-        ? DateFormat('dd-MM-yyyy').format(DateTime.parse(form.gateEntryDate!))
-        : null,
+        'gate_entry_date':
+            form.gateEntryDate != null
+                ? DateFormat(
+                  'dd-MM-yyyy',
+                ).format(DateTime.parse(form.gateEntryDate!))
+                : null,
         'remarks': form.remarks,
         'by_mobile_app': 1,
       }),
       headers: {HttpHeaders.contentTypeHeader: 'application/json'},
     );
-    
 
     final response = await post(config);
     $logger.devLog('response.....$response');
@@ -141,7 +148,6 @@ AsyncValueOf<List<GateExitForm>> fetchEntries(
       );
       $logger.devLog('salesinvoice.....$config');
       final response = await get(config);
-      $logger.devLog('response.....$response');
       return response.processAsync((r) async {
         return right((r.data!));
       });

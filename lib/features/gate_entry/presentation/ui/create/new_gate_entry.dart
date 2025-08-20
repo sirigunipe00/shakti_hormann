@@ -41,7 +41,6 @@ class _NewGateEntryState extends State<NewGateEntry> {
                 actionButton:
                     BlocBuilder<CreateGateEntryCubit, CreateGateEntryState>(
                       builder: (context, state) {
-                    
                         return AppButton(
                           isLoading: state.isLoading,
                           label: state.view.toName(),
@@ -103,14 +102,7 @@ class _NewGateEntryState extends State<NewGateEntry> {
                       {
                         showRejectBottomSheet(
                           context: context,
-                          onSubmit: (reason) {
-                            // handle rejection reason
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('Rejected with reason: $reason'),
-                              ),
-                            );
-                          },
+                          onSubmit: (reason) {},
                         );
                       }
                     },
@@ -123,7 +115,6 @@ class _NewGateEntryState extends State<NewGateEntry> {
       body: BlocListener<CreateGateEntryCubit, CreateGateEntryState>(
         listener: (_, state) async {
           if (state.isSuccess && state.successMsg!.isNotNull) {
-            print('success msg.....${state.successMsg}');
             AppDialog.showSuccessDialog(
               context,
               title: 'Success',
@@ -132,6 +123,8 @@ class _NewGateEntryState extends State<NewGateEntry> {
             ).then((_) {
               if (!context.mounted) return;
               context.cubit<CreateGateEntryCubit>().errorHandled();
+              Navigator.pop(context, true);
+              if (!context.mounted) return;
 
               final gateEntryFilters =
                   context.read<GateEntryFilterCubit>().state;
@@ -141,13 +134,9 @@ class _NewGateEntryState extends State<NewGateEntry> {
                   gateEntryFilters.query,
                 ),
               );
-              Navigator.pop(context);
-              setState(() {});
             });
           }
           if (state.error.isNotNull) {
-
-            print('error------------: ${state.error}');
             await AppDialog.showErrorDialog(
               context,
               title: state.error!.title,
