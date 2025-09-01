@@ -1,6 +1,5 @@
-import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
-
 import 'package:intl/intl.dart';
 import 'package:shakti_hormann/core/core.dart';
 import 'package:dartz/dartz.dart';
@@ -46,29 +45,21 @@ class CreateGateEntryCubit extends AppBaseCubit<CreateGateEntryState> {
     int? receipt,
     String? scanIrn,
     String? remarks,
+    
 
     File? vehiclePhoto,
     File? invoicePhoto,
     File? vehicleBackPhoto,
-  }) {
+  }) async {
     shouldAskForConfirmation.value = true;
     final today = DateFormat('yyyy-MM-dd').format(DateTime.now());
     final form = state.form;
 
-    final vehiclePhotos =
-        vehiclePhoto.isNull
-            ? form.vehiclePhoto
-            : base64Encode(vehiclePhoto!.readAsBytesSync());
-    final vendorInvoicePhotoBase64 =
-        invoicePhoto != null
-            ? base64Encode(invoicePhoto.readAsBytesSync())
-            : form.invoicePhoto ?? '';
+    final vehiclePhotos = vehiclePhoto ?? form.vehiclePhotoImg;
 
-    final vehiclebackPhotos =
-        vehicleBackPhoto.isNull
-            ? form.vehicleBackPhoto
-            : base64Encode(vehicleBackPhoto!.readAsBytesSync());
+    final vendorInvoicePhotoBase64 = invoicePhoto ?? form.invoicePhotoImg;
 
+    final vehiclebackPhotos = vehicleBackPhoto ?? form.vehicleBackPhotoImg;
     final newForm = form.copyWith(
       plantName: plantName ?? form.plantName,
       name: name ?? form.name,
@@ -88,9 +79,9 @@ class CreateGateEntryCubit extends AppBaseCubit<CreateGateEntryState> {
       receipt: receipt ?? form.receipt,
       scanIrn: scanIrn ?? form.scanIrn,
       remarks: remarks ?? form.remarks,
-      vehiclePhoto: vehiclePhotos,
-      invoicePhoto: vendorInvoicePhotoBase64,
-      vehicleBackPhoto: vehiclebackPhotos,
+      vehiclePhotoImg: vehiclePhotos,
+      invoicePhotoImg: vendorInvoicePhotoBase64,
+      vehicleBackPhotoImg: vehiclebackPhotos,
     );
     emitSafeState(state.copyWith(form: newForm));
   }
@@ -98,6 +89,8 @@ class CreateGateEntryCubit extends AppBaseCubit<CreateGateEntryState> {
   void initDetails(Object? entry) {
     shouldAskForConfirmation.value = false;
     if (entry is GateEntryForm) {
+      log('entry.gateEntryDate loggg: ${entry.gateEntryDate}');
+
       final parsedDate = DFU.toDateTime(
         entry.creationDate.valueOrEmpty,
         'yyyy-MM-dd',
@@ -237,13 +230,14 @@ class CreateGateEntryCubit extends AppBaseCubit<CreateGateEntryState> {
 
   Option<Pair<String, int?>> _validate() {
     final form = state.form;
-    if (form.plantName.doesNotHaveValue) {
-      return optionOf(const Pair('Select Plant Name', 0));
-    } else if (form.vehiclePhoto.isNull) {
+    if (form.purchaseOrder.doesNotHaveValue) {
+      return optionOf(const Pair('Select Purchase Order', 0));
+    } else if (form.vehiclePhoto.isNull && form.vehiclePhotoImg.isNull) {
       return optionOf(const Pair('Missing VehicleFront Photo', 0));
-    } else if (form.vehicleBackPhoto.isNull) {
+    } else if (form.vehicleBackPhoto.isNull &&
+        form.vehicleBackPhotoImg.isNull) {
       return optionOf(const Pair('Missing VehicleBack Photo', 0));
-    } else if (form.invoicePhoto.isNull) {
+    } else if (form.invoicePhoto.isNull && form.invoicePhotoImg.isNull) {
       return optionOf(const Pair('Missing VendorInvoice Photo', 0));
     }
 
@@ -265,9 +259,10 @@ class CreateGateEntryState with _$CreateGateEntryState {
 
   factory CreateGateEntryState.initial() {
     final creationDate = DFU.friendlyFormat(DFU.now());
+    final entryDate = DFU.ddMMyyyy(DFU.now());
 
     return CreateGateEntryState(
-      form: GateEntryForm(creationDate: creationDate),
+      form: GateEntryForm(creationDate: creationDate, gateEntryDate: entryDate),
       view: GateEntryView.create,
       isLoading: false,
       isSuccess: false,

@@ -140,11 +140,10 @@ class GateEntryWidget extends StatelessWidget {
 
                           Row(
                             children: [
-                              const Icon(
-                                Icons.timelapse_rounded,
-                                size: 14,
-                                color: Color(0xFF53A5DF),
-                              ),
+                           Image.asset(
+                            'assets/images/timeicon.png'
+                   ,
+                           ),
                               Text(
                                 DFU.timeFromStr(gateEntry.creationDate ?? ''),
                                 style: AppTextStyles.titleMedium(

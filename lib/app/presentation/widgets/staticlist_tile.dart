@@ -7,69 +7,83 @@ mixin StatusModeSelectionMixin {
   Future<String?> showOptions(
     BuildContext context, {
     String? defaultValue,
-    required PageMode2 pageMode, 
+    required PageMode2 pageMode,
   }) async {
-
     final List<String> filters;
     switch (pageMode) {
       case PageMode2.gateentry:
       case PageMode2.gateexit:
+      
         filters = ['Draft', 'Submitted', 'All'];
         break;
       case PageMode2.logisticRequest:
-      case PageMode2.transportConfirmation:
         filters = [
           'Transporter Confirmed',
           'Transporter Rejected',
           'Pending From Transporter',
           'Draft',
-          'All'
+          'All',
         ];
         break;
-      case PageMode2.vehicleReporting:
-        filters = ['Cancelled', 'Rejected', 'Reported', 'All'];
+      case PageMode2.transportConfirmation:
+        filters = [
+          'Transporter Confirmed',
+          'Transporter Rejected',
+          'Pending From Transporter',
+          'All',
+        ];
         break;
-      case PageMode2.loadingConfirmation:
-        filters = ['Cancelled', 'Rejected', 'Reported', 'All'];
-        break;
+        case PageMode2.vehicleReporting:
+     case PageMode2.loadingConfirmation:
+     filters =[
+      'Reported',
+      'Rejected',
+      'Cancelled',
+      'All'
+     ];
+     break;
+
+       
     }
 
     return await showModalBottomSheet<String>(
       backgroundColor: Colors.transparent,
       context: context,
-      builder: (_) => Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            margin: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              color: Colors.white,
-            ),
-            child: Column(
-              children: filters
-                  .map((filter) => _StatusListTile(
-                        mode: filter,
-                        value: defaultValue,
-                        onTap: () => context.pop(filter),
-                      ))
-                  .toList(),
-            ),
+      builder:
+          (_) => Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                margin: const EdgeInsets.symmetric(
+                  horizontal: 12.0,
+                  vertical: 6.0,
+                ),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  color: Colors.white,
+                ),
+                child: Column(
+                  children:
+                      filters
+                          .map(
+                            (filter) => _StatusListTile(
+                              mode: filter,
+                              value: defaultValue,
+                              onTap: () => context.pop(filter),
+                            ),
+                          )
+                          .toList(),
+                ),
+              ),
+              const SizedBox(height: 10),
+            ],
           ),
-          const SizedBox(height: 10),
-        ],
-      ),
     );
   }
 }
 
-
 class _StatusListTile extends StatelessWidget {
-  const _StatusListTile({
-    required this.mode,
-    required this.value,
-    this.onTap,
-  });
+  const _StatusListTile({required this.mode, required this.value, this.onTap});
 
   final String mode;
   final String? value;
@@ -90,7 +104,7 @@ class _StatusListTile extends StatelessWidget {
       ),
       title: Text(
         mode,
-        style:const  TextStyle(
+        style: const TextStyle(
           color: AppColors.black,
           fontWeight: FontWeight.bold,
         ),

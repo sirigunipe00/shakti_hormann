@@ -7,13 +7,14 @@ import 'package:shakti_hormann/features/transport_confirmation/model/transport_c
 
 part 'create_transport_cubit.freezed.dart';
 
-enum TransportView { create, edit, completed }
+enum TransportView { create, edit, completed ,reject}
 
 extension ActionType on TransportView {
   String toName() {
     return switch (this) {
       TransportView.create => 'Create',
       TransportView.edit => 'Submit',
+      TransportView.reject => 'Reject',
       TransportView.completed => 'Submitted',
     };
   }
@@ -38,6 +39,12 @@ class CreateTransportCubit extends AppBaseCubit<CreateTransportState> {
     String? preferredVehicleType,
     String? deliveryAddress,
     String? status,
+    String? shippingAddress1,
+    String? shippingAddress2,
+    String? country,
+    String? states,
+    String? pinCode,
+    String? city,
     String? logisticsRequestDate,
     String? rejectReason,
     String? requestedDeliveryDate,
@@ -81,6 +88,12 @@ class CreateTransportCubit extends AppBaseCubit<CreateTransportState> {
       estimatedArrival: estimatedArrival ?? form.estimatedArrival,
       transporterRemarks: transporterRemarks ?? form.transporterRemarks,
       driverContact: driverContact ?? form.driverContact,
+      shippingAddress1: shippingAddress1 ?? form.shippingAddress1,
+      shippingAddress2: shippingAddress2 ?? form.shippingAddress2,
+      states : states ?? form.states,
+      country : country ?? form.country,
+      city : city ?? form.city,
+      pincode : pinCode ?? form.pincode,
     );
 
     emitSafeState(state.copyWith(form: newForm));
@@ -110,6 +123,14 @@ class CreateTransportCubit extends AppBaseCubit<CreateTransportState> {
         requestedDeliveryDate: entry.requestedDeliveryDate,
         requestedDeliveryTime: entry.requestedDeliveryTime,
         transporterName: entry.transporterName,
+        transporterConfirmationDate: entry.transporterConfirmationDate,
+        shippingAddress1: entry.shippingAddress1,
+        shippingAddress2: entry.shippingAddress2,
+        country: entry.country,
+        states: entry.states,
+        city: entry.city,
+        pincode: entry.pincode,
+      
       );
 
       // final formattedStr = DFU.friendlyFormat(parsedDate);
@@ -139,10 +160,8 @@ class CreateTransportCubit extends AppBaseCubit<CreateTransportState> {
     return validation.fold(() async {
       emitSafeState(state.copyWith(isLoading: true, isSuccess: false));
 
-      // Don't set status here
-      final formToSend = state.form.copyWith(
-        transporterConfirmationDate: DFU.ddMMyyyy(DFU.now()),
-      );
+   
+      final formToSend = state.form;
 
       final response = await repo.submitTransport(formToSend);
       return response.fold(
@@ -163,33 +182,36 @@ class CreateTransportCubit extends AppBaseCubit<CreateTransportState> {
     }, _emitError);
   }
 
-  void reject() async {
-    emitSafeState(state.copyWith(isLoading: true, isSuccess: false));
+void reject(String reason) async {
+  emitSafeState(state.copyWith(isLoading: true, isSuccess: false));
 
-    if (state.form.rejectReason.doesNotHaveValue) {
-      _emitError(const Pair('Please enter reject reason', 0));
-      return;
-    }
-    final formToSend = state.form;
+  // Update form with reject reason
+  final updatedForm = state.form.copyWith(rejectReason: reason);
 
-    final response = await repo.rejectTransport(formToSend);
-
-    response.fold(
-      (l) => emitSafeState(state.copyWith(isLoading: false, error: l)),
-      (r) {
-        shouldAskForConfirmation.value = false;
-        emitSafeState(
-          state.copyWith(
-            isLoading: false,
-            isSuccess: true,
-            form: formToSend.copyWith(docstatus: 1),
-            successMsg: r.first,
-            view: TransportView.completed,
-          ),
-        );
-      },
-    );
+  if (reason.isEmpty) {
+    _emitError(const Pair('Please enter reject reason', 0));
+    return;
   }
+
+  final response = await repo.rejectTransport(updatedForm);
+
+  response.fold(
+    (l) => emitSafeState(state.copyWith(isLoading: false, error: l)),
+    (r) {
+      shouldAskForConfirmation.value = false;
+      emitSafeState(
+        state.copyWith(
+          isLoading: false,
+          isSuccess: true,
+          form: updatedForm.copyWith(docstatus: 1),
+          successMsg: r.first,
+          view: TransportView.reject,
+        ),
+      );
+    },
+  );
+}
+
 
   void _emitError(Pair<String, int?> error) {
     final failure = Failure(
@@ -213,9 +235,7 @@ class CreateTransportCubit extends AppBaseCubit<CreateTransportState> {
 
   Option<Pair<String, int?>> _validate() {
     final form = state.form;
-    if (form.plantName.doesNotHaveValue) {
-      return optionOf(const Pair('Select Plant Name', 0));
-    } else if (form.driverContact.doesNotHaveValue ||
+   if (form.driverContact.doesNotHaveValue ||
         form.driverContact!.length != 10) {
       return optionOf(
         const Pair('Please re-enter a valid 10-digit driver contact number', 0),
@@ -240,9 +260,10 @@ class CreateTransportState with _$CreateTransportState {
 
   factory CreateTransportState.initial() {
     final creationDate = DFU.friendlyFormat(DFU.now());
+    
 
     return CreateTransportState(
-      form: TransportConfirmationForm(creation: creationDate, name: ''),
+      form: TransportConfirmationForm(creation: creationDate,),
       view: TransportView.create,
       isLoading: false,
       isSuccess: false,

@@ -19,7 +19,7 @@ class LogisticRequestWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: (logistic.status == 'Draft') ? onTap : null,
+      onTap:  onTap,
       child: Card(
         color: Colors.white,
         surfaceTintColor: AppColors.white,
@@ -29,7 +29,7 @@ class LogisticRequestWidget extends StatelessWidget {
         ),
         child: SpacedColumn(
           defaultHeight: 4,
-          margin: const EdgeInsets.symmetric(vertical: 4,horizontal: 4),
+          margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
           children: [
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -38,7 +38,7 @@ class LogisticRequestWidget extends StatelessWidget {
                   width: 70,
                   height: 70,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFAB94FF).withValues(alpha:0.30),
+                    color: const Color(0xFFAB94FF).withValues(alpha: 0.30),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   alignment: Alignment.center,
@@ -76,7 +76,7 @@ class LogisticRequestWidget extends StatelessWidget {
                               ),
                               const SizedBox(height: 5),
                               Text(
-                                logistic.vehicleNumber ?? '',
+                                logistic.transporterName ?? '',
                                 style: const TextStyle(
                                   color: AppColors.grey,
                                   fontWeight: FontWeight.normal,
@@ -96,8 +96,6 @@ class LogisticRequestWidget extends StatelessWidget {
                         ],
                       ),
 
-                      
-                      
                       const SizedBox(height: 5),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -111,9 +109,7 @@ class LogisticRequestWidget extends StatelessWidget {
                               ),
                               const SizedBox(width: 4),
                               Text(
-                                DFU.ddMMyyyyFromStr(
-                                  logistic.creation ?? '',
-                                ),
+                                DFU.ddMMyyyyFromStr(logistic.creation ?? ''),
                                 style: const TextStyle(
                                   color: Color(0xFF163A6B),
                                   fontSize: 11,
@@ -124,11 +120,10 @@ class LogisticRequestWidget extends StatelessWidget {
                           ),
                           Row(
                             children: [
-                              const Icon(
-                                Icons.alarm_add,
-                                size: 14,
-                                color: Color(0xFF53A5DF),
-                              ),
+                              Image.asset(
+                            'assets/images/timeicon.png'
+                   ,
+                           ),
                               Text(
                                 DFU.timeFromStr(logistic.creation ?? ''),
                                 style: AppTextStyles.titleMedium(
@@ -146,7 +141,7 @@ class LogisticRequestWidget extends StatelessWidget {
               ],
             ),
             const Padding(
-              padding: EdgeInsets.symmetric(vertical: 8.0),
+              padding: EdgeInsets.symmetric(vertical: 4.0),
               child: DottedLine(
                 direction: Axis.horizontal,
                 lineLength: double.infinity,
@@ -156,7 +151,6 @@ class LogisticRequestWidget extends StatelessWidget {
                 dashGapLength: 4.0,
               ),
             ),
-   
 
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -171,9 +165,9 @@ class LogisticRequestWidget extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  logistic.status ?? '',
+                  logistic.docstatus == 2 ? 'Cancelled' : logistic.status ?? '',
                   style: AppTextStyles.titleLarge(context).copyWith(
-                    color: _getStatusColor(logistic.status),
+                    color: _getStatusColor(logistic.docstatus == 2 ? 'Cancelled' : logistic.status ?? '',),
                     fontWeight: FontWeight.bold,
                     fontSize: 12,
                   ),
@@ -192,6 +186,8 @@ Color _getStatusColor(String? status) {
     case 'transporter confirmed':
       return Colors.green;
     case 'transporter rejected':
+      return Colors.red;
+     case 'cancelled':
       return Colors.red;
     case 'pending from transporter':
       return Colors.orange;

@@ -21,7 +21,7 @@ class TransportCnfrmWidget extends StatelessWidget {
    
  
     return GestureDetector(
-      onTap: (transport.status == 'Pending From Transporter') ? onTap : null,
+      onTap: onTap,
       child: Card(
         color: Colors.white,
         surfaceTintColor: AppColors.white,
@@ -68,7 +68,7 @@ class TransportCnfrmWidget extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                transport.name,
+                                transport.name ?? '',
                                 style: AppTextStyles.titleLarge(
                                   context,
                                 ).copyWith(
@@ -78,7 +78,7 @@ class TransportCnfrmWidget extends StatelessWidget {
                               ),
                               const SizedBox(height: 5),
                               Text(
-                                transport.vehicleNumber ?? '',
+                                transport.transporterName ?? '',
                                 style:const TextStyle(
                                   color: AppColors.grey,
                                   fontWeight: FontWeight.normal,
@@ -124,11 +124,10 @@ class TransportCnfrmWidget extends StatelessWidget {
                           ),
                           Row(
                             children: [
-                              const Icon(
-                                Icons.alarm_add,
-                                size: 14,
-                                color: Color(0xFF53A5DF),
-                              ),
+                             Image.asset(
+                            'assets/images/timeicon.png'
+                   ,
+                           ),
                               Text(
                                 DFU.timeFromStr(transport.creation ?? ''),
                                 style: AppTextStyles.titleMedium(
@@ -146,7 +145,7 @@ class TransportCnfrmWidget extends StatelessWidget {
               ],
             ),
             const Padding(
-              padding: EdgeInsets.symmetric(vertical: 8.0),
+              padding: EdgeInsets.symmetric(vertical: 4.0),
               child: DottedLine(
                 direction: Axis.horizontal,
                 lineLength: double.infinity,
@@ -163,7 +162,7 @@ class TransportCnfrmWidget extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  transport.name,
+                  transport.name ?? '',
                   style:const TextStyle(
                     color: Color(0xFF2957A4),
                     fontWeight: FontWeight.bold,
@@ -171,9 +170,11 @@ class TransportCnfrmWidget extends StatelessWidget {
                   ),
                 ),
                    Text(
+                    transport.docstatus == 2 ? 'Cancelled' :
                   transport.status ?? '',
                   style: AppTextStyles.titleLarge(context).copyWith(
-                    color: _getStatusColor(transport.status),
+                    color: _getStatusColor( transport.docstatus == 2 ? 'Cancelled' :
+                  transport.status ?? '',),
                     fontWeight: FontWeight.bold,
                     fontSize: 12,
                   ),
@@ -192,6 +193,8 @@ Color _getStatusColor(String? status) {
     case 'transporter confirmed':
       return Colors.green;
     case 'transporter rejected':
+      return Colors.red;
+      case 'cancelled':
       return Colors.red;
     case 'pending from transporter':
       return Colors.orange; 

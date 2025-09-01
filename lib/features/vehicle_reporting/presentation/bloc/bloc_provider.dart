@@ -3,18 +3,18 @@ import 'package:shakti_hormann/core/cubit/infinite_list/infinite_list_cubit.dart
 import 'package:shakti_hormann/core/cubit/network_request/network_request_cubit.dart';
 import 'package:shakti_hormann/core/di/injector.dart';
 import 'package:shakti_hormann/core/model/pair.dart';
-import 'package:shakti_hormann/features/logistic_request/model/logistic_planning_form.dart';
+import 'package:shakti_hormann/features/transport_confirmation/model/transport_confirmation_form.dart';
 import 'package:shakti_hormann/features/vehicle_reporting/data/vehicle_reporting_repo.dart';
 import 'package:shakti_hormann/features/vehicle_reporting/model/vehicle_reporting_form.dart';
 
 typedef VehicleReportingCubit =
-    InfiniteListCubit<VehicleReportingForm, Pair<int?, String?>, Pair<int?, String?>>;
+    InfiniteListCubit<VehicleReportingForm, Pair<String?, String?>, Pair<String?, String?>>;
 typedef VehicleReportingtState = InfiniteListState<VehicleReportingForm>;
 
 typedef LogisticRequest
-    = NetworkRequestCubit<List<LogisticPlanningForm>, String>;
+    = NetworkRequestCubit<List<TransportConfirmationForm>, String>;
 typedef LogisticRequestState
-    = NetworkRequestState<List<LogisticPlanningForm>>;
+    = NetworkRequestState<List<TransportConfirmationForm>>;
 
 
 @lazySingleton

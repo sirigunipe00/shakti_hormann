@@ -29,6 +29,8 @@ class TitleStatusAppBar extends StatelessWidget implements PreferredSizeWidget {
     required this.onReject,
     required this.pageMode,
     this.showRejectButton = true,
+    this.isSubmitting = false,
+    this.actionButton,
   });
 
   final String title;
@@ -41,13 +43,20 @@ class TitleStatusAppBar extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback onReject;
 
   final dynamic showRejectButton;
+  final bool isSubmitting;
+
+  final Widget? actionButton; 
 
   @override
   Widget build(BuildContext context) {
     final cleanedStatus = status.trim().toLowerCase();
 
     final String submitLabel =
-        pageMode == PageMode2.logisticRequest ? 'Send for\nApproval' : 'Submit';
+        pageMode == PageMode2.logisticRequest
+            ? 'Send for\nApproval'
+            : pageMode == PageMode2.transportConfirmation
+            ? 'Accept'
+            : 'Submit';
 
     return Padding(
       padding: const EdgeInsets.only(top: 45.0),
@@ -65,26 +74,7 @@ class TitleStatusAppBar extends StatelessWidget implements PreferredSizeWidget {
         padding: const EdgeInsets.symmetric(horizontal: 12),
         child: Row(
           children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.all(Radius.circular(12)),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.only(left: 4),
-                child: IconButton(
-                  onPressed: context.close,
-                  icon: const Icon(
-                    Icons.arrow_back_ios,
-                    size: 20,
-                    color: AppColors.liteyellow,
-                  ),
-                  padding: EdgeInsets.zero,
-                ),
-              ),
-            ),
+            _buildBackButton(context),
             const SizedBox(width: 12),
             Expanded(
               child: Text(
@@ -94,38 +84,11 @@ class TitleStatusAppBar extends StatelessWidget implements PreferredSizeWidget {
                 ).copyWith(color: Colors.white, fontWeight: FontWeight.w600),
               ),
             ),
-
-            if (status != 'Submitted') ...[
-              Row(
-                children: [
-                  if (pageMode == PageMode2.logisticRequest ||
-                      cleanedStatus == 'draft') ...[
-                    _buildActionButton(
-                      submitLabel,
-
-                      onSubmit,
-                      status == 'submitted' ? Colors.grey : Colors.green,
-                    ),
-                    const SizedBox(width: 8), 
-                    if (showRejectButton &&
-                        pageMode != PageMode2.logisticRequest &&
-                        pageMode != PageMode2.gateentry &&
-                        pageMode != PageMode2.gateexit)
-                      _buildActionButton('Reject', onReject, Colors.red),
-                  ] else ...[
-                    _buildActionButton(
-                      submitLabel,
-                      onReject,
-                      status == 'Transporter Rejected'
-                          ? Colors.grey
-                          : Colors.red,
-                    ),
-                    if (showRejectButton &&
-                        pageMode != PageMode2.logisticRequest)
-                      _buildActionButton('Reject', onReject, Colors.red),
-                  ],
-                ],
-              ),
+            if (actionButton != null) ...[
+              const SizedBox(width: 8),
+              actionButton!,
+            ] else if (status != 'Submitted') ...[
+              _buildDefaultButtons(cleanedStatus, submitLabel),
             ],
           ],
         ),
@@ -133,23 +96,97 @@ class TitleStatusAppBar extends StatelessWidget implements PreferredSizeWidget {
     );
   }
 
-  Widget _buildActionButton(String text, VoidCallback onPressed, Color color) {
-    return ElevatedButton(
-      onPressed: onPressed,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: color,
-        minimumSize: const Size(80, 34),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+  Widget _buildBackButton(BuildContext context) {
+    return Container(
+      width: 40,
+      height: 40,
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.all(Radius.circular(12)),
+      ),
+      child: IconButton(
+        onPressed: context.close,
+        icon: const Icon(
+          Icons.arrow_back_ios,
+          size: 20,
+          color: AppColors.liteyellow,
+        ),
         padding: EdgeInsets.zero,
       ),
-      child: Text(
-        text,
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
+    );
+  }
+Widget _buildDefaultButtons(String cleanedStatus, String submitLabel) {
+  String? buttonLabel;
+
+  if (pageMode == PageMode2.logisticRequest && cleanedStatus != 'draft') {
+    buttonLabel = 'Send for\nApproval';
+  } else if (pageMode == PageMode2.transportConfirmation) {
+    buttonLabel = 'Approve';
+  } else if (pageMode == PageMode2.vehicleReporting) {
+    buttonLabel = 'Accept\nVehicle';
+  }
+
+  return Row(
+    children: [
+      if (buttonLabel != null) ...[
+        _buildActionButton(
+          buttonLabel,
+          onSubmit,
+          status == 'submitted' ? Colors.grey : Colors.green,
+          isLoading: isSubmitting,
         ),
+        const SizedBox(width: 8),
+      ],
+
+      if (showRejectButton &&
+          pageMode != PageMode2.logisticRequest && 
+          pageMode != PageMode2.gateentry &&
+          pageMode != PageMode2.gateexit)
+        _buildActionButton(
+           pageMode == PageMode2.vehicleReporting
+              ? 'Reject\nVehicle'
+              : 'Reject',
+           onReject, Colors.red),
+    ],
+  );
+}
+
+  Widget _buildActionButton(
+    String text,
+    VoidCallback onPressed,
+    Color color, {
+    bool isLoading = false,
+  }) {
+    return ElevatedButton(
+      onPressed: isLoading ? null : onPressed,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: color,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+          side: const BorderSide(color: Colors.grey),
+        ),
+        minimumSize: const Size(100, 36),
+
+        padding: const EdgeInsets.symmetric(horizontal: 12),
       ),
+      child:
+          isLoading
+              ? const SizedBox(
+                width: 18,
+                height: 18,
+                child: CircularProgressIndicator(
+                  color: Colors.white,
+                  strokeWidth: 2,
+                ),
+              )
+              : Text(
+                text,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
     );
   }
 

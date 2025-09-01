@@ -2,13 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/features/logistic_request/model/sales_order_form.dart';
-import 'package:shakti_hormann/features/transport_confirmation/presentation/bloc/bloc_provider.dart';
 import 'package:shakti_hormann/features/transport_confirmation/presentation/bloc/create_transport_cubit.dart/create_transport_cubit.dart';
-import 'package:shakti_hormann/features/transport_confirmation/presentation/bloc/transport_filter_cubit.dart';
 import 'package:shakti_hormann/features/transport_confirmation/presentation/ui/create/transport_cnfm_form_widget.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/widgets/buttons/app_btn.dart';
 import 'package:shakti_hormann/widgets/dailogs/app_dialogs.dart';
+import 'package:shakti_hormann/widgets/inputs/rejectreasondailog.dart';
 import 'package:shakti_hormann/widgets/simple_app_bar.dart';
 import 'package:shakti_hormann/widgets/title_status_app_bar.dart';
 
@@ -38,30 +37,22 @@ class _NewTransportCnfmState extends State<NewTransportCnfm> {
       appBar:
           isNew
               ? SimpleAppBar(
-                title: 'New Logistic Request',
+                title: 'New Transporter Confirmation',
                 actionButton: AppButton(
                   label: isCreating ? 'Create' : 'Update',
-
                   onPressed: context.cubit<CreateTransportCubit>().approve,
                 ),
+                dropdown: const SizedBox(),
               )
               : TitleStatusAppBar(
-                    title: name,
+                    title: name ?? '',
                     status: StringUtils.docStatus(status ?? 0),
-
-                    onSubmit:
-                        status == 1
-                            ? () {}
-                            : () {
-                              context.cubit<CreateTransportCubit>().approve();
-                            },
-                    onReject:
-                        status == 1
-                            ? () {}
-                            : () {
-                             
-                              context.cubit<CreateTransportCubit>().reject();
-                            },
+                    onSubmit: () {
+                      context.cubit<CreateTransportCubit>().approve();
+                    },
+                    onReject: () {
+                      showRejectDialog(context);
+                    },
                     textColor: Colors.white,
                     pageMode: PageMode2.transportConfirmation,
                     showRejectButton: true,
@@ -71,27 +62,33 @@ class _NewTransportCnfmState extends State<NewTransportCnfm> {
       body: BlocListener<CreateTransportCubit, CreateTransportState>(
         listener: (_, state) async {
           if (state.isSuccess && state.successMsg!.isNotNull) {
-            AppDialog.showSuccessDialog(
-              context,
-              title: 'Success',
-              content: state.successMsg.valueOrEmpty,
-              onTapDismiss: context.exit,
-            ).then((_) {
-              if (!context.mounted) return;
-              context.cubit<CreateTransportCubit>().errorHandled();
+            final isReject = state.successMsg!.toLowerCase().contains('reject');
 
-              final gateEntryFilters =
-                  context.read<TransportFilterCubit>().state;
-              context.cubit<TransportCubit>().fetchInitial(
-                Pair(
-                  StringUtils.docStatuslogistic(gateEntryFilters.status),
-                  gateEntryFilters.query,
-                ),
-              );
-              Navigator.pop(context);
-              setState(() {});
-            });
+            if (isReject) {
+              AppDialog.showErrorDialog(
+                context,
+                title: 'Rejected',
+                content: state.successMsg.valueOrEmpty,
+                onTapDismiss: context.exit,
+              ).then((_) {
+                if (!context.mounted) return;
+                context.cubit<CreateTransportCubit>().errorHandled();
+                Navigator.pop(context, true);
+              });
+            } else {
+              AppDialog.showSuccessDialog(
+                context,
+                title: 'Success',
+                content: state.successMsg.valueOrEmpty,
+                onTapDismiss: context.exit,
+              ).then((_) {
+                if (!context.mounted) return;
+                context.cubit<CreateTransportCubit>().errorHandled();
+                Navigator.pop(context, true);
+              });
+            }
           }
+
           if (state.error.isNotNull) {
             await AppDialog.showErrorDialog(
               context,

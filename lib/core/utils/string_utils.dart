@@ -75,7 +75,23 @@ class StringUtils {
       case 'all':
         return '4';
       default:
-        return 'draft';
+        return '';
+    }
+  }
+  static String docStatusVehicle(String? status){
+    switch (status?.toLowerCase()){
+      case 'reported':
+      return 'reported';
+      case 'cancelled':
+      return 'cancelled';
+      case 'rejected':
+      return 'rejected';
+      case 'draft':
+      return 'draft';
+      case 'all':
+      return '4';
+      default:
+      return '';
     }
   }
 
@@ -116,7 +132,9 @@ extension StringExentions on String? {
   bool get containsValidValue =>
       this != null && (this!.trim().isNotEmpty) && this!.trim() != 'null';
 
-  bool get doesNotHaveValue => !containsValidValue;
+  bool get doesNotHaveValue => !containsValidValue; 
+bool get doesHaveValue => containsValidValue;  
+
 
   String get valueOrEmpty => this ?? '';
   String get valueOrNil => this ?? '-Nil-';

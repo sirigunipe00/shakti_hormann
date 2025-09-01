@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:shakti_hormann/core/core.dart';
 import 'package:flutter/material.dart';
 
 class SimpleSearchBar extends StatefulWidget {
@@ -28,13 +27,15 @@ class _SimpleSearchBarState extends State<SimpleSearchBar> {
   @override
   void initState() {
     super.initState();
-    _controller.text = widget.initial.valueOrEmpty;
   }
 
   void _onSearch(String query) {
     if (_debounce?.isActive ?? false) _debounce!.cancel();
     _debounce = Timer(const Duration(milliseconds: 500), () {
-      widget.onSearch(query);
+      setState(() {
+         widget.onSearch(query);
+      });
+     
     });
   }
 
@@ -44,11 +45,11 @@ class _SimpleSearchBarState extends State<SimpleSearchBar> {
       margin: const EdgeInsets.symmetric(horizontal: 16),
       height: 50,
       decoration: BoxDecoration(
-        color: const Color(0xFFdadbdc).withValues(alpha:0.40), 
+        color: const Color(0xFFdadbdc).withValues(alpha: 0.40),
         borderRadius: BorderRadius.circular(28),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha:0.03),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
@@ -70,7 +71,7 @@ class _SimpleSearchBarState extends State<SimpleSearchBar> {
                 fontWeight: FontWeight.w400,
                 fontFamily: 'Urbanist',
               ),
-              
+
               decoration: InputDecoration(
                 hintText: widget.hintText,
                 hintStyle: const TextStyle(
@@ -103,6 +104,7 @@ class _SimpleSearchBarState extends State<SimpleSearchBar> {
   void _clearField() {
     if (_controller.text.isNotEmpty) {
       widget.onCancel();
+      widget.onSearch('');
       _controller.clear();
       _focusNode.unfocus();
       setState(() {});
@@ -113,6 +115,6 @@ class _SimpleSearchBarState extends State<SimpleSearchBar> {
   void dispose() {
     super.dispose();
     _focusNode.dispose();
-    _controller.dispose();
+    _controller.clear();
   }
 }

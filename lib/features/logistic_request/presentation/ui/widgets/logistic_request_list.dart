@@ -17,15 +17,18 @@ class LogisticRequestList extends StatefulWidget {
   State<LogisticRequestList> createState() => _LogisticRequestListState();
 }
 
-class _LogisticRequestListState extends State<LogisticRequestList> with StatusModeSelectionMixin {
-  
-    String? status;
+class _LogisticRequestListState extends State<LogisticRequestList>
+    with StatusModeSelectionMixin {
+  String? status;
   String? query;
-   @override
+  @override
   void initState() {
     status = 'Draft';
+    context.read<LogisticPlanningFilterCubit>().onChangeStatus('Draft');
+    context.read<LogisticPlanningFilterCubit>().onSearch(null);
     super.initState();
   }
+
   @override
   Widget build(BuildContext context) {
     return AppPageView2<LogisticPlanningFilterCubit>(
@@ -35,60 +38,54 @@ class _LogisticRequestListState extends State<LogisticRequestList> with StatusMo
       onNew: () async {
         final refresh = await AppRoute.newLogisticRequest.push<bool?>(context);
         if (refresh == true) {
-          _fetchInital(context, query, status!);
+          _fetchInital(context);
         }
       },
 
       scaffoldBg: '',
 
       child: RefreshIndicator(
-        onRefresh: () => context.cubit<LogisticPlanningCubit>().fetchInitial(
-          Pair(StringUtils.docStatuslogistic(status), query),
-        ),
+        onRefresh: () {
+          final filters = context.read<LogisticPlanningFilterCubit>().state;
+          return context.cubit<LogisticPlanningCubit>().fetchInitial(
+            Pair(StringUtils.docStatuslogistic(filters.status), filters.query),
+          );
+        },
         child: BlocListener<LogisticPlanningFilterCubit, PageViewFilters>(
-          listener: (_, state) => _fetchInital(context,state.query, state.status),
-          child:
-              InfiniteListViewWidget<LogisticPlanningCubit, LogisticPlanningForm>(
-                childBuilder:
-                    (context, entry) => LogisticRequestWidget(
-                      logistic: entry,
-                      onTap: () {
-                        AppRoute.newLogisticRequest.push<bool?>(
-                          context,
-                          extra: entry,
-                        );
-                      },
-                    ),
-                fetchInitial: () => _fetchInital(context, query, status),
-                fetchMore: () => fetchMore(context),
-                emptyListText: 'No Logistic Requests Found.',
-              ),
+          listener: (_, state) => _fetchInital(context),
+          child: InfiniteListViewWidget<
+            LogisticPlanningCubit,
+            LogisticPlanningForm
+          >(
+            childBuilder:
+                (context, entry) => LogisticRequestWidget(
+                  logistic: entry,
+                  onTap: () async {
+                    final refresh = await AppRoute.newLogisticRequest
+                        .push<bool?>(context, extra: entry);
+                    if (refresh == true) {
+                      _fetchInital(context);
+                    }
+                  },
+                ),
+            fetchInitial: () => _fetchInital(context),
+            fetchMore: () => fetchMore(context),
+            emptyListText: 'No Logistic Requests Found.',
+          ),
         ),
       ),
-      onSearch: () async {
-        final selected = await showOptions(context, defaultValue: status, pageMode: PageMode2.logisticRequest);
-        if (selected == null || !context.mounted) return;
-
-        setState(() {
-          status = selected;
-          query = null;
-          context.cubit<LogisticPlanningFilterCubit>().onChangeStatus(status ?? '');
-        });
-
-        _fetchInital(context, query, status!);
-      },
     );
   }
 
-  void _fetchInital(BuildContext context,String? query, String? status) {
+  void _fetchInital(BuildContext context) {
+    final filters = context.read<LogisticPlanningFilterCubit>().state;
     context.cubit<LogisticPlanningCubit>().fetchInitial(
-      Pair(StringUtils.docStatuslogistic(status), query),
+      Pair(StringUtils.docStatuslogistic(filters.status), filters.query),
     );
   }
 
   void fetchMore(BuildContext context) {
     final filters = context.read<LogisticPlanningFilterCubit>().state;
-
     context.cubit<LogisticPlanningCubit>().fetchMore(
       Pair(StringUtils.docStatuslogistic(filters.status), filters.query),
     );

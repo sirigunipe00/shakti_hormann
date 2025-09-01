@@ -1,22 +1,20 @@
 import 'package:flutter/material.dart';
 
 class TimePickerField extends StatefulWidget {
-
   const TimePickerField({
     super.key,
     this.title,
-    this.backgroundColor=Colors.grey,
     this.hintText,
     this.initialTime,
     required this.onTimeChanged,
-    this.borderColor = Colors.grey, required bool readOnly,
+    this.readOnly = false,
   });
+
   final String? title;
   final String? hintText;
   final String? initialTime;
   final ValueChanged<String> onTimeChanged;
-  final Color borderColor;
-  final Color backgroundColor;
+  final bool readOnly;
 
   @override
   State<TimePickerField> createState() => _TimePickerFieldState();
@@ -32,9 +30,10 @@ class _TimePickerFieldState extends State<TimePickerField> {
   }
 
   Future<void> _pickTime() async {
+    if (widget.readOnly) return;
+
     TimeOfDay initialTime = TimeOfDay.now();
 
-    
     if (widget.initialTime != null && widget.initialTime!.isNotEmpty) {
       final parts = widget.initialTime!.split(':');
       if (parts.length >= 2) {
@@ -48,7 +47,6 @@ class _TimePickerFieldState extends State<TimePickerField> {
       context: context,
       initialTime: initialTime,
       builder: (context, child) {
-      
         return MediaQuery(
           data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
           child: child ?? const SizedBox(),
@@ -69,39 +67,54 @@ class _TimePickerFieldState extends State<TimePickerField> {
 
   @override
   Widget build(BuildContext context) {
+    // ✅ Background & border based on readonly state
+    final bgColor =
+        widget.readOnly ? Colors.grey.withValues(alpha:0.2) : Colors.white;
+    final borderColor = widget.readOnly
+        ? Colors.grey.withValues(alpha:0.3)
+        : Colors.grey.withValues(alpha:0.6);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (widget.title != null && widget.title!.isNotEmpty) ...[
           Text(
             widget.title!,
-            style:const  TextStyle(
+            style: const TextStyle(
               fontWeight: FontWeight.w600,
               fontSize: 15,
-              fontFamily: 'Urbanist'
+              fontFamily: 'Urbanist',
             ),
           ),
           const SizedBox(height: 2),
         ],
         TextField(
           controller: _controller,
-          readOnly: true,
+          readOnly: true, // prevent manual typing
+          onTap: _pickTime,
           decoration: InputDecoration(
             hintText: widget.hintText ?? 'Select Time',
             border: OutlineInputBorder(
-              borderSide: BorderSide.none,
               borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(color: borderColor, width: 1),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(color: borderColor, width: 1),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(
+                color: widget.readOnly ? borderColor : Colors.blue,
+                width: 1.2,
+              ),
             ),
             suffixIcon: const Icon(Icons.access_time),
-            fillColor: Colors.grey[100],
+            fillColor: bgColor,
             filled: true,
-            contentPadding: const EdgeInsets.
-            symmetric(
-              horizontal: 12,
-              vertical:8,
-            ),
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           ),
-          onTap: _pickTime,
         ),
       ],
     );

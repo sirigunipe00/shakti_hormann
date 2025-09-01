@@ -7,6 +7,8 @@ import 'package:shakti_hormann/features/gate_entry/presentation/bloc/bloc_provid
 import 'package:shakti_hormann/features/gate_entry/presentation/bloc/gate_entry_filter_cubit.dart';
 import 'package:shakti_hormann/features/gate_exit/presentation/bloc/bloc_provider.dart';
 import 'package:shakti_hormann/features/gate_exit/presentation/bloc/gate_exit_filter_cubit.dart';
+import 'package:shakti_hormann/features/loading_confirmation/presentation/bloc/bloc_provider.dart';
+import 'package:shakti_hormann/features/loading_confirmation/presentation/bloc/loading_cnfm_filters_cubit.dart';
 import 'package:shakti_hormann/features/logistic_request/presentation/bloc/bloc_provider.dart';
 import 'package:shakti_hormann/features/logistic_request/presentation/bloc/logistic_planning_filter_cubit.dart';
 import 'package:shakti_hormann/features/transport_confirmation/presentation/bloc/bloc_provider.dart';
@@ -29,6 +31,7 @@ class ShaktiHormann extends StatelessWidget {
         BlocProvider(create: (_)=> LogisticPlanningFilterCubit()),
         BlocProvider(create: (_)=> TransportFilterCubit()),
         BlocProvider(create: (_)=> VehicleReportingFilterCubit()),
+        BlocProvider(create: (_)=> LoadingCnfmFiltersCubit()),
 
 
         BlocProvider(
@@ -46,6 +49,9 @@ class ShaktiHormann extends StatelessWidget {
          BlocProvider(
           create: (_) => VehicleBlocProvider.get().fetchVehicle(),
         ),
+         BlocProvider(
+          create: (_) => LoadingCnfmBlocProvider.get().fetchLoadingCnfmList(),
+        ),
       ],
       child: BlocConsumer<AuthCubit, AuthState>(
         listener: (_, state) {
@@ -55,11 +61,15 @@ class ShaktiHormann extends StatelessWidget {
             authenticated: () {
               final filters = Pair(StringUtils.docStatusInt('Draft'), null);
               final filter =Pair(StringUtils.docStatuslogistic('Draft'), null);
+              final filterss =Pair(StringUtils.docStatuslogistic('Reported'), null);
+
+              
               routerCtxt.cubit<GateEntriesCubit>().fetchInitial(filters);
               routerCtxt.cubit<GateExitCubit>().fetchInitial(filters);
               routerCtxt.cubit<LogisticPlanningCubit>().fetchInitial(filter);
               routerCtxt.cubit<TransportCubit>().fetchInitial(filter);
-              routerCtxt.cubit<VehicleReportingCubit>().fetchInitial(filters);
+              routerCtxt.cubit<VehicleReportingCubit>().fetchInitial(filterss);
+              routerCtxt.cubit<LoadingCnfmCubit>().fetchInitial(filterss);
 
 
               AppRoute.home.go(routerCtxt);

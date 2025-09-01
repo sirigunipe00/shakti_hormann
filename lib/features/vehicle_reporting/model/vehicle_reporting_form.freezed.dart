@@ -61,6 +61,15 @@ mixin _$VehicleReportingForm {
   String? get driverContact => throw _privateConstructorUsedError;
   @JsonKey(name: 'remarks')
   String? get remarks => throw _privateConstructorUsedError;
+  @JsonKey(name: 'reject_reason')
+  String? get rejectReason => throw _privateConstructorUsedError;
+  @JsonKey(
+    includeFromJson: true,
+    includeToJson: false,
+    toJson: toNull,
+    fromJson: toNull,
+  )
+  File? get driverIdPhotoImg => throw _privateConstructorUsedError;
 
   /// Serializes this VehicleReportingForm to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -102,6 +111,14 @@ abstract class $VehicleReportingFormCopyWith<$Res> {
     @JsonKey(name: 'vehicle_number') String? vehicleNumber,
     @JsonKey(name: 'driver_contact') String? driverContact,
     @JsonKey(name: 'remarks') String? remarks,
+    @JsonKey(name: 'reject_reason') String? rejectReason,
+    @JsonKey(
+      includeFromJson: true,
+      includeToJson: false,
+      toJson: toNull,
+      fromJson: toNull,
+    )
+    File? driverIdPhotoImg,
   });
 }
 
@@ -142,6 +159,8 @@ class _$VehicleReportingFormCopyWithImpl<
     Object? vehicleNumber = freezed,
     Object? driverContact = freezed,
     Object? remarks = freezed,
+    Object? rejectReason = freezed,
+    Object? driverIdPhotoImg = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -240,6 +259,16 @@ class _$VehicleReportingFormCopyWithImpl<
                     ? _value.remarks
                     : remarks // ignore: cast_nullable_to_non_nullable
                         as String?,
+            rejectReason:
+                freezed == rejectReason
+                    ? _value.rejectReason
+                    : rejectReason // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            driverIdPhotoImg:
+                freezed == driverIdPhotoImg
+                    ? _value.driverIdPhotoImg
+                    : driverIdPhotoImg // ignore: cast_nullable_to_non_nullable
+                        as File?,
           )
           as $Val,
     );
@@ -278,6 +307,14 @@ abstract class _$$VehicleReportingFormImplCopyWith<$Res>
     @JsonKey(name: 'vehicle_number') String? vehicleNumber,
     @JsonKey(name: 'driver_contact') String? driverContact,
     @JsonKey(name: 'remarks') String? remarks,
+    @JsonKey(name: 'reject_reason') String? rejectReason,
+    @JsonKey(
+      includeFromJson: true,
+      includeToJson: false,
+      toJson: toNull,
+      fromJson: toNull,
+    )
+    File? driverIdPhotoImg,
   });
 }
 
@@ -314,6 +351,8 @@ class __$$VehicleReportingFormImplCopyWithImpl<$Res>
     Object? vehicleNumber = freezed,
     Object? driverContact = freezed,
     Object? remarks = freezed,
+    Object? rejectReason = freezed,
+    Object? driverIdPhotoImg = freezed,
   }) {
     return _then(
       _$VehicleReportingFormImpl(
@@ -412,6 +451,16 @@ class __$$VehicleReportingFormImplCopyWithImpl<$Res>
                 ? _value.remarks
                 : remarks // ignore: cast_nullable_to_non_nullable
                     as String?,
+        rejectReason:
+            freezed == rejectReason
+                ? _value.rejectReason
+                : rejectReason // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        driverIdPhotoImg:
+            freezed == driverIdPhotoImg
+                ? _value.driverIdPhotoImg
+                : driverIdPhotoImg // ignore: cast_nullable_to_non_nullable
+                    as File?,
       ),
     );
   }
@@ -443,6 +492,14 @@ class _$VehicleReportingFormImpl implements _VehicleReportingForm {
     @JsonKey(name: 'vehicle_number') this.vehicleNumber,
     @JsonKey(name: 'driver_contact') this.driverContact,
     @JsonKey(name: 'remarks') this.remarks,
+    @JsonKey(name: 'reject_reason') this.rejectReason,
+    @JsonKey(
+      includeFromJson: true,
+      includeToJson: false,
+      toJson: toNull,
+      fromJson: toNull,
+    )
+    this.driverIdPhotoImg,
   });
 
   factory _$VehicleReportingFormImpl.fromJson(Map<String, dynamic> json) =>
@@ -505,10 +562,21 @@ class _$VehicleReportingFormImpl implements _VehicleReportingForm {
   @override
   @JsonKey(name: 'remarks')
   final String? remarks;
+  @override
+  @JsonKey(name: 'reject_reason')
+  final String? rejectReason;
+  @override
+  @JsonKey(
+    includeFromJson: true,
+    includeToJson: false,
+    toJson: toNull,
+    fromJson: toNull,
+  )
+  final File? driverIdPhotoImg;
 
   @override
   String toString() {
-    return 'VehicleReportingForm(name: $name, owner: $owner, creation: $creation, modified: $modified, modifiedBy: $modifiedBy, docstatus: $docstatus, idx: $idx, amendedFrom: $amendedFrom, plantName: $plantName, vehicleReportingEntryVreDate: $vehicleReportingEntryVreDate, transporterName: $transporterName, arrivalDateAndTime: $arrivalDateAndTime, driverIdPhoto: $driverIdPhoto, loadedByUser: $loadedByUser, status: $status, linkedTransporterConfirmation: $linkedTransporterConfirmation, vehicleNumber: $vehicleNumber, driverContact: $driverContact, remarks: $remarks)';
+    return 'VehicleReportingForm(name: $name, owner: $owner, creation: $creation, modified: $modified, modifiedBy: $modifiedBy, docstatus: $docstatus, idx: $idx, amendedFrom: $amendedFrom, plantName: $plantName, vehicleReportingEntryVreDate: $vehicleReportingEntryVreDate, transporterName: $transporterName, arrivalDateAndTime: $arrivalDateAndTime, driverIdPhoto: $driverIdPhoto, loadedByUser: $loadedByUser, status: $status, linkedTransporterConfirmation: $linkedTransporterConfirmation, vehicleNumber: $vehicleNumber, driverContact: $driverContact, remarks: $remarks, rejectReason: $rejectReason, driverIdPhotoImg: $driverIdPhotoImg)';
   }
 
   @override
@@ -556,7 +624,11 @@ class _$VehicleReportingFormImpl implements _VehicleReportingForm {
                 other.vehicleNumber == vehicleNumber) &&
             (identical(other.driverContact, driverContact) ||
                 other.driverContact == driverContact) &&
-            (identical(other.remarks, remarks) || other.remarks == remarks));
+            (identical(other.remarks, remarks) || other.remarks == remarks) &&
+            (identical(other.rejectReason, rejectReason) ||
+                other.rejectReason == rejectReason) &&
+            (identical(other.driverIdPhotoImg, driverIdPhotoImg) ||
+                other.driverIdPhotoImg == driverIdPhotoImg));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -582,6 +654,8 @@ class _$VehicleReportingFormImpl implements _VehicleReportingForm {
     vehicleNumber,
     driverContact,
     remarks,
+    rejectReason,
+    driverIdPhotoImg,
   ]);
 
   /// Create a copy of VehicleReportingForm
@@ -626,6 +700,14 @@ abstract class _VehicleReportingForm implements VehicleReportingForm {
     @JsonKey(name: 'vehicle_number') final String? vehicleNumber,
     @JsonKey(name: 'driver_contact') final String? driverContact,
     @JsonKey(name: 'remarks') final String? remarks,
+    @JsonKey(name: 'reject_reason') final String? rejectReason,
+    @JsonKey(
+      includeFromJson: true,
+      includeToJson: false,
+      toJson: toNull,
+      fromJson: toNull,
+    )
+    final File? driverIdPhotoImg,
   }) = _$VehicleReportingFormImpl;
 
   factory _VehicleReportingForm.fromJson(Map<String, dynamic> json) =
@@ -688,6 +770,17 @@ abstract class _VehicleReportingForm implements VehicleReportingForm {
   @override
   @JsonKey(name: 'remarks')
   String? get remarks;
+  @override
+  @JsonKey(name: 'reject_reason')
+  String? get rejectReason;
+  @override
+  @JsonKey(
+    includeFromJson: true,
+    includeToJson: false,
+    toJson: toNull,
+    fromJson: toNull,
+  )
+  File? get driverIdPhotoImg;
 
   /// Create a copy of VehicleReportingForm
   /// with the given fields replaced by the non-null parameter values.

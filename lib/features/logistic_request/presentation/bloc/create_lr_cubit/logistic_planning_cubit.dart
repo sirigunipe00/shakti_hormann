@@ -13,7 +13,7 @@ extension ActionType on LogisticPlanningView {
   String toName() {
     return switch (this) {
       LogisticPlanningView.create => 'Create',
-      LogisticPlanningView.edit => 'Submit',
+      LogisticPlanningView.edit => 'Send For\nTransporter Approval',
       LogisticPlanningView.completed => 'Submitted',
     };
   }
@@ -37,7 +37,12 @@ class CreateLogisticCubit extends AppBaseCubit<CreateLogisticState> {
     String? transporterName,
     String? preferredVehicleType,
     String? deliveryAddress,
-    String? status,
+    String? shippingAddress1,
+    String? shippingAddress2,
+    String? country,
+    String? states,
+    String? pinCode,
+    String? city,
     String? logisticsRequestDate,
     String? rejectReason,
     String? requestedDeliveryDate,
@@ -48,6 +53,7 @@ class CreateLogisticCubit extends AppBaseCubit<CreateLogisticState> {
     String? estimatedArrival,
     String? transporterRemarks,
     String? driverContact,
+    String? status,
   }) {
     shouldAskForConfirmation.value = true;
     final form = state.form;
@@ -81,6 +87,13 @@ class CreateLogisticCubit extends AppBaseCubit<CreateLogisticState> {
       estimatedArrival: estimatedArrival ?? form.estimatedArrival,
       transporterRemarks: transporterRemarks ?? form.transporterRemarks,
       driverContact: driverContact ?? form.driverContact,
+      shippingAddress1: shippingAddress1 ?? form.shippingAddress1,
+      shippingAddress2: shippingAddress2 ?? form.shippingAddress2,
+      states : states ?? form.states,
+      country : country ?? form.country,
+      city : city ?? form.city,
+      pincode : pinCode ?? form.pincode,
+
     );
 
     emitSafeState(state.copyWith(form: newForm));
@@ -89,8 +102,6 @@ class CreateLogisticCubit extends AppBaseCubit<CreateLogisticState> {
   void initDetails(Object? entry) {
     shouldAskForConfirmation.value = false;
     if (entry is LogisticPlanningForm) {
-      
-   
       final form = state.form;
       final updatedForm = form.copyWith(
         docstatus: entry.docstatus,
@@ -112,7 +123,15 @@ class CreateLogisticCubit extends AppBaseCubit<CreateLogisticState> {
         requestedDeliveryDate: entry.requestedDeliveryDate,
         requestedDeliveryTime: entry.requestedDeliveryTime,
         transporterName: entry.transporterName,
+        shippingAddress1: entry.shippingAddress1,
+        shippingAddress2: entry.shippingAddress2,
+        country: entry.country,
+        states: entry.states,
+        city: entry.city,
+        pincode: entry.pincode,
+
       );
+
       final status = entry.docstatus;
 
       final isSubmitted = StringUtils.equalsIgnoreCase(
@@ -137,7 +156,7 @@ class CreateLogisticCubit extends AppBaseCubit<CreateLogisticState> {
     return validation.fold(() async {
       emitSafeState(state.copyWith(isLoading: true, isSuccess: false));
       final nextMode = switch (state.view) {
-        LogisticPlanningView.create => LogisticPlanningView.edit,
+        LogisticPlanningView.create => LogisticPlanningView.completed,
         LogisticPlanningView.edit ||
         LogisticPlanningView.completed => LogisticPlanningView.completed,
       };
@@ -211,12 +230,11 @@ class CreateLogisticCubit extends AppBaseCubit<CreateLogisticState> {
 
   Option<Pair<String, int?>> _validate() {
     final form = state.form;
-    if (form.plantName.doesNotHaveValue) {
-      return optionOf(const Pair('Select Plant Name', 0));
-    }
-   
 
-    return const None();
+    if (form.salesOrder.doesNotHaveValue) {
+      return optionOf(const Pair('Select Sales Order No', 0));
+    }
+    return none();
   }
 }
 

@@ -32,6 +32,14 @@ import '../../features/gate_exit/data/gate_exit_repo_impl.dart' as _i100;
 import '../../features/gate_exit/presentation/bloc/bloc_provider.dart' as _i565;
 import '../../features/gate_exit/presentation/bloc/create_gate_cubit/gate_exit_cubit.dart'
     as _i297;
+import '../../features/loading_confirmation/data/loading_cnfm_repo.dart'
+    as _i66;
+import '../../features/loading_confirmation/data/loading_cnfm_repoimpl.dart'
+    as _i186;
+import '../../features/loading_confirmation/presentation/bloc/bloc_provider.dart'
+    as _i811;
+import '../../features/loading_confirmation/presentation/bloc/create_loading_cubit/create_loading_cnfm_cubit.dart'
+    as _i345;
 import '../../features/logistic_request/data/logistic_planning_repo.dart'
     as _i876;
 import '../../features/logistic_request/data/logistic_planning_repoimpl.dart'
@@ -100,6 +108,15 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i351.ApiClient>(),
         gh<_i351.KeyValueStorage>(),
       ),
+    );
+    gh.lazySingleton<_i66.LoadingCnfmRepo>(
+      () => _i186.LoadingCnfmRepoimpl(gh<_i351.ApiClient>()),
+    );
+    gh.factory<_i345.CreateLoadingCnfmCubit>(
+      () => _i345.CreateLoadingCnfmCubit(gh<_i66.LoadingCnfmRepo>()),
+    );
+    gh.lazySingleton<_i811.LoadingCnfmBlocProvider>(
+      () => _i811.LoadingCnfmBlocProvider(gh<_i66.LoadingCnfmRepo>()),
     );
     gh.lazySingleton<_i876.LogisticPlanningRepo>(
       () => _i510.LogisticPlanningRepoimpl(gh<_i351.ApiClient>()),

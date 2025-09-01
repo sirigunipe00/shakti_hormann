@@ -1,13 +1,15 @@
 import 'package:shakti_hormann/core/core.dart';
-import 'package:shakti_hormann/features/logistic_request/model/logistic_planning_form.dart';
+import 'package:shakti_hormann/features/transport_confirmation/model/transport_confirmation_form.dart';
 import 'package:shakti_hormann/features/vehicle_reporting/model/vehicle_reporting_form.dart';
 
 abstract interface class VehicleReportingRepo {
   AsyncValueOf<List<VehicleReportingForm>> fetchVehicles(
     int start,
-    int? docStatus,
+    String? docStatus,
     String? serach
   );
   AsyncValueOf<Pair<String,String>>  createVehicleReporting(VehicleReportingForm form);
-  AsyncValueOf<List<LogisticPlanningForm>> fetchLogistics(String name);
+  AsyncValueOf<List<TransportConfirmationForm>> fetchLogistics(String name);
+  AsyncValueOf<Pair<String,String>> submitVehicleReporting(VehicleReportingForm form);
+  AsyncValueOf<Pair<String,String>> rejectVehicleReporting(VehicleReportingForm form);
 }

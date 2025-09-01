@@ -30,6 +30,8 @@ _$VehicleReportingFormImpl _$$VehicleReportingFormImplFromJson(
   vehicleNumber: json['vehicle_number'] as String?,
   driverContact: json['driver_contact'] as String?,
   remarks: json['remarks'] as String?,
+  rejectReason: json['reject_reason'] as String?,
+  driverIdPhotoImg: toNull(json['driverIdPhotoImg']),
 );
 
 Map<String, dynamic> _$$VehicleReportingFormImplToJson(
@@ -54,4 +56,5 @@ Map<String, dynamic> _$$VehicleReportingFormImplToJson(
   'vehicle_number': instance.vehicleNumber,
   'driver_contact': instance.driverContact,
   'remarks': instance.remarks,
+  'reject_reason': instance.rejectReason,
 };

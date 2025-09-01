@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/features/auth/presentation/bloc/auth/auth_cubit.dart';
@@ -82,7 +83,7 @@ class AppProfilePage extends StatelessWidget {
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               border: Border.all(
-                                color: Color(0xFFFDCB27),
+                                color: const Color(0xFFFDCB27),
                                 width: 2,
                               ),
                             ),
@@ -105,6 +106,7 @@ class AppProfilePage extends StatelessWidget {
                               color: Colors.black,
                             ),
                           ),
+                          const SizedBox(height: 15,),
                           Container(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 16,
@@ -166,11 +168,12 @@ class AppProfilePage extends StatelessWidget {
                     ),
                   ),
 
-                  const SizedBox(height: 20),
+                  const SizedBox(height:40),
 
                   Center(
                     child: AppButton(
                       label: 'Logout',
+                      width: 500,
                       icon: Transform.rotate(
                         angle: 180 * math.pi / 180,
                         child: const Icon(
@@ -188,8 +191,8 @@ class AppProfilePage extends StatelessWidget {
 
                   Column(
                     children: [
-                      Image.asset(
-                        'assets/logo/easycloud 245x132 1.png',
+                      SvgPicture.asset(
+                        'assets/logo/EasyCloud Logo 150 x 80.svg',
                         height: 40,
                       ),
                       const SizedBox(height: 4),

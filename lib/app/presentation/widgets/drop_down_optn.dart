@@ -7,7 +7,7 @@ abstract class Dropdownoptions {
   static const List<String> vehicleType = [
     'Mini Truck',
     'Tempo',
-    'Container',
+    
    
   ];
   static const  List<String> indianStates = [
@@ -41,11 +41,7 @@ abstract class Dropdownoptions {
   'West Bengal',
   'Jammu and Kashmir'
 ];
-static const List<String> vehicleStaus=[
-  'Reported',
-  'Cancelled',
-  'Rejected'
-];
+
 
 static const List<String> filters = [
   'All',

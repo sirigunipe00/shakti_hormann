@@ -24,6 +24,8 @@ _$GateExitFormImpl _$$GateExitFormImplFromJson(Map<String, dynamic> json) =>
       vehicleBackPhoto: json['vehicle_back_photo'] as String?,
       remarks: json['remarks'] as String?,
       amendedFrom: json['amended_from'] as String?,
+      vehiclePhotoImg: toNull(json['vehiclePhotoImg']),
+      vehicleBackPhotoImg: toNull(json['vehicleBackPhotoImg']),
     );
 
 Map<String, dynamic> _$$GateExitFormImplToJson(_$GateExitFormImpl instance) =>

@@ -7,6 +7,7 @@ import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/widgets/input_filed.dart';
 import 'package:shakti_hormann/widgets/inputs/date_picker_field.dart';
 import 'package:shakti_hormann/widgets/inputs/new_upload_photo_widget.dart';
+import 'package:shakti_hormann/widgets/sectionheader.dart';
 import 'package:shakti_hormann/widgets/spaced_column.dart';
 
 class GateExitFormWidget extends StatefulWidget {
@@ -28,7 +29,6 @@ class _GateExitFormWidgetState extends State<GateExitFormWidget> {
     final isCompleted = formState.view == GateExitView.completed;
     final newform = formState.form;
 
-   
     return MultiBlocListener(
       listeners: [
         BlocListener<CreateGateExitCubit, CreateGateExitState>(
@@ -38,56 +38,27 @@ class _GateExitFormWidgetState extends State<GateExitFormWidget> {
             return prevStatus != currStatus;
           },
           listener: (_, state) async {
-            final indx = state.error?.status;
-            if (indx != null) {
-              final focus = focusNodes.elementAt(indx);
-              FocusScope.of(context).requestFocus(focus);
-
-              final targetContext = focus.context;
-              if (targetContext != null) {
-                await Scrollable.ensureVisible(
-                  targetContext,
-                  duration: const Duration(milliseconds: 300),
-                  curve: Curves.easeInOut,
-                );
-              }
-            }
+      
           },
         ),
       ],
       child: Container(
-        color: Colors.grey.shade100,
+        color: Colors.purple.shade100.withValues(alpha: 0.15),
         child: SingleChildScrollView(
           controller: _scrollController,
           child: SpacedColumn(
             crossAxisAlignment: CrossAxisAlignment.start,
             margin: const EdgeInsets.symmetric(vertical: 20),
-            defaultHeight: 8,
+            defaultHeight: 0,
             children: [
-              const Padding(
-                padding: EdgeInsets.only(left: 16.0, bottom: 8),
-                child: Row(
-                  children: [
-                    CircleAvatar(
-                      radius: 20,
-                      backgroundColor: Colors.transparent,
-                      backgroundImage: AssetImage(
-                        'assets/images/gateexiticon.png',
-                      ),
-                    ),
-                    SizedBox(width: 8),
-                    Text(
-                      'Gate Exit Details',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF263238),
-                        fontFamily: 'Urbanist',
-                      ),
-                    ),
-                  ],
+               const Padding(
+                padding: EdgeInsets.only(left: 16.0),
+                child: SectionHeader(
+                  title: 'Gate Exit Details',
+                  assetIcon: 'assets/images/gateexiticon.png',
                 ),
               ),
+
               Container(
                 padding: const EdgeInsets.all(12),
                 width: MediaQuery.of(context).size.width,
@@ -119,6 +90,7 @@ class _GateExitFormWidgetState extends State<GateExitFormWidget> {
                       startDate: DateTime(2020),
                       endDate: DateTime(2030),
                       readOnly: true,
+                      initialValue: DFU.ddMMyyyyFromStr(newform.gateEntryDate?? ''),
                       fillColor: Colors.grey[200],
                       onSelected: (date) {
                         context.cubit<CreateGateExitCubit>().onValueChanged(
@@ -139,115 +111,65 @@ class _GateExitFormWidgetState extends State<GateExitFormWidget> {
                               .onValueChanged(vehicleNo: p0),
                       inputFormatters: [UpperCaseTextFormatter()],
                     ),
-
-                    AppDateField(
-                      title: 'Invoice Date',
-                      hintText: 'Select Date',
-                      startDate: DateTime(2020),
-                      endDate: DateTime(2030),
-                      readOnly: isCompleted,
-                      onSelected: (date) {
-                        context.cubit<CreateGateExitCubit>().onValueChanged(
-                          gateEntryDate: date.toString(),
-                        );
-                      },
-
-                      fillColor: Colors.grey[200],
-                    ),
                   ],
                 ),
               ),
 
               const SizedBox(height: 12),
               const Padding(
-                padding: EdgeInsets.only(left: 16.0, bottom: 8),
-                child: Row(
-                  children: [
-                    CircleAvatar(
-                      backgroundColor: Color.fromARGB(255, 200, 209, 225),
-                      radius: 20,
-                      child: Icon(
-                        Icons.camera_alt_outlined,
-                        color: Color(0xFF263238),
-                        size: 28,
-                      ),
-                    ),
-                    SizedBox(width: 8),
-                    Text(
-                      'Photo',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF263238),
-                        fontFamily: 'Urbanist',
-                      ),
-                    ),
-                  ],
+                padding: EdgeInsets.only(left: 16.0),
+                child: SectionHeader(
+                  title: 'Photo',
+                  assetIcon: 'assets/images/photoicon.png',
                 ),
               ),
-              Card(
-                color: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                  side: const BorderSide(color: Color(0xFFE8ECF4), width: 1),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    NewUploadPhotoWidget(
-                      fileName: 'vehiclefront',
-                      imageUrl: newform.vehiclePhoto,
-                      title: 'Vehicle Front',
-                      isRequired: true,
-                      isReadOnly: isCompleted,
-                      onFileCapture: (file) {
-                        context.cubit<CreateGateExitCubit>().onValueChanged(
-                          vehiclePhoto: file,
-                        );
-                      },
-                      focusNode: focusNodes.elementAt(27),
-                    ),
-                    NewUploadPhotoWidget(
-                      fileName: 'vehicleback',
-                      isRequired: true,
-                      imageUrl: newform.vehicleBackPhoto,
-                      title: 'Vehicle Back',
-                      isReadOnly: isCompleted,
-                      onFileCapture: (file) {
-                        context.cubit<CreateGateExitCubit>().onValueChanged(
-                          vehicleBackPhoto: file,
-                        );
-                      },
-                      focusNode: focusNodes.elementAt(27),
-                    ),
-                  ],
+              Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Card(
+                  color: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                    side: const BorderSide(color: Color(0xFFE8ECF4), width: 1),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      NewUploadPhotoWidget(
+                        fileName: 'vehiclefront',
+                        imageUrl: newform.vehiclePhoto,
+                        title: 'Vehicle Front',
+                        isRequired: true,
+                        isReadOnly: isCompleted,
+                        onFileCapture: (file) {
+                          context.cubit<CreateGateExitCubit>().onValueChanged(
+                            vehiclePhoto: file,
+                          );
+                        },
+                        focusNode: focusNodes.elementAt(27),
+                      ),
+                      NewUploadPhotoWidget(
+                        fileName: 'vehicleback',
+                        isRequired: true,
+                        imageUrl: newform.vehicleBackPhoto,
+                        title: 'Vehicle Back',
+                        isReadOnly: isCompleted,
+                        onFileCapture: (file) {
+                          context.cubit<CreateGateExitCubit>().onValueChanged(
+                            vehicleBackPhoto: file,
+                          );
+                        },
+                        focusNode: focusNodes.elementAt(27),
+                      ),
+                    ],
+                  ),
                 ),
               ),
               const SizedBox(height: 12),
               const Padding(
-                padding: EdgeInsets.only(left: 16.0, bottom: 4),
-                child: Row(
-                  children: [
-                    CircleAvatar(
-                      backgroundColor: Color.fromARGB(255, 200, 209, 225),
-                      radius: 20,
-                      child: Icon(
-                        Icons.edit_note_outlined,
-                        color: AppColors.darkBlue,
-                        size: 28,
-                      ),
-                    ),
-                    SizedBox(width: 8),
-                    Text(
-                      'Remarks',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF263238),
-                        fontFamily: 'Urbanist',
-                      ),
-                    ),
-                  ],
+                padding: EdgeInsets.only(left: 16.0),
+                child: SectionHeader(
+                  title: 'Remarks',
+                  assetIcon: 'assets/images/reamraksicon.png',
                 ),
               ),
               Padding(

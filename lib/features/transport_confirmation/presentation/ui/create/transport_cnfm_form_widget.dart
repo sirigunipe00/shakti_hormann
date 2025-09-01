@@ -2,18 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:shakti_hormann/app/presentation/widgets/drop_down_optn.dart';
 import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/features/logistic_request/model/transporter_form.dart';
-import 'package:shakti_hormann/features/logistic_request/presentation/bloc/bloc_provider.dart';
 import 'package:shakti_hormann/features/transport_confirmation/presentation/bloc/create_transport_cubit.dart/create_transport_cubit.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/widgets/input_filed.dart';
-import 'package:shakti_hormann/widgets/inputs/app_dropdown_widget.dart';
-import 'package:shakti_hormann/widgets/inputs/compact_listtile.dart';
 import 'package:shakti_hormann/widgets/inputs/date_picker_field.dart';
-import 'package:shakti_hormann/widgets/inputs/search_dropdown_widget.dart';
 import 'package:shakti_hormann/widgets/inputs/time_picker.dart';
+import 'package:shakti_hormann/widgets/sectionheader.dart';
 import 'package:shakti_hormann/widgets/spaced_column.dart';
 
 class TransportCnfmFormWidget extends StatefulWidget {
@@ -26,9 +22,6 @@ class TransportCnfmFormWidget extends StatefulWidget {
 
 class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
   final ScrollController _scrollController = ScrollController();
-  final TextEditingController remarks = TextEditingController();
-  final TextEditingController city = TextEditingController();
-  final TextEditingController state = TextEditingController();
 
   final focusNodes = List.generate(40, (index) => FocusNode());
   TransportersForm? transportersForm;
@@ -49,51 +42,23 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
             final currStatus = current.error?.status;
             return prevStatus != currStatus;
           },
-          listener: (_, state) async {
-            final indx = state.error?.status;
-            if (indx != null) {
-              final focus = focusNodes.elementAt(indx);
-              FocusScope.of(context).requestFocus(focus);
-              await Scrollable.ensureVisible(
-                focus.context!,
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.easeInOut,
-              );
-            }
-          },
+          listener: (_, state) async {},
         ),
       ],
       child: Container(
-        color: Colors.grey[100],
+        color: Colors.purple.shade100.withValues(alpha:0.15),
         child: SingleChildScrollView(
           controller: _scrollController,
           child: SpacedColumn(
             crossAxisAlignment: CrossAxisAlignment.start,
             margin: const EdgeInsets.all(12.0),
-            defaultHeight: 8,
+            defaultHeight: 0,
             children: [
               const Padding(
-                padding: EdgeInsets.only(left: 16.0, bottom: 8),
-                child: Row(
-                  children: [
-                    CircleAvatar(
-                      radius: 30,
-                      backgroundColor: Colors.transparent,
-                      backgroundImage: AssetImage(
-                        'assets/images/gateexiticon.png',
-                      ),
-                    ),
-                    SizedBox(width: 8),
-                    Text(
-                      'Logistic Planning Details',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF263238),
-                        fontFamily: 'Urbanist',
-                      ),
-                    ),
-                  ],
+                padding: EdgeInsets.only(left: 16.0),
+                child: SectionHeader(
+                  title: 'Logistic Planning Details',
+                  assetIcon: 'assets/images/gateexiticon.png',
                 ),
               ),
               Container(
@@ -118,7 +83,7 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
                           borderRadius: BorderRadius.circular(20),
                         ),
                         padding: const EdgeInsets.only(
-                          top: 40,
+                          top: 20,
                           left: 16,
                           right: 16,
                         ),
@@ -129,8 +94,10 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
                               title: 'Plant Name',
                               hintText: 'Enter Plant Name',
                               readOnly: true,
+                              isRequired: true,
                               borderColor: AppColors.grey,
                               initialValue: newform.plantName,
+                             
 
                               onChanged:
                                   (p0) => context
@@ -158,8 +125,10 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
                             AppDateField(
                               title: 'Logistic Request Date',
                               hintText: 'Select a Date',
-                              initialValue: newform.logisticsRequestDate,
-                              isRequired: true,
+
+                              initialDate: DFU.ddMMyyyyFromStr(
+                                newform.logisticsRequestDate ?? '',
+                              ),
                               readOnly: true,
 
                               startDate: DFU.now(),
@@ -180,75 +149,33 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
                             ),
                             const SizedBox(height: 12),
 
-                            BlocBuilder<TransportersList, TransportersState>(
-                              builder: (_, state) {
-                                final allData = state.maybeWhen(
-                                  orElse: () => <TransportersForm>[],
-                                  success: (data) => data,
-                                );
-                                final names = allData.toList();
-
-                                return SearchDropDownList(
-                                  key: UniqueKey(),
-                                  color: AppColors.grey,
-                                  isMandatory: true,
-                                  items: names,
-
-                                  defaultSelection:
-                                      names
-                                          .where(
-                                            (e) =>
-                                                e.name ==
-                                                newform.transporterName,
-                                          )
-                                          .firstOrNull,
-                                  title: 'Transporters',
-                                  readOnly: true,
-                                  hint: 'Select transporter',
-                                  isloading: state.isLoading,
-                                  futureRequest: (p0) async {
-                                    return names;
-                                  },
-                                  headerBuilder:
-                                      (_, item, __) =>
-                                          Text(item.name.toString()),
-                                  listItemBuilder:
-                                      (_, item, __, ___) => CompactListTile(
-                                        title: item.name ?? '',
-                                      ),
-                                  onSelected: (selected) {
-                                    setState(() {
-                                      transportersForm = selected;
-                                    });
-                                    context
-                                        .cubit<CreateTransportCubit>()
-                                        .onValueChanged(
-                                          transporterName: selected.name,
-                                        );
-                                  },
-                                  focusNode: focusNodes.elementAt(3),
-                                );
-                              },
-                            ),
-
-                            const SizedBox(height: 12),
-
-                            AppDropDownWidget(
-                              hint: 'Select Vehicle Type',
-                              title: 'Vehicle Types',
-                              isMandatory: true,
+                            InputField(
+                              title: 'Transporter Name',
 
                               readOnly: true,
-                              defaultSelection: newform.preferredVehicleType,
-                              items: Dropdownoptions.vehicleType,
-                              onSelected: (item) {
-                                context
-                                    .cubit<CreateTransportCubit>()
-                                    .onValueChanged(preferredVehicleType: item);
-                                setState(() {});
-                              },
-                              color: AppColors.black,
-                              focusNode: focusNodes.elementAt(11),
+
+                              borderColor: AppColors.grey,
+                              initialValue: newform.transporterName,
+
+                              onChanged:
+                                  (p0) => context
+                                      .cubit<CreateTransportCubit>()
+                                      .onValueChanged(transporterName: p0),
+                            ),
+                            const SizedBox(height: 12),
+
+                            InputField(
+                              title: 'Prefrred Vehicle Type',
+
+                              readOnly: true,
+
+                              borderColor: AppColors.grey,
+                              initialValue: newform.preferredVehicleType,
+
+                              onChanged:
+                                  (p0) => context
+                                      .cubit<CreateTransportCubit>()
+                                      .onValueChanged(preferredVehicleType: p0),
                             ),
                           ],
                         ),
@@ -259,31 +186,11 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
               ),
 
               const SizedBox(height: 15),
-              Padding(
-                padding: const EdgeInsets.only(left: 16.0, bottom: 8),
-                child: Row(
-                  children: [
-                    SizedBox(
-                      height: 60,
-                      width: 60,
-                      child: ClipOval(
-                        child: Image.asset(
-                          'assets/images/vehicleinvoiceicon.png',
-                          fit: BoxFit.contain,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    const Text(
-                      'Delivery Address Details',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF263238),
-                        fontFamily: 'Urbanist',
-                      ),
-                    ),
-                  ],
+           const Padding(
+                padding: EdgeInsets.only(left: 16.0),
+                child: SectionHeader(
+                  title: 'Delivery Address Details',
+                  assetIcon: 'assets/images/vehicleinvoiceicon.png',
                 ),
               ),
 
@@ -294,7 +201,7 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
                   side: const BorderSide(color: Color(0xFFE8ECF4), width: 1),
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.only(top:16,left: 16,right: 16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -307,7 +214,10 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
                               readOnly: true,
                               startDate: DateTime(2020),
                               endDate: DateTime(2030),
-                              initialDate: newform.requestedDeliveryDate,
+
+                              initialDate: DFU.ddMMyyyyFromStr(
+                                newform.requestedDeliveryDate ?? '',
+                              ),
                               onSelected: (DateTime date) {
                                 setState(() {
                                   selectedDate = date;
@@ -329,6 +239,7 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
                               title: 'Request Delivery Time',
                               hintText: 'Select time',
                               readOnly: true,
+                              
                               initialTime: newform.requestedDeliveryTime,
                               onTimeChanged: (selectedTime) {
                                 context
@@ -336,24 +247,83 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
                                     .onValueChanged(
                                       requestedDeliveryTime: selectedTime,
                                     );
-                                    
                               },
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 16),
+                     const SizedBox(height: 16),
                       InputField(
-                        title: 'Address - 1',
+                        title: 'Shipping Address-1',
                         readOnly: true,
                         hintText: 'Enter Address',
-
                         borderColor: AppColors.grey,
-                        initialValue: newform.deliveryAddress,
+                        initialValue: newform.shippingAddress1,
                         onChanged:
                             (value) => context
                                 .cubit<CreateTransportCubit>()
-                                .onValueChanged(deliveryAddress: value),
+                                .onValueChanged(shippingAddress1: value),
+                      ),
+                      const SizedBox(height: 16),
+                      InputField(
+                        title: 'Shipping Address-2',
+                        readOnly: true,
+                        hintText: 'Enter Address',
+                        borderColor: AppColors.grey,
+                        initialValue: newform.shippingAddress2,
+                        onChanged:
+                            (value) => context
+                                .cubit<CreateTransportCubit>()
+                                .onValueChanged(shippingAddress2: value),
+                      ),
+                      
+                       const SizedBox(height: 16),
+                      InputField(
+                        title: 'Shipping Country',
+                        readOnly: true,
+                        hintText: 'Enter Country',
+                        borderColor: AppColors.grey,
+                        initialValue: newform.country,
+                        onChanged:
+                            (value) => context
+                                .cubit<CreateTransportCubit>()
+                                .onValueChanged(country: value),
+                      ),
+                       const SizedBox(height: 16),
+                      InputField(
+                        title: 'Shipping State',
+                        readOnly: true,
+                        hintText: 'Enter State',
+                        borderColor: AppColors.grey,
+                        initialValue: newform.states,
+                        onChanged:
+                            (value) => context
+                                .cubit<CreateTransportCubit>()
+                                .onValueChanged(states: value),
+                      ),
+                         const SizedBox(height: 16),
+                      InputField(
+                        title: 'Shipping City',
+                        readOnly: true,
+                        hintText: 'Enter City',
+                        borderColor: AppColors.grey,
+                        initialValue:newform.city,
+                        onChanged:
+                            (value) => context
+                                .cubit<CreateTransportCubit>()
+                                .onValueChanged(city: value),
+                      ),
+                           const SizedBox(height: 16),
+                      InputField(
+                        title: 'Shipping Pin Code',
+                        readOnly: true,
+                        hintText: 'Enter Pincode',
+                        borderColor: AppColors.grey,
+                        initialValue: newform.pincode,
+                        onChanged:
+                            (value) => context
+                                .cubit<CreateTransportCubit>()
+                                .onValueChanged(pinCode: value),
                       ),
                     ],
                   ),
@@ -362,29 +332,10 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
 
               const SizedBox(height: 15),
               const Padding(
-                padding: EdgeInsets.only(left: 16.0, bottom: 4),
-                child: Row(
-                  children: [
-                    CircleAvatar(
-                      backgroundColor: Color.fromARGB(255, 200, 209, 225),
-                      radius: 30,
-                      child: Icon(
-                        Icons.edit_note_outlined,
-                        color: AppColors.darkBlue,
-                        size: 28,
-                      ),
-                    ),
-                    SizedBox(width: 8),
-                    Text(
-                      'Remarks',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF263238),
-                        fontFamily: 'Urbanist',
-                      ),
-                    ),
-                  ],
+                padding: EdgeInsets.only(left: 16.0),
+                child: SectionHeader(
+                  title: 'Remarks',
+                  assetIcon: 'assets/images/reamraksicon.png',
                 ),
               ),
               Padding(
@@ -417,28 +368,11 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
                 ),
               ),
 
-              const Padding(
-                padding: EdgeInsets.only(left: 16.0, bottom: 4),
-                child: Row(
-                  children: [
-                    CircleAvatar(
-                      radius: 30,
-                      backgroundColor: Colors.transparent,
-                      backgroundImage: AssetImage(
-                        'assets/images/vehicleinvoiceicon.png',
-                      ),
-                    ),
-                    SizedBox(width: 8),
-                    Text(
-                      'Driver Details',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF263238),
-                        fontFamily: 'Urbanist',
-                      ),
-                    ),
-                  ],
+                const Padding(
+                padding: EdgeInsets.only(left: 16.0),
+                child: SectionHeader(
+                  title: 'Driver Details',
+                  assetIcon: 'assets/images/vehicleinvoiceicon.png',
                 ),
               ),
               Container(
@@ -463,17 +397,43 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
                           borderRadius: BorderRadius.circular(20),
                         ),
                         padding: const EdgeInsets.only(
-                          top: 40,
+                          top: 20,
                           left: 16,
                           right: 16,
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            AppDateField(
+                              title: 'Transporter Confirmation Date',
+                              hintText: 'Select Date',
+                              readOnly: true,
+                              
+                              startDate: DateTime(2020),
+                              endDate: DateTime(2030),
+
+                              initialDate: DFU.ddMMyyyyFromStr(
+                                newform.transporterConfirmationDate ?? '',
+                              ),
+                              onSelected: (DateTime date) {
+                                setState(() {
+                                  selectedDate = date;
+                                  context
+                                      .cubit<CreateTransportCubit>()
+                                      .onValueChanged(
+                                        transporterConfirmationDate: DateFormat(
+                                          'dd-MM-yyyy',
+                                        ).format(date),
+                                      );
+                                });
+                              },
+                              fillColor: Colors.grey.shade100,
+                            ),
+                            const SizedBox(height: 12),
                             InputField(
                               title: 'Driver Name',
                               hintText: 'Enter Driver Name',
-                              borderColor: AppColors.grey,
+                              borderColor: Colors.grey,
                               readOnly: isCompleted,
                               initialValue: newform.driverName,
                               onChanged:
@@ -488,7 +448,7 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
                               title: 'Vehicle No',
                               hintText: 'Enter Vehicle Number',
                               readOnly: isCompleted,
-                              borderColor: AppColors.grey,
+                              borderColor: Colors.grey,
                               initialValue: newform.vehicleNumber,
                               onChanged:
                                   (p0) => context
@@ -503,35 +463,42 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
                               title: 'Driver Contact No',
                               hintText: 'Enter Contract Number',
                               readOnly: isCompleted,
-                              inputFormatters: [
-                                FilteringTextInputFormatter
-                                    .digitsOnly, 
-                                LengthLimitingTextInputFormatter(
-                                  10,
-                                ), 
-                              ],
                               borderColor: AppColors.grey,
+                              
+                              inputFormatters: [
+                                FilteringTextInputFormatter.digitsOnly,
+                                LengthLimitingTextInputFormatter(10),
+                              ],
+                              inputType: TextInputType.number,
+                            
                               initialValue: newform.driverContact,
                               onChanged:
                                   (p0) => context
                                       .cubit<CreateTransportCubit>()
                                       .onValueChanged(driverContact: p0),
                             ),
-
-                            const SizedBox(height: 12),
-                            TimePickerField(
-                              title: 'Arraival Time',
-                              hintText: 'Select time',
-
+                            AppDateField(
+                              title: 'Estimated Arrival',
+                              hintText: 'Select Date',
                               readOnly: isCompleted,
-                              initialTime: newform.estimatedArrival,
-                              onTimeChanged: (selectedTime) {
-                                context
-                                    .cubit<CreateTransportCubit>()
-                                    .onValueChanged(
-                                      estimatedArrival: selectedTime,
-                                    );
+                              startDate: DateTime(2020),
+                              endDate: DateTime(2030),
+                              initialDate: DFU.ddMMyyyyHHmmssFromStr(
+                                newform.estimatedArrival ?? '',
+                              ),
+                              onSelected: (DateTime date) {
+                                setState(() {
+                                  selectedDate = date;
+                                  context
+                                      .cubit<CreateTransportCubit>()
+                                      .onValueChanged(
+                                        estimatedArrival: DateFormat(
+                                          'dd-MM-yyyy',
+                                        ).format(date),
+                                      );
+                                });
                               },
+                              fillColor: Colors.white,
                             ),
                           ],
                         ),
@@ -542,31 +509,11 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
               ),
 
               const SizedBox(height: 15),
-              const Padding(
-                padding: EdgeInsets.only(left: 16.0, bottom: 4),
-                child: Row(
-                  children: [
-                    CircleAvatar(
-                      backgroundColor: Color.fromARGB(255, 200, 209, 225),
-                      radius: 30,
-                      child: Icon(
-                        Icons.edit_note_outlined,
-                        color: AppColors.darkBlue,
-                        size: 28,
-                      ),
-                    ),
-                    SizedBox(width: 8),
-                    Text(
-                      'Driver Remarks Details',
-                      style: TextStyle(
-                        fontSize: 16,
-
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF263238),
-                        fontFamily: 'Urbanist',
-                      ),
-                    ),
-                  ],
+               const Padding(
+                padding: EdgeInsets.only(left: 16.0),
+                child: SectionHeader(
+                  title: 'Transporter Remarks Details',
+                  assetIcon: 'assets/images/reamraksicon.png',
                 ),
               ),
               Padding(
@@ -581,10 +528,10 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: InputField(
-                      title: 'Driver Remarks(if any)',
+                      title: 'Transporter Remarks(if any)',
                       hintText: 'enter remarks',
                       readOnly: isCompleted,
-                      borderColor: AppColors.grey,
+                      borderColor: Colors.grey,
                       maxLines: 3,
                       minLines: 3,
 
@@ -597,62 +544,7 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
                   ),
                 ),
               ),
-              const SizedBox(height: 15),
-              const Padding(
-                padding: EdgeInsets.only(left: 16.0, bottom: 4),
-                child: Row(
-                  children: [
-                    CircleAvatar(
-                      backgroundColor: Color.fromARGB(255, 200, 209, 225),
-                      radius: 30,
-                      child: Icon(
-                        Icons.edit_note_outlined,
-                        color: AppColors.darkBlue,
-                        size: 28,
-                      ),
-                    ),
-                    SizedBox(width: 8),
-                    Text(
-                      'Reject Reason',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF263238),
-                        fontFamily: 'Urbanist',
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              Padding(
-                padding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
-                child: Card(
-                  color: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                    side: const BorderSide(color: Color(0xFFE8ECF4), width: 1),
-                  ),
-                  elevation: 0,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: InputField(
-                      title: 'If You Want Reject, Reason is Must be Enter',
-                      hintText: 'enter reason...',
-                      readOnly: isCompleted,
-                      borderColor: AppColors.grey,
-                      maxLines: 3,
-                      minLines: 3,
-
-                      initialValue: newform.rejectReason,
-                      onChanged:
-                          (value) => context
-                              .cubit<CreateTransportCubit>()
-                              .onValueChanged(rejectReason: value),
-                    ),
-                  ),
-                ),
-              ),
+            
             ],
           ),
         ),
@@ -660,3 +552,4 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
     );
   }
 }
+

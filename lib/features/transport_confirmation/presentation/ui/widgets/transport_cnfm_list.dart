@@ -24,74 +24,67 @@ class _TransportCnfmListState extends State<TransportCnfmList>
   String? query;
   @override
   void initState() {
-    status = 'Draft';
+    status = 'Pending From Transporter';
+    context.read<TransportFilterCubit>().onChangeStatus(
+      'Pending From Transporter',
+    );
+    context.read<TransportFilterCubit>().onSearch(null);
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _fetchInital(context, query, status!);
-    });
     return AppPageView2<TransportFilterCubit>(
       mode: PageMode2.transportConfirmation,
       backgroundColor: AppColors.white,
-      onNew: () => AppRoute.newTarnsportCnfrm.push(context),
+      onNew: () async {
+        final refresh = await AppRoute.newTarnsportCnfrm.push<bool>(context);
+        if (refresh == true) {
+          _fetchInital(context);
+        }
+      },
       scaffoldBg: '',
       child: RefreshIndicator(
         onRefresh:
-            () => context.cubit<TransportCubit>().fetchInitial(
-              Pair(StringUtils.docStatuslogistic(status), query),
-            ),
+            () {
+              final filters = context.read<TransportFilterCubit>().state;
+              return context.cubit<TransportCubit>().fetchInitial(
+              Pair(StringUtils.docStatuslogistic(filters.status), filters.query),
+            );
+            },
         child: BlocListener<TransportFilterCubit, PageViewFilters>(
-          listener:
-              (_, state) => _fetchInital(context, state.query, state.status),
+          listener: (_, state) => _fetchInital(context),
           child:
               InfiniteListViewWidget<TransportCubit, TransportConfirmationForm>(
                 childBuilder:
                     (context, entry) => TransportCnfrmWidget(
                       transport: entry,
-                      onTap: () {
-                        AppRoute.newTarnsportCnfrm.push<bool?>(
-                          context,
-                          extra: entry,
-                        );
-                      },
+                        onTap: () async {
+                    final refresh = await AppRoute.newTarnsportCnfrm
+                        .push<bool?>(context, extra: entry);
+                    if (refresh == true) {
+                      _fetchInital(context);
+                    }
+                  },
                     ),
-                fetchInitial: () => _fetchInital(context, query, status),
+                fetchInitial: () => _fetchInital(context),
                 fetchMore: () => fetchMore(context),
                 emptyListText: 'No Transports Found.',
               ),
         ),
       ),
-      onSearch: () async {
-        final selected = await showOptions(
-          context,
-          defaultValue: status,
-          pageMode: PageMode2.transportConfirmation,
-        );
-        if (selected == null || !context.mounted) return;
-
-        setState(() {
-          status = selected;
-          query = null;
-          context.cubit<TransportFilterCubit>().onChangeStatus(status ?? '');
-        });
-
-        _fetchInital(context, query, status!);
-      },
     );
   }
 
-  void _fetchInital(BuildContext context, String? query, String? status) {
+  void _fetchInital(BuildContext context) {
+    final filters = context.read<TransportFilterCubit>().state;
     context.cubit<TransportCubit>().fetchInitial(
-      Pair(StringUtils.docStatuslogistic(status), query),
+      Pair(StringUtils.docStatuslogistic(filters.status), filters.query),
     );
   }
 
   void fetchMore(BuildContext context) {
     final filters = context.read<TransportFilterCubit>().state;
-
     context.cubit<TransportCubit>().fetchMore(
       Pair(StringUtils.docStatuslogistic(filters.status), filters.query),
     );

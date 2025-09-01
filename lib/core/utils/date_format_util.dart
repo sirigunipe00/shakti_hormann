@@ -16,6 +16,7 @@ abstract class _DateTimeFormats {
   static final ddMMyyyyHHmmss = DateFormat('dd-MM-yyyy HH:mm:ss');
   static final hhmmss = DateFormat('HH:mm:ss');
   static final currentTimeFormat = DateFormat('dd-MMM-yyyy hh:mm a');
+  // static final _ddMMyyyyHHmmss = DateFormat('dd-MM-yyyy HH:mm:ss');
 }
 abstract class DateFormatUtil {
   static DateTime now() => DateTime.now();
@@ -29,7 +30,10 @@ abstract class DateFormatUtil {
 
 
   static String getDayNameFully(DateTime dateTime) => _DateTimeFormats.dayNameFull.format(dateTime);
-  static String ddMMyyyy(DateTime dateTime) => _DateTimeFormats.ddMMyyyy.format(dateTime);
+  static String ddMMyyyy(DateTime dateTime) {
+
+    return _DateTimeFormats.ddMMyyyy.format(dateTime);
+  }
   static String ddMMMyyyy(DateTime dateTime) => _DateTimeFormats.ddMMMyyyy.format(dateTime);
   static String friendlyFormat(DateTime dateTime) => _DateTimeFormats.friendlyFormat.format(dateTime);
   static String hhmmss(DateTime dateTime) => _DateTimeFormats.hhmmss.format(dateTime);
@@ -42,6 +46,15 @@ abstract class DateFormatUtil {
       return '';
     }
   }
+ static String ddMMyyyyHHmmssFromStr(String date) {
+  try {
+    final dateTime = DateTime.parse(date);
+    return _DateTimeFormats.ddMMyyyyHHmmss.format(dateTime); 
+  } catch (e) {
+    return '';
+  }
+}
+
    static String timeFromStr(String dateStr) {
     try {
       final dateTime = DateTime.parse(dateStr);
@@ -50,6 +63,9 @@ abstract class DateFormatUtil {
       return '';
     }
   }
+
+ 
+
 
   static String fromFrappeToddMMyyyy(String? dateTime) {
     if(dateTime == null) return '';

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shakti_hormann/features/auth/presentation/ui/authentication_scrn.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
 
@@ -38,14 +39,14 @@ class _AppSplashScrnState extends State<AppSplashScrn> {
           
               const SizedBox(height: 12),
           
-              const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Dot(active: true),
-                  Dot(active: false),
-                  Dot(active: false),
-                ],
-              ),
+              // const Row(
+              //   mainAxisAlignment: MainAxisAlignment.center,
+              //   children: [
+              //     Dot(active: true),
+              //     Dot(active: false),
+              //     Dot(active: false),
+              //   ],
+              // ),
           
               const SizedBox(height: 24),
           
@@ -83,7 +84,7 @@ class _AppSplashScrnState extends State<AppSplashScrn> {
                       'Login',
                       style: TextStyle(
                         fontSize: 18,
-                        fontWeight: FontWeight.w500,
+                        fontWeight: FontWeight.bold,
                         color: AppColors.white,
                       ),
                     ),
@@ -96,8 +97,8 @@ class _AppSplashScrnState extends State<AppSplashScrn> {
                   Center(
                     child: Column(
                       children: [
-                        Image.asset(
-                          'assets/logo/easycloud 245x132 1.png',
+                        SvgPicture.asset(
+                          'assets/logo/EasyCloud Logo 150 x 80.svg',
                           width: 78,
                           height: 40,
                           fit: BoxFit.fitWidth,

@@ -1,7 +1,12 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:dartz/dartz.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:http/http.dart' as http;
 import 'package:injectable/injectable.dart';
+import 'package:intl/intl.dart';
+import 'package:path/path.dart' as p;
 import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/features/gate_entry/data/gate_entry.repo.dart';
 import 'package:shakti_hormann/features/gate_entry/model/gate_entry_form.dart';
@@ -36,7 +41,7 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
         'filters': jsonEncode(filters),
         'limit_start': start,
         'limit': 20,
-        // 'limit_page_length': limit,
+
         'order_by': 'creation desc',
         'doctype': 'Gate Entry',
         'fields': jsonEncode(['*']),
@@ -64,7 +69,7 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
         reqParams: {
           'limit': 20,
           'oreder_by': 'creat desc',
-          'doctype': 'Purchase Order',
+          'doctype': 'SAP Purchase Order',
           'fields': ['*'],
         },
         headers: {HttpHeaders.contentTypeHeader: 'application/json'},
@@ -81,12 +86,40 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
   @override
   AsyncValueOf<Pair<String, String>> submitGateEntry(GateEntryForm form) async {
     return await executeSafely(() async {
-      String? formatDateToDDMMYYYY(String? date) {
-        final parsedDate = DateTime.parse(date!);
-        final day = parsedDate.day.toString().padLeft(2, '0');
-        final month = parsedDate.month.toString().padLeft(2, '0');
-        final year = parsedDate.year.toString();
-        return '$day-$month-$year';
+      Uint8List? vehiclefrontcompressedBytes;
+      Uint8List? vehiclebackcompressedBytes;
+      Uint8List? invocecompressedBytes;
+
+      if (form.vehiclePhotoImg != null) {
+        final filePath = form.vehiclePhotoImg!.path;
+        vehiclefrontcompressedBytes =
+            await FlutterImageCompress.compressWithFile(filePath, quality: 50);
+      } else if (form.vehiclePhoto != null) {
+        vehiclefrontcompressedBytes = await fetchAndConvertToBase64(
+          form.vehiclePhoto ?? '',
+        );
+      }
+
+      if (form.vehicleBackPhotoImg != null) {
+        final filePath = form.vehicleBackPhotoImg!.path;
+        vehiclebackcompressedBytes =
+            await FlutterImageCompress.compressWithFile(filePath, quality: 50);
+      } else if (form.vehicleBackPhoto != null) {
+        vehiclefrontcompressedBytes = await fetchAndConvertToBase64(
+          form.vehicleBackPhoto ?? '',
+        );
+      }
+
+      if (form.invoicePhotoImg != null) {
+        final filePath = form.invoicePhotoImg!.path;
+        invocecompressedBytes = await FlutterImageCompress.compressWithFile(
+          filePath,
+          quality: 50,
+        );
+      } else if (form.invoicePhoto != null) {
+        vehiclefrontcompressedBytes = await fetchAndConvertToBase64(
+          form.invoicePhoto ?? '',
+        );
       }
 
       final config = RequestConfig(
@@ -100,12 +133,30 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
           'plant_name': form.plantName,
           'purchase_order': form.purchaseOrder,
           'invoice_amount': form.invoiceAmount,
-          'vendor_invoice_date': formatDateToDDMMYYYY(form.vendorInvoiceDate),
-          'gate_entry_date': formatDateToDDMMYYYY(form.gateEntryDate),
+          'vendor_invoice_date':
+              form.vendorInvoiceDate != null
+                  ? DateFormat('yyyy-MM-dd').format(
+                    DateFormat('dd-MM-yyyy').parse(form.vendorInvoiceDate!),
+                  )
+                  : null,
+          'gate_entry_date': form.gateEntryDate != null
+                  ? DateFormat('yyyy-MM-dd').format(
+                    DateFormat('dd-MM-yyyy').parse(form.gateEntryDate!),
+                  )
+                  : null,
           'vendor_invoice_no': form.vendorInvoiceNo,
-          'vehicle_photo': form.vehiclePhoto,
-          'vendor_invoice_photo': form.invoicePhoto,
-          'vehicle_back_photo': form.vehicleBackPhoto,
+          'vehicle_photo':
+              vehiclefrontcompressedBytes == null
+                  ? null
+                  : base64Encode(vehiclefrontcompressedBytes),
+          'vendor_invoice_photo':
+              invocecompressedBytes == null
+                  ? null
+                  : base64Encode(invocecompressedBytes),
+          'vehicle_back_photo':
+              vehiclebackcompressedBytes == null
+                  ? null
+                  : base64Encode(vehiclebackcompressedBytes),
           'vehicle_no': form.vehicleNo,
           'vendor_invoice_quantity': form.invoiceQuantity,
           'remarks': form.remarks,
@@ -128,12 +179,44 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
 
     formJson['status'] = 'Draft';
 
-    String? formatDateToDDMMYYYY(String? date) {
-      final parsedDate = DateTime.parse(date!);
-      final day = parsedDate.day.toString().padLeft(2, '0');
-      final month = parsedDate.month.toString().padLeft(2, '0');
-      final year = parsedDate.year.toString();
-      return '$day-$month-$year';
+    Uint8List? vehiclefrontcompressedBytes;
+    Uint8List? vehiclebackcompressedBytes;
+    Uint8List? invocecompressedBytes;
+
+    if (form.vehiclePhotoImg != null) {
+      final filePath = form.vehiclePhotoImg!.path;
+      vehiclefrontcompressedBytes = await FlutterImageCompress.compressWithFile(
+        filePath,
+        quality: 50,
+      );
+    } else if (form.vehiclePhoto != null) {
+      vehiclefrontcompressedBytes = await fetchAndConvertToBase64(
+        form.vehiclePhoto ?? '',
+      );
+    }
+
+    if (form.vehicleBackPhotoImg != null) {
+      final filePath = form.vehicleBackPhotoImg!.path;
+      vehiclebackcompressedBytes = await FlutterImageCompress.compressWithFile(
+        filePath,
+        quality: 50,
+      );
+    } else if (form.vehicleBackPhoto != null) {
+      vehiclefrontcompressedBytes = await fetchAndConvertToBase64(
+        form.vehicleBackPhoto ?? '',
+      );
+    }
+
+    if (form.invoicePhotoImg != null) {
+      final filePath = form.invoicePhotoImg!.path;
+      invocecompressedBytes = await FlutterImageCompress.compressWithFile(
+        filePath,
+        quality: 50,
+      );
+    } else if (form.invoicePhoto != null) {
+      vehiclefrontcompressedBytes = await fetchAndConvertToBase64(
+        form.invoicePhoto ?? '',
+      );
     }
 
     final config = RequestConfig(
@@ -147,12 +230,21 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
         'plant_name': form.plantName,
         'purchase_order': form.purchaseOrder,
         'invoice_amount': form.invoiceAmount,
-        'vendor_invoice_date': formatDateToDDMMYYYY(form.vendorInvoiceDate),
-        'gate_entry_date': formatDateToDDMMYYYY(form.gateEntryDate),
+        'vendor_invoice_date': form.vendorInvoiceDate,
+        'gate_entry_date': form.gateEntryDate,
         'vendor_invoice_no': form.vendorInvoiceNo,
-        'vehicle_photo': form.vehiclePhoto,
-        'vendor_invoice_photo': form.invoicePhoto,
-        'vehicle_back_photo': form.vehicleBackPhoto,
+        'vehicle_photo':
+            vehiclefrontcompressedBytes == null
+                ? null
+                : base64Encode(vehiclefrontcompressedBytes),
+        'vendor_invoice_photo':
+            invocecompressedBytes == null
+                ? null
+                : base64Encode(invocecompressedBytes),
+        'vehicle_back_photo':
+            vehiclebackcompressedBytes == null
+                ? null
+                : base64Encode(vehiclebackcompressedBytes),
         'vehicle_no': form.vehicleNo,
         'vendor_invoice_quantity': form.invoiceQuantity,
         'remarks': form.remarks,
@@ -167,5 +259,23 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
     return response.processAsync((r) async {
       return right(Pair(r.data!.first, r.data!.second));
     });
+  }
+
+  Future<Uint8List?> fetchAndConvertToBase64(String relativePath) async {
+    if (p.extension(relativePath).isEmpty) {
+      return null;
+    }
+
+    final String url = 'http://65.21.243.18:8000$relativePath';
+
+    final response = await http.get(Uri.parse(url));
+
+    if (response.statusCode == 200) {
+      Uint8List bytes = response.bodyBytes;
+
+      return bytes;
+    } else {
+      throw Exception('Failed to load file: ${response.statusCode}');
+    }
   }
 }

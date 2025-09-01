@@ -38,4 +38,7 @@ class Urls {
       '$cusWs/shaktihormann.api.update_logistic_planning';
   static final updateTransport='$cusWs/shaktihormann.api.update_logistic_transporter';
   static final createVehicleReporting='$cusWs/shaktihormann.api.create_vehicle_reporting';
+  static final updateVehicleReporting = '$cusWs/shaktihormann.api.update_vehicle_reporting';
+  static final createLoadingConfirmation ='$cusWs/shaktihormann.api.create_items_loaded';
+  static final submitLoadingConfirmation = '$cusWs/shaktihormann.api.create_items_loaded';
 }

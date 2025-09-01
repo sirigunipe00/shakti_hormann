@@ -27,6 +27,10 @@ mixin _$PurchaseOrderForm {
   String? get plantName => throw _privateConstructorUsedError;
   @JsonKey(name: 'supplier')
   String? get supplier => throw _privateConstructorUsedError;
+  @JsonKey(name: 'supplier_name')
+  String? get supplierName => throw _privateConstructorUsedError;
+  @JsonKey(name: 'order_date', defaultValue: '')
+  String? get orderDate => throw _privateConstructorUsedError;
   @JsonKey(name: 'custom_remarks')
   String? get remarks => throw _privateConstructorUsedError;
 
@@ -51,6 +55,8 @@ abstract class $PurchaseOrderFormCopyWith<$Res> {
     @JsonKey(name: 'name') String? name,
     @JsonKey(name: 'company') String? plantName,
     @JsonKey(name: 'supplier') String? supplier,
+    @JsonKey(name: 'supplier_name') String? supplierName,
+    @JsonKey(name: 'order_date', defaultValue: '') String? orderDate,
     @JsonKey(name: 'custom_remarks') String? remarks,
   });
 }
@@ -73,6 +79,8 @@ class _$PurchaseOrderFormCopyWithImpl<$Res, $Val extends PurchaseOrderForm>
     Object? name = freezed,
     Object? plantName = freezed,
     Object? supplier = freezed,
+    Object? supplierName = freezed,
+    Object? orderDate = freezed,
     Object? remarks = freezed,
   }) {
     return _then(
@@ -91,6 +99,16 @@ class _$PurchaseOrderFormCopyWithImpl<$Res, $Val extends PurchaseOrderForm>
                 freezed == supplier
                     ? _value.supplier
                     : supplier // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            supplierName:
+                freezed == supplierName
+                    ? _value.supplierName
+                    : supplierName // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            orderDate:
+                freezed == orderDate
+                    ? _value.orderDate
+                    : orderDate // ignore: cast_nullable_to_non_nullable
                         as String?,
             remarks:
                 freezed == remarks
@@ -116,6 +134,8 @@ abstract class _$$PurchaseOrderFormImplCopyWith<$Res>
     @JsonKey(name: 'name') String? name,
     @JsonKey(name: 'company') String? plantName,
     @JsonKey(name: 'supplier') String? supplier,
+    @JsonKey(name: 'supplier_name') String? supplierName,
+    @JsonKey(name: 'order_date', defaultValue: '') String? orderDate,
     @JsonKey(name: 'custom_remarks') String? remarks,
   });
 }
@@ -137,6 +157,8 @@ class __$$PurchaseOrderFormImplCopyWithImpl<$Res>
     Object? name = freezed,
     Object? plantName = freezed,
     Object? supplier = freezed,
+    Object? supplierName = freezed,
+    Object? orderDate = freezed,
     Object? remarks = freezed,
   }) {
     return _then(
@@ -156,6 +178,16 @@ class __$$PurchaseOrderFormImplCopyWithImpl<$Res>
                 ? _value.supplier
                 : supplier // ignore: cast_nullable_to_non_nullable
                     as String?,
+        supplierName:
+            freezed == supplierName
+                ? _value.supplierName
+                : supplierName // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        orderDate:
+            freezed == orderDate
+                ? _value.orderDate
+                : orderDate // ignore: cast_nullable_to_non_nullable
+                    as String?,
         remarks:
             freezed == remarks
                 ? _value.remarks
@@ -173,6 +205,8 @@ class _$PurchaseOrderFormImpl implements _PurchaseOrderForm {
     @JsonKey(name: 'name') this.name,
     @JsonKey(name: 'company') this.plantName,
     @JsonKey(name: 'supplier') this.supplier,
+    @JsonKey(name: 'supplier_name') this.supplierName,
+    @JsonKey(name: 'order_date', defaultValue: '') this.orderDate,
     @JsonKey(name: 'custom_remarks') this.remarks,
   });
 
@@ -189,12 +223,18 @@ class _$PurchaseOrderFormImpl implements _PurchaseOrderForm {
   @JsonKey(name: 'supplier')
   final String? supplier;
   @override
+  @JsonKey(name: 'supplier_name')
+  final String? supplierName;
+  @override
+  @JsonKey(name: 'order_date', defaultValue: '')
+  final String? orderDate;
+  @override
   @JsonKey(name: 'custom_remarks')
   final String? remarks;
 
   @override
   String toString() {
-    return 'PurchaseOrderForm(name: $name, plantName: $plantName, supplier: $supplier, remarks: $remarks)';
+    return 'PurchaseOrderForm(name: $name, plantName: $plantName, supplier: $supplier, supplierName: $supplierName, orderDate: $orderDate, remarks: $remarks)';
   }
 
   @override
@@ -207,13 +247,24 @@ class _$PurchaseOrderFormImpl implements _PurchaseOrderForm {
                 other.plantName == plantName) &&
             (identical(other.supplier, supplier) ||
                 other.supplier == supplier) &&
+            (identical(other.supplierName, supplierName) ||
+                other.supplierName == supplierName) &&
+            (identical(other.orderDate, orderDate) ||
+                other.orderDate == orderDate) &&
             (identical(other.remarks, remarks) || other.remarks == remarks));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, name, plantName, supplier, remarks);
+  int get hashCode => Object.hash(
+    runtimeType,
+    name,
+    plantName,
+    supplier,
+    supplierName,
+    orderDate,
+    remarks,
+  );
 
   /// Create a copy of PurchaseOrderForm
   /// with the given fields replaced by the non-null parameter values.
@@ -237,6 +288,8 @@ abstract class _PurchaseOrderForm implements PurchaseOrderForm {
     @JsonKey(name: 'name') final String? name,
     @JsonKey(name: 'company') final String? plantName,
     @JsonKey(name: 'supplier') final String? supplier,
+    @JsonKey(name: 'supplier_name') final String? supplierName,
+    @JsonKey(name: 'order_date', defaultValue: '') final String? orderDate,
     @JsonKey(name: 'custom_remarks') final String? remarks,
   }) = _$PurchaseOrderFormImpl;
 
@@ -252,6 +305,12 @@ abstract class _PurchaseOrderForm implements PurchaseOrderForm {
   @override
   @JsonKey(name: 'supplier')
   String? get supplier;
+  @override
+  @JsonKey(name: 'supplier_name')
+  String? get supplierName;
+  @override
+  @JsonKey(name: 'order_date', defaultValue: '')
+  String? get orderDate;
   @override
   @JsonKey(name: 'custom_remarks')
   String? get remarks;

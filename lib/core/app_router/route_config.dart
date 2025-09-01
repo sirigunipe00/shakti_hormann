@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-
 import 'package:shakti_hormann/app/presentation/ui/app_profile_page.dart';
 import 'package:shakti_hormann/app/presentation/ui/app_home_page.dart';
 import 'package:shakti_hormann/app/presentation/ui/app_splash_scrn.dart';
@@ -20,16 +19,22 @@ import 'package:shakti_hormann/features/gate_exit/presentation/bloc/bloc_provide
 import 'package:shakti_hormann/features/gate_exit/presentation/bloc/create_gate_cubit/gate_exit_cubit.dart';
 import 'package:shakti_hormann/features/gate_exit/presentation/ui/create/new_gate_exit.dart';
 import 'package:shakti_hormann/features/gate_exit/presentation/ui/widgets/gate_exit_list.dart';
+import 'package:shakti_hormann/features/loading_confirmation/model/loading_cnfm.dart';
+import 'package:shakti_hormann/features/loading_confirmation/presentation/bloc/bloc_provider.dart';
+import 'package:shakti_hormann/features/loading_confirmation/presentation/bloc/create_loading_cubit/create_loading_cnfm_cubit.dart';
+import 'package:shakti_hormann/features/loading_confirmation/presentation/ui/create/new_loading_confirmation.dart';
 import 'package:shakti_hormann/features/loading_confirmation/presentation/ui/widgets/loading_cnfrm_list.dart';
 import 'package:shakti_hormann/features/logistic_request/model/logistic_planning_form.dart';
 import 'package:shakti_hormann/features/logistic_request/presentation/bloc/bloc_provider.dart';
 import 'package:shakti_hormann/features/logistic_request/presentation/bloc/create_lr_cubit/logistic_planning_cubit.dart';
 import 'package:shakti_hormann/features/logistic_request/presentation/ui/create/new_logistic_request.dart';
 import 'package:shakti_hormann/features/logistic_request/presentation/ui/widgets/logistic_request_list.dart';
+import 'package:shakti_hormann/features/transport_confirmation/model/transport_confirmation_form.dart';
 import 'package:shakti_hormann/features/transport_confirmation/presentation/bloc/bloc_provider.dart';
 import 'package:shakti_hormann/features/transport_confirmation/presentation/bloc/create_transport_cubit.dart/create_transport_cubit.dart';
 import 'package:shakti_hormann/features/transport_confirmation/presentation/ui/create/new_transport.dart';
 import 'package:shakti_hormann/features/transport_confirmation/presentation/ui/widgets/transport_cnfm_list.dart';
+import 'package:shakti_hormann/features/vehicle_reporting/model/vehicle_reporting_form.dart';
 import 'package:shakti_hormann/features/vehicle_reporting/presentation/bloc/bloc_provider.dart';
 import 'package:shakti_hormann/features/vehicle_reporting/presentation/bloc/create_vr_cubit/create_vehicle_cubit.dart';
 import 'package:shakti_hormann/features/vehicle_reporting/presentation/ui/create/new_vehicle_reporting.dart';
@@ -69,6 +74,7 @@ class AppRouterConfig {
                   GoRoute(
                     path: _getPath(AppRoute.gateEntry),
                     builder: (ctxt, state) {
+                      
                       final filters = Pair(
                         StringUtils.docStatusInt('Draft'),
                         null,
@@ -168,14 +174,14 @@ class AppRouterConfig {
                   ),
                   GoRoute(
                     path: _getPath(AppRoute.logisticRequest),
-                       builder: (ctxt, state) {
+                    builder: (ctxt, state) {
+                    
                       final filters = Pair(
                         StringUtils.docStatuslogistic('Draft'),
                         null,
                       );
                       return BlocProvider(
-                        create:
-                            (context) => LogisticPlanningBlocProvider.get().fetchLogistics()..fetchInitial(filters),
+                        create: (context) => LogisticPlanningBlocProvider.get().fetchLogistics()..fetchInitial(filters),
                         child: const LogisticRequestList(),
                       );
                     },
@@ -183,8 +189,12 @@ class AppRouterConfig {
                       GoRoute(
                         path: _getPath(AppRoute.newLogisticRequest),
                         onExit:
-                            (context, state) async =>
-                                await _promptConf(context, formStatus: 'Draft'),
+                            (context, state) async{
+                              final form = state.extra as LogisticPlanningForm?;
+                                final formStatus =
+                              form?.docstatus == 1 ? 'Submitted' : 'Draft';
+                               return  _promptConf(context, formStatus: formStatus);
+                            },
                         builder: (_, state) {
                           final bloc = LogisticPlanningBlocProvider.get();
                           final lofisticForm =
@@ -216,7 +226,7 @@ class AppRouterConfig {
                     path: _getPath(AppRoute.transportConfirmation),
                        builder: (ctxt, state) {
                       final filters = Pair(
-                        StringUtils.docStatuslogistic('Draft'),
+                        StringUtils.docStatuslogistic('Pending From Transporter'),
                         null,
                       );
                       return BlocProvider(
@@ -229,8 +239,12 @@ class AppRouterConfig {
                       GoRoute(
                         path: _getPath(AppRoute.newTarnsportCnfrm),
                         onExit:
-                            (context, state) async =>
-                                await _promptConf(context, formStatus: 'Draft'),
+                            (context, state) async {
+                                   final form = state.extra as TransportConfirmationForm?;
+                                final formStatus =
+                              form?.docstatus == 1 ? 'Submitted' : 'Draft';
+                               return  _promptConf(context, formStatus: formStatus);
+                            },
                         builder: (_, state) {
                           final bloc = LogisticPlanningBlocProvider.get();
 
@@ -256,13 +270,28 @@ class AppRouterConfig {
                   ),
                   GoRoute(
                     path: _getPath(AppRoute.vehcileReporting),
-                    builder: (ctxt, state) => const VehicleReportingList(),
+                    builder: (ctxt, state) {
+                      final filters = Pair(
+                        StringUtils.docStatusVehicle('Reported'),
+                        null,
+                      );
+                      return BlocProvider(
+                        create:
+                            (context) => VehicleBlocProvider.get().fetchVehicle()..fetchInitial(filters),
+                        child: const VehicleReportingList(),
+                      );
+                    },
                     routes: [
                       GoRoute(
                         path: _getPath(AppRoute.newVehiclereporting),
                         onExit:
-                            (context, state) async =>
-                                await _promptConf(context, formStatus: 'Draft'),
+                            (context, state) async 
+                            {
+                               final form = state.extra as VehicleReportingForm?;
+                                final formStatus =
+                              form?.docstatus == 1 ? 'Submitted' : 'Reported';
+                               return  _promptConf(context, formStatus: formStatus);
+                            },
                         builder: (_, state) {
                           final bloc = VehicleBlocProvider.get();
                           final blocprovider =
@@ -294,25 +323,41 @@ class AppRouterConfig {
                   ),
                   GoRoute(
                     path: _getPath(AppRoute.loadingConfirmation),
-                    builder: (ctxt, state) => const LoadingCnfrmList(),
+                    builder: (ctxt, state) {
+                      final filters = Pair(
+                        StringUtils.docStatusVehicle('Reported'),
+                        null,
+                      );
+                      return BlocProvider(
+                        create:
+                            (context) => LoadingCnfmBlocProvider.get().fetchLoadingCnfmList()..fetchInitial(filters),
+                        child: const LoadingCnfrmList(),
+                      );
+                    },
                     routes: [
-                      // GoRoute(
-                      //   path: _getPath(AppRoute.newLoadingConfirmation),
-                      //       onExit: (context, state) async => await _promptConf(context),
-                      //       builder: (_, state) {
-                      //         final blocprovider = VisitorInOutBlocProvider.get();
-                      //         final form = state.extra;
-                      //         return MultiBlocProvider(
-                      //           providers: [
-                      //             BlocProvider(create: (_) => blocprovider.inviteVisitor()),
-                      //             BlocProvider(
-                      //               create: (_) => $sl.get<CreateVisitorInOutCubit>()..init(form),
-                      //             ),
-                      //           ],
-                      //           child: const NewVisitorInOut(),
-                      //         );
-                      //       },
-                      // )
+                      GoRoute(
+                        path: _getPath(AppRoute.newLoadingConfirmation),
+                            onExit: (context, state) async {
+                              final form = state.extra as LoadingCnfmForm?;
+                                final formStatus =
+                              form?.docstatus == 1 ? 'Submitted' : 'Reported';
+                               return  _promptConf(context, formStatus: formStatus);
+                            },
+                            builder: (_, state) {
+                              final blocprovider = LoadingCnfmBlocProvider.get();
+                              final form = state.extra;
+                              return MultiBlocProvider(
+                                providers: [
+                                  BlocProvider(create: (_) => blocprovider.fetchLoadingCnfmList()),
+                                  BlocProvider(create: (_)=> blocprovider.itemList()..request('')),
+                                  BlocProvider(
+                                    create: (_) => $sl.get<CreateLoadingCnfmCubit>()..initDetails(form),
+                                  ),
+                                ],
+                                child: const NewLoadingConfirmation(),
+                              );
+                            },
+                      )
                     ],
                   ),
                 ],
@@ -343,6 +388,7 @@ class AppRouterConfig {
   static Future<bool> _promptConf(
     BuildContext context, {
     required String formStatus,
+    
   }) async {
     final promptConf = shouldAskForConfirmation.value;
 

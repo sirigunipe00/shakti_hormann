@@ -26,72 +26,66 @@ class _GateEntryListScrnState extends State<GateEntryListScrn>
   @override
   void initState() {
     status = 'Draft';
+    context.read<GateEntryFilterCubit>().onChangeStatus('Draft');
+    context.read<GateEntryFilterCubit>().onSearch(null);
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _fetchInital(context, query, status!);
-    });
     return AppPageView2<GateEntryFilterCubit>(
       mode: PageMode2.gateentry,
 
       backgroundColor: AppColors.white,
-      onNew: () => AppRoute.newGateEntry.push(context),
+      onNew: () async {
+        final refresh = await AppRoute.newGateEntry.push<bool>(context);
+        if (refresh == true) {
+          _fetchInital(context);
+        }
+      },
       scaffoldBg: '',
       child: RefreshIndicator(
-        onRefresh:
-            () => context.cubit<GateEntriesCubit>().fetchInitial(
-              Pair(StringUtils.docStatusInt(status), query),
-            ),
+        onRefresh: () {
+          final filters = context.read<GateEntryFilterCubit>().state;
+
+          return context.cubit<GateEntriesCubit>().fetchInitial(
+            Pair(StringUtils.docStatusInt(filters.status), filters.query),
+          );
+        },
         child: BlocListener<GateEntryFilterCubit, PageViewFilters>(
-          listener:
-              (_, state) => _fetchInital(context, state.query, state.status),
+          listener: (_, state) => _fetchInital(context),
           child: InfiniteListViewWidget<GateEntriesCubit, GateEntryForm>(
             childBuilder:
                 (context, entry) => GateEntryWidget(
                   gateEntry: entry,
-                  onTap: () {
-                    AppRoute.newGateEntry.push<bool?>(context, extra: entry);
+                    onTap: () async {
+                    final refresh = await AppRoute.newGateEntry
+                        .push<bool?>(context, extra: entry);
+                    if (refresh == true) {
+                      _fetchInital(context);
+                    }
                   },
                 ),
-            fetchInitial: () {
-              query = null;
-              _fetchInital(context, query, status);
-            },
-            fetchMore: () => fetchMore(context, query, status),
+            fetchInitial: () => _fetchInital(context),
+            fetchMore: () => fetchMore(context),
             emptyListText: 'No GateEntries Found.',
           ),
         ),
       ),
-      onSearch: () async {
-        final selected = await showOptions(
-          context,
-          defaultValue: status,
-          pageMode: PageMode2.gateentry,
-        );
-        if (selected == null || !context.mounted) return;
-
-        setState(() {
-          status = selected;
-          query = null;
-        });
-
-        _fetchInital(context, query, status!);
-      },
     );
   }
 
-  void _fetchInital(BuildContext context, String? query, String? status) {
+  void _fetchInital(BuildContext context) {
+    final filters = context.read<GateEntryFilterCubit>().state;
     context.cubit<GateEntriesCubit>().fetchInitial(
-      Pair(StringUtils.docStatusInt(status), query),
+      Pair(StringUtils.docStatusInt(filters.status), filters.query),
     );
   }
 
-  void fetchMore(BuildContext context,String? query , String? status) {
+  void fetchMore(BuildContext context) {
+    final filters = context.read<GateEntryFilterCubit>().state;
     context.cubit<GateEntriesCubit>().fetchMore(
-      Pair(StringUtils.docStatusInt(status), query),
+      Pair(StringUtils.docStatusInt(filters.status), filters.query),
     );
   }
 }

@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:shakti_hormann/core/utils/typedefs.dart';
 
 part 'vehicle_reporting_form.freezed.dart';
 part 'vehicle_reporting_form.g.dart';
@@ -25,6 +28,13 @@ class VehicleReportingForm with _$VehicleReportingForm {
     @JsonKey(name: 'vehicle_number')  String? vehicleNumber,
     @JsonKey(name: 'driver_contact')  String? driverContact,
     @JsonKey(name: 'remarks')  String? remarks,
+    @JsonKey(name: 'reject_reason') String? rejectReason,
+      @JsonKey(
+        includeFromJson: true,
+        includeToJson: false,
+        toJson: toNull,
+        fromJson: toNull)
+    File? driverIdPhotoImg,
   }) = _VehicleReportingForm;
 
   factory VehicleReportingForm.fromJson(Map<String, dynamic> json) =>

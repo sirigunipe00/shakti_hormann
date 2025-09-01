@@ -24,7 +24,7 @@ TransportConfirmationForm _$TransportConfirmationFormFromJson(
 /// @nodoc
 mixin _$TransportConfirmationForm {
   @JsonKey(name: 'name')
-  String get name => throw _privateConstructorUsedError;
+  String? get name => throw _privateConstructorUsedError;
   @JsonKey(name: 'owner')
   String? get owner => throw _privateConstructorUsedError;
   @JsonKey(name: 'creation', defaultValue: '')
@@ -49,6 +49,18 @@ mixin _$TransportConfirmationForm {
   String? get preferredVehicleType => throw _privateConstructorUsedError;
   @JsonKey(name: 'delivery_address')
   String? get deliveryAddress => throw _privateConstructorUsedError;
+  @JsonKey(name: 'delivery_address_1')
+  String? get shippingAddress1 => throw _privateConstructorUsedError;
+  @JsonKey(name: 'delivery_address_2')
+  String? get shippingAddress2 => throw _privateConstructorUsedError;
+  @JsonKey(name: 'shipping_city')
+  String? get city => throw _privateConstructorUsedError;
+  @JsonKey(name: 'shipping_state')
+  String? get states => throw _privateConstructorUsedError;
+  @JsonKey(name: 'shipping_country')
+  String? get country => throw _privateConstructorUsedError;
+  @JsonKey(name: 'shipping_pin_code')
+  String? get pincode => throw _privateConstructorUsedError;
   @JsonKey(name: 'status')
   String? get status => throw _privateConstructorUsedError;
   @JsonKey(name: 'logistics_request_date', defaultValue: '')
@@ -92,7 +104,7 @@ abstract class $TransportConfirmationFormCopyWith<$Res> {
   ) = _$TransportConfirmationFormCopyWithImpl<$Res, TransportConfirmationForm>;
   @useResult
   $Res call({
-    @JsonKey(name: 'name') String name,
+    @JsonKey(name: 'name') String? name,
     @JsonKey(name: 'owner') String? owner,
     @JsonKey(name: 'creation', defaultValue: '') String? creation,
     @JsonKey(name: 'modified') String? modified,
@@ -105,6 +117,12 @@ abstract class $TransportConfirmationFormCopyWith<$Res> {
     @JsonKey(name: 'transporter_name') String? transporterName,
     @JsonKey(name: 'preferred_vehicle_type') String? preferredVehicleType,
     @JsonKey(name: 'delivery_address') String? deliveryAddress,
+    @JsonKey(name: 'delivery_address_1') String? shippingAddress1,
+    @JsonKey(name: 'delivery_address_2') String? shippingAddress2,
+    @JsonKey(name: 'shipping_city') String? city,
+    @JsonKey(name: 'shipping_state') String? states,
+    @JsonKey(name: 'shipping_country') String? country,
+    @JsonKey(name: 'shipping_pin_code') String? pincode,
     @JsonKey(name: 'status') String? status,
     @JsonKey(name: 'logistics_request_date', defaultValue: '')
     String? logisticsRequestDate,
@@ -141,7 +159,7 @@ class _$TransportConfirmationFormCopyWithImpl<
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? name = null,
+    Object? name = freezed,
     Object? owner = freezed,
     Object? creation = freezed,
     Object? modified = freezed,
@@ -154,6 +172,12 @@ class _$TransportConfirmationFormCopyWithImpl<
     Object? transporterName = freezed,
     Object? preferredVehicleType = freezed,
     Object? deliveryAddress = freezed,
+    Object? shippingAddress1 = freezed,
+    Object? shippingAddress2 = freezed,
+    Object? city = freezed,
+    Object? states = freezed,
+    Object? country = freezed,
+    Object? pincode = freezed,
     Object? status = freezed,
     Object? logisticsRequestDate = freezed,
     Object? requestedDeliveryDate = freezed,
@@ -170,10 +194,10 @@ class _$TransportConfirmationFormCopyWithImpl<
     return _then(
       _value.copyWith(
             name:
-                null == name
+                freezed == name
                     ? _value.name
                     : name // ignore: cast_nullable_to_non_nullable
-                        as String,
+                        as String?,
             owner:
                 freezed == owner
                     ? _value.owner
@@ -233,6 +257,36 @@ class _$TransportConfirmationFormCopyWithImpl<
                 freezed == deliveryAddress
                     ? _value.deliveryAddress
                     : deliveryAddress // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            shippingAddress1:
+                freezed == shippingAddress1
+                    ? _value.shippingAddress1
+                    : shippingAddress1 // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            shippingAddress2:
+                freezed == shippingAddress2
+                    ? _value.shippingAddress2
+                    : shippingAddress2 // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            city:
+                freezed == city
+                    ? _value.city
+                    : city // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            states:
+                freezed == states
+                    ? _value.states
+                    : states // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            country:
+                freezed == country
+                    ? _value.country
+                    : country // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            pincode:
+                freezed == pincode
+                    ? _value.pincode
+                    : pincode // ignore: cast_nullable_to_non_nullable
                         as String?,
             status:
                 freezed == status
@@ -310,7 +364,7 @@ abstract class _$$TransportConfirmationFormImplCopyWith<$Res>
   @override
   @useResult
   $Res call({
-    @JsonKey(name: 'name') String name,
+    @JsonKey(name: 'name') String? name,
     @JsonKey(name: 'owner') String? owner,
     @JsonKey(name: 'creation', defaultValue: '') String? creation,
     @JsonKey(name: 'modified') String? modified,
@@ -323,6 +377,12 @@ abstract class _$$TransportConfirmationFormImplCopyWith<$Res>
     @JsonKey(name: 'transporter_name') String? transporterName,
     @JsonKey(name: 'preferred_vehicle_type') String? preferredVehicleType,
     @JsonKey(name: 'delivery_address') String? deliveryAddress,
+    @JsonKey(name: 'delivery_address_1') String? shippingAddress1,
+    @JsonKey(name: 'delivery_address_2') String? shippingAddress2,
+    @JsonKey(name: 'shipping_city') String? city,
+    @JsonKey(name: 'shipping_state') String? states,
+    @JsonKey(name: 'shipping_country') String? country,
+    @JsonKey(name: 'shipping_pin_code') String? pincode,
     @JsonKey(name: 'status') String? status,
     @JsonKey(name: 'logistics_request_date', defaultValue: '')
     String? logisticsRequestDate,
@@ -359,7 +419,7 @@ class __$$TransportConfirmationFormImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? name = null,
+    Object? name = freezed,
     Object? owner = freezed,
     Object? creation = freezed,
     Object? modified = freezed,
@@ -372,6 +432,12 @@ class __$$TransportConfirmationFormImplCopyWithImpl<$Res>
     Object? transporterName = freezed,
     Object? preferredVehicleType = freezed,
     Object? deliveryAddress = freezed,
+    Object? shippingAddress1 = freezed,
+    Object? shippingAddress2 = freezed,
+    Object? city = freezed,
+    Object? states = freezed,
+    Object? country = freezed,
+    Object? pincode = freezed,
     Object? status = freezed,
     Object? logisticsRequestDate = freezed,
     Object? requestedDeliveryDate = freezed,
@@ -388,10 +454,10 @@ class __$$TransportConfirmationFormImplCopyWithImpl<$Res>
     return _then(
       _$TransportConfirmationFormImpl(
         name:
-            null == name
+            freezed == name
                 ? _value.name
                 : name // ignore: cast_nullable_to_non_nullable
-                    as String,
+                    as String?,
         owner:
             freezed == owner
                 ? _value.owner
@@ -451,6 +517,36 @@ class __$$TransportConfirmationFormImplCopyWithImpl<$Res>
             freezed == deliveryAddress
                 ? _value.deliveryAddress
                 : deliveryAddress // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        shippingAddress1:
+            freezed == shippingAddress1
+                ? _value.shippingAddress1
+                : shippingAddress1 // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        shippingAddress2:
+            freezed == shippingAddress2
+                ? _value.shippingAddress2
+                : shippingAddress2 // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        city:
+            freezed == city
+                ? _value.city
+                : city // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        states:
+            freezed == states
+                ? _value.states
+                : states // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        country:
+            freezed == country
+                ? _value.country
+                : country // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        pincode:
+            freezed == pincode
+                ? _value.pincode
+                : pincode // ignore: cast_nullable_to_non_nullable
                     as String?,
         status:
             freezed == status
@@ -521,7 +617,7 @@ class __$$TransportConfirmationFormImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$TransportConfirmationFormImpl implements _TransportConfirmationForm {
   const _$TransportConfirmationFormImpl({
-    @JsonKey(name: 'name') required this.name,
+    @JsonKey(name: 'name') this.name,
     @JsonKey(name: 'owner') this.owner,
     @JsonKey(name: 'creation', defaultValue: '') this.creation,
     @JsonKey(name: 'modified') this.modified,
@@ -534,6 +630,12 @@ class _$TransportConfirmationFormImpl implements _TransportConfirmationForm {
     @JsonKey(name: 'transporter_name') this.transporterName,
     @JsonKey(name: 'preferred_vehicle_type') this.preferredVehicleType,
     @JsonKey(name: 'delivery_address') this.deliveryAddress,
+    @JsonKey(name: 'delivery_address_1') this.shippingAddress1,
+    @JsonKey(name: 'delivery_address_2') this.shippingAddress2,
+    @JsonKey(name: 'shipping_city') this.city,
+    @JsonKey(name: 'shipping_state') this.states,
+    @JsonKey(name: 'shipping_country') this.country,
+    @JsonKey(name: 'shipping_pin_code') this.pincode,
     @JsonKey(name: 'status') this.status,
     @JsonKey(name: 'logistics_request_date', defaultValue: '')
     this.logisticsRequestDate,
@@ -556,7 +658,7 @@ class _$TransportConfirmationFormImpl implements _TransportConfirmationForm {
 
   @override
   @JsonKey(name: 'name')
-  final String name;
+  final String? name;
   @override
   @JsonKey(name: 'owner')
   final String? owner;
@@ -593,6 +695,24 @@ class _$TransportConfirmationFormImpl implements _TransportConfirmationForm {
   @override
   @JsonKey(name: 'delivery_address')
   final String? deliveryAddress;
+  @override
+  @JsonKey(name: 'delivery_address_1')
+  final String? shippingAddress1;
+  @override
+  @JsonKey(name: 'delivery_address_2')
+  final String? shippingAddress2;
+  @override
+  @JsonKey(name: 'shipping_city')
+  final String? city;
+  @override
+  @JsonKey(name: 'shipping_state')
+  final String? states;
+  @override
+  @JsonKey(name: 'shipping_country')
+  final String? country;
+  @override
+  @JsonKey(name: 'shipping_pin_code')
+  final String? pincode;
   @override
   @JsonKey(name: 'status')
   final String? status;
@@ -632,7 +752,7 @@ class _$TransportConfirmationFormImpl implements _TransportConfirmationForm {
 
   @override
   String toString() {
-    return 'TransportConfirmationForm(name: $name, owner: $owner, creation: $creation, modified: $modified, modifiedBy: $modifiedBy, docstatus: $docstatus, idx: $idx, amendedFrom: $amendedFrom, plantName: $plantName, salesOrder: $salesOrder, transporterName: $transporterName, preferredVehicleType: $preferredVehicleType, deliveryAddress: $deliveryAddress, status: $status, logisticsRequestDate: $logisticsRequestDate, requestedDeliveryDate: $requestedDeliveryDate, requestedDeliveryTime: $requestedDeliveryTime, anySpecialInstructions: $anySpecialInstructions, transporterConfirmationDate: $transporterConfirmationDate, driverName: $driverName, estimatedArrival: $estimatedArrival, transporterRemarks: $transporterRemarks, vehicleNumber: $vehicleNumber, driverContact: $driverContact, rejectReason: $rejectReason)';
+    return 'TransportConfirmationForm(name: $name, owner: $owner, creation: $creation, modified: $modified, modifiedBy: $modifiedBy, docstatus: $docstatus, idx: $idx, amendedFrom: $amendedFrom, plantName: $plantName, salesOrder: $salesOrder, transporterName: $transporterName, preferredVehicleType: $preferredVehicleType, deliveryAddress: $deliveryAddress, shippingAddress1: $shippingAddress1, shippingAddress2: $shippingAddress2, city: $city, states: $states, country: $country, pincode: $pincode, status: $status, logisticsRequestDate: $logisticsRequestDate, requestedDeliveryDate: $requestedDeliveryDate, requestedDeliveryTime: $requestedDeliveryTime, anySpecialInstructions: $anySpecialInstructions, transporterConfirmationDate: $transporterConfirmationDate, driverName: $driverName, estimatedArrival: $estimatedArrival, transporterRemarks: $transporterRemarks, vehicleNumber: $vehicleNumber, driverContact: $driverContact, rejectReason: $rejectReason)';
   }
 
   @override
@@ -663,6 +783,14 @@ class _$TransportConfirmationFormImpl implements _TransportConfirmationForm {
                 other.preferredVehicleType == preferredVehicleType) &&
             (identical(other.deliveryAddress, deliveryAddress) ||
                 other.deliveryAddress == deliveryAddress) &&
+            (identical(other.shippingAddress1, shippingAddress1) ||
+                other.shippingAddress1 == shippingAddress1) &&
+            (identical(other.shippingAddress2, shippingAddress2) ||
+                other.shippingAddress2 == shippingAddress2) &&
+            (identical(other.city, city) || other.city == city) &&
+            (identical(other.states, states) || other.states == states) &&
+            (identical(other.country, country) || other.country == country) &&
+            (identical(other.pincode, pincode) || other.pincode == pincode) &&
             (identical(other.status, status) || other.status == status) &&
             (identical(other.logisticsRequestDate, logisticsRequestDate) ||
                 other.logisticsRequestDate == logisticsRequestDate) &&
@@ -709,6 +837,12 @@ class _$TransportConfirmationFormImpl implements _TransportConfirmationForm {
     transporterName,
     preferredVehicleType,
     deliveryAddress,
+    shippingAddress1,
+    shippingAddress2,
+    city,
+    states,
+    country,
+    pincode,
     status,
     logisticsRequestDate,
     requestedDeliveryDate,
@@ -741,7 +875,7 @@ class _$TransportConfirmationFormImpl implements _TransportConfirmationForm {
 
 abstract class _TransportConfirmationForm implements TransportConfirmationForm {
   const factory _TransportConfirmationForm({
-    @JsonKey(name: 'name') required final String name,
+    @JsonKey(name: 'name') final String? name,
     @JsonKey(name: 'owner') final String? owner,
     @JsonKey(name: 'creation', defaultValue: '') final String? creation,
     @JsonKey(name: 'modified') final String? modified,
@@ -754,6 +888,12 @@ abstract class _TransportConfirmationForm implements TransportConfirmationForm {
     @JsonKey(name: 'transporter_name') final String? transporterName,
     @JsonKey(name: 'preferred_vehicle_type') final String? preferredVehicleType,
     @JsonKey(name: 'delivery_address') final String? deliveryAddress,
+    @JsonKey(name: 'delivery_address_1') final String? shippingAddress1,
+    @JsonKey(name: 'delivery_address_2') final String? shippingAddress2,
+    @JsonKey(name: 'shipping_city') final String? city,
+    @JsonKey(name: 'shipping_state') final String? states,
+    @JsonKey(name: 'shipping_country') final String? country,
+    @JsonKey(name: 'shipping_pin_code') final String? pincode,
     @JsonKey(name: 'status') final String? status,
     @JsonKey(name: 'logistics_request_date', defaultValue: '')
     final String? logisticsRequestDate,
@@ -778,7 +918,7 @@ abstract class _TransportConfirmationForm implements TransportConfirmationForm {
 
   @override
   @JsonKey(name: 'name')
-  String get name;
+  String? get name;
   @override
   @JsonKey(name: 'owner')
   String? get owner;
@@ -815,6 +955,24 @@ abstract class _TransportConfirmationForm implements TransportConfirmationForm {
   @override
   @JsonKey(name: 'delivery_address')
   String? get deliveryAddress;
+  @override
+  @JsonKey(name: 'delivery_address_1')
+  String? get shippingAddress1;
+  @override
+  @JsonKey(name: 'delivery_address_2')
+  String? get shippingAddress2;
+  @override
+  @JsonKey(name: 'shipping_city')
+  String? get city;
+  @override
+  @JsonKey(name: 'shipping_state')
+  String? get states;
+  @override
+  @JsonKey(name: 'shipping_country')
+  String? get country;
+  @override
+  @JsonKey(name: 'shipping_pin_code')
+  String? get pincode;
   @override
   @JsonKey(name: 'status')
   String? get status;

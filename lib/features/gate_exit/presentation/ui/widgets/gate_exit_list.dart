@@ -26,61 +26,64 @@ class _GateExitListScrnState extends State<GateExitListScrn>
   @override
   void initState() {
     status = 'Draft';
+    context.read<GateExitFilterCubit>().onChangeStatus('Draft');
+    context.read<GateExitFilterCubit>().onSearch(null);
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _fetchInital(context);
+    });
     return AppPageView2<GateExitFilterCubit>(
       mode: PageMode2.gateexit,
 
       backgroundColor: AppColors.white,
-      onNew: () => AppRoute.newGateExit.push(context),
+      onNew: () async {
+        final refresh = await AppRoute.newGateExit.push<bool?>(context);
+        if (refresh == true) {
+          _fetchInital(context);
+        }
+      },
 
       scaffoldBg: '',
       child: RefreshIndicator(
         onRefresh:
-            () => context.cubit<GateExitCubit>().fetchInitial(
-              Pair(StringUtils.docStatusInt(status), query),
-            ),
+            () {
+              final filters = context.read<GateExitFilterCubit>().state;
+              return context.cubit<GateExitCubit>().fetchInitial(
+              Pair(StringUtils.docStatusInt(filters.status), filters.query),
+            );
+            },
         child: BlocListener<GateExitFilterCubit, PageViewFilters>(
-          listener:
-              (_, state) => _fetchInital(context, state.query, state.status),
+          listener: (_, state) => _fetchInital(context),
           child: InfiniteListViewWidget<GateExitCubit, GateExitForm>(
             childBuilder:
                 (context, entry) => GateExitWidget(
                   gateExit: entry,
-                  onTap: () {
-                    AppRoute.newGateExit.push<bool?>(context, extra: entry);
+                    onTap: () async {
+                    final refresh = await AppRoute.newGateExit
+                        .push<bool?>(context, extra: entry);
+                    if (refresh == true) {
+                      _fetchInital(context);
+                    }
                   },
                 ),
-            fetchInitial: () => _fetchInital(context, query, status),
+            fetchInitial: () => _fetchInital(context),
             fetchMore: () => fetchMore(context),
             emptyListText: 'No GateExists Found.',
           ),
         ),
       ),
-      onSearch: () async {
-        final selected = await showOptions(
-          context,
-          defaultValue: status,
-          pageMode: PageMode2.gateexit,
-        );
-        if (selected == null || !context.mounted) return;
-
-        setState(() {
-          status = selected;
-          query = null;
-          context.cubit<GateExitFilterCubit>().onChangeStatus(status ?? '');
-        });
-        _fetchInital(context, query, status!);
-      },
     );
   }
 
-  void _fetchInital(BuildContext context, String? query, String? status) {
+  void _fetchInital(BuildContext context) {
+    final filters = context.read<GateExitFilterCubit>().state;
+
     context.cubit<GateExitCubit>().fetchInitial(
-      Pair(StringUtils.docStatusInt(status), query),
+      Pair(StringUtils.docStatusInt(filters.status), filters.query),
     );
   }
 

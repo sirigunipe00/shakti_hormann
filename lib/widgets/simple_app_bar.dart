@@ -11,6 +11,8 @@ class SimpleAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.onPressed,
     this.textStyle,
     required this.actionButton,
+    this.onScan,
+    this.showScanner = false, // new flag
   });
 
   final String title;
@@ -19,6 +21,9 @@ class SimpleAppBar extends StatelessWidget implements PreferredSizeWidget {
   final bool isLoading;
   final TextStyle? textStyle;
   final Widget? actionButton;
+  final VoidCallback? onScan;
+  final bool showScanner; // new property
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -37,8 +42,8 @@ class SimpleAppBar extends StatelessWidget implements PreferredSizeWidget {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-
           children: [
+            // Title Row
             Row(
               children: [
                 Container(
@@ -76,7 +81,38 @@ class SimpleAppBar extends StatelessWidget implements PreferredSizeWidget {
                 ],
               ],
             ),
-            if (dropdown != null) ...[const SizedBox(height: 12), dropdown!],
+            // Dropdown Row with Scan Icon (conditionally)
+            if (dropdown != null) ...[
+              const SizedBox(height: 12),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Expanded(child: dropdown!),
+                  if (showScanner) ...[   // Only show scanner if true
+                    const SizedBox(width: 8),
+                    GestureDetector(
+                      onTap: onScan,
+                      child: Center(
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 20),
+                          child: Container(
+                            height: 55,
+                            width: 50,
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: const Icon(Icons.qr_code_scanner,
+                                color: AppColors.darkBlue),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ],
           ],
         ),
       ),
@@ -86,3 +122,4 @@ class SimpleAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Size get preferredSize => const Size.fromHeight(250);
 }
+

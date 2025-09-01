@@ -59,6 +59,14 @@ class _SearchDropDownListState<T> extends State<SearchDropDownList<T>> {
 
   @override
   Widget build(BuildContext context) {
+    final isReadOnlyMode = widget.readOnly;
+
+    final backgroundColor =
+        isReadOnlyMode ? AppColors.grey.withValues(alpha:0.20) : Colors.white;
+
+    final borderColor =
+        isReadOnlyMode ? Colors.grey.withValues(alpha:0.3) : AppColors.grey.withValues(alpha:0.30);
+
     return Focus(
       focusNode: widget.focusNode,
       child: Column(
@@ -67,7 +75,6 @@ class _SearchDropDownListState<T> extends State<SearchDropDownList<T>> {
           if (widget.title?.isNotEmpty == true) ...[
             CaptionText(
               title: widget.title ?? '',
-
               color: widget.color,
               isRequired: widget.isMandatory,
             ),
@@ -81,12 +88,12 @@ class _SearchDropDownListState<T> extends State<SearchDropDownList<T>> {
               closedHeaderPadding: const EdgeInsets.all(16.0),
               expandedHeaderPadding: const EdgeInsets.all(16.0),
               decoration: CustomDropdownDecoration(
-                closedFillColor: Colors.grey.shade100,
-                expandedFillColor: Colors.grey.shade100,
-                // closedBorder: InputBorder.none,
-                // expandedBorder: InputBorder.none,
+                closedFillColor: backgroundColor,
+                expandedFillColor: backgroundColor,
                 closedBorderRadius: BorderRadius.circular(8.0),
                 expandedBorderRadius: BorderRadius.circular(8.0),
+                closedBorder: Border.all(color: borderColor, width: 1),
+                expandedBorder: Border.all(color: borderColor, width: 1),
                 hintStyle: context.textTheme.titleMedium?.copyWith(
                   color: AppColors.black,
                   fontWeight: FontWeight.w600,
@@ -97,7 +104,6 @@ class _SearchDropDownListState<T> extends State<SearchDropDownList<T>> {
               hintBuilder: widget.hintBuilder,
               futureRequest: widget.futureRequest,
               hintText: widget.hint,
-              
               items: widget.items,
               headerBuilder: widget.headerBuilder,
               listItemBuilder: widget.listItemBuilder,

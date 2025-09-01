@@ -1,6 +1,8 @@
 import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/material.dart';
 import 'package:shakti_hormann/core/utils/date_format_util.dart';
+import 'package:shakti_hormann/core/utils/string_utils.dart';
+import 'package:shakti_hormann/doc_status_widget.dart';
 import 'package:shakti_hormann/features/vehicle_reporting/model/vehicle_reporting_form.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/styles/app_text_styles.dart';
@@ -122,11 +124,10 @@ class VehicleRequestWidget extends StatelessWidget {
                           ),
                           Row(
                             children: [
-                              const Icon(
-                                Icons.alarm_add,
-                                size: 14,
-                                color: Color(0xFF53A5DF),
-                              ),
+                             Image.asset(
+                            'assets/images/timeicon.png'
+                   ,
+                           ),
                               Text(
                                 DFU.timeFromStr(vehicleReporting.creation ?? ''),
                                 style: AppTextStyles.titleMedium(
@@ -144,7 +145,7 @@ class VehicleRequestWidget extends StatelessWidget {
               ],
             ),
             const Padding(
-              padding: EdgeInsets.symmetric(vertical: 8.0),
+              padding: EdgeInsets.symmetric(vertical: 4.0),
               child: DottedLine(
                 direction: Axis.horizontal,
                 lineLength: double.infinity,
@@ -176,6 +177,9 @@ class VehicleRequestWidget extends StatelessWidget {
                     fontSize: 12,
                   ),
                 ),
+              // DocStatusWidget(
+              //     status: StringUtils.docStatus(vehicleReporting.docstatus ?? 0),
+              //   ),
               ],
             ),
           ],
@@ -190,9 +194,9 @@ Color _getStatusColor(String? status) {
       return Colors.green;
     case 'rejected':
       return Colors.red;
-    case 'cancelled':
-      return Colors.orange;
-    default:
+     case 'cancelled':
+      return Colors.red;
+     default:
       return Colors.black;
   }
 }

@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 import 'package:intl/intl.dart';
 import 'package:shakti_hormann/core/core.dart';
@@ -10,13 +9,14 @@ import 'package:shakti_hormann/features/vehicle_reporting/model/vehicle_reportin
 
 part 'create_vehicle_cubit.freezed.dart';
 
-enum VehicleView { create, edit, completed }
+enum VehicleView { create, edit, completed, reject }
 
 extension ActionType on VehicleView {
   String toName() {
     return switch (this) {
       VehicleView.create => 'Create',
       VehicleView.edit => 'Submit',
+      VehicleView.reject => 'Reject',
       VehicleView.completed => 'Submitted',
     };
   }
@@ -47,16 +47,15 @@ class CreateVehicleCubit extends AppBaseCubit<CreateVehicleState> {
     String? vehicleNo,
     String? driverContact,
     String? remarks,
+    String? rejectReason,
   }) {
     shouldAskForConfirmation.value = true;
     final today = DateFormat('yyyy-MM-dd').format(DateTime.now());
     final form = state.form;
 
     name ??= name == null ? form.name : null;
-    final driverID =
-        driverIdPhoto.isNull
-            ? form.driverIdPhoto
-            : base64Encode(driverIdPhoto!.readAsBytesSync());
+    final driverIdPhotos = driverIdPhoto ?? form.driverIdPhotoImg;
+
 
     final newForm = form.copyWith(
       plantName: plantName ?? form.plantName,
@@ -77,8 +76,8 @@ class CreateVehicleCubit extends AppBaseCubit<CreateVehicleState> {
       driverContact: driverContact ?? form.driverContact,
       vehicleNumber: vehicleNo ?? form.vehicleNumber,
       remarks: remarks ?? form.remarks,
-      driverIdPhoto: driverID,
-      
+      driverIdPhotoImg: driverIdPhotos,
+      rejectReason: rejectReason ?? form.rejectReason,
     );
     emitSafeState(state.copyWith(form: newForm));
   }
@@ -103,6 +102,7 @@ class CreateVehicleCubit extends AppBaseCubit<CreateVehicleState> {
         remarks: entry.remarks,
         status: entry.status,
         plantName: entry.plantName,
+        loadedByUser: entry.loadedByUser,
         vehicleNumber: entry.vehicleNumber,
         arrivalDateAndTime: entry.arrivalDateAndTime,
         driverContact: entry.driverContact,
@@ -110,7 +110,7 @@ class CreateVehicleCubit extends AppBaseCubit<CreateVehicleState> {
         vehicleReportingEntryVreDate: entry.vehicleReportingEntryVreDate,
         linkedTransporterConfirmation: entry.linkedTransporterConfirmation,
         transporterName: entry.transporterName,
-    
+        rejectReason:  entry.rejectReason,
       );
       final mode =
           (isSubmitted || isCancelled)
@@ -132,12 +132,16 @@ class CreateVehicleCubit extends AppBaseCubit<CreateVehicleState> {
       emitSafeState(state.copyWith(isLoading: true, isSuccess: false));
       final nextMode = switch (state.view) {
         VehicleView.create => VehicleView.edit,
-        VehicleView.edit || VehicleView.completed => VehicleView.completed,
+        VehicleView.edit => VehicleView.completed,
+        VehicleView.completed => VehicleView.completed,
+        VehicleView.reject => VehicleView.reject, 
       };
 
       final status = switch (state.view) {
         VehicleView.create => 'Draft',
-        VehicleView.edit || VehicleView.completed => 'Submitted',
+        VehicleView.edit => 'Submitted',
+        VehicleView.completed => 'Submitted',
+        VehicleView.reject => 'Rejected',
       };
 
       if (state.view == VehicleView.create) {
@@ -182,6 +186,63 @@ class CreateVehicleCubit extends AppBaseCubit<CreateVehicleState> {
     }, _emitError);
   }
 
+  void approve() async {
+    final validation = _validate();
+    return validation.fold(() async {
+      emitSafeState(state.copyWith(isLoading: true, isSuccess: false));
+
+      final formToSend = state.form;
+
+      final response = await repo.submitVehicleReporting(formToSend);
+      return response.fold(
+        (l) => emitSafeState(state.copyWith(isLoading: false, error: l)),
+        (r) {
+          shouldAskForConfirmation.value = false;
+          emitSafeState(
+            state.copyWith(
+              isLoading: false,
+              isSuccess: true,
+              form: formToSend.copyWith(name: r.second),
+              successMsg: r.first,
+              view: VehicleView.completed,
+            ),
+          );
+        },
+      );
+    }, _emitError);
+  }
+
+  void reject(String reason) async {
+    emitSafeState(state.copyWith(isLoading: true, isSuccess: false));
+
+    // Update form with reject reason
+    final updatedForm = state.form.copyWith(rejectReason: reason);
+
+    if (reason.isEmpty) {
+      _emitError(const Pair('Please enter reject reason', 0));
+      return;
+    }
+
+    final response = await repo.rejectVehicleReporting(updatedForm);
+
+    response.fold(
+      (l) => emitSafeState(state.copyWith(isLoading: false, error: l)),
+      (r) {
+        shouldAskForConfirmation.value = false;
+        emitSafeState(
+          state.copyWith(
+            isLoading: false,
+            isSuccess: true,
+            form: updatedForm.copyWith(docstatus: 1),
+            successMsg: r.first,
+            view: VehicleView.reject,
+          ),
+        );
+      },
+    );
+  }
+  
+
   void _emitError(Pair<String, int?> error) {
     final failure = Failure(
       error: error.first,
@@ -204,15 +265,9 @@ class CreateVehicleCubit extends AppBaseCubit<CreateVehicleState> {
 
   Option<Pair<String, int?>> _validate() {
     final form = state.form;
-    if (form.plantName.doesNotHaveValue) {
-      return optionOf(const Pair('Plant Name Missing', 0));
-    } else if (form.vehicleNumber.doesNotHaveValue) {
-      return optionOf(const Pair('Enter Vehicle Number', 0));
-    } else if (form.driverIdPhoto.isNull) {
-      return optionOf(const Pair('Driver Id is Required ', 0));
-    }else if (form.driverContact.doesNotHaveValue || form.driverContact!.length != 10) {
-    return optionOf(const Pair('Please re-enter a valid 10-digit driver contact number', 0));
-  }
+    if (form.linkedTransporterConfirmation.doesNotHaveValue) {
+      return optionOf(const Pair('Select Logistic Request No', 0));
+    }
 
     return const None();
   }
@@ -231,7 +286,6 @@ class CreateVehicleState with _$CreateVehicleState {
 
   factory CreateVehicleState.initial() {
     final creationDate = DFU.friendlyFormat(DFU.now());
-    
 
     return CreateVehicleState(
       form: VehicleReportingForm(creation: creationDate),

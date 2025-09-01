@@ -52,6 +52,20 @@ mixin _$GateExitForm {
   String? get remarks => throw _privateConstructorUsedError;
   @JsonKey(name: 'amended_from')
   String? get amendedFrom => throw _privateConstructorUsedError;
+  @JsonKey(
+    includeFromJson: true,
+    includeToJson: false,
+    toJson: toNull,
+    fromJson: toNull,
+  )
+  File? get vehiclePhotoImg => throw _privateConstructorUsedError;
+  @JsonKey(
+    includeFromJson: true,
+    includeToJson: false,
+    toJson: toNull,
+    fromJson: toNull,
+  )
+  File? get vehicleBackPhotoImg => throw _privateConstructorUsedError;
 
   /// Serializes this GateExitForm to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -87,6 +101,20 @@ abstract class $GateExitFormCopyWith<$Res> {
     @JsonKey(name: 'vehicle_back_photo') String? vehicleBackPhoto,
     @JsonKey(name: 'remarks') String? remarks,
     @JsonKey(name: 'amended_from') String? amendedFrom,
+    @JsonKey(
+      includeFromJson: true,
+      includeToJson: false,
+      toJson: toNull,
+      fromJson: toNull,
+    )
+    File? vehiclePhotoImg,
+    @JsonKey(
+      includeFromJson: true,
+      includeToJson: false,
+      toJson: toNull,
+      fromJson: toNull,
+    )
+    File? vehicleBackPhotoImg,
   });
 }
 
@@ -121,6 +149,8 @@ class _$GateExitFormCopyWithImpl<$Res, $Val extends GateExitForm>
     Object? vehicleBackPhoto = freezed,
     Object? remarks = freezed,
     Object? amendedFrom = freezed,
+    Object? vehiclePhotoImg = freezed,
+    Object? vehicleBackPhotoImg = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -204,6 +234,16 @@ class _$GateExitFormCopyWithImpl<$Res, $Val extends GateExitForm>
                     ? _value.amendedFrom
                     : amendedFrom // ignore: cast_nullable_to_non_nullable
                         as String?,
+            vehiclePhotoImg:
+                freezed == vehiclePhotoImg
+                    ? _value.vehiclePhotoImg
+                    : vehiclePhotoImg // ignore: cast_nullable_to_non_nullable
+                        as File?,
+            vehicleBackPhotoImg:
+                freezed == vehicleBackPhotoImg
+                    ? _value.vehicleBackPhotoImg
+                    : vehicleBackPhotoImg // ignore: cast_nullable_to_non_nullable
+                        as File?,
           )
           as $Val,
     );
@@ -236,6 +276,20 @@ abstract class _$$GateExitFormImplCopyWith<$Res>
     @JsonKey(name: 'vehicle_back_photo') String? vehicleBackPhoto,
     @JsonKey(name: 'remarks') String? remarks,
     @JsonKey(name: 'amended_from') String? amendedFrom,
+    @JsonKey(
+      includeFromJson: true,
+      includeToJson: false,
+      toJson: toNull,
+      fromJson: toNull,
+    )
+    File? vehiclePhotoImg,
+    @JsonKey(
+      includeFromJson: true,
+      includeToJson: false,
+      toJson: toNull,
+      fromJson: toNull,
+    )
+    File? vehicleBackPhotoImg,
   });
 }
 
@@ -269,6 +323,8 @@ class __$$GateExitFormImplCopyWithImpl<$Res>
     Object? vehicleBackPhoto = freezed,
     Object? remarks = freezed,
     Object? amendedFrom = freezed,
+    Object? vehiclePhotoImg = freezed,
+    Object? vehicleBackPhotoImg = freezed,
   }) {
     return _then(
       _$GateExitFormImpl(
@@ -352,6 +408,16 @@ class __$$GateExitFormImplCopyWithImpl<$Res>
                 ? _value.amendedFrom
                 : amendedFrom // ignore: cast_nullable_to_non_nullable
                     as String?,
+        vehiclePhotoImg:
+            freezed == vehiclePhotoImg
+                ? _value.vehiclePhotoImg
+                : vehiclePhotoImg // ignore: cast_nullable_to_non_nullable
+                    as File?,
+        vehicleBackPhotoImg:
+            freezed == vehicleBackPhotoImg
+                ? _value.vehicleBackPhotoImg
+                : vehicleBackPhotoImg // ignore: cast_nullable_to_non_nullable
+                    as File?,
       ),
     );
   }
@@ -377,6 +443,20 @@ class _$GateExitFormImpl implements _GateExitForm {
     @JsonKey(name: 'vehicle_back_photo') this.vehicleBackPhoto,
     @JsonKey(name: 'remarks') this.remarks,
     @JsonKey(name: 'amended_from') this.amendedFrom,
+    @JsonKey(
+      includeFromJson: true,
+      includeToJson: false,
+      toJson: toNull,
+      fromJson: toNull,
+    )
+    this.vehiclePhotoImg,
+    @JsonKey(
+      includeFromJson: true,
+      includeToJson: false,
+      toJson: toNull,
+      fromJson: toNull,
+    )
+    this.vehicleBackPhotoImg,
   });
 
   factory _$GateExitFormImpl.fromJson(Map<String, dynamic> json) =>
@@ -429,10 +509,26 @@ class _$GateExitFormImpl implements _GateExitForm {
   @override
   @JsonKey(name: 'amended_from')
   final String? amendedFrom;
+  @override
+  @JsonKey(
+    includeFromJson: true,
+    includeToJson: false,
+    toJson: toNull,
+    fromJson: toNull,
+  )
+  final File? vehiclePhotoImg;
+  @override
+  @JsonKey(
+    includeFromJson: true,
+    includeToJson: false,
+    toJson: toNull,
+    fromJson: toNull,
+  )
+  final File? vehicleBackPhotoImg;
 
   @override
   String toString() {
-    return 'GateExitForm(status: $status, name: $name, owner: $owner, creationDate: $creationDate, docStatus: $docStatus, modifiedDate: $modifiedDate, modifiedBy: $modifiedBy, idx: $idx, plantName: $plantName, salesInvoice: $salesInvoice, vehicleNo: $vehicleNo, vehiclePhoto: $vehiclePhoto, gateEntryDate: $gateEntryDate, vehicleBackPhoto: $vehicleBackPhoto, remarks: $remarks, amendedFrom: $amendedFrom)';
+    return 'GateExitForm(status: $status, name: $name, owner: $owner, creationDate: $creationDate, docStatus: $docStatus, modifiedDate: $modifiedDate, modifiedBy: $modifiedBy, idx: $idx, plantName: $plantName, salesInvoice: $salesInvoice, vehicleNo: $vehicleNo, vehiclePhoto: $vehiclePhoto, gateEntryDate: $gateEntryDate, vehicleBackPhoto: $vehicleBackPhoto, remarks: $remarks, amendedFrom: $amendedFrom, vehiclePhotoImg: $vehiclePhotoImg, vehicleBackPhotoImg: $vehicleBackPhotoImg)';
   }
 
   @override
@@ -466,7 +562,11 @@ class _$GateExitFormImpl implements _GateExitForm {
                 other.vehicleBackPhoto == vehicleBackPhoto) &&
             (identical(other.remarks, remarks) || other.remarks == remarks) &&
             (identical(other.amendedFrom, amendedFrom) ||
-                other.amendedFrom == amendedFrom));
+                other.amendedFrom == amendedFrom) &&
+            (identical(other.vehiclePhotoImg, vehiclePhotoImg) ||
+                other.vehiclePhotoImg == vehiclePhotoImg) &&
+            (identical(other.vehicleBackPhotoImg, vehicleBackPhotoImg) ||
+                other.vehicleBackPhotoImg == vehicleBackPhotoImg));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -489,6 +589,8 @@ class _$GateExitFormImpl implements _GateExitForm {
     vehicleBackPhoto,
     remarks,
     amendedFrom,
+    vehiclePhotoImg,
+    vehicleBackPhotoImg,
   );
 
   /// Create a copy of GateExitForm
@@ -523,6 +625,20 @@ abstract class _GateExitForm implements GateExitForm {
     @JsonKey(name: 'vehicle_back_photo') final String? vehicleBackPhoto,
     @JsonKey(name: 'remarks') final String? remarks,
     @JsonKey(name: 'amended_from') final String? amendedFrom,
+    @JsonKey(
+      includeFromJson: true,
+      includeToJson: false,
+      toJson: toNull,
+      fromJson: toNull,
+    )
+    final File? vehiclePhotoImg,
+    @JsonKey(
+      includeFromJson: true,
+      includeToJson: false,
+      toJson: toNull,
+      fromJson: toNull,
+    )
+    final File? vehicleBackPhotoImg,
   }) = _$GateExitFormImpl;
 
   factory _GateExitForm.fromJson(Map<String, dynamic> json) =
@@ -575,6 +691,22 @@ abstract class _GateExitForm implements GateExitForm {
   @override
   @JsonKey(name: 'amended_from')
   String? get amendedFrom;
+  @override
+  @JsonKey(
+    includeFromJson: true,
+    includeToJson: false,
+    toJson: toNull,
+    fromJson: toNull,
+  )
+  File? get vehiclePhotoImg;
+  @override
+  @JsonKey(
+    includeFromJson: true,
+    includeToJson: false,
+    toJson: toNull,
+    fromJson: toNull,
+  )
+  File? get vehicleBackPhotoImg;
 
   /// Create a copy of GateExitForm
   /// with the given fields replaced by the non-null parameter values.

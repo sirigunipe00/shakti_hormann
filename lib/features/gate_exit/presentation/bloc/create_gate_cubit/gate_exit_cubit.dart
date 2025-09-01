@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 import 'package:intl/intl.dart';
 import 'package:shakti_hormann/core/core.dart';
@@ -47,12 +46,9 @@ class CreateGateExitCubit extends AppBaseCubit<CreateGateExitState> {
     shouldAskForConfirmation.value = true;
     final today = DateFormat('yyyy-MM-dd').format(DateTime.now());
     final form = state.form;
-     final vehPhoto = vehiclePhoto.isNull
-        ? form.vehiclePhoto
-        : base64Encode(vehiclePhoto!.readAsBytesSync());
-    final vehBackPhoto = vehicleBackPhoto.isNull
-        ? form.vehicleBackPhoto
-        : base64Encode(vehicleBackPhoto!.readAsBytesSync());
+    final vehiclePhotos = vehiclePhoto ?? form.vehiclePhotoImg;
+
+    final vehiclebackPhotos = vehicleBackPhoto ?? form.vehicleBackPhotoImg;
 
     final newForm = form.copyWith(
       plantName: plantName ?? form.plantName,
@@ -69,9 +65,9 @@ class CreateGateExitCubit extends AppBaseCubit<CreateGateExitState> {
       gateEntryDate: gateEntryDate ?? form.gateEntryDate,
 
       remarks: remarks ?? form.remarks,
-      vehiclePhoto: vehPhoto,
+      vehiclePhotoImg: vehiclePhotos,
 
-      vehicleBackPhoto: vehBackPhoto,
+      vehicleBackPhotoImg: vehiclebackPhotos,
     );
     emitSafeState(state.copyWith(form: newForm));
   }
@@ -79,30 +75,21 @@ class CreateGateExitCubit extends AppBaseCubit<CreateGateExitState> {
   void initDetails(Object? entry) {
     shouldAskForConfirmation.value = false;
     if (entry is GateExitForm) {
+      DFU.toDateTime(entry.creationDate.valueOrEmpty, 'yyyy-MM-dd');
+      DFU.toDateTime(entry.gateEntryDate.valueOrEmpty, 'dd-MM-yyyy');
+      final form = state.form;
+      final updatedForm = form.copyWith(
+        docStatus: entry.docStatus,
+        name: entry.name,
+        remarks: entry.remarks,
+        plantName: entry.plantName,
+        gateEntryDate: entry.gateEntryDate,
+        salesInvoice: entry.salesInvoice,
 
-
-      
-      DFU.toDateTime(
-        entry.creationDate.valueOrEmpty,
-        'yyyy-MM-dd',
+        vehicleNo: entry.vehicleNo,
+        vehiclePhoto: entry.vehiclePhoto,
+        vehicleBackPhoto: entry.vehicleBackPhoto,
       );
-      DFU.toDateTime(
-        entry.gateEntryDate.valueOrEmpty,
-        'dd-MM-yyyy',
-      );
-        final form = state.form;
-    final updatedForm = form.copyWith(
-      docStatus: entry.docStatus,
-      name: entry.name,
-      remarks: entry.remarks,
-      plantName: entry.plantName,
-      gateEntryDate: entry.gateEntryDate,
-      salesInvoice: entry.salesInvoice,
-      
-      vehicleNo: entry.vehicleNo,
-      vehiclePhoto: entry.vehiclePhoto,
-      vehicleBackPhoto: entry.vehicleBackPhoto,
-    );
 
       final status = entry.docStatus;
 
@@ -118,13 +105,7 @@ class CreateGateExitCubit extends AppBaseCubit<CreateGateExitState> {
           (isSubmitted || isCancelled)
               ? GateExitView.completed
               : GateExitView.edit;
-      emitSafeState(
-        state.copyWith(
-          form: updatedForm,
-
-          view: mode,
-        ),
-      );
+      emitSafeState(state.copyWith(form: updatedForm, view: mode));
     }
     if (entry == null) return;
   }
@@ -133,12 +114,11 @@ class CreateGateExitCubit extends AppBaseCubit<CreateGateExitState> {
     final form = state.form.copyWith(vehiclePhoto: null);
     emitSafeState(state.copyWith(form: form));
   }
-   void clearVehicleBackPhoto() {
+
+  void clearVehicleBackPhoto() {
     final form = state.form.copyWith(vehicleBackPhoto: null);
     emitSafeState(state.copyWith(form: form));
   }
-
-  
 
   void save() async {
     final validation = _validate();
@@ -195,8 +175,6 @@ class CreateGateExitCubit extends AppBaseCubit<CreateGateExitState> {
     }, _emitError);
   }
 
-  
-
   void _emitError(Pair<String, int?> error) {
     final failure = Failure(
       error: error.first,
@@ -220,13 +198,15 @@ class CreateGateExitCubit extends AppBaseCubit<CreateGateExitState> {
   Option<Pair<String, int?>> _validate() {
     final form = state.form;
 
-    if (form.plantName.doesNotHaveValue) {
-      return optionOf(const Pair('Select Plant Name', 0));
-    } else if (form.vehiclePhoto.doesNotHaveValue) {
-      return optionOf(const Pair('Capture Vehicle Front Photo.',0));
-    } else if (form.vehicleBackPhoto.doesNotHaveValue) {
-      return optionOf(const Pair('Capture Vehicle Back Photo.',0));
-    } 
+    if (form.salesInvoice.doesNotHaveValue) {
+      return optionOf(const Pair('Select Invoice No', 0));
+    } else if (form.vehiclePhoto.doesNotHaveValue &&
+        form.vehiclePhotoImg == null) {
+      return optionOf(const Pair('Capture Vehicle Front Photo.', 0));
+    } else if (form.vehicleBackPhoto.doesNotHaveValue &&
+        form.vehicleBackPhotoImg == null) {
+      return optionOf(const Pair('Capture Vehicle Back Photo.', 0));
+    }
 
     return const None();
   }

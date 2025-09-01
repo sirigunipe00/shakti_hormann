@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:shakti_hormann/core/utils/date_format_util.dart';
 import 'package:shakti_hormann/core/utils/string_utils.dart';
 import 'package:shakti_hormann/doc_status_widget.dart';
-import 'package:shakti_hormann/features/gate_exit/model/gate_exit_form.dart';
+import 'package:shakti_hormann/features/loading_confirmation/model/loading_cnfm.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/styles/app_text_styles.dart';
 import 'package:shakti_hormann/widgets/app_spacer.dart';
@@ -12,16 +12,15 @@ import 'package:shakti_hormann/widgets/spaced_column.dart';
 class LoadingCnfmWidget extends StatelessWidget {
   const LoadingCnfmWidget({
     super.key,
-    required this.gateExit,
+    required this.loadingCnfmForm,
     required this.onTap,
   });
 
-  final GateExitForm gateExit;
+  final LoadingCnfmForm loadingCnfmForm;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    
     return GestureDetector(
       onTap: onTap,
       child: Card(
@@ -29,20 +28,20 @@ class LoadingCnfmWidget extends StatelessWidget {
         surfaceTintColor: AppColors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10.0),
-          side: const BorderSide(color: AppColors.white, width: 2),
+          side: const BorderSide(color: AppColors.white),
         ),
         child: SpacedColumn(
-          defaultHeight: 4,
-          margin: const EdgeInsets.all(8),
+          defaultHeight: 2,
+          margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
           children: [
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  width: 80,
-                  height: 80,
+                  width: 70,
+                  height: 70,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFAB94FF).withValues(alpha:0.30),
+                    color: const Color(0xFFAB94FF).withValues(alpha: 0.10),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   alignment: Alignment.center,
@@ -70,7 +69,7 @@ class LoadingCnfmWidget extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'VRE-SHM-001',
+                                loadingCnfmForm.name ?? '',
                                 style: AppTextStyles.titleLarge(
                                   context,
                                 ).copyWith(
@@ -80,12 +79,11 @@ class LoadingCnfmWidget extends StatelessWidget {
                               ),
                               const SizedBox(height: 5),
                               Text(
-                                gateExit.vehicleNo ?? '',
-                                style: AppTextStyles.titleLarge(
-                                  context,
-                                ).copyWith(
+                                loadingCnfmForm.vehicleNumber ?? '',
+                                style: const TextStyle(
                                   color: AppColors.grey,
-                                  fontWeight: FontWeight.bold,
+                                  fontWeight: FontWeight.normal,
+                                  letterSpacing: 0,
                                 ),
                               ),
                             ],
@@ -94,7 +92,7 @@ class LoadingCnfmWidget extends StatelessWidget {
                           Text(
                             '(SHM)',
                             style: AppTextStyles.titleLarge(context).copyWith(
-                              color: const Color.fromARGB(255, 12, 3, 120),
+                              color: const Color(0xFF2957A4),
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -103,35 +101,41 @@ class LoadingCnfmWidget extends StatelessWidget {
 
                       const SizedBox(height: 5),
                       Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Icon(
-                            Icons.calendar_today,
-                            size: 14,
-                            color: Color.fromARGB(255, 17, 17, 226),
-                          ),
-                          const SizedBox(width: 4),
+                          Row(
+                            children: [
+                              const Icon(
+                                Icons.calendar_today,
+                                size: 14,
+                                color: Color.fromARGB(255, 17, 17, 226),
+                              ),
+                                 const SizedBox(width: 4),
                           Text(
-                            DFU.ddMMyyyyFromStr(gateExit.creationDate ?? ''),
-                            style: AppTextStyles.titleMedium(
-                              context,
-                              AppColors.darkBlue,
-                            ).copyWith(
-                              color: const Color.fromARGB(255, 28, 16, 205),
+                            DFU.ddMMyyyyFromStr(loadingCnfmForm.creation ?? ''),
+                            style: const TextStyle(
+                              color: Color(0xFF163A6B),
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
-                          const SizedBox(width: 120),
-                          const Icon(
-                            Icons.timelapse_rounded,
-                            size: 14,
-                            color: Color(0xFF53A5DF),
+                            ],
                           ),
-                          Text(
-                            DFU.timeFromStr(gateExit.creationDate ?? ''),
+                       
+                      
+                          Row(
+                            children: [
+                              Image.asset('assets/images/timeicon.png'),
+                               Text(
+                            DFU.timeFromStr(loadingCnfmForm.creation ?? ''),
                             style: AppTextStyles.titleMedium(
                               context,
                               AppColors.darkBlue,
-                            ).copyWith(color:  const Color(0xFF53A5DF)),
+                            ).copyWith(color: const Color(0xFF53A5DF)),
                           ),
+                            ],
+                          ),
+                         
                         ],
                       ),
                     ],
@@ -140,13 +144,13 @@ class LoadingCnfmWidget extends StatelessWidget {
               ],
             ),
             const Padding(
-              padding: EdgeInsets.symmetric(vertical: 8.0),
+              padding: EdgeInsets.symmetric(vertical: 4.0),
               child: DottedLine(
                 direction: Axis.horizontal,
                 lineLength: double.infinity,
-                lineThickness: 3.0,
-                dashLength: 4.0,
-                dashColor: AppColors.grey,
+                lineThickness: 0.5,
+                dashLength: 6.0,
+                dashColor: Color.fromARGB(255, 184, 184, 192),
                 dashGapLength: 4.0,
               ),
             ),
@@ -157,14 +161,15 @@ class LoadingCnfmWidget extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'TC-SHM-001',
-                  style: AppTextStyles.titleLarge(context).copyWith(
-                    color: const Color.fromARGB(255, 36, 11, 226),
+                  loadingCnfmForm.linkedTransporterConfirmation ?? '',
+                  style: const TextStyle(
+                    color: Color(0xFF2957A4),
                     fontWeight: FontWeight.bold,
+                    fontSize: 15,
                   ),
                 ),
                 DocStatusWidget(
-                  status: StringUtils.docStatus(gateExit.docStatus ?? 0),
+                  status: StringUtils.docStatus(loadingCnfmForm.docstatus ?? 0),
                 ),
               ],
             ),

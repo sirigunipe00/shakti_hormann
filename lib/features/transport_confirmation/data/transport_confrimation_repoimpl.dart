@@ -21,7 +21,8 @@ class TransportCnfrmRepoimpl extends BaseApiRepository
     final filters = <List<dynamic>>[];
 
     if (status != null && status != '4') {
-      filters.add(['status', '=', status]);
+      filters..add(['status', '=', status])
+      ..add(['docstatus', '!=', 2]);
     }
 
     if (serach != null && serach.isNotEmpty) {
@@ -56,13 +57,30 @@ class TransportCnfrmRepoimpl extends BaseApiRepository
     TransportConfirmationForm form,
   ) async {
     return await executeSafely(() async {
-      String formatEstimatedArrival(String time) {
-        final now = DateTime.now();
-        final parts = time.split(':');
-        final hour = int.parse(parts[0]);
-        final minute = int.parse(parts[1]);
-        final dateTime = DateTime(now.year, now.month, now.day, hour, minute);
-        return DateFormat('dd-MM-yyyy HH:mm:ss').format(dateTime);
+      String? estimatedArrival;
+      if (form.estimatedArrival != null && form.estimatedArrival!.isNotEmpty) {
+        try {
+          final parsedDate = DateFormat(
+            'dd-MM-yyyy',
+          ).parse(form.estimatedArrival!);
+
+          final now = DateTime.now();
+
+          final combinedDateTime = DateTime(
+            parsedDate.year,
+            parsedDate.month,
+            parsedDate.day,
+            now.hour,
+            now.minute,
+            now.second,
+          );
+
+          estimatedArrival = DateFormat(
+            'dd-MM-yyyy HH:mm:ss',
+          ).format(combinedDateTime);
+        } catch (e) {
+          $logger.devLog('Date parsing error: $e');
+        }
       }
 
       final config = RequestConfig(
@@ -74,15 +92,14 @@ class TransportCnfrmRepoimpl extends BaseApiRepository
 
         body: jsonEncode({
           'logistic_request_id': form.name,
-          'status': form.status,
-          'transporter_confirmation_date': form.requestedDeliveryDate,
+          'status': 'Transporter Confirmed',
+          'transporter_confirmation_date': form.transporterConfirmationDate,
           'driver_name': form.driverName,
           'vehicle_number': form.vehicleNumber,
-          'estimated_arrival': formatEstimatedArrival(
-            form.estimatedArrival ?? '',
-          ),
+          'estimated_arrival': estimatedArrival,
+          'driver_contact': form.driverContact,
+          'transporter_remarks': form.transporterRemarks,
         }),
-
         headers: {HttpHeaders.contentTypeHeader: 'application/json'},
       );
 
@@ -115,7 +132,7 @@ class TransportCnfrmRepoimpl extends BaseApiRepository
         },
         body: jsonEncode({
           'logistic_request_id': form.name,
-          'status': form.status,
+          'status': 'Transporter Rejected',
           'reject_reason': form.rejectReason,
         }),
         headers: {HttpHeaders.contentTypeHeader: 'application/json'},

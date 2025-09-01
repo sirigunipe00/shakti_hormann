@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shakti_hormann/app/presentation/widgets/statusmenu_widget.dart';
 import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/core/model/page_view_filters_cubit.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
@@ -28,7 +29,7 @@ class AppPageView2<T extends PageViewFiltersCubit> extends StatefulWidget {
     required this.onNew,
     required this.backgroundColor,
     required this.scaffoldBg,
-    this.onSearch,
+
   });
 
   final Widget child;
@@ -36,7 +37,7 @@ class AppPageView2<T extends PageViewFiltersCubit> extends StatefulWidget {
   final VoidCallback onNew;
   final Color backgroundColor;
   final String scaffoldBg;
-  final VoidCallback? onSearch;
+ 
 
   @override
   State<AppPageView2<T>> createState() => _AppPageView2State<T>();
@@ -72,26 +73,33 @@ class _AppPageView2State<T extends PageViewFiltersCubit>
         preferredSize: const Size.fromHeight(60),
         child: AppBar(
           actions: [
-            Padding(
-              padding: const EdgeInsets.only(right: 20),
-              child: Container(
-                width: 36,
-                height: 36,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  border: Border.all(color: Colors.grey.shade200),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: InkWell(
-                  onTap: widget.onSearch,
-                  borderRadius: BorderRadius.circular(12),
-                  child: const Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: Icon(Icons.filter_list, size: 20,color: AppColors.liteyellow,),
-                  ),
-                ),
-              ),
+            // Padding(
+            //   padding: const EdgeInsets.only(right: 20),
+            //   child: Container(
+            //     width: 36,
+            //     height: 36,
+            //     decoration: BoxDecoration(
+            //       color: Colors.white,
+            //       border: Border.all(color: Colors.grey.shade200),
+            //       borderRadius: BorderRadius.circular(12),
+            //     ),
+            //     child: InkWell(
+                  
+            //       borderRadius: BorderRadius.circular(12),
+            //       child: const Padding(
+            //         padding: EdgeInsets.all(8.0),
+            //         child: Icon(Icons.filter_list, size: 20,color: AppColors.liteyellow,),
+            //       ),
+            //     ),
+            //   ),
+            // ),
+            StatusMenuWidget(
+              defaultSel: context.read<T>().state.status,
+              mode: widget.mode,
+              items: const ['Draft', 'Submitted'],
+              onChange: context.cubit<T>().onChangeStatus,
             ),
+            
           ],
           elevation: 0,
           automaticallyImplyLeading: false,
@@ -237,7 +245,7 @@ class _AppPageView2State<T extends PageViewFiltersCubit>
         ],
       ),
       floatingActionButton:
-          widget.mode != PageMode2.transportConfirmation
+          widget.mode != PageMode2.transportConfirmation && widget.mode != PageMode2.loadingConfirmation 
               ? FloatingActionButton.extended(
                 extendedPadding: const EdgeInsets.symmetric(horizontal: 28),
                 onPressed: widget.onNew,

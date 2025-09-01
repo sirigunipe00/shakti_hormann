@@ -30,6 +30,9 @@ _$GateEntryFormImpl _$$GateEntryFormImplFromJson(Map<String, dynamic> json) =>
       vehiclePhoto: json['vehicle_photo'] as String?,
       invoicePhoto: json['vendor_invoice_photo'] as String?,
       vehicleBackPhoto: json['vehicle_back_photo'] as String?,
+      vehiclePhotoImg: toNull(json['vehiclePhotoImg']),
+      invoicePhotoImg: toNull(json['invoicePhotoImg']),
+      vehicleBackPhotoImg: toNull(json['vehicleBackPhotoImg']),
     );
 
 Map<String, dynamic> _$$GateEntryFormImplToJson(_$GateEntryFormImpl instance) =>

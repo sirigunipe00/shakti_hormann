@@ -25,6 +25,12 @@ _$LogisticPlanningFormImpl _$$LogisticPlanningFormImplFromJson(
   status: json['status'] as String?,
   logisticsRequestDate: json['logistics_request_date'] as String? ?? '',
   requestedDeliveryDate: json['requested_delivery_date'] as String? ?? '',
+  shippingAddress1: json['delivery_address_1'] as String?,
+  shippingAddress2: json['delivery_address_2'] as String?,
+  city: json['shipping_city'] as String?,
+  states: json['shipping_state'] as String?,
+  country: json['shipping_country'] as String?,
+  pincode: json['shipping_pin_code'] as String?,
   requestedDeliveryTime: json['requested_delivery_time'] as String?,
   anySpecialInstructions: json['any_special_instructions'] as String?,
   transporterConfirmationDate: json['transporter_confirmation_date'] as String?,
@@ -34,8 +40,6 @@ _$LogisticPlanningFormImpl _$$LogisticPlanningFormImplFromJson(
   vehicleNumber: json['vehicle_number'] as String?,
   driverContact: json['driver_contact'] as String?,
   rejectReason: json['reject_reason'] as String?,
-  state: json['state'] as String?,
-  zipcode: json['zipcode'] as String?,
 );
 
 Map<String, dynamic> _$$LogisticPlanningFormImplToJson(
@@ -57,6 +61,12 @@ Map<String, dynamic> _$$LogisticPlanningFormImplToJson(
   'status': instance.status,
   'logistics_request_date': instance.logisticsRequestDate,
   'requested_delivery_date': instance.requestedDeliveryDate,
+  'delivery_address_1': instance.shippingAddress1,
+  'delivery_address_2': instance.shippingAddress2,
+  'shipping_city': instance.city,
+  'shipping_state': instance.states,
+  'shipping_country': instance.country,
+  'shipping_pin_code': instance.pincode,
   'requested_delivery_time': instance.requestedDeliveryTime,
   'any_special_instructions': instance.anySpecialInstructions,
   'transporter_confirmation_date': instance.transporterConfirmationDate,
@@ -66,6 +76,4 @@ Map<String, dynamic> _$$LogisticPlanningFormImplToJson(
   'vehicle_number': instance.vehicleNumber,
   'driver_contact': instance.driverContact,
   'reject_reason': instance.rejectReason,
-  'state': instance.state,
-  'zipcode': instance.zipcode,
 };

@@ -23,7 +23,9 @@ class LogisticPlanningRepoimpl extends BaseApiRepository
     final filters = <List<dynamic>>[];
 
     if (status != null && status != '4') {
-      filters.add(['status', '=', status]);
+      filters
+        ..add(['status', '=', status])
+        ..add(['docstatus', '!=', 2]);
     }
 
     if (serach != null && serach.isNotEmpty) {
@@ -121,6 +123,12 @@ class LogisticPlanningRepoimpl extends BaseApiRepository
           'delivery_address': form.deliveryAddress,
           'status': form.status,
           'logistics_request_date': formattedLogisticsRequestDate,
+          'delivery_address_1':form.shippingAddress1,
+          'delivery_address_2':form.shippingAddress2,
+          'shipping_country':form.country,
+          'shipping_state':form.city,
+          'shipping_city':form.city,
+          'shipping_pin_code':form.pincode
         }),
         headers: {HttpHeaders.contentTypeHeader: 'application/json'},
       );
@@ -149,7 +157,7 @@ class LogisticPlanningRepoimpl extends BaseApiRepository
         reqParams: {
           'limit': 20,
           'order_by': 'creation desc',
-          'doctype': 'Sales Order',
+          'doctype': 'SAP Sales Order',
           'fields': ['*'],
         },
         headers: {HttpHeaders.contentTypeHeader: 'application/json'},

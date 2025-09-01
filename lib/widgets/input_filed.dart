@@ -56,36 +56,52 @@ class InputField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-   
+    final bool isReadOnlyMode = readOnly;
+
+    final backgroundColor = isReadOnlyMode
+        ? AppColors.grey.withValues(alpha: 0.20)
+        : Colors.white;
+
+    final effectiveBorderColor = isReadOnlyMode
+        ? Colors.grey.withValues(alpha:0.3)
+        : null;
+
+    final effectiveTextStyle = TextStyle(
+      color: isReadOnlyMode
+          ? AppColors.black.withValues(alpha:.7) 
+          : AppColors.black,
+      fontSize: 14,
+      fontWeight: isReadOnlyMode ? FontWeight.w500 : FontWeight.normal,
+    );
+
     return Focus(
       focusNode: focusNode,
       child: SpacedColumn(
         crossAxisAlignment: CrossAxisAlignment.start,
-        defaultHeight: 4.0,
+        defaultHeight: 8.0,
         children: [
           CaptionText(title: title, isRequired: isRequired, color: color),
           Container(
             margin: EdgeInsets.zero,
             padding: EdgeInsets.zero,
             decoration: BoxDecoration(
-              color: Colors.grey.shade100,
-
-              borderRadius: BorderRadius.circular(6),
+              color: backgroundColor,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: effectiveBorderColor ?? (borderColor ?? AppColors.grey.withValues(alpha:0.30)),
+                width: 0,
+              ),
             ),
             child: TextFormField(
-              style:const TextStyle(color: Colors.black,fontSize: 14),
+              style: effectiveTextStyle,
               controller: controller,
-
               decoration: InputDecoration(
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 12,
-                ),
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                 border: InputBorder.none,
-                enabledBorder: InputBorder.none,
-                focusedBorder: InputBorder.none,
-                disabledBorder: InputBorder.none,
-                suffixIcon: suffixIcon,
+                suffixIcon: isReadOnlyMode
+                    ? Icon(Icons.lock, size: 18, color: Colors.grey.shade500)
+                    : suffixIcon,
                 counterText: '',
                 hintText: hintText,
                 hintStyle: context.textTheme.labelSmall?.copyWith(
@@ -99,15 +115,16 @@ class InputField extends StatelessWidget {
               textInputAction: TextInputAction.done,
               maxLengthEnforcement: MaxLengthEnforcement.enforced,
               onChanged: onChanged,
+              onFieldSubmitted: onSubmitted,
               validator: validator,
-     
               keyboardType: inputType,
               inputFormatters: inputFormatters,
               maxLength: maxLength,
               textCapitalization: TextCapitalization.none,
-              readOnly: readOnly,
-              minLines: minLines,
-              maxLines: minLines,
+              readOnly: isReadOnlyMode,
+              enableInteractiveSelection: !isReadOnlyMode,
+              minLines: minLines ?? 1,
+              maxLines: maxLines ?? 1,
               autocorrect: false,
               autofocus: autofocus,
             ),

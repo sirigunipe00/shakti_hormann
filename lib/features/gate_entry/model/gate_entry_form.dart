@@ -1,5 +1,8 @@
 
+import 'dart:io';
+
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:shakti_hormann/core/utils/typedefs.dart';
 
 
 part 'gate_entry_form.freezed.dart';
@@ -32,6 +35,24 @@ class GateEntryForm with _$GateEntryForm {
     @JsonKey(name: 'vehicle_photo') String? vehiclePhoto,
     @JsonKey(name: 'vendor_invoice_photo') String? invoicePhoto,
     @JsonKey(name: 'vehicle_back_photo') String? vehicleBackPhoto,
+    @JsonKey(
+        includeFromJson: true,
+        includeToJson: false,
+        toJson: toNull,
+        fromJson: toNull)
+    File? vehiclePhotoImg,
+    @JsonKey(
+        includeFromJson: true,
+        includeToJson: false,
+        toJson: toNull,
+        fromJson: toNull)
+    File? invoicePhotoImg,
+    @JsonKey(
+        includeFromJson: true,
+        includeToJson: false,
+        toJson: toNull,
+        fromJson: toNull)
+    File? vehicleBackPhotoImg,
     
   }) = _GateEntryForm;
   factory GateEntryForm.fromJson(Map<String, dynamic> json) =>

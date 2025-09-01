@@ -51,6 +51,16 @@ class _AppDropDownWidgetState<T> extends State<AppDropDownWidget<T>> {
 
   @override
   Widget build(BuildContext context) {
+    final isReadOnlyMode = widget.readOnly;
+
+    final backgroundColor =
+        isReadOnlyMode ? AppColors.grey.withValues(alpha:0.20) : Colors.white;
+
+    final borderColor =
+        isReadOnlyMode
+            ? Colors.grey.withValues(alpha:0.3)
+            : AppColors.grey.withValues(alpha:0.6);
+
     return Focus(
       focusNode: widget.focusNode,
       child: AbsorbPointer(
@@ -65,15 +75,30 @@ class _AppDropDownWidgetState<T> extends State<AppDropDownWidget<T>> {
             const SizedBox(height: 4),
             CustomDropdown<T>.searchRequest(
               decoration: CustomDropdownDecoration(
-                closedFillColor: Colors.grey[100],
-                expandedFillColor: Colors.grey[100],
+                closedFillColor: backgroundColor,
+                expandedFillColor: backgroundColor,
+                closedBorder: Border.all(color: borderColor, width: 1),
+                expandedBorder: Border.all(color: borderColor, width: 1),
+                closedBorderRadius: BorderRadius.circular(8.0),
+                expandedBorderRadius: BorderRadius.circular(8.0),
                 hintStyle: AppTextStyles.titleLarge(
                   context,
-                ).copyWith(color: AppColors.grey),
+                ).copyWith(color: AppColors.grey, fontSize: 14),
+              ),
+              closedHeaderPadding: const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 12,
+              ),
+              expandedHeaderPadding: const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 12,
+              ),
+              listItemPadding: const EdgeInsets.symmetric(
+                horizontal: 8,
+                vertical: 6,
               ),
               futureRequest: widget.futureRequest,
               hintText: widget.hint,
-
               items: widget.items,
               headerBuilder: widget.headerBuilder,
               listItemBuilder: widget.listItemBuilder,

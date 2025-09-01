@@ -40,7 +40,7 @@ class GateExitWidget extends StatelessWidget {
                   width: 70,
                   height: 70,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF2957A4).withValues(alpha:0.30),
+                    color: const Color(0xFF2957A4).withValues(alpha:0.10),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Center(
@@ -122,11 +122,10 @@ class GateExitWidget extends StatelessWidget {
                           ),
                           Row(
                             children: [
-                              const Icon(
-                                Icons.alarm_add,
-                                size: 14,
-                                color: Color(0xFF53A5DF),
-                              ),
+                             Image.asset(
+                            'assets/images/timeicon.png'
+                   ,
+                           ),
                               Text(
                                 DFU.timeFromStr(gateExit.creationDate ?? ''),
                                 style: AppTextStyles.titleMedium(

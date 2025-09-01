@@ -16,18 +16,23 @@ class AppButton extends StatelessWidget {
     this.loadingText,
     this.height,
     this.width,
+    this.onReject,
+    this.borderColor,
+    
     this.icon = const SizedBox.shrink(),
   });
 
   final String label;
   final bool isLoading;
   final Color bgColor;
+  final VoidCallback? onReject;
   final Widget icon;
   final EdgeInsets? margin;
   final String? loadingText;
   final VoidCallback? onPressed;
   final TextStyle? textStyle;
   final double? width;
+  final Color? borderColor;
   final double? height;
 
   @override
@@ -42,8 +47,11 @@ class AppButton extends StatelessWidget {
           fixedSize: Size(width ?? 120, height ?? 46),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8.0),
+          
+
             side: BorderSide(
-              color: onPressed == null ? AppColors.chimneySweep : bgColor,
+              color: borderColor ?? ( onPressed == null ? AppColors.chimneySweep : bgColor),
+              width: 1.5,
             ),
           ),
           padding: const EdgeInsets.all(4.0),
@@ -58,7 +66,9 @@ class AppButton extends StatelessWidget {
                   style: (textStyle ?? TextStyles.btnTextStyle(context))
                       .copyWith(
                         color: onPressed.isNull ? AppColors.grey : null,
+                        
                       ),
+                      textAlign: TextAlign.center,
                 ),
       ),
     );

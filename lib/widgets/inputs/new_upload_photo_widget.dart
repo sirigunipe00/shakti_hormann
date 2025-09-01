@@ -64,7 +64,7 @@ class _NewUploadPhotoWidgetState extends State<NewUploadPhotoWidget>
     try {
       final picker = ImagePicker();
       final pickedFile = await picker.pickImage(
-        source: ImageSource.gallery,
+        source: ImageSource.camera,
         imageQuality: 85,
       );
 
@@ -96,8 +96,8 @@ class _NewUploadPhotoWidgetState extends State<NewUploadPhotoWidget>
   @override
   Widget build(BuildContext context) {
     return SpacedColumn(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      defaultHeight: 4,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      defaultHeight: 6,
       margin: EdgeInsets.zero,
       children: [
         GestureDetector(
@@ -124,21 +124,23 @@ class _NewUploadPhotoWidgetState extends State<NewUploadPhotoWidget>
             }
           },
           child: Padding(
-            padding: const EdgeInsets.only(top: 8),
+            padding: const EdgeInsets.only(top:10),
             child: Container(
-              height: 80,
-              width: 90,
+              height: 70,
+              width: 70,
               decoration: BoxDecoration(
-                color: AppColors.white,
-                borderRadius: BorderRadius.circular(14.0),
+                shape: BoxShape.circle,
+                color: _getBgColor(widget.fileName),
               ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(14.0),
+              child: ClipOval(
                 child:
                     _photoState == PhotoState.capture
-                        ? Image.asset(
-                          'assets/images/${widget.fileName}.png',
-                          fit: BoxFit.fill,
+                        ? Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: Image.asset(
+                            'assets/images/${widget.fileName}.png',
+                            fit: BoxFit.contain,
+                          ),
                         )
                         : (_selectedImage != null
                             ? Image.file(_selectedImage!, fit: BoxFit.cover)
@@ -147,15 +149,21 @@ class _NewUploadPhotoWidgetState extends State<NewUploadPhotoWidget>
                                   getFullImageUrl(widget.imageUrl),
                                   fit: BoxFit.cover,
                                   errorBuilder: (context, error, stackTrace) {
-                                    return Image.asset(
-                                      'assets/images/${widget.fileName}.png', 
-                                      fit: BoxFit.cover,
+                                    return Padding(
+                                      padding: const EdgeInsets.all(12),
+                                      child: Image.asset(
+                                        'assets/images/${widget.fileName}.png',
+                                        fit: BoxFit.contain,
+                                      ),
                                     );
                                   },
                                 )
-                                : Image.asset(
-                                  'assets/images/${widget.fileName}.png',
-                                  fit: BoxFit.fill,
+                                : Padding(
+                                  padding: const EdgeInsets.all(12),
+                                  child: Image.asset(
+                                    'assets/images/${widget.fileName}.png',
+                                    fit: BoxFit.contain,
+                                  ),
                                 ))),
               ),
             ),
@@ -224,7 +232,7 @@ class ImagePreviewPage extends StatelessWidget {
               child: Card(
                 shape: Border.all(color: AppColors.green),
                 child: Image.network(
-                  getFullImageUrl(imageUrl), // ✅ Use helper
+                  getFullImageUrl(imageUrl),
                   fit: BoxFit.fill,
                   loadingBuilder: (
                     BuildContext context,
@@ -289,5 +297,18 @@ class ImagePreviewPage extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+Color _getBgColor(String fileName) {
+  switch (fileName) {
+    case 'vehiclefront':
+      return Colors.teal.shade50;
+    case 'vehicleback':
+      return Colors.orange.shade50;
+    case 'vehicleinvoice':
+      return const Color(0xFFf2eeff);
+    default:
+      return Colors.grey.shade200;
   }
 }

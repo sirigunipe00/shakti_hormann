@@ -53,6 +53,18 @@ mixin _$LogisticPlanningForm {
   String? get logisticsRequestDate => throw _privateConstructorUsedError;
   @JsonKey(name: 'requested_delivery_date', defaultValue: '')
   String? get requestedDeliveryDate => throw _privateConstructorUsedError;
+  @JsonKey(name: 'delivery_address_1')
+  String? get shippingAddress1 => throw _privateConstructorUsedError;
+  @JsonKey(name: 'delivery_address_2')
+  String? get shippingAddress2 => throw _privateConstructorUsedError;
+  @JsonKey(name: 'shipping_city')
+  String? get city => throw _privateConstructorUsedError;
+  @JsonKey(name: 'shipping_state')
+  String? get states => throw _privateConstructorUsedError;
+  @JsonKey(name: 'shipping_country')
+  String? get country => throw _privateConstructorUsedError;
+  @JsonKey(name: 'shipping_pin_code')
+  String? get pincode => throw _privateConstructorUsedError;
   @JsonKey(name: 'requested_delivery_time')
   String? get requestedDeliveryTime => throw _privateConstructorUsedError;
   @JsonKey(name: 'any_special_instructions')
@@ -71,8 +83,6 @@ mixin _$LogisticPlanningForm {
   String? get driverContact => throw _privateConstructorUsedError;
   @JsonKey(name: 'reject_reason')
   String? get rejectReason => throw _privateConstructorUsedError;
-  String? get state => throw _privateConstructorUsedError;
-  String? get zipcode => throw _privateConstructorUsedError;
 
   /// Serializes this LogisticPlanningForm to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -110,6 +120,12 @@ abstract class $LogisticPlanningFormCopyWith<$Res> {
     String? logisticsRequestDate,
     @JsonKey(name: 'requested_delivery_date', defaultValue: '')
     String? requestedDeliveryDate,
+    @JsonKey(name: 'delivery_address_1') String? shippingAddress1,
+    @JsonKey(name: 'delivery_address_2') String? shippingAddress2,
+    @JsonKey(name: 'shipping_city') String? city,
+    @JsonKey(name: 'shipping_state') String? states,
+    @JsonKey(name: 'shipping_country') String? country,
+    @JsonKey(name: 'shipping_pin_code') String? pincode,
     @JsonKey(name: 'requested_delivery_time') String? requestedDeliveryTime,
     @JsonKey(name: 'any_special_instructions') String? anySpecialInstructions,
     @JsonKey(name: 'transporter_confirmation_date')
@@ -120,8 +136,6 @@ abstract class $LogisticPlanningFormCopyWith<$Res> {
     @JsonKey(name: 'vehicle_number') String? vehicleNumber,
     @JsonKey(name: 'driver_contact') String? driverContact,
     @JsonKey(name: 'reject_reason') String? rejectReason,
-    String? state,
-    String? zipcode,
   });
 }
 
@@ -159,6 +173,12 @@ class _$LogisticPlanningFormCopyWithImpl<
     Object? status = freezed,
     Object? logisticsRequestDate = freezed,
     Object? requestedDeliveryDate = freezed,
+    Object? shippingAddress1 = freezed,
+    Object? shippingAddress2 = freezed,
+    Object? city = freezed,
+    Object? states = freezed,
+    Object? country = freezed,
+    Object? pincode = freezed,
     Object? requestedDeliveryTime = freezed,
     Object? anySpecialInstructions = freezed,
     Object? transporterConfirmationDate = freezed,
@@ -168,8 +188,6 @@ class _$LogisticPlanningFormCopyWithImpl<
     Object? vehicleNumber = freezed,
     Object? driverContact = freezed,
     Object? rejectReason = freezed,
-    Object? state = freezed,
-    Object? zipcode = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -253,6 +271,36 @@ class _$LogisticPlanningFormCopyWithImpl<
                     ? _value.requestedDeliveryDate
                     : requestedDeliveryDate // ignore: cast_nullable_to_non_nullable
                         as String?,
+            shippingAddress1:
+                freezed == shippingAddress1
+                    ? _value.shippingAddress1
+                    : shippingAddress1 // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            shippingAddress2:
+                freezed == shippingAddress2
+                    ? _value.shippingAddress2
+                    : shippingAddress2 // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            city:
+                freezed == city
+                    ? _value.city
+                    : city // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            states:
+                freezed == states
+                    ? _value.states
+                    : states // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            country:
+                freezed == country
+                    ? _value.country
+                    : country // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            pincode:
+                freezed == pincode
+                    ? _value.pincode
+                    : pincode // ignore: cast_nullable_to_non_nullable
+                        as String?,
             requestedDeliveryTime:
                 freezed == requestedDeliveryTime
                     ? _value.requestedDeliveryTime
@@ -298,16 +346,6 @@ class _$LogisticPlanningFormCopyWithImpl<
                     ? _value.rejectReason
                     : rejectReason // ignore: cast_nullable_to_non_nullable
                         as String?,
-            state:
-                freezed == state
-                    ? _value.state
-                    : state // ignore: cast_nullable_to_non_nullable
-                        as String?,
-            zipcode:
-                freezed == zipcode
-                    ? _value.zipcode
-                    : zipcode // ignore: cast_nullable_to_non_nullable
-                        as String?,
           )
           as $Val,
     );
@@ -342,6 +380,12 @@ abstract class _$$LogisticPlanningFormImplCopyWith<$Res>
     String? logisticsRequestDate,
     @JsonKey(name: 'requested_delivery_date', defaultValue: '')
     String? requestedDeliveryDate,
+    @JsonKey(name: 'delivery_address_1') String? shippingAddress1,
+    @JsonKey(name: 'delivery_address_2') String? shippingAddress2,
+    @JsonKey(name: 'shipping_city') String? city,
+    @JsonKey(name: 'shipping_state') String? states,
+    @JsonKey(name: 'shipping_country') String? country,
+    @JsonKey(name: 'shipping_pin_code') String? pincode,
     @JsonKey(name: 'requested_delivery_time') String? requestedDeliveryTime,
     @JsonKey(name: 'any_special_instructions') String? anySpecialInstructions,
     @JsonKey(name: 'transporter_confirmation_date')
@@ -352,8 +396,6 @@ abstract class _$$LogisticPlanningFormImplCopyWith<$Res>
     @JsonKey(name: 'vehicle_number') String? vehicleNumber,
     @JsonKey(name: 'driver_contact') String? driverContact,
     @JsonKey(name: 'reject_reason') String? rejectReason,
-    String? state,
-    String? zipcode,
   });
 }
 
@@ -387,6 +429,12 @@ class __$$LogisticPlanningFormImplCopyWithImpl<$Res>
     Object? status = freezed,
     Object? logisticsRequestDate = freezed,
     Object? requestedDeliveryDate = freezed,
+    Object? shippingAddress1 = freezed,
+    Object? shippingAddress2 = freezed,
+    Object? city = freezed,
+    Object? states = freezed,
+    Object? country = freezed,
+    Object? pincode = freezed,
     Object? requestedDeliveryTime = freezed,
     Object? anySpecialInstructions = freezed,
     Object? transporterConfirmationDate = freezed,
@@ -396,8 +444,6 @@ class __$$LogisticPlanningFormImplCopyWithImpl<$Res>
     Object? vehicleNumber = freezed,
     Object? driverContact = freezed,
     Object? rejectReason = freezed,
-    Object? state = freezed,
-    Object? zipcode = freezed,
   }) {
     return _then(
       _$LogisticPlanningFormImpl(
@@ -481,6 +527,36 @@ class __$$LogisticPlanningFormImplCopyWithImpl<$Res>
                 ? _value.requestedDeliveryDate
                 : requestedDeliveryDate // ignore: cast_nullable_to_non_nullable
                     as String?,
+        shippingAddress1:
+            freezed == shippingAddress1
+                ? _value.shippingAddress1
+                : shippingAddress1 // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        shippingAddress2:
+            freezed == shippingAddress2
+                ? _value.shippingAddress2
+                : shippingAddress2 // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        city:
+            freezed == city
+                ? _value.city
+                : city // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        states:
+            freezed == states
+                ? _value.states
+                : states // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        country:
+            freezed == country
+                ? _value.country
+                : country // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        pincode:
+            freezed == pincode
+                ? _value.pincode
+                : pincode // ignore: cast_nullable_to_non_nullable
+                    as String?,
         requestedDeliveryTime:
             freezed == requestedDeliveryTime
                 ? _value.requestedDeliveryTime
@@ -526,16 +602,6 @@ class __$$LogisticPlanningFormImplCopyWithImpl<$Res>
                 ? _value.rejectReason
                 : rejectReason // ignore: cast_nullable_to_non_nullable
                     as String?,
-        state:
-            freezed == state
-                ? _value.state
-                : state // ignore: cast_nullable_to_non_nullable
-                    as String?,
-        zipcode:
-            freezed == zipcode
-                ? _value.zipcode
-                : zipcode // ignore: cast_nullable_to_non_nullable
-                    as String?,
       ),
     );
   }
@@ -563,6 +629,12 @@ class _$LogisticPlanningFormImpl implements _LogisticPlanningForm {
     this.logisticsRequestDate,
     @JsonKey(name: 'requested_delivery_date', defaultValue: '')
     this.requestedDeliveryDate,
+    @JsonKey(name: 'delivery_address_1') this.shippingAddress1,
+    @JsonKey(name: 'delivery_address_2') this.shippingAddress2,
+    @JsonKey(name: 'shipping_city') this.city,
+    @JsonKey(name: 'shipping_state') this.states,
+    @JsonKey(name: 'shipping_country') this.country,
+    @JsonKey(name: 'shipping_pin_code') this.pincode,
     @JsonKey(name: 'requested_delivery_time') this.requestedDeliveryTime,
     @JsonKey(name: 'any_special_instructions') this.anySpecialInstructions,
     @JsonKey(name: 'transporter_confirmation_date')
@@ -573,8 +645,6 @@ class _$LogisticPlanningFormImpl implements _LogisticPlanningForm {
     @JsonKey(name: 'vehicle_number') this.vehicleNumber,
     @JsonKey(name: 'driver_contact') this.driverContact,
     @JsonKey(name: 'reject_reason') this.rejectReason,
-    this.state,
-    this.zipcode,
   });
 
   factory _$LogisticPlanningFormImpl.fromJson(Map<String, dynamic> json) =>
@@ -629,6 +699,24 @@ class _$LogisticPlanningFormImpl implements _LogisticPlanningForm {
   @JsonKey(name: 'requested_delivery_date', defaultValue: '')
   final String? requestedDeliveryDate;
   @override
+  @JsonKey(name: 'delivery_address_1')
+  final String? shippingAddress1;
+  @override
+  @JsonKey(name: 'delivery_address_2')
+  final String? shippingAddress2;
+  @override
+  @JsonKey(name: 'shipping_city')
+  final String? city;
+  @override
+  @JsonKey(name: 'shipping_state')
+  final String? states;
+  @override
+  @JsonKey(name: 'shipping_country')
+  final String? country;
+  @override
+  @JsonKey(name: 'shipping_pin_code')
+  final String? pincode;
+  @override
   @JsonKey(name: 'requested_delivery_time')
   final String? requestedDeliveryTime;
   @override
@@ -655,14 +743,10 @@ class _$LogisticPlanningFormImpl implements _LogisticPlanningForm {
   @override
   @JsonKey(name: 'reject_reason')
   final String? rejectReason;
-  @override
-  final String? state;
-  @override
-  final String? zipcode;
 
   @override
   String toString() {
-    return 'LogisticPlanningForm(name: $name, owner: $owner, creation: $creation, modified: $modified, modifiedBy: $modifiedBy, docstatus: $docstatus, idx: $idx, amendedFrom: $amendedFrom, plantName: $plantName, salesOrder: $salesOrder, transporterName: $transporterName, preferredVehicleType: $preferredVehicleType, deliveryAddress: $deliveryAddress, status: $status, logisticsRequestDate: $logisticsRequestDate, requestedDeliveryDate: $requestedDeliveryDate, requestedDeliveryTime: $requestedDeliveryTime, anySpecialInstructions: $anySpecialInstructions, transporterConfirmationDate: $transporterConfirmationDate, driverName: $driverName, estimatedArrival: $estimatedArrival, transporterRemarks: $transporterRemarks, vehicleNumber: $vehicleNumber, driverContact: $driverContact, rejectReason: $rejectReason, state: $state, zipcode: $zipcode)';
+    return 'LogisticPlanningForm(name: $name, owner: $owner, creation: $creation, modified: $modified, modifiedBy: $modifiedBy, docstatus: $docstatus, idx: $idx, amendedFrom: $amendedFrom, plantName: $plantName, salesOrder: $salesOrder, transporterName: $transporterName, preferredVehicleType: $preferredVehicleType, deliveryAddress: $deliveryAddress, status: $status, logisticsRequestDate: $logisticsRequestDate, requestedDeliveryDate: $requestedDeliveryDate, shippingAddress1: $shippingAddress1, shippingAddress2: $shippingAddress2, city: $city, states: $states, country: $country, pincode: $pincode, requestedDeliveryTime: $requestedDeliveryTime, anySpecialInstructions: $anySpecialInstructions, transporterConfirmationDate: $transporterConfirmationDate, driverName: $driverName, estimatedArrival: $estimatedArrival, transporterRemarks: $transporterRemarks, vehicleNumber: $vehicleNumber, driverContact: $driverContact, rejectReason: $rejectReason)';
   }
 
   @override
@@ -698,6 +782,14 @@ class _$LogisticPlanningFormImpl implements _LogisticPlanningForm {
                 other.logisticsRequestDate == logisticsRequestDate) &&
             (identical(other.requestedDeliveryDate, requestedDeliveryDate) ||
                 other.requestedDeliveryDate == requestedDeliveryDate) &&
+            (identical(other.shippingAddress1, shippingAddress1) ||
+                other.shippingAddress1 == shippingAddress1) &&
+            (identical(other.shippingAddress2, shippingAddress2) ||
+                other.shippingAddress2 == shippingAddress2) &&
+            (identical(other.city, city) || other.city == city) &&
+            (identical(other.states, states) || other.states == states) &&
+            (identical(other.country, country) || other.country == country) &&
+            (identical(other.pincode, pincode) || other.pincode == pincode) &&
             (identical(other.requestedDeliveryTime, requestedDeliveryTime) ||
                 other.requestedDeliveryTime == requestedDeliveryTime) &&
             (identical(other.anySpecialInstructions, anySpecialInstructions) ||
@@ -719,9 +811,7 @@ class _$LogisticPlanningFormImpl implements _LogisticPlanningForm {
             (identical(other.driverContact, driverContact) ||
                 other.driverContact == driverContact) &&
             (identical(other.rejectReason, rejectReason) ||
-                other.rejectReason == rejectReason) &&
-            (identical(other.state, state) || other.state == state) &&
-            (identical(other.zipcode, zipcode) || other.zipcode == zipcode));
+                other.rejectReason == rejectReason));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -744,6 +834,12 @@ class _$LogisticPlanningFormImpl implements _LogisticPlanningForm {
     status,
     logisticsRequestDate,
     requestedDeliveryDate,
+    shippingAddress1,
+    shippingAddress2,
+    city,
+    states,
+    country,
+    pincode,
     requestedDeliveryTime,
     anySpecialInstructions,
     transporterConfirmationDate,
@@ -753,8 +849,6 @@ class _$LogisticPlanningFormImpl implements _LogisticPlanningForm {
     vehicleNumber,
     driverContact,
     rejectReason,
-    state,
-    zipcode,
   ]);
 
   /// Create a copy of LogisticPlanningForm
@@ -795,6 +889,12 @@ abstract class _LogisticPlanningForm implements LogisticPlanningForm {
     final String? logisticsRequestDate,
     @JsonKey(name: 'requested_delivery_date', defaultValue: '')
     final String? requestedDeliveryDate,
+    @JsonKey(name: 'delivery_address_1') final String? shippingAddress1,
+    @JsonKey(name: 'delivery_address_2') final String? shippingAddress2,
+    @JsonKey(name: 'shipping_city') final String? city,
+    @JsonKey(name: 'shipping_state') final String? states,
+    @JsonKey(name: 'shipping_country') final String? country,
+    @JsonKey(name: 'shipping_pin_code') final String? pincode,
     @JsonKey(name: 'requested_delivery_time')
     final String? requestedDeliveryTime,
     @JsonKey(name: 'any_special_instructions')
@@ -807,8 +907,6 @@ abstract class _LogisticPlanningForm implements LogisticPlanningForm {
     @JsonKey(name: 'vehicle_number') final String? vehicleNumber,
     @JsonKey(name: 'driver_contact') final String? driverContact,
     @JsonKey(name: 'reject_reason') final String? rejectReason,
-    final String? state,
-    final String? zipcode,
   }) = _$LogisticPlanningFormImpl;
 
   factory _LogisticPlanningForm.fromJson(Map<String, dynamic> json) =
@@ -863,6 +961,24 @@ abstract class _LogisticPlanningForm implements LogisticPlanningForm {
   @JsonKey(name: 'requested_delivery_date', defaultValue: '')
   String? get requestedDeliveryDate;
   @override
+  @JsonKey(name: 'delivery_address_1')
+  String? get shippingAddress1;
+  @override
+  @JsonKey(name: 'delivery_address_2')
+  String? get shippingAddress2;
+  @override
+  @JsonKey(name: 'shipping_city')
+  String? get city;
+  @override
+  @JsonKey(name: 'shipping_state')
+  String? get states;
+  @override
+  @JsonKey(name: 'shipping_country')
+  String? get country;
+  @override
+  @JsonKey(name: 'shipping_pin_code')
+  String? get pincode;
+  @override
   @JsonKey(name: 'requested_delivery_time')
   String? get requestedDeliveryTime;
   @override
@@ -889,10 +1005,6 @@ abstract class _LogisticPlanningForm implements LogisticPlanningForm {
   @override
   @JsonKey(name: 'reject_reason')
   String? get rejectReason;
-  @override
-  String? get state;
-  @override
-  String? get zipcode;
 
   /// Create a copy of LogisticPlanningForm
   /// with the given fields replaced by the non-null parameter values.

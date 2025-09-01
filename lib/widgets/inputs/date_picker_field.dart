@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/widgets/caption_text.dart';
 import 'package:shakti_hormann/widgets/spaced_column.dart';
-
 class AppDateField extends StatefulWidget {
   const AppDateField({
     super.key,
@@ -47,10 +45,9 @@ class _AppDateFieldState extends State<AppDateField> {
     super.initState();
 
     String dateToShow;
-
-    if (widget.initialValue != null && widget.initialValue!.isNotEmpty) {
+    if (widget.initialValue?.isNotEmpty == true) {
       dateToShow = widget.initialValue!;
-    } else if (widget.initialDate != null && widget.initialDate!.isNotEmpty) {
+    } else if (widget.initialDate?.isNotEmpty == true) {
       dateToShow = widget.initialDate!;
     } else {
       dateToShow = DFU.ddMMyyyy(DateTime.now());
@@ -64,16 +61,30 @@ class _AppDateFieldState extends State<AppDateField> {
         final day = int.tryParse(parts[0]) ?? 1;
         final month = int.tryParse(parts[1]) ?? 1;
         final year = int.tryParse(parts[2]) ?? 2000;
-        final parsedDate = DateTime(year, month, day);
-        widget.onSelected(parsedDate);
+        widget.onSelected(DateTime(year, month, day));
       }
     });
-
-    controller = TextEditingController(text: dateToShow);
   }
 
   @override
   Widget build(BuildContext context) {
+    final isReadOnlyMode = widget.readOnly;
+
+    final backgroundColor =
+        isReadOnlyMode ? AppColors.grey.withValues(alpha:0.20) : Colors.white;
+
+    final effectiveBorderColor = isReadOnlyMode
+        ? Colors.grey.withValues(alpha:0.3)
+        : AppColors.grey.withValues(alpha:0.30);
+
+    final effectiveTextStyle = TextStyle(
+      color: isReadOnlyMode
+          ? AppColors.black.withValues(alpha:0.7)
+          : AppColors.black,
+      fontSize: 14,
+      fontWeight: isReadOnlyMode ? FontWeight.w500 : FontWeight.normal,
+    );
+
     return SpacedColumn(
       crossAxisAlignment: CrossAxisAlignment.start,
       defaultHeight: 4.0,
@@ -83,71 +94,71 @@ class _AppDateFieldState extends State<AppDateField> {
           margin: EdgeInsets.zero,
           padding: EdgeInsets.zero,
           decoration: BoxDecoration(
-            color: widget.fillColor ?? Colors.grey[100],
-            borderRadius: BorderRadius.circular(10.0),
+            color: backgroundColor,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: effectiveBorderColor,
+              width: 1, 
+            ),
           ),
           child: TextField(
-            style: TextStyle(color: Colors.black.withValues(alpha:0.6)),
-            onTap: () {
-           
-              if (widget.readOnly) return;
-              _showDatePicker();
-            },
+            style: effectiveTextStyle,
             controller: controller,
+            readOnly: true, 
+            onTap: () {
+              if (!widget.readOnly) _showDatePicker();
+            },
             decoration: InputDecoration(
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+              border: InputBorder.none,
               hintText: widget.hintText,
               hintStyle: context.textTheme.labelSmall?.copyWith(
                 color: AppColors.grey,
                 fontFamily: 'Urbanist',
                 fontWeight: FontWeight.w500,
               ),
-              fillColor: widget.fillColor ?? Colors.grey[100],
-              filled: true,
-              contentPadding: const EdgeInsets.symmetric(
-                vertical: 8.0,
-                horizontal: 12.0,
-              ),
-              suffixIcon: widget.readOnly ? null : widget.suffixIcon,
-              counterText: '',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10.0),
-                borderSide: BorderSide.none,
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10.0),
-                borderSide: BorderSide.none,
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10.0),
-                borderSide: BorderSide.none,
-              ),
+              suffixIcon: isReadOnlyMode
+                  ? Icon(Icons.lock, size: 18, color: Colors.grey.shade500)
+                  : widget.suffixIcon,
             ),
-
-            obscuringCharacter: '*',
-            textInputAction: TextInputAction.done,
-            maxLengthEnforcement: MaxLengthEnforcement.enforced,
-            textCapitalization: TextCapitalization.none,
-            readOnly: true,
-            autocorrect: false,
           ),
         ),
       ],
     );
   }
+void _showDatePicker() async {
+  DateTime initialDate = DateTime.now();
 
-  void _showDatePicker() async {
-    final selectedDate = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: widget.startDate,
-      lastDate: widget.endDate,
-    );
-    if (selectedDate != null) {
-      final formattedDate = DFU.ddMMyyyy(selectedDate);
-      setState(() {
-        controller.text = formattedDate;
-      });
-      widget.onSelected(selectedDate);
-    }
+  if (controller.text.isNotEmpty) {
+    try {
+      final parts = controller.text.split('-');
+      if (parts.length == 3) {
+        final day = int.tryParse(parts[0]) ?? 1;
+        final month = int.tryParse(parts[1]) ?? 1;
+        final year = int.tryParse(parts[2]) ?? 2000;
+        final parsedDate = DateTime(year, month, day);
+        initialDate = parsedDate.isBefore(DateTime.now())
+            ? DateTime.now()
+            : parsedDate;
+      }
+    } catch (_) {}
   }
+
+  final selectedDate = await showDatePicker(
+    context: context,
+    initialDate: initialDate,
+    firstDate: DateTime.now(), 
+    lastDate: widget.endDate,
+  );
+
+  if (selectedDate != null) {
+    final formattedDate = DFU.ddMMyyyy(selectedDate);
+    setState(() {
+      controller.text = formattedDate;
+    });
+    widget.onSelected(selectedDate);
+  }
+}
+
 }
