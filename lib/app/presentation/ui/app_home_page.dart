@@ -52,7 +52,7 @@ class _AppHomePageState extends State<AppHomePage> {
       },
     ),
     DashboardItem(
-      title: 'Loading\nConfirmation',
+      title: 'Dispatch\nLoading',
       icon: AppIcons.loadingConfirmation,
       onTap: (context) {
         AppRoute.loadingConfirmation.push<bool?>(context);

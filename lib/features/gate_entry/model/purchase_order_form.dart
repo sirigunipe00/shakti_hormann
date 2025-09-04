@@ -13,6 +13,7 @@ class PurchaseOrderForm with _$PurchaseOrderForm {
     @JsonKey(name:'supplier_name') String? supplierName,
     @JsonKey(name: 'order_date',defaultValue: '') String? orderDate,
     @JsonKey(name: 'custom_remarks') String? remarks,
+    @JsonKey(name : 'gate_number') String? gateNumber,
   }) = _PurchaseOrderForm;
 factory PurchaseOrderForm.fromJson(Map<String, dynamic> json) => _$PurchaseOrderFormFromJson(json);
 }

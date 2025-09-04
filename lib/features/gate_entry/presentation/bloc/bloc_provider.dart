@@ -2,6 +2,7 @@ import 'package:injectable/injectable.dart';
 import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/features/gate_entry/data/gate_entry.repo.dart';
 import 'package:shakti_hormann/features/gate_entry/model/gate_entry_form.dart';
+import 'package:shakti_hormann/features/gate_entry/model/gate_number_form.dart';
 import 'package:shakti_hormann/features/gate_entry/model/purchase_order_form.dart';
 
 typedef GateEntriesCubit =
@@ -13,6 +14,12 @@ typedef PurchaseOrderList
     = NetworkRequestCubit<List<PurchaseOrderForm>, String>;
 typedef PurchaseOrderState
     = NetworkRequestState<List<PurchaseOrderForm>>;
+
+
+typedef GateNumberList
+    = NetworkRequestCubit<List<GateNumberForm>, String>;
+typedef GateNumberState
+    = NetworkRequestState<List<GateNumberForm>>;
 
 
 
@@ -34,6 +41,9 @@ class GateEntryBlocProvider {
  
       PurchaseOrderList purchaseOrderList() => PurchaseOrderList(
     onRequest: (params, state) => repo.fetchPurchaseOrders(params ?? ''),
+  );
+      GateNumberList gateNumberList() => GateNumberList(
+    onRequest: (params, state) => repo.fetchGateNumber(params ?? ''),
   );
   
 }

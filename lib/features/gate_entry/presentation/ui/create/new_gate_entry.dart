@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shakti_hormann/core/core.dart';
+import 'package:shakti_hormann/features/gate_entry/model/gate_number_form.dart';
 import 'package:shakti_hormann/features/gate_entry/model/purchase_order_form.dart';
 import 'package:shakti_hormann/features/gate_entry/presentation/bloc/bloc_provider.dart';
 import 'package:shakti_hormann/features/gate_entry/presentation/bloc/create_gate_cubit/gate_entry_cubit.dart';
@@ -9,6 +10,7 @@ import 'package:shakti_hormann/features/gate_entry/presentation/ui/create/gate_e
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/widgets/buttons/app_btn.dart';
 import 'package:shakti_hormann/widgets/dailogs/app_dialogs.dart';
+import 'package:shakti_hormann/widgets/inputs/multi_selection.widget.dart';
 import 'package:shakti_hormann/widgets/inputs/search_dropdown_widget.dart';
 import 'package:shakti_hormann/widgets/simple_app_bar.dart';
 import 'package:shakti_hormann/widgets/title_status_app_bar.dart';
@@ -21,7 +23,8 @@ class NewGateEntry extends StatefulWidget {
 }
 
 class _NewGateEntryState extends State<NewGateEntry> {
-  PurchaseOrderForm? purchaseOrder;
+List<PurchaseOrderForm> selectedPurchaseOrders = [];
+  GateNumberForm? gateNumberForm;
   @override
   Widget build(BuildContext context) {
     final gateEntryState = context.read<CreateGateEntryCubit>().state;
@@ -31,6 +34,7 @@ class _NewGateEntryState extends State<NewGateEntry> {
 
     final isNew = gateEntryState.view == GateEntryView.create;
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       backgroundColor: AppColors.white,
       appBar:
           isNew
@@ -41,7 +45,7 @@ class _NewGateEntryState extends State<NewGateEntry> {
                       builder: (context, state) {
                         return AppButton(
                           borderColor: Colors.grey,
-                          bgColor: const Color.fromARGB(255, 250, 193, 47),
+                          bgColor: state.view == GateEntryView.create ? const Color.fromARGB(255, 250, 193, 47) : AppColors.green,
                           textStyle: const TextStyle(color: AppColors.darkBlue,fontWeight: FontWeight.bold,fontSize: 15),
                           isLoading: state.isLoading,
                           label: state.view.toName(),
@@ -61,31 +65,27 @@ class _NewGateEntryState extends State<NewGateEntry> {
 
                     final names = allData.toList();
 
-                    return SearchDropDownList<PurchaseOrderForm>(
+                    return SearchMultiDropDownList<PurchaseOrderForm>(
                       title: 'Purchase Order No',
                       hint: 'Search Purchase Order',
-                      key: UniqueKey(),
                       color: AppColors.white,
                       items: names,
                       readOnly: status == 1,
                       isloading: state.isLoading,
-                      defaultSelection: purchaseOrder,
-                      futureRequest: (query) async {
-                        return names.toList();
-                      },
-
-                      headerBuilder:
-                          (_, item, __) => Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                item.name ?? '',
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
+                      defaultSelection: selectedPurchaseOrders,
+                      headerBuilder: (_, item, _) {
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              item.name ?? '',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
+                        );
+                      },
 
                       listItemBuilder:
                           (_, item, __, ___) => Column(
@@ -98,26 +98,42 @@ class _NewGateEntryState extends State<NewGateEntry> {
                                 ),
                               ),
                               if (item.supplierName != null)
-                                Text(
-                                  'Supplier Name : ${item.supplierName}' 
-                                ),
-                                Text('Order Date: ${DFU.ddMMyyyyFromStr(item.orderDate ?? '')} '),
-                                const Divider(height: 8),
+                                Text('Supplier Name : ${item.supplierName}'),
+                              Text(
+                                'Order Date: ${DFU.ddMMyyyyFromStr(item.orderDate ?? '')} ',
+                              ),
+                              const Divider(height: 8),
                             ],
                           ),
-
-                      onSelected: (selected) {
+                      onSelected: (selectedList) {
                         setState(() {
-                          purchaseOrder = selected;
-                        });
-                        context.cubit<CreateGateEntryCubit>().onValueChanged(
-                          purchaseOrder: selected.name,
-                          plantName: selected.plantName,
-                        );
-                      },
+                          // multiple selections here
+                          // example: save to purchaseOrderList
+                          selectedPurchaseOrders = selectedList;
 
+                          print('purchaseOrderList...:$selectedPurchaseOrders');
+                          if (selectedPurchaseOrders.isNotEmpty) {
+                            context
+                                .cubit<CreateGateEntryCubit>()
+                                .onValueChanged(
+                                  purchaseOrder: selectedList.map((e) => e.name).join(', '),
+                                  plantName: selectedPurchaseOrders[0].plantName,
+                                  gateNumber: selectedPurchaseOrders[0].gateNumber,
+                                );
+                          } else {
+                            context
+                                .cubit<CreateGateEntryCubit>()
+                                .onValueChanged(
+                                  purchaseOrder: '',
+                                  plantName: '',
+                                  gateNumber: '',
+                                );
+                          }
+                        });
+                      },
                       focusNode: FocusNode(),
                     );
+
                   },
                 ),
                 showScanner: false,

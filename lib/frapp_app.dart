@@ -61,7 +61,7 @@ class ShaktiHormann extends StatelessWidget {
             authenticated: () {
               final filters = Pair(StringUtils.docStatusInt('Draft'), null);
               final filter =Pair(StringUtils.docStatuslogistic('Draft'), null);
-              final filterss =Pair(StringUtils.docStatuslogistic('Reported'), null);
+              final filterss =Pair(StringUtils.docStatusVehicle('Reported'), null);
 
               
               routerCtxt.cubit<GateEntriesCubit>().fetchInitial(filters);

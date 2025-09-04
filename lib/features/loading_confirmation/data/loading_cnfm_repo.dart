@@ -9,9 +9,12 @@ abstract interface class LoadingCnfmRepo {
     String? docStatus,
     String? search,
   );
-  // AsyncValueOf<Pair<String,String>> submitGateExit(LoadingCnfmForm form);
-  AsyncValueOf<Pair<String,String>> createLoadingCnfm(LoadingCnfmForm form);
+  AsyncValueOf<Pair<String,String>> submitLoading(String form);
+  AsyncValueOf<Pair<String,String>> createLoadingCnfm(List<ItemModel> form,String name);
   AsyncValueOf<List<ItemModel>> fetchItemList(String name);
+  AsyncValueOf<List<ItemModel>> getItems(String name);
+
+
 
  
 }

@@ -12,7 +12,7 @@ class LoadingCnfmFiltersCubit extends PageViewFiltersCubit {
       final newState = state.copyWith(status: status);
       emitSafeState(newState);
     } else {
-      final newState = state.copyWith(status: 'Draft');
+      final newState = state.copyWith(status: 'Reported');
       emitSafeState(newState);
     }
   }

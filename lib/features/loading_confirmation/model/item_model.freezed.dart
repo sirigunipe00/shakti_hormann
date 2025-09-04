@@ -78,8 +78,8 @@ mixin _$ItemModel {
       throw _privateConstructorUsedError;
   @JsonKey(name: 'over_billing_allowance')
   double? get overBillingAllowance => throw _privateConstructorUsedError;
-  @JsonKey(name: 'image')
-  String? get image => throw _privateConstructorUsedError;
+  @JsonKey(name: 'loaded_item_photo')
+  String? get loadedItemPhoto => throw _privateConstructorUsedError;
   @JsonKey(name: 'description')
   String? get description => throw _privateConstructorUsedError;
   @JsonKey(name: 'brand')
@@ -182,6 +182,16 @@ mixin _$ItemModel {
   String? get defaultManufacturerPartNo => throw _privateConstructorUsedError;
   @JsonKey(name: 'total_projected_qty')
   double? get totalProjectedQty => throw _privateConstructorUsedError;
+  @JsonKey(name: 'qty_loaded')
+  double? get qtyLoaded => throw _privateConstructorUsedError;
+  String? get uom => throw _privateConstructorUsedError;
+  @JsonKey(
+    includeFromJson: true,
+    includeToJson: false,
+    toJson: toNull,
+    fromJson: toNull,
+  )
+  File? get imageFile => throw _privateConstructorUsedError;
 
   /// Serializes this ItemModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -228,7 +238,7 @@ abstract class $ItemModelCopyWith<$Res> {
     @JsonKey(name: 'over_delivery_receipt_allowance')
     double? overDeliveryReceiptAllowance,
     @JsonKey(name: 'over_billing_allowance') double? overBillingAllowance,
-    @JsonKey(name: 'image') String? image,
+    @JsonKey(name: 'loaded_item_photo') String? loadedItemPhoto,
     @JsonKey(name: 'description') String? description,
     @JsonKey(name: 'brand') String? brand,
     @JsonKey(name: 'shelf_life_in_days') int? shelfLifeInDays,
@@ -285,6 +295,15 @@ abstract class $ItemModelCopyWith<$Res> {
     @JsonKey(name: 'default_manufacturer_part_no')
     String? defaultManufacturerPartNo,
     @JsonKey(name: 'total_projected_qty') double? totalProjectedQty,
+    @JsonKey(name: 'qty_loaded') double? qtyLoaded,
+    String? uom,
+    @JsonKey(
+      includeFromJson: true,
+      includeToJson: false,
+      toJson: toNull,
+      fromJson: toNull,
+    )
+    File? imageFile,
   });
 }
 
@@ -331,7 +350,7 @@ class _$ItemModelCopyWithImpl<$Res, $Val extends ItemModel>
     Object? assetNamingSeries = freezed,
     Object? overDeliveryReceiptAllowance = freezed,
     Object? overBillingAllowance = freezed,
-    Object? image = freezed,
+    Object? loadedItemPhoto = freezed,
     Object? description = freezed,
     Object? brand = freezed,
     Object? shelfLifeInDays = freezed,
@@ -382,6 +401,9 @@ class _$ItemModelCopyWithImpl<$Res, $Val extends ItemModel>
     Object? defaultItemManufacturer = freezed,
     Object? defaultManufacturerPartNo = freezed,
     Object? totalProjectedQty = freezed,
+    Object? qtyLoaded = freezed,
+    Object? uom = freezed,
+    Object? imageFile = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -525,10 +547,10 @@ class _$ItemModelCopyWithImpl<$Res, $Val extends ItemModel>
                     ? _value.overBillingAllowance
                     : overBillingAllowance // ignore: cast_nullable_to_non_nullable
                         as double?,
-            image:
-                freezed == image
-                    ? _value.image
-                    : image // ignore: cast_nullable_to_non_nullable
+            loadedItemPhoto:
+                freezed == loadedItemPhoto
+                    ? _value.loadedItemPhoto
+                    : loadedItemPhoto // ignore: cast_nullable_to_non_nullable
                         as String?,
             description:
                 freezed == description
@@ -780,6 +802,21 @@ class _$ItemModelCopyWithImpl<$Res, $Val extends ItemModel>
                     ? _value.totalProjectedQty
                     : totalProjectedQty // ignore: cast_nullable_to_non_nullable
                         as double?,
+            qtyLoaded:
+                freezed == qtyLoaded
+                    ? _value.qtyLoaded
+                    : qtyLoaded // ignore: cast_nullable_to_non_nullable
+                        as double?,
+            uom:
+                freezed == uom
+                    ? _value.uom
+                    : uom // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            imageFile:
+                freezed == imageFile
+                    ? _value.imageFile
+                    : imageFile // ignore: cast_nullable_to_non_nullable
+                        as File?,
           )
           as $Val,
     );
@@ -825,7 +862,7 @@ abstract class _$$ItemModelImplCopyWith<$Res>
     @JsonKey(name: 'over_delivery_receipt_allowance')
     double? overDeliveryReceiptAllowance,
     @JsonKey(name: 'over_billing_allowance') double? overBillingAllowance,
-    @JsonKey(name: 'image') String? image,
+    @JsonKey(name: 'loaded_item_photo') String? loadedItemPhoto,
     @JsonKey(name: 'description') String? description,
     @JsonKey(name: 'brand') String? brand,
     @JsonKey(name: 'shelf_life_in_days') int? shelfLifeInDays,
@@ -882,6 +919,15 @@ abstract class _$$ItemModelImplCopyWith<$Res>
     @JsonKey(name: 'default_manufacturer_part_no')
     String? defaultManufacturerPartNo,
     @JsonKey(name: 'total_projected_qty') double? totalProjectedQty,
+    @JsonKey(name: 'qty_loaded') double? qtyLoaded,
+    String? uom,
+    @JsonKey(
+      includeFromJson: true,
+      includeToJson: false,
+      toJson: toNull,
+      fromJson: toNull,
+    )
+    File? imageFile,
   });
 }
 
@@ -927,7 +973,7 @@ class __$$ItemModelImplCopyWithImpl<$Res>
     Object? assetNamingSeries = freezed,
     Object? overDeliveryReceiptAllowance = freezed,
     Object? overBillingAllowance = freezed,
-    Object? image = freezed,
+    Object? loadedItemPhoto = freezed,
     Object? description = freezed,
     Object? brand = freezed,
     Object? shelfLifeInDays = freezed,
@@ -978,6 +1024,9 @@ class __$$ItemModelImplCopyWithImpl<$Res>
     Object? defaultItemManufacturer = freezed,
     Object? defaultManufacturerPartNo = freezed,
     Object? totalProjectedQty = freezed,
+    Object? qtyLoaded = freezed,
+    Object? uom = freezed,
+    Object? imageFile = freezed,
   }) {
     return _then(
       _$ItemModelImpl(
@@ -1121,10 +1170,10 @@ class __$$ItemModelImplCopyWithImpl<$Res>
                 ? _value.overBillingAllowance
                 : overBillingAllowance // ignore: cast_nullable_to_non_nullable
                     as double?,
-        image:
-            freezed == image
-                ? _value.image
-                : image // ignore: cast_nullable_to_non_nullable
+        loadedItemPhoto:
+            freezed == loadedItemPhoto
+                ? _value.loadedItemPhoto
+                : loadedItemPhoto // ignore: cast_nullable_to_non_nullable
                     as String?,
         description:
             freezed == description
@@ -1376,6 +1425,21 @@ class __$$ItemModelImplCopyWithImpl<$Res>
                 ? _value.totalProjectedQty
                 : totalProjectedQty // ignore: cast_nullable_to_non_nullable
                     as double?,
+        qtyLoaded:
+            freezed == qtyLoaded
+                ? _value.qtyLoaded
+                : qtyLoaded // ignore: cast_nullable_to_non_nullable
+                    as double?,
+        uom:
+            freezed == uom
+                ? _value.uom
+                : uom // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        imageFile:
+            freezed == imageFile
+                ? _value.imageFile
+                : imageFile // ignore: cast_nullable_to_non_nullable
+                    as File?,
       ),
     );
   }
@@ -1414,7 +1478,7 @@ class _$ItemModelImpl implements _ItemModel {
     @JsonKey(name: 'over_delivery_receipt_allowance')
     this.overDeliveryReceiptAllowance,
     @JsonKey(name: 'over_billing_allowance') this.overBillingAllowance,
-    @JsonKey(name: 'image') this.image,
+    @JsonKey(name: 'loaded_item_photo') this.loadedItemPhoto,
     @JsonKey(name: 'description') this.description,
     @JsonKey(name: 'brand') this.brand,
     @JsonKey(name: 'shelf_life_in_days') this.shelfLifeInDays,
@@ -1471,6 +1535,15 @@ class _$ItemModelImpl implements _ItemModel {
     @JsonKey(name: 'default_manufacturer_part_no')
     this.defaultManufacturerPartNo,
     @JsonKey(name: 'total_projected_qty') this.totalProjectedQty,
+    @JsonKey(name: 'qty_loaded') this.qtyLoaded,
+    this.uom,
+    @JsonKey(
+      includeFromJson: true,
+      includeToJson: false,
+      toJson: toNull,
+      fromJson: toNull,
+    )
+    this.imageFile,
   });
 
   factory _$ItemModelImpl.fromJson(Map<String, dynamic> json) =>
@@ -1561,8 +1634,8 @@ class _$ItemModelImpl implements _ItemModel {
   @JsonKey(name: 'over_billing_allowance')
   final double? overBillingAllowance;
   @override
-  @JsonKey(name: 'image')
-  final String? image;
+  @JsonKey(name: 'loaded_item_photo')
+  final String? loadedItemPhoto;
   @override
   @JsonKey(name: 'description')
   final String? description;
@@ -1713,10 +1786,23 @@ class _$ItemModelImpl implements _ItemModel {
   @override
   @JsonKey(name: 'total_projected_qty')
   final double? totalProjectedQty;
+  @override
+  @JsonKey(name: 'qty_loaded')
+  final double? qtyLoaded;
+  @override
+  final String? uom;
+  @override
+  @JsonKey(
+    includeFromJson: true,
+    includeToJson: false,
+    toJson: toNull,
+    fromJson: toNull,
+  )
+  final File? imageFile;
 
   @override
   String toString() {
-    return 'ItemModel(name: $name, owner: $owner, creation: $creation, modified: $modified, modifiedBy: $modifiedBy, docstatus: $docstatus, idx: $idx, namingSeries: $namingSeries, itemCode: $itemCode, itemName: $itemName, itemGroup: $itemGroup, gstHsnCode: $gstHsnCode, stockUom: $stockUom, customGateNumber: $customGateNumber, disabled: $disabled, allowAlternativeItem: $allowAlternativeItem, isStockItem: $isStockItem, hasVariants: $hasVariants, openingStock: $openingStock, valuationRate: $valuationRate, standardRate: $standardRate, isFixedAsset: $isFixedAsset, autoCreateAssets: $autoCreateAssets, isGroupedAsset: $isGroupedAsset, assetCategory: $assetCategory, assetNamingSeries: $assetNamingSeries, overDeliveryReceiptAllowance: $overDeliveryReceiptAllowance, overBillingAllowance: $overBillingAllowance, image: $image, description: $description, brand: $brand, shelfLifeInDays: $shelfLifeInDays, endOfLife: $endOfLife, defaultMaterialRequestType: $defaultMaterialRequestType, valuationMethod: $valuationMethod, warrantyPeriod: $warrantyPeriod, weightPerUnit: $weightPerUnit, weightUom: $weightUom, allowNegativeStock: $allowNegativeStock, hasBatchNo: $hasBatchNo, createNewBatch: $createNewBatch, batchNumberSeries: $batchNumberSeries, hasExpiryDate: $hasExpiryDate, retainSample: $retainSample, sampleQuantity: $sampleQuantity, hasSerialNo: $hasSerialNo, serialNoSeries: $serialNoSeries, variantOf: $variantOf, variantBasedOn: $variantBasedOn, enableDeferredExpense: $enableDeferredExpense, noOfMonthsExp: $noOfMonthsExp, enableDeferredRevenue: $enableDeferredRevenue, noOfMonths: $noOfMonths, purchaseUom: $purchaseUom, minOrderQty: $minOrderQty, safetyStock: $safetyStock, isPurchaseItem: $isPurchaseItem, leadTimeDays: $leadTimeDays, lastPurchaseRate: $lastPurchaseRate, isCustomerProvidedItem: $isCustomerProvidedItem, customer: $customer, deliveredBySupplier: $deliveredBySupplier, countryOfOrigin: $countryOfOrigin, customsTariffNumber: $customsTariffNumber, salesUom: $salesUom, grantCommission: $grantCommission, isSalesItem: $isSalesItem, maxDiscount: $maxDiscount, isIneligibleForItc: $isIneligibleForItc, inspectionRequiredBeforePurchase: $inspectionRequiredBeforePurchase, qualityInspectionTemplate: $qualityInspectionTemplate, inspectionRequiredBeforeDelivery: $inspectionRequiredBeforeDelivery, includeItemInManufacturing: $includeItemInManufacturing, isSubContractedItem: $isSubContractedItem, defaultBom: $defaultBom, customerCode: $customerCode, defaultItemManufacturer: $defaultItemManufacturer, defaultManufacturerPartNo: $defaultManufacturerPartNo, totalProjectedQty: $totalProjectedQty)';
+    return 'ItemModel(name: $name, owner: $owner, creation: $creation, modified: $modified, modifiedBy: $modifiedBy, docstatus: $docstatus, idx: $idx, namingSeries: $namingSeries, itemCode: $itemCode, itemName: $itemName, itemGroup: $itemGroup, gstHsnCode: $gstHsnCode, stockUom: $stockUom, customGateNumber: $customGateNumber, disabled: $disabled, allowAlternativeItem: $allowAlternativeItem, isStockItem: $isStockItem, hasVariants: $hasVariants, openingStock: $openingStock, valuationRate: $valuationRate, standardRate: $standardRate, isFixedAsset: $isFixedAsset, autoCreateAssets: $autoCreateAssets, isGroupedAsset: $isGroupedAsset, assetCategory: $assetCategory, assetNamingSeries: $assetNamingSeries, overDeliveryReceiptAllowance: $overDeliveryReceiptAllowance, overBillingAllowance: $overBillingAllowance, loadedItemPhoto: $loadedItemPhoto, description: $description, brand: $brand, shelfLifeInDays: $shelfLifeInDays, endOfLife: $endOfLife, defaultMaterialRequestType: $defaultMaterialRequestType, valuationMethod: $valuationMethod, warrantyPeriod: $warrantyPeriod, weightPerUnit: $weightPerUnit, weightUom: $weightUom, allowNegativeStock: $allowNegativeStock, hasBatchNo: $hasBatchNo, createNewBatch: $createNewBatch, batchNumberSeries: $batchNumberSeries, hasExpiryDate: $hasExpiryDate, retainSample: $retainSample, sampleQuantity: $sampleQuantity, hasSerialNo: $hasSerialNo, serialNoSeries: $serialNoSeries, variantOf: $variantOf, variantBasedOn: $variantBasedOn, enableDeferredExpense: $enableDeferredExpense, noOfMonthsExp: $noOfMonthsExp, enableDeferredRevenue: $enableDeferredRevenue, noOfMonths: $noOfMonths, purchaseUom: $purchaseUom, minOrderQty: $minOrderQty, safetyStock: $safetyStock, isPurchaseItem: $isPurchaseItem, leadTimeDays: $leadTimeDays, lastPurchaseRate: $lastPurchaseRate, isCustomerProvidedItem: $isCustomerProvidedItem, customer: $customer, deliveredBySupplier: $deliveredBySupplier, countryOfOrigin: $countryOfOrigin, customsTariffNumber: $customsTariffNumber, salesUom: $salesUom, grantCommission: $grantCommission, isSalesItem: $isSalesItem, maxDiscount: $maxDiscount, isIneligibleForItc: $isIneligibleForItc, inspectionRequiredBeforePurchase: $inspectionRequiredBeforePurchase, qualityInspectionTemplate: $qualityInspectionTemplate, inspectionRequiredBeforeDelivery: $inspectionRequiredBeforeDelivery, includeItemInManufacturing: $includeItemInManufacturing, isSubContractedItem: $isSubContractedItem, defaultBom: $defaultBom, customerCode: $customerCode, defaultItemManufacturer: $defaultItemManufacturer, defaultManufacturerPartNo: $defaultManufacturerPartNo, totalProjectedQty: $totalProjectedQty, qtyLoaded: $qtyLoaded, uom: $uom, imageFile: $imageFile)';
   }
 
   @override
@@ -1781,7 +1867,8 @@ class _$ItemModelImpl implements _ItemModel {
                     overDeliveryReceiptAllowance) &&
             (identical(other.overBillingAllowance, overBillingAllowance) ||
                 other.overBillingAllowance == overBillingAllowance) &&
-            (identical(other.image, image) || other.image == image) &&
+            (identical(other.loadedItemPhoto, loadedItemPhoto) ||
+                other.loadedItemPhoto == loadedItemPhoto) &&
             (identical(other.description, description) ||
                 other.description == description) &&
             (identical(other.brand, brand) || other.brand == brand) &&
@@ -1905,7 +1992,12 @@ class _$ItemModelImpl implements _ItemModel {
                 ) ||
                 other.defaultManufacturerPartNo == defaultManufacturerPartNo) &&
             (identical(other.totalProjectedQty, totalProjectedQty) ||
-                other.totalProjectedQty == totalProjectedQty));
+                other.totalProjectedQty == totalProjectedQty) &&
+            (identical(other.qtyLoaded, qtyLoaded) ||
+                other.qtyLoaded == qtyLoaded) &&
+            (identical(other.uom, uom) || other.uom == uom) &&
+            (identical(other.imageFile, imageFile) ||
+                other.imageFile == imageFile));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -1940,7 +2032,7 @@ class _$ItemModelImpl implements _ItemModel {
     assetNamingSeries,
     overDeliveryReceiptAllowance,
     overBillingAllowance,
-    image,
+    loadedItemPhoto,
     description,
     brand,
     shelfLifeInDays,
@@ -1991,6 +2083,9 @@ class _$ItemModelImpl implements _ItemModel {
     defaultItemManufacturer,
     defaultManufacturerPartNo,
     totalProjectedQty,
+    qtyLoaded,
+    uom,
+    imageFile,
   ]);
 
   /// Create a copy of ItemModel
@@ -2038,7 +2133,7 @@ abstract class _ItemModel implements ItemModel {
     @JsonKey(name: 'over_delivery_receipt_allowance')
     final double? overDeliveryReceiptAllowance,
     @JsonKey(name: 'over_billing_allowance') final double? overBillingAllowance,
-    @JsonKey(name: 'image') final String? image,
+    @JsonKey(name: 'loaded_item_photo') final String? loadedItemPhoto,
     @JsonKey(name: 'description') final String? description,
     @JsonKey(name: 'brand') final String? brand,
     @JsonKey(name: 'shelf_life_in_days') final int? shelfLifeInDays,
@@ -2097,6 +2192,15 @@ abstract class _ItemModel implements ItemModel {
     @JsonKey(name: 'default_manufacturer_part_no')
     final String? defaultManufacturerPartNo,
     @JsonKey(name: 'total_projected_qty') final double? totalProjectedQty,
+    @JsonKey(name: 'qty_loaded') final double? qtyLoaded,
+    final String? uom,
+    @JsonKey(
+      includeFromJson: true,
+      includeToJson: false,
+      toJson: toNull,
+      fromJson: toNull,
+    )
+    final File? imageFile,
   }) = _$ItemModelImpl;
 
   factory _ItemModel.fromJson(Map<String, dynamic> json) =
@@ -2187,8 +2291,8 @@ abstract class _ItemModel implements ItemModel {
   @JsonKey(name: 'over_billing_allowance')
   double? get overBillingAllowance;
   @override
-  @JsonKey(name: 'image')
-  String? get image;
+  @JsonKey(name: 'loaded_item_photo')
+  String? get loadedItemPhoto;
   @override
   @JsonKey(name: 'description')
   String? get description;
@@ -2339,6 +2443,19 @@ abstract class _ItemModel implements ItemModel {
   @override
   @JsonKey(name: 'total_projected_qty')
   double? get totalProjectedQty;
+  @override
+  @JsonKey(name: 'qty_loaded')
+  double? get qtyLoaded;
+  @override
+  String? get uom;
+  @override
+  @JsonKey(
+    includeFromJson: true,
+    includeToJson: false,
+    toJson: toNull,
+    fromJson: toNull,
+  )
+  File? get imageFile;
 
   /// Create a copy of ItemModel
   /// with the given fields replaced by the non-null parameter values.

@@ -104,13 +104,13 @@ class GateEntryWidget extends StatelessWidget {
                             ],
                           ),
 
-                          Text(
-                            '(SHM)',
-                            style: AppTextStyles.titleLarge(context).copyWith(
-                              color: const Color(0xFF2957A4),
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+                          // Text(
+                          //   '(SHM)',
+                          //   style: AppTextStyles.titleLarge(context).copyWith(
+                          //     color: const Color(0xFF2957A4),
+                          //     fontWeight: FontWeight.bold,
+                          //   ),
+                          // ),
                         ],
                       ),
 
@@ -128,7 +128,7 @@ class GateEntryWidget extends StatelessWidget {
                               const SizedBox(width: 4),
                               Text(
                                 DFU.ddMMyyyyFromStr(
-                                  gateEntry.creationDate ?? '',
+                                  gateEntry.gateEntryDate ?? '',
                                 ),
                                 style: AppTextStyles.titleMedium(
                                   context,
@@ -138,21 +138,21 @@ class GateEntryWidget extends StatelessWidget {
                             ],
                           ),
 
-                          Row(
-                            children: [
-                           Image.asset(
-                            'assets/images/timeicon.png'
-                   ,
-                           ),
-                              Text(
-                                DFU.timeFromStr(gateEntry.creationDate ?? ''),
-                                style: AppTextStyles.titleMedium(
-                                  context,
-                                  AppColors.darkBlue,
-                                ).copyWith(color: AppColors.litecyan),
-                              ),
-                            ],
-                          ),
+                  //         Row(
+                  //           children: [
+                  //          Image.asset(
+                  //           'assets/images/timeicon.png'
+                  //  ,
+                  //          ),
+                  //             Text(
+                  //               DFU.timeFromStr(gateEntry.creationDate ?? ''),
+                  //               style: AppTextStyles.titleMedium(
+                  //                 context,
+                  //                 AppColors.darkBlue,
+                  //               ).copyWith(color: AppColors.litecyan),
+                  //             ),
+                  //           ],
+                  //         ),
                         ],
                       ),
                     ],

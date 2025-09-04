@@ -32,3 +32,10 @@ typedef ListItemBuilder<T> = Widget Function(
   bool isSelected,
   VoidCallback onItemSelect,
 );
+
+typedef ListMultiItemBuilder<T> = Widget Function(
+  BuildContext context,
+  T item,
+  int index,
+  bool isSelected,
+);

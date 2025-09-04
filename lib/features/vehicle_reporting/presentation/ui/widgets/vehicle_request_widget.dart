@@ -1,8 +1,6 @@
 import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/material.dart';
 import 'package:shakti_hormann/core/utils/date_format_util.dart';
-import 'package:shakti_hormann/core/utils/string_utils.dart';
-import 'package:shakti_hormann/doc_status_widget.dart';
 import 'package:shakti_hormann/features/vehicle_reporting/model/vehicle_reporting_form.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/styles/app_text_styles.dart';
@@ -20,6 +18,7 @@ class VehicleRequestWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print('vehicleReporting.status:${vehicleReporting.docstatus}');
     return GestureDetector(
       onTap: onTap,
       child: Card(
@@ -31,7 +30,7 @@ class VehicleRequestWidget extends StatelessWidget {
         ),
         child: SpacedColumn(
           defaultHeight: 4,
-          margin: const EdgeInsets.symmetric(vertical: 4,horizontal: 4),
+          margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
           children: [
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -40,7 +39,7 @@ class VehicleRequestWidget extends StatelessWidget {
                   width: 70,
                   height: 70,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFAB94FF).withValues(alpha:0.30),
+                    color: const Color(0xFFAB94FF).withValues(alpha: 0.30),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   alignment: Alignment.center,
@@ -88,13 +87,13 @@ class VehicleRequestWidget extends StatelessWidget {
                             ],
                           ),
 
-                          Text(
-                            '(SHM)',
-                            style: AppTextStyles.titleLarge(context).copyWith(
-                              color: const Color(0xFF2957A4),
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+                          // Text(
+                          //   '(SHM)',
+                          //   style: AppTextStyles.titleLarge(context).copyWith(
+                          //     color: const Color(0xFF2957A4),
+                          //     fontWeight: FontWeight.bold,
+                          //   ),
+                          // ),
                         ],
                       ),
 
@@ -112,7 +111,9 @@ class VehicleRequestWidget extends StatelessWidget {
                               const SizedBox(width: 4),
                               Text(
                                 DFU.ddMMyyyyFromStr(
-                                  vehicleReporting.creation ?? '',
+                                  vehicleReporting
+                                          .vehicleReportingEntryVreDate ??
+                                      '',
                                 ),
                                 style: const TextStyle(
                                   color: Color(0xFF163A6B),
@@ -122,21 +123,21 @@ class VehicleRequestWidget extends StatelessWidget {
                               ),
                             ],
                           ),
-                          Row(
-                            children: [
-                             Image.asset(
-                            'assets/images/timeicon.png'
-                   ,
-                           ),
-                              Text(
-                                DFU.timeFromStr(vehicleReporting.creation ?? ''),
-                                style: AppTextStyles.titleMedium(
-                                  context,
-                                  AppColors.darkBlue,
-                                ).copyWith(color: AppColors.litecyan),
-                              ),
-                            ],
-                          ),
+                          //         Row(
+                          //           children: [
+                          //            Image.asset(
+                          //           'assets/images/timeicon.png'
+                          //  ,
+                          //          ),
+                          //             Text(
+                          //               DFU.timeFromStr(vehicleReporting.vehicleReportingEntryVreDate ?? ''),
+                          //               style: AppTextStyles.titleMedium(
+                          //                 context,
+                          //                 AppColors.darkBlue,
+                          //               ).copyWith(color: AppColors.litecyan),
+                          //             ),
+                          //           ],
+                          //         ),
                         ],
                       ),
                     ],
@@ -155,7 +156,6 @@ class VehicleRequestWidget extends StatelessWidget {
                 dashGapLength: 4.0,
               ),
             ),
-        
 
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -163,23 +163,28 @@ class VehicleRequestWidget extends StatelessWidget {
               children: [
                 Text(
                   vehicleReporting.linkedTransporterConfirmation ?? '',
-                  style:const TextStyle(
+                  style: const TextStyle(
                     color: Color(0xFF2957A4),
                     fontWeight: FontWeight.bold,
                     fontSize: 15,
                   ),
                 ),
-               Text(
-                  vehicleReporting.status ?? '',
+                Text( vehicleReporting.docstatus == 1 ? 'Submitted' :
+                  vehicleReporting.docstatus == 0 &&
+                          (vehicleReporting.status == null ||
+                              vehicleReporting.status == '')
+                      ? 'Draft'
+                      : vehicleReporting.status ?? '',
+                  // vehicleReporting.docstatus.toString() ?? '',
                   style: AppTextStyles.titleLarge(context).copyWith(
-                    color: _getStatusColor(vehicleReporting.status),
+                    color: _getStatusColor( vehicleReporting.docstatus == 1 ? 'Submitted' : vehicleReporting.status),
                     fontWeight: FontWeight.bold,
                     fontSize: 12,
                   ),
                 ),
-              // DocStatusWidget(
-              //     status: StringUtils.docStatus(vehicleReporting.docstatus ?? 0),
-              //   ),
+                // DocStatusWidget(
+                //     status: StringUtils.docStatus(vehicleReporting.docstatus ?? 0),
+                //   ),
               ],
             ),
           ],
@@ -188,15 +193,18 @@ class VehicleRequestWidget extends StatelessWidget {
     );
   }
 }
+
 Color _getStatusColor(String? status) {
   switch (status?.toLowerCase()) {
     case 'reported':
+      return Colors.blue;
+    case 'submitted':
       return Colors.green;
     case 'rejected':
       return Colors.red;
-     case 'cancelled':
+    case 'cancelled':
       return Colors.red;
-     default:
+    default:
       return Colors.black;
   }
 }

@@ -5,7 +5,6 @@ import 'package:dartz/dartz.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:http/http.dart' as http;
 import 'package:injectable/injectable.dart';
-import 'package:intl/intl.dart';
 import 'package:path/path.dart' as p;
 import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/features/transport_confirmation/model/transport_confirmation_form.dart';
@@ -25,10 +24,14 @@ class VehicleReportingRepoimpl extends BaseApiRepository
   ) async {
     final filters = <List<dynamic>>[];
 
-  if (docStatus != null && docStatus != '4') {
+    print('docstatus in reo.:$docStatus');
+
+    if (docStatus != null && docStatus != '4') {
       filters
         ..add(['status', '=', docStatus])
-        ..add(['docstatus', '!=', 2]);
+        ..add(['docstatus', '!=', 2])
+        ..add(['docstatus', '!=', 1]);
+      ;
     }
 
     if (serach != null && serach.isNotEmpty) {
@@ -62,20 +65,17 @@ class VehicleReportingRepoimpl extends BaseApiRepository
   ) async {
     $logger.devLog('arrtival date repo......${form.arrivalDateAndTime}');
     return await executeSafely(() async {
-        Uint8List? driverIdfrontcompressedBytes;
-   
+      Uint8List? driverIdfrontcompressedBytes;
 
-    if (form.driverIdPhotoImg != null) {
-      final filePath = form.driverIdPhotoImg!.path;
-      driverIdfrontcompressedBytes = await FlutterImageCompress.compressWithFile(
-        filePath,
-        quality: 50,
-      );
-    } else if (form.driverIdPhoto != null) {
-      driverIdfrontcompressedBytes = await fetchAndConvertToBase64(
-        form.driverIdPhoto ?? '',
-      );
-    }
+      if (form.driverIdPhotoImg != null) {
+        final filePath = form.driverIdPhotoImg!.path;
+        driverIdfrontcompressedBytes =
+            await FlutterImageCompress.compressWithFile(filePath, quality: 50);
+      } else if (form.driverIdPhoto != null) {
+        driverIdfrontcompressedBytes = await fetchAndConvertToBase64(
+          form.driverIdPhoto ?? '',
+        );
+      }
       final config = RequestConfig(
         url: Urls.createVehicleReporting,
         parser: (json) {
@@ -88,9 +88,10 @@ class VehicleReportingRepoimpl extends BaseApiRepository
           'plant_name': form.plantName,
           'linked_transporter_confirmation': form.linkedTransporterConfirmation,
           'arrival_date_and__time': form.arrivalDateAndTime,
-          'driver_id_proof': driverIdfrontcompressedBytes == null
-                ? null
-                : base64Encode(driverIdfrontcompressedBytes),
+          'driver_id_proof':
+              driverIdfrontcompressedBytes == null
+                  ? null
+                  : base64Encode(driverIdfrontcompressedBytes),
           'vehicle_number': form.vehicleNumber,
           'vehicle_reporting_entry_vre_date': form.vehicleReportingEntryVreDate,
           'driver_contact': form.driverContact,
@@ -110,65 +111,45 @@ class VehicleReportingRepoimpl extends BaseApiRepository
     });
   }
 
-    @override
+  @override
   AsyncValueOf<Pair<String, String>> submitVehicleReporting(
     VehicleReportingForm form,
   ) async {
     $logger.devLog('arrtival date repo......${form.arrivalDateAndTime}');
 
     return await executeSafely(() async {
+      final date = DFU.formatArrivalDate(form.arrivalDateAndTime);
 
-      String? formattedArrivalDateTime;
-if (form.arrivalDateAndTime != null && form.arrivalDateAndTime!.isNotEmpty) {
-  try {
-    final parsedDateTime = DateFormat('dd-MM-yyyy HH:mm:ss')
-        .parse(form.arrivalDateAndTime!);
-    formattedArrivalDateTime =
-        DateFormat('yyyy-MM-dd HH:mm:ss').format(parsedDateTime);
-  } catch (e) {
-    $logger.devLog('Arrival Date parsing error: $e');
-    formattedArrivalDateTime = null;
-  }
-}
+      Uint8List? driverIdfrontcompressedBytes;
 
-
-   Uint8List? driverIdfrontcompressedBytes;
-   
-
-    if (form.driverIdPhotoImg != null) {
-      final filePath = form.driverIdPhotoImg!.path;
-      driverIdfrontcompressedBytes = await FlutterImageCompress.compressWithFile(
-        filePath,
-        quality: 50,
-      );
-    } else if (form.driverIdPhoto != null) {
-      driverIdfrontcompressedBytes = await fetchAndConvertToBase64(
-        form.driverIdPhoto ?? '',
-      );
-    }
+      if (form.driverIdPhotoImg != null) {
+        final filePath = form.driverIdPhotoImg!.path;
+        driverIdfrontcompressedBytes =
+            await FlutterImageCompress.compressWithFile(filePath, quality: 50);
+      } else if (form.driverIdPhoto != null) {
+        driverIdfrontcompressedBytes = await fetchAndConvertToBase64(
+          form.driverIdPhoto ?? '',
+        );
+      }
       final config = RequestConfig(
         url: Urls.updateVehicleReporting,
         parser: (json) {
-          final data =
-              json['message']['data']['name']
-                  as String;
+          final data = json['message']['data']['name'] as String;
           return Pair(data, '');
         },
         body: jsonEncode({
           'plant_name': form.plantName,
           'name': form.name,
           'linked_transporter_confirmation': form.linkedTransporterConfirmation,
-          'arrival_date_and__time': formattedArrivalDateTime,
-          'driver_id_proof':  driverIdfrontcompressedBytes == null
-                ? null
-                : base64Encode(driverIdfrontcompressedBytes),
+          'arrival_date_and__time': date,
+
+          'driver_id_proof':
+              driverIdfrontcompressedBytes == null
+                  ? null
+                  : base64Encode(driverIdfrontcompressedBytes),
           'status': 'Reported',
           'vehicle_number': form.vehicleNumber,
-          'vehicle_reporting_entry_vre_date':  form.vehicleReportingEntryVreDate != null
-                  ? DateFormat(
-                    'yyyy-MM-dd',
-                  ).format(DateFormat('dd-MM-yyyy').parse(form.vehicleReportingEntryVreDate!))
-                  : null,
+          'vehicle_reporting_entry_vre_date': form.vehicleReportingEntryVreDate,
           'driver_contact': form.driverContact,
 
           'remarks': form.remarks,
@@ -186,7 +167,7 @@ if (form.arrivalDateAndTime != null && form.arrivalDateAndTime!.isNotEmpty) {
     });
   }
 
-    @override
+  @override
   AsyncValueOf<Pair<String, String>> rejectVehicleReporting(
     VehicleReportingForm form,
   ) async {
@@ -216,8 +197,6 @@ if (form.arrivalDateAndTime != null && form.arrivalDateAndTime!.isNotEmpty) {
       return response.process((r) => right(r.data!));
     });
   }
-
-
 
   @override
   AsyncValueOf<List<TransportConfirmationForm>> fetchLogistics(
@@ -256,21 +235,20 @@ if (form.arrivalDateAndTime != null && form.arrivalDateAndTime!.isNotEmpty) {
   }
 }
 
-
-  Future<Uint8List?> fetchAndConvertToBase64(String relativePath) async {
-    if (p.extension(relativePath).isEmpty) {
-      return null;
-    }
-
-    final String url = 'http://65.21.243.18:8000$relativePath';
-
-    final response = await http.get(Uri.parse(url));
-
-    if (response.statusCode == 200) {
-      Uint8List bytes = response.bodyBytes;
-
-      return bytes;
-    } else {
-      throw Exception('Failed to load file: ${response.statusCode}');
-    }
+Future<Uint8List?> fetchAndConvertToBase64(String relativePath) async {
+  if (p.extension(relativePath).isEmpty) {
+    return null;
   }
+
+  final String url = 'http://65.21.243.18:8000$relativePath';
+
+  final response = await http.get(Uri.parse(url));
+
+  if (response.statusCode == 200) {
+    Uint8List bytes = response.bodyBytes;
+
+    return bytes;
+  } else {
+    throw Exception('Failed to load file: ${response.statusCode}');
+  }
+}

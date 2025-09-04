@@ -60,7 +60,7 @@ class _GateExitFormWidgetState extends State<GateExitFormWidget> {
               ),
 
               Container(
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.only(top: 12,left: 12,right: 12,),
                 width: MediaQuery.of(context).size.width,
                 margin: const EdgeInsets.symmetric(horizontal: 18),
                 decoration: BoxDecoration(
@@ -100,9 +100,10 @@ class _GateExitFormWidgetState extends State<GateExitFormWidget> {
                     ),
 
                     InputField(
-                      title: 'Vehicle No',
+                      title: 'Vehicle Number',
                       hintText: 'Enter Vehicle No',
                       readOnly: isCompleted,
+                      isRequired: true,
                       borderColor: AppColors.grey,
                       initialValue: newform.vehicleNo,
                       onChanged:
@@ -137,7 +138,7 @@ class _GateExitFormWidgetState extends State<GateExitFormWidget> {
                       NewUploadPhotoWidget(
                         fileName: 'vehiclefront',
                         imageUrl: newform.vehiclePhoto,
-                        title: 'Vehicle Front',
+                        title: 'Vehicle Front Photo',
                         isRequired: true,
                         isReadOnly: isCompleted,
                         onFileCapture: (file) {
@@ -151,7 +152,7 @@ class _GateExitFormWidgetState extends State<GateExitFormWidget> {
                         fileName: 'vehicleback',
                         isRequired: true,
                         imageUrl: newform.vehicleBackPhoto,
-                        title: 'Vehicle Back',
+                        title: 'Vehicle Back Photo',
                         isReadOnly: isCompleted,
                         onFileCapture: (file) {
                           context.cubit<CreateGateExitCubit>().onValueChanged(
@@ -190,7 +191,7 @@ class _GateExitFormWidgetState extends State<GateExitFormWidget> {
                       readOnly: isCompleted,
                       initialValue: newform.remarks,
                       title: 'Remarks (if any)',
-                      hintText: 'Enter here....',
+                      hintText: 'Enter Here....',
                       onChanged: (text) {
                         context.cubit<CreateGateExitCubit>().onValueChanged(
                           remarks: text,

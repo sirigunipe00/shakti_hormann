@@ -49,13 +49,17 @@ class _StatusMenuWidgetState extends State<StatusMenuWidget>
               defaultValue: _selectedDuration,
               pageMode: widget.mode,
             );
+
+            print('selected filter...:${selected}');
             if (selected != null) {
               setState(() {
                 _selectedDuration = selected;
               });
-            }
+            } 
 
-            widget.onChange.call(selected ?? widget.items.first);
+            print('widget.defaultSel---:${widget.defaultSel}');
+
+            widget.onChange.call(selected ?? _selectedDuration ?? '');
           },
           borderRadius: BorderRadius.circular(12),
           child: const Padding(

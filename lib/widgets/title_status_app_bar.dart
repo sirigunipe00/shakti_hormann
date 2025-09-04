@@ -87,7 +87,7 @@ class TitleStatusAppBar extends StatelessWidget implements PreferredSizeWidget {
             if (actionButton != null) ...[
               const SizedBox(width: 8),
               actionButton!,
-            ] else if (status != 'Submitted') ...[
+            ] else if (status != 'Submitted' && status != 'Reported' && status != 'Rejected') ...[
               _buildDefaultButtons(cleanedStatus, submitLabel),
             ],
           ],

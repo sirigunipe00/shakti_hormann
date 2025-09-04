@@ -88,13 +88,13 @@ class TransportCnfrmWidget extends StatelessWidget {
                             ],
                           ),
 
-                          Text(
-                            '(SHM)',
-                            style: AppTextStyles.titleLarge(context).copyWith(
-                              color: const Color.fromARGB(255, 12, 3, 120),
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+                          // Text(
+                          //   '(SHM)',
+                          //   style: AppTextStyles.titleLarge(context).copyWith(
+                          //     color: const Color.fromARGB(255, 12, 3, 120),
+                          //     fontWeight: FontWeight.bold,
+                          //   ),
+                          // ),
                         ],
                       ),
 
@@ -112,7 +112,7 @@ class TransportCnfrmWidget extends StatelessWidget {
                               const SizedBox(width: 4),
                               Text(
                                 DFU.ddMMyyyyFromStr(
-                                  transport.creation ?? '',
+                                  transport.requestedDeliveryDate ?? '',
                                 ),
                                 style: const TextStyle(
                                   color: Color(0xFF163A6B),
@@ -129,7 +129,7 @@ class TransportCnfrmWidget extends StatelessWidget {
                    ,
                            ),
                               Text(
-                                DFU.timeFromStr(transport.creation ?? ''),
+                                formatTime(transport.requestedDeliveryTime) ?? '',
                                 style: AppTextStyles.titleMedium(
                                   context,
                                   AppColors.darkBlue,
@@ -201,4 +201,13 @@ Color _getStatusColor(String? status) {
     default:
       return Colors.black; 
   }
+}
+String? formatTime(String? backendTime) {
+  if (backendTime == null || backendTime.isEmpty) return null;
+
+  // Parse backend string "HH:MM:SS"
+  final parts = backendTime.split(':');
+  if (parts.length < 2) return backendTime;
+
+  return '${parts[0]}:${parts[1]}'; // HH:MM only
 }

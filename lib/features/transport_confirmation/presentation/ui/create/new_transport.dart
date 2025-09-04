@@ -33,6 +33,7 @@ class _NewTransportCnfmState extends State<NewTransportCnfm> {
 
     final isNew = transportState.view == TransportView.create;
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       backgroundColor: AppColors.white,
       appBar:
           isNew
@@ -67,7 +68,7 @@ class _NewTransportCnfmState extends State<NewTransportCnfm> {
             if (isReject) {
               AppDialog.showErrorDialog(
                 context,
-                title: 'Rejected',
+                title: 'Transporter Rejected',
                 content: state.successMsg.valueOrEmpty,
                 onTapDismiss: context.exit,
               ).then((_) {

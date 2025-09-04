@@ -8,6 +8,7 @@ import 'package:shakti_hormann/features/logistic_request/data/logistic_planning_
 import 'package:shakti_hormann/features/logistic_request/model/logistic_planning_form.dart';
 import 'package:shakti_hormann/features/logistic_request/model/sales_order_form.dart';
 import 'package:shakti_hormann/features/logistic_request/model/transporter_form.dart';
+import 'package:shakti_hormann/features/logistic_request/model/vehicle_type_form.dart';
 
 @LazySingleton(as: LogisticPlanningRepo)
 class LogisticPlanningRepoimpl extends BaseApiRepository
@@ -91,12 +92,12 @@ class LogisticPlanningRepoimpl extends BaseApiRepository
                 DateFormat('dd-MM-yyyy').parse(form.requestedDeliveryDate!),
               )
               : null;
-
       final formattedTime =
           form.requestedDeliveryTime != null
-              ? DateFormat(
-                'HH:mm',
-              ).format(DateFormat('HH:mm').parse(form.requestedDeliveryTime!))
+              ? DateFormat('HH:mm').format(
+                DateFormat('HH:mm:ss').tryParse(form.requestedDeliveryTime!) ??
+                    DateFormat('HH:mm').parse(form.requestedDeliveryTime!),
+              )
               : null;
 
       final formattedLogisticsRequestDate =
@@ -123,12 +124,12 @@ class LogisticPlanningRepoimpl extends BaseApiRepository
           'delivery_address': form.deliveryAddress,
           'status': form.status,
           'logistics_request_date': formattedLogisticsRequestDate,
-          'delivery_address_1':form.shippingAddress1,
-          'delivery_address_2':form.shippingAddress2,
-          'shipping_country':form.country,
-          'shipping_state':form.city,
-          'shipping_city':form.city,
-          'shipping_pin_code':form.pincode
+          'delivery_address_1': form.shippingAddress1,
+          'delivery_address_2': form.shippingAddress2,
+          'shipping_country': form.country,
+          'shipping_state': form.city,
+          'shipping_city': form.city,
+          'shipping_pin_code': form.pincode,
         }),
         headers: {HttpHeaders.contentTypeHeader: 'application/json'},
       );
@@ -139,6 +140,33 @@ class LogisticPlanningRepoimpl extends BaseApiRepository
 
       return response.processAsync((r) async {
         return right(r.data!);
+      });
+    });
+  }
+
+  @override
+  AsyncValueOf<List<VehicleTypeForm>> fetchVehicle() async {
+    return await executeSafely(() async {
+      final config = RequestConfig(
+        url: Urls.getList,
+
+        parser: (json) {
+          final data = json['message'];
+          final listdata = data as List<dynamic>;
+          return listdata.map((e) => VehicleTypeForm.fromJson(e)).toList();
+        },
+        reqParams: {
+          'limit': 20,
+          'order_by': 'creation desc',
+          'doctype': 'Vehicle Type',
+          'fields': ['*'],
+        },
+        headers: {HttpHeaders.contentTypeHeader: 'application/json'},
+      );
+      $logger.devLog('VehicleType.....$config');
+      final response = await get(config);
+      return response.processAsync((r) async {
+        return right((r.data!));
       });
     });
   }

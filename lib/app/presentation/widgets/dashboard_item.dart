@@ -11,6 +11,4 @@ class DashboardItem {
   final String title;
   final AppIcon icon;
   final void Function(BuildContext context) onTap;
-
-  
 }

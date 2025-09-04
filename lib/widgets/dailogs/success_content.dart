@@ -150,7 +150,7 @@ class ErrorContent extends StatelessWidget {
                     width: 64,
                     height: 64,
                   ),
-                  const Icon(Icons.check, size: 32, color: Colors.white),
+                  // const Icon(Icons.check, size: 32, color: Colors.white),
                 ],
               ),
 

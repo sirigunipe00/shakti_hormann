@@ -187,7 +187,7 @@ class AppProfilePage extends StatelessWidget {
                     ),
                   ),
 
-                  const SizedBox(height: 80),
+                  const SizedBox(height: 65),
 
                   Column(
                     children: [

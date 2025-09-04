@@ -34,14 +34,20 @@ mixin StatusModeSelectionMixin {
         ];
         break;
         case PageMode2.vehicleReporting:
-     case PageMode2.loadingConfirmation:
      filters =[
+      'Draft',
       'Reported',
       'Rejected',
       'Cancelled',
       'All'
      ];
      break;
+     case PageMode2.loadingConfirmation:
+     filters =[
+      'Reported',
+      'Submitted',
+      'All'
+     ];
 
        
     }

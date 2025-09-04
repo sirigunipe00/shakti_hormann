@@ -35,6 +35,7 @@ class _NewGateExitState extends State<NewGateExit> {
 
     final isNew = gateEntryState.view == GateExitView.create;
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       backgroundColor: AppColors.white,
       appBar:
           isNew
@@ -45,7 +46,7 @@ class _NewGateExitState extends State<NewGateExit> {
                       builder: (context, state) {
                         return AppButton(
                           isLoading: state.isLoading,
-                          bgColor: const Color.fromARGB(255, 250, 193, 47),
+                          bgColor: state.view == GateExitView.create ? const Color.fromARGB(255, 250, 193, 47) : AppColors.green,
                           textStyle: const TextStyle(color: AppColors.darkBlue,fontWeight: FontWeight.bold,fontSize: 15),
                           label: state.view.toName(),
                           borderColor: Colors.grey,
@@ -74,8 +75,18 @@ class _NewGateExitState extends State<NewGateExit> {
                       readOnly: status == 1,
                       defaultSelection: invoiceform,
                       isloading: state.isLoading,
-                      futureRequest: (query) async {
-                        return names.toList();
+                          futureRequest: (query) async {
+                        if (query.isEmpty) return names;
+
+                        return names.where((item) {
+                          final orderNo = item.name?.toLowerCase() ?? '';
+                          final customer =
+                              item.customerName?.toLowerCase() ?? '';
+                          final search = query.toLowerCase();
+
+                          return orderNo.contains(search) ||
+                              customer.contains(search);
+                        }).toList();
                       },
                       headerBuilder:
                           (_, item, __) => Column(
@@ -170,7 +181,7 @@ class _NewGateExitState extends State<NewGateExit> {
                             (context) => AlertDialog(
                               title: const Text('Error',style: TextStyle(color: Colors.red,fontSize: 14,fontWeight: FontWeight.bold)),
                               content: const Text(
-                                'Scanned invoice order number is not matched with Existing invoice order.',
+                                'Scanned Invoice Order Number is not matched with Existing Invoice Order.',
                               ),
                               actions: [
                                 TextButton(

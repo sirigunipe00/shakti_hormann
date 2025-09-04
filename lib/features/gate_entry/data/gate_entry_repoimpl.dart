@@ -10,6 +10,7 @@ import 'package:path/path.dart' as p;
 import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/features/gate_entry/data/gate_entry.repo.dart';
 import 'package:shakti_hormann/features/gate_entry/model/gate_entry_form.dart';
+import 'package:shakti_hormann/features/gate_entry/model/gate_number_form.dart';
 import 'package:shakti_hormann/features/gate_entry/model/purchase_order_form.dart';
 
 @LazySingleton(as: GateEntryRepo)
@@ -54,7 +55,6 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
     final response = await get(requestConfig);
     return response.process((r) => right(r.data!));
   }
-
   @override
   AsyncValueOf<List<PurchaseOrderForm>> fetchPurchaseOrders(String name) async {
     return await executeSafely(() async {
@@ -82,6 +82,35 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
       });
     });
   }
+  @override
+  AsyncValueOf<List<GateNumberForm>> fetchGateNumber(String name) async {
+    return await executeSafely(() async {
+      final config = RequestConfig(
+        url: Urls.getList,
+
+        parser: (json) {
+          final data = json['message'];
+          final listdata = data as List<dynamic>;
+          return listdata.map((e) => GateNumberForm.fromJson(e)).toList();
+        },
+        reqParams: {
+          'limit': 20,
+          'order_by': 'creation desc',
+          'doctype': 'Gate Unloading Points',
+          'fields': ['*'],
+        },
+        headers: {HttpHeaders.contentTypeHeader: 'application/json'},
+      );
+
+      final response = await get(config);
+      $logger.devLog('response.....$response');
+      return response.processAsync((r) async {
+        return right((r.data!));
+      });
+    });
+  }
+
+  
 
   @override
   AsyncValueOf<Pair<String, String>> submitGateEntry(GateEntryForm form) async {
@@ -122,6 +151,8 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
         );
       }
 
+
+
       final config = RequestConfig(
         url: Urls.submitGateEntry,
         parser: (json) {
@@ -133,17 +164,14 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
           'plant_name': form.plantName,
           'purchase_order': form.purchaseOrder,
           'invoice_amount': form.invoiceAmount,
-          'vendor_invoice_date':
+          
+             'vendor_invoice_date':
               form.vendorInvoiceDate != null
                   ? DateFormat('yyyy-MM-dd').format(
                     DateFormat('dd-MM-yyyy').parse(form.vendorInvoiceDate!),
                   )
-                  : null,
-          'gate_entry_date': form.gateEntryDate != null
-                  ? DateFormat('yyyy-MM-dd').format(
-                    DateFormat('dd-MM-yyyy').parse(form.gateEntryDate!),
-                  )
-                  : null,
+                  : null ,
+          'gate_entry_date': form.gateEntryDate,
           'vendor_invoice_no': form.vendorInvoiceNo,
           'vehicle_photo':
               vehiclefrontcompressedBytes == null
@@ -161,6 +189,7 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
           'vendor_invoice_quantity': form.invoiceQuantity,
           'remarks': form.remarks,
           'scan_irn': form.scanIrn,
+          'gate_number':form.gateNumber,
         }),
         headers: {HttpHeaders.contentTypeHeader: 'application/json'},
       );
@@ -249,6 +278,7 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
         'vendor_invoice_quantity': form.invoiceQuantity,
         'remarks': form.remarks,
         'scan_irn': form.scanIrn,
+        'gate_number':form.gateNumber,
       }),
       headers: {HttpHeaders.contentTypeHeader: 'application/json'},
     );

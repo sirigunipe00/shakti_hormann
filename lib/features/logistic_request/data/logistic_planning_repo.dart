@@ -3,6 +3,7 @@ import 'package:shakti_hormann/core/utils/typedefs.dart';
 import 'package:shakti_hormann/features/logistic_request/model/logistic_planning_form.dart';
 import 'package:shakti_hormann/features/logistic_request/model/sales_order_form.dart';
 import 'package:shakti_hormann/features/logistic_request/model/transporter_form.dart';
+import 'package:shakti_hormann/features/logistic_request/model/vehicle_type_form.dart';
 
 abstract interface class LogisticPlanningRepo {
   AsyncValueOf<List<LogisticPlanningForm>> fetchLogistics(
@@ -17,4 +18,7 @@ abstract interface class LogisticPlanningRepo {
   );
   AsyncValueOf<String> updateLogisticPlanning(LogisticPlanningForm form);
   AsyncValueOf<List<SalesOrderForm>> fetchSalesOrder(String name);
+  AsyncValueOf<List<VehicleTypeForm>> fetchVehicle();
+
+  
 }

@@ -36,12 +36,4 @@ class AppTheme {
     );
   }
 
-  // static ThemeData darkTheme(BuildContext context) {
-  //   return ThemeData.dark().copyWith(
-  //     fontFamily: 'Urbanist',
-  //     textTheme: Theme.of(context).textTheme.apply(
-  //           fontFamily: 'Urbanist',
-  //         ),
-  //   );
-  // }
 }

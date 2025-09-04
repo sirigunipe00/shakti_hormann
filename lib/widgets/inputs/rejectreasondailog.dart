@@ -20,7 +20,7 @@ void showRejectDialog(BuildContext context) {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('Please enter a reason for rejection:'),
+            const Text('Please Enter a Reason for Rejection:'),
             const SizedBox(height: 12),
             TextField(
               controller: reasonController,
@@ -33,7 +33,7 @@ void showRejectDialog(BuildContext context) {
                     Text(' *', style: TextStyle(color: Colors.red)),
                   ],
                 ),
-                hintText: 'Enter reject reason',
+                hintText: 'Enter Reject Reason',
                 border: OutlineInputBorder(),
               ),
             ),
@@ -43,21 +43,40 @@ void showRejectDialog(BuildContext context) {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
+            child: ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.green,
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(12),
               ),
+              elevation: 3,
             ),
+            onPressed: () => Navigator.pop(context),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
+          ),
+          ),
+         ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.green,
+            foregroundColor: Colors.white,
+            elevation: 0, 
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
+          ),
+            
             onPressed: () {
               final reason = reasonController.text.trim();
 
               if (reason.isEmpty) {
                 ScaffoldMessenger.of(parentContext).showSnackBar(
-                  const SnackBar(content: Text('Enter reject reason')),
+                  const SnackBar(content: Text('Enter Reject Reason')),
                 );
                 return;
               }
@@ -91,7 +110,7 @@ void showRejectDialogs(BuildContext context) {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('Please enter a reason for rejection:'),
+            const Text('Please Enter a Reason for Rejection:'),
             const SizedBox(height: 12),
             TextField(
               controller: reasonController,
@@ -104,7 +123,7 @@ void showRejectDialogs(BuildContext context) {
                     Text(' *', style: TextStyle(color: Colors.red)),
                   ],
                 ),
-                hintText: 'Enter reject reason',
+                hintText: 'Enter Reject Reason',
                 border: OutlineInputBorder(),
               ),
             ),
@@ -114,21 +133,40 @@ void showRejectDialogs(BuildContext context) {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Cancel'),
+            child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              elevation: 3,
+            ),
+            onPressed: () => Navigator.pop(context),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
+          ),
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.green,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.green,
+            foregroundColor: Colors.white,
+            elevation: 0, 
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
             ),
+            padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
+          ),
+            
             onPressed: () {
               final reason = reasonController.text.trim();
 
               if (reason.isEmpty) {
                 ScaffoldMessenger.of(parentContext).showSnackBar(
-                  const SnackBar(content: Text('Enter reject reason')),
+                  const SnackBar(content: Text('Enter Reject Reason')),
                 );
                 return;
               }

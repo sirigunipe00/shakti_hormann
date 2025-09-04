@@ -35,6 +35,7 @@ class GateEntryForm with _$GateEntryForm {
     @JsonKey(name: 'vehicle_photo') String? vehiclePhoto,
     @JsonKey(name: 'vendor_invoice_photo') String? invoicePhoto,
     @JsonKey(name: 'vehicle_back_photo') String? vehicleBackPhoto,
+    @JsonKey(name:  'gate_number') String? gateNumber,
     @JsonKey(
         includeFromJson: true,
         includeToJson: false,

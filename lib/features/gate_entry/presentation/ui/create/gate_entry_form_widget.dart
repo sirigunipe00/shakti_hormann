@@ -3,11 +3,15 @@ import 'package:intl/intl.dart';
 import 'package:shakti_hormann/core/core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shakti_hormann/features/gate_entry/model/gate_entry_form.dart';
+import 'package:shakti_hormann/features/gate_entry/model/gate_number_form.dart';
+import 'package:shakti_hormann/features/gate_entry/presentation/bloc/bloc_provider.dart';
 import 'package:shakti_hormann/features/gate_entry/presentation/bloc/create_gate_cubit/gate_entry_cubit.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/widgets/input_filed.dart';
 import 'package:shakti_hormann/widgets/inputs/date_picker_field.dart';
 import 'package:shakti_hormann/widgets/inputs/new_upload_photo_widget.dart';
+import 'package:shakti_hormann/widgets/inputs/search_dropdown_widget.dart';
 import 'package:shakti_hormann/widgets/sectionheader.dart';
 import 'package:shakti_hormann/widgets/spaced_column.dart';
 import 'package:simple_barcode_scanner/simple_barcode_scanner.dart';
@@ -22,16 +26,59 @@ class GateEntryFormWidget extends StatefulWidget {
 class _GateEntryFormWidgetState extends State<GateEntryFormWidget> {
   final ScrollController _scrollController = ScrollController();
   final _scanIrnController = TextEditingController();
+  GateEntryForm? gateEntryForm;
+  GateNumberForm? gateNumberForm;
   String scanVal = '';
 
   final focusNodes = List.generate(40, (index) => FocusNode());
   final _indianFormat = NumberFormat.decimalPattern('en_IN');
+  final _invoiceAmountController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    final form = context.read<CreateGateEntryCubit>().state.form;
+
+    $logger.devLog('gatenumber imitas..........${form.gateNumber}');
+
+    if (form.invoiceAmount != null) {
+      _invoiceAmountController.text = _indianFormat.format(form.invoiceAmount);
+    }
+
+    _invoiceAmountController.addListener(() {
+      final text = _invoiceAmountController.text.replaceAll(',', '');
+      final value = int.tryParse(text);
+
+      if (value != null) {
+        context.cubit<CreateGateEntryCubit>().onValueChanged(
+          invoiceAmount: value,
+        );
+
+        // format back with commas
+        final newText = _indianFormat.format(value);
+        if (_invoiceAmountController.text != newText) {
+          final selectionIndex =
+              _invoiceAmountController.selection.baseOffset +
+              (newText.length - _invoiceAmountController.text.length);
+
+          _invoiceAmountController.value = TextEditingValue(
+            text: newText,
+            selection: TextSelection.collapsed(
+              offset: selectionIndex.clamp(0, newText.length),
+            ),
+          );
+        }
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     final formState = context.read<CreateGateEntryCubit>().state;
     final isCompleted = formState.view == GateEntryView.completed;
     final newform = formState.form;
+
+    $logger.devLog('gatenumber..........${newform.gateNumber}');
 
     return MultiBlocListener(
       listeners: [
@@ -60,7 +107,7 @@ class _GateEntryFormWidgetState extends State<GateEntryFormWidget> {
         ),
       ],
       child: Container(
-        color: Colors.purple.shade100.withOpacity(0.15),
+        color: Colors.purple.shade100.withValues(alpha: 0.15),
         child: SingleChildScrollView(
           controller: _scrollController,
           child: SpacedColumn(
@@ -77,7 +124,7 @@ class _GateEntryFormWidgetState extends State<GateEntryFormWidget> {
               ),
 
               Container(
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.only(top: 12, left: 12, right: 12),
                 width: MediaQuery.of(context).size.width,
                 margin: const EdgeInsets.symmetric(horizontal: 18),
                 decoration: BoxDecoration(
@@ -102,17 +149,19 @@ class _GateEntryFormWidgetState extends State<GateEntryFormWidget> {
                               .onValueChanged(plantName: p0),
                     ),
 
-                   AppDateField(
+                    AppDateField(
                       title: 'Gate Entry Date',
                       startDate: DateTime(2020),
                       endDate: DateTime(2030),
                       readOnly: true,
-                      initialValue:DFU.ddMMyyyyFromStr(newform.gateEntryDate ?? ''),
+                      initialValue: DFU.ddMMyyyyFromStr(
+                        newform.gateEntryDate ?? '',
+                      ),
                       fillColor: Colors.grey[200],
                       onSelected: (date) {
-                        context.cubit<CreateGateEntryCubit>().onValueChanged(
-                          gateEntryDate: DateFormat('dd-MM-yyyy').format(date),
-                        );
+                        // context.cubit<CreateGateEntryCubit>().onValueChanged(
+                        //   gateEntryDate: DateFormat('dd-MM-yyyy').format(date),
+                        // );
                       },
                     ),
                   ],
@@ -128,7 +177,7 @@ class _GateEntryFormWidgetState extends State<GateEntryFormWidget> {
               ),
 
               Container(
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.only(top: 12, left: 12, right: 12),
                 width: MediaQuery.of(context).size.width,
                 margin: const EdgeInsets.symmetric(horizontal: 18),
                 decoration: BoxDecoration(
@@ -142,10 +191,11 @@ class _GateEntryFormWidgetState extends State<GateEntryFormWidget> {
                   children: [
                     InputField(
                       readOnly: isCompleted,
-
+                      // key: UniqueKey(),
                       initialValue: newform.vendorInvoiceNo,
-                      title: 'Vendor Invoice No',
+                      title: 'Vendor Invoice Number',
                       hintText: 'Enter Invoice No',
+                      isRequired: true,
 
                       borderColor: AppColors.grey,
                       onChanged: (p0) {
@@ -158,9 +208,10 @@ class _GateEntryFormWidgetState extends State<GateEntryFormWidget> {
                     AppDateField(
                       readOnly: isCompleted,
                       title: 'Vendor Invoice Date',
-                      fillColor:Colors.white,
-                      startDate: DateTime(2020),
-                      endDate: DateTime(2030),
+                      fillColor: Colors.white,
+                      isRequired: true,
+                      startDate: DateTime(2025),
+                      endDate: DateTime.now(),
                       initialDate: DFU.ddMMyyyyFromStr(
                         newform.vendorInvoiceDate ?? '',
                       ),
@@ -174,48 +225,59 @@ class _GateEntryFormWidgetState extends State<GateEntryFormWidget> {
                         });
                       },
                       hintText: 'Select a date',
-                      ),
-
-                    InputField(
-                      borderColor: AppColors.grey,
-                      readOnly: isCompleted,
-                      key: UniqueKey(),
-                      hintText: 'Enter Invoice Quantity',
-                      initialValue: newform.invoiceQuantity?.toString() ?? '0',
-                      title: 'Vendor Invoice Quantity',
-                      onChanged: (quantity) {
-                        final intValue = int.tryParse(quantity);
-                        context.cubit<CreateGateEntryCubit>().onValueChanged(
-                          invoiceQuantity: intValue,
-                        );
-                      },
-                    ),
-                    InputField(
-                      borderColor: AppColors.grey,
-                      readOnly: isCompleted,
-                      hintText: 'Enter Invoice Amount',
-                      suffixIcon: const Icon(Icons.currency_rupee_outlined),
-
-                      initialValue:
-                          newform.invoiceAmount != null
-                              ? _indianFormat.format(newform.invoiceAmount)
-                              : '',
-
-                      title: 'Invoice Amount',
-                      onChanged: (p0) {
-                        final cleaned = p0.replaceAll(',', '');
-                        final intValue = int.tryParse(cleaned);
-
-                        context.cubit<CreateGateEntryCubit>().onValueChanged(
-                          invoiceAmount: intValue,
-                        );
-                      },
                     ),
 
+                    // InputField(
+                    //   borderColor: AppColors.grey,
+                    //   readOnly: isCompleted,
+                    //   key: UniqueKey(),
+                    //   hintText: 'Enter Invoice Quantity',
+                    //   initialValue: newform.invoiceQuantity?.toString() ?? '0',
+                    //   title: 'Vendor Invoice Quantity',
+                    //   inputType: const TextInputType.numberWithOptions(),
+                    //   onChanged: (quantity) {
+                    //     final intValue = int.tryParse(quantity);
+                    //     context.cubit<CreateGateEntryCubit>().onValueChanged(
+                    //       invoiceQuantity: intValue,
+                    //     );
+                    //   },
+                    // ),
+                    // InputField(
+                    //   borderColor: AppColors.grey,
+                    //   readOnly: isCompleted,
+                    //   key: UniqueKey(),
+                    //   // controller: TextEditingController(),
+                    //   hintText: 'Enter Invoice Amount',
+                    //   suffixIcon: const Icon(Icons.currency_rupee_outlined),
+                    //   inputType:  const TextInputType.numberWithOptions(),
+                    //   initialValue:
+                    //       newform.invoiceAmount != null
+                    //           ? _indianFormat.format(newform.invoiceAmount)
+                    //           : '',
+
+                    //   title: 'Invoice Amount',
+                    //   onChanged: (p0) {
+
+                    //     final cleaned = p0.replaceAll(',', '');
+                    //     final intValue = int.tryParse(cleaned);
+                    //    context.cubit<CreateGateEntryCubit>().onValueChanged(
+                    //       invoiceAmount: intValue,
+                    //       );
+                    //   },
+                    // ),
+                    // InputField(
+                    //   borderColor: AppColors.grey,
+                    //   readOnly: isCompleted,
+                    //   controller: _invoiceAmountController,
+                    //   hintText: 'Enter Invoice Amount',
+                    //   suffixIcon: const Icon(Icons.currency_rupee_outlined),
+                    //   inputType: const TextInputType.numberWithOptions(),
+                    //   title: 'Invoice Amount',
+                    // ),
                     InputField(
                       borderColor: AppColors.grey,
                       readOnly: isCompleted,
-
+                      isRequired: true,
                       initialValue: newform.vehicleNo,
                       title: 'Vehicle Number',
                       hintText: 'Enter Vehicle No',
@@ -229,7 +291,7 @@ class _GateEntryFormWidgetState extends State<GateEntryFormWidget> {
                     InputField(
                       readOnly: isCompleted,
                       controller: _scanIrnController,
-                      title: 'Scan IRN QR',
+                      title: 'Scan IRN',
                       hintText: 'Tap to scan QR code',
                       borderColor: AppColors.grey,
                       initialValue:
@@ -238,6 +300,11 @@ class _GateEntryFormWidgetState extends State<GateEntryFormWidget> {
                               .state
                               .form
                               .scanIrn,
+                      onChanged: (val) {
+                        context.cubit<CreateGateEntryCubit>().onValueChanged(
+                          scanIrn: val,
+                        );
+                      },
                       suffixIcon: GestureDetector(
                         onTap:
                             isCompleted
@@ -258,8 +325,9 @@ class _GateEntryFormWidgetState extends State<GateEntryFormWidget> {
 
                                   if (scanResult != null) {
                                     String irn = extractIrnFromQr(scanResult);
-
                                     setState(() {
+                                      _scanIrnController.text =
+                                          irn; // keep UI synced
                                       context
                                           .cubit<CreateGateEntryCubit>()
                                           .onValueChanged(scanIrn: irn);
@@ -268,6 +336,93 @@ class _GateEntryFormWidgetState extends State<GateEntryFormWidget> {
                                 },
                         child: const Icon(Icons.qr_code_scanner),
                       ),
+                    ),
+                    BlocBuilder<GateNumberList, GateNumberState>(
+                      builder: (_, state) {
+                        final allData = state.maybeWhen(
+                          orElse: () => <GateNumberForm>[],
+                          success: (data) => data,
+                        );
+
+                        final names = allData.toList();
+
+                        return SearchDropDownList<GateNumberForm>(
+                          title: 'Gate Number',
+                          hint: 'Search Gate Number',
+                          key: UniqueKey(),
+                          color: AppColors.black,
+                          items: names,
+                          readOnly: isCompleted,
+                          isloading: state.isLoading,
+                          defaultSelection: names.firstWhere(
+                            (g) =>
+                                g.name ==
+                                context
+                                    .read<CreateGateEntryCubit>()
+                                    .state
+                                    .form
+                                    .gateNumber,
+                            orElse: () => GateNumberForm(),
+                          ),
+
+                          futureRequest: (query) async {
+                            if (query.isEmpty) return names;
+
+                            return names.where((item) {
+                              final orderNo = item.name?.toLowerCase() ?? '';
+                              final pointName =
+                                  item.pointName?.toLowerCase() ?? '';
+                              final search = query.toLowerCase();
+
+                              return orderNo.contains(search) ||
+                                  pointName.contains(search);
+                            }).toList();
+                          },
+
+                          headerBuilder:
+                              (_, item, __) => Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    item.name ?? '',
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+
+                          listItemBuilder:
+                              (_, item, __, ___) => Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Gate Number: ${item.name ?? ''}',
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  if (item.pointName != null)
+                                    Text(
+                                      'UnLoading Point Name : ${item.pointName}',
+                                    ),
+
+                                  const Divider(height: 8),
+                                ],
+                              ),
+
+                          onSelected: (selected) {
+                            setState(() {
+                              gateNumberForm = selected;
+                            });
+                            context
+                                .cubit<CreateGateEntryCubit>()
+                                .onValueChanged(gateNumber: selected.name);
+                          },
+
+                          focusNode: FocusNode(),
+                        );
+                      },
                     ),
                   ],
                 ),
@@ -295,7 +450,7 @@ class _GateEntryFormWidgetState extends State<GateEntryFormWidget> {
                     children: [
                       NewUploadPhotoWidget(
                         fileName: 'vehiclefront',
-                
+
                         imageUrl: newform.vehiclePhoto,
                         title: 'Vehicle Front',
                         isRequired: true,
@@ -309,7 +464,7 @@ class _GateEntryFormWidgetState extends State<GateEntryFormWidget> {
                       ),
                       NewUploadPhotoWidget(
                         fileName: 'vehicleback',
-                
+
                         imageUrl: newform.vehicleBackPhoto,
                         title: 'Vehicle Back',
                         isRequired: true,
@@ -323,7 +478,7 @@ class _GateEntryFormWidgetState extends State<GateEntryFormWidget> {
                       ),
                       NewUploadPhotoWidget(
                         fileName: 'vehicleinvoice',
-                
+
                         imageUrl: newform.invoicePhoto,
                         title: 'Vehicle Invoice',
                         isRequired: true,
@@ -362,7 +517,7 @@ class _GateEntryFormWidgetState extends State<GateEntryFormWidget> {
                       readOnly: isCompleted,
                       minLines: 3,
                       maxLines: 6,
-                      hintText: 'Enter here.....',
+                      hintText: 'Enter Here.....',
                       initialValue: newform.remarks,
                       title: 'Remarks (if any)',
                       onChanged: (text) {

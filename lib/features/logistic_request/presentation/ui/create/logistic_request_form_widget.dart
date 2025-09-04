@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:shakti_hormann/app/presentation/widgets/drop_down_optn.dart';
 import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/features/logistic_request/model/transporter_form.dart';
+import 'package:shakti_hormann/features/logistic_request/model/vehicle_type_form.dart';
 import 'package:shakti_hormann/features/logistic_request/presentation/bloc/bloc_provider.dart';
 import 'package:shakti_hormann/features/logistic_request/presentation/bloc/create_lr_cubit/logistic_planning_cubit.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/widgets/input_filed.dart';
-import 'package:shakti_hormann/widgets/inputs/app_dropdown_widget.dart';
 import 'package:shakti_hormann/widgets/inputs/compact_listtile.dart';
 import 'package:shakti_hormann/widgets/inputs/date_picker_field.dart';
 import 'package:shakti_hormann/widgets/inputs/search_dropdown_widget.dart';
@@ -27,6 +26,7 @@ class LogisticPlanningFormWidget extends StatefulWidget {
 class __LogisticPlanningFormWidgetState
     extends State<LogisticPlanningFormWidget> {
   TransportersForm? transportersForm;
+  VehicleTypeForm? vehicleTypeForm;
   final ScrollController _scrollController = ScrollController();
   final TextEditingController remarks = TextEditingController();
   final TextEditingController city = TextEditingController();
@@ -39,7 +39,9 @@ class __LogisticPlanningFormWidgetState
     final formState = context.read<CreateLogisticCubit>().state;
     final isCompleted =
         formState.view == LogisticPlanningView.completed ||
-        (formState.form.docstatus == 1);
+        (formState.form.docstatus == 1 ||
+            formState.form.status == 'Pending From Transporter' ||
+            formState.form.status == 'Draft');
 
     final newform = formState.form;
 
@@ -55,7 +57,7 @@ class __LogisticPlanningFormWidgetState
         ),
       ],
       child: Container(
-        color: Colors.purple.shade100.withValues(alpha:0.15),
+        color: Colors.purple.shade100.withValues(alpha: 0.15),
 
         child: SingleChildScrollView(
           controller: _scrollController,
@@ -96,6 +98,7 @@ class __LogisticPlanningFormWidgetState
                           top: 20,
                           left: 16,
                           right: 16,
+                          bottom: 8,
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -150,7 +153,7 @@ class __LogisticPlanningFormWidgetState
                                   readOnly: isCompleted,
                                   color: AppColors.black,
                                   items: names,
-                                  
+
                                   defaultSelection:
                                       names
                                           .where(
@@ -199,37 +202,67 @@ class __LogisticPlanningFormWidgetState
                             ),
 
                             const SizedBox(height: 12),
+                            BlocBuilder<VehicleList, VehicleListState>(
+                              builder: (_, state) {
+                                final allData = state.maybeWhen(
+                                  orElse: () => <VehicleTypeForm>[],
+                                  success: (data) {
+                                    return data;
+                                  },
+                                );
+                                final names = allData.toList();
 
-                            AppDropDownWidget(
-                              hint: 'Select Vehicle Type',
-                              title: 'Vehicle Types',
-                              readOnly: isCompleted,
-                              defaultSelection: newform.preferredVehicleType,
-                              items: Dropdownoptions.vehicleType,
-                              futureRequest: (searchText) async {
-                                if (searchText.trim().isEmpty) {
-                                  return Dropdownoptions.vehicleType;
-                                }
+                                return SearchDropDownList(
+                                  key: UniqueKey(),
+                                  readOnly: isCompleted,
+                                  color: AppColors.black,
+                                  items: names,
 
-                                final filtered =
-                                    Dropdownoptions.vehicleType.where((item) {
-                                      final query =
-                                          searchText.trim().toLowerCase();
-                                      final value =
-                                          item.toString().toLowerCase();
-                                      return value.contains(query);
-                                    }).toList();
-
-                                return filtered;
+                                  defaultSelection:
+                                      names
+                                          .where(
+                                            (e) =>
+                                                e.name ==
+                                                newform.preferredVehicleType,
+                                          )
+                                          .firstOrNull,
+                                  title: 'Vehicle Type',
+                                  hint: 'Select Vehicle Type',
+                                  isloading: state.isLoading,
+                                  futureRequest: (searchText) async {
+                                    if (searchText.trim().isEmpty) {
+                                      return names;
+                                    }
+                                    final query =
+                                        searchText.trim().toLowerCase();
+                                    final filtered =
+                                        names.where((item) {
+                                          final value =
+                                              item.name?.toLowerCase() ?? '';
+                                          return value.contains(query);
+                                        }).toList();
+                                    return filtered;
+                                  },
+                                  headerBuilder:
+                                      (_, item, __) =>
+                                          Text(item.name.toString()),
+                                  listItemBuilder:
+                                      (_, item, __, ___) => CompactListTile(
+                                        title: item.name ?? '',
+                                      ),
+                                  onSelected: (selected) {
+                                    setState(() {
+                                      vehicleTypeForm = selected;
+                                    });
+                                    context
+                                        .cubit<CreateLogisticCubit>()
+                                        .onValueChanged(
+                                          preferredVehicleType: selected.name,
+                                        );
+                                  },
+                                  focusNode: focusNodes.elementAt(3),
+                                );
                               },
-                              onSelected: (item) {
-                                context
-                                    .cubit<CreateLogisticCubit>()
-                                    .onValueChanged(preferredVehicleType: item);
-                                setState(() {});
-                              },
-                              color: AppColors.black,
-                              focusNode: focusNodes.elementAt(11),
                             ),
                           ],
                         ),
@@ -255,20 +288,21 @@ class __LogisticPlanningFormWidgetState
                   side: const BorderSide(color: Color(0xFFE8ECF4), width: 1),
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.only(top:16,left: 16,right: 16),
+                  padding: const EdgeInsets.only(top: 16, left: 16, right: 16,bottom: 4),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Expanded(
                             child: AppDateField(
-                              title: 'Requested Delivery Date',
+                              title: 'Request Delivery Date',
                               hintText: 'Select Date',
+                              isRequired: true,
                               readOnly: isCompleted,
-                              startDate: DateTime(2020),
+                              startDate: DateTime.now(),
                               endDate: DateTime(2030),
-
                               initialDate: DFU.ddMMyyyyFromStr(
                                 newform.requestedDeliveryDate ?? '',
                               ),
@@ -289,22 +323,29 @@ class __LogisticPlanningFormWidgetState
                           ),
                           const SizedBox(width: 13),
                           Expanded(
-                            child: TimePickerField(
-                              title: 'Request Delivery Time',
-                              readOnly: isCompleted,
-                              hintText: 'Select time',
-                              initialTime: newform.requestedDeliveryTime,
-                              onTimeChanged: (selectedTime) {
-                                context
-                                    .cubit<CreateLogisticCubit>()
-                                    .onValueChanged(
-                                      requestedDeliveryTime: selectedTime,
-                                    );
-                              },
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                TimePickerField(
+                                  title: 'Request Delivery Time',
+                                  readOnly: isCompleted,
+                                  isRequired: true,
+                                  hintText: 'Select Time',
+                                  initialTime: formatTime(newform.requestedDeliveryTime),
+                                  onTimeChanged: (selectedTime) {
+                                    context
+                                        .cubit<CreateLogisticCubit>()
+                                        .onValueChanged(
+                                          requestedDeliveryTime: selectedTime,
+                                        );
+                                  },
+                                ),
+                              ],
                             ),
                           ),
                         ],
                       ),
+
                       const SizedBox(height: 16),
                       InputField(
                         title: 'Shipping Address-1',
@@ -387,7 +428,7 @@ class __LogisticPlanningFormWidgetState
               const Padding(
                 padding: EdgeInsets.only(left: 16.0),
                 child: SectionHeader(
-                  title: 'Any Apecial Instructions',
+                  title: 'Any Special Instructions',
                   assetIcon: 'assets/images/reamraksicon.png',
                 ),
               ),
@@ -404,7 +445,7 @@ class __LogisticPlanningFormWidgetState
                     padding: const EdgeInsets.all(8.0),
                     child: InputField(
                       title: 'Any Special Instructions',
-                      hintText: 'enter your instrcution',
+                      hintText: 'Enter Your Instructions',
                       readOnly: isCompleted,
                       borderColor: AppColors.grey,
                       maxLines: 3,
@@ -425,4 +466,12 @@ class __LogisticPlanningFormWidgetState
       ),
     );
   }
+}
+String? formatTime(String? backendTime) {
+  if (backendTime == null || backendTime.isEmpty) return null;
+
+  final parts = backendTime.split(':');
+  if (parts.length < 2) return backendTime;
+
+  return '${parts[0]}:${parts[1]}'; 
 }

@@ -119,7 +119,7 @@ NavigationDestination _buildDestination({
           size: 24,
           color: isSelected ? const Color(0xFFFFB800) : Colors.black54,
         ),
-        const SizedBox(height: 8), // spacing between icon and label
+        const SizedBox(height: 8), 
         Text(
           label,
           style: const TextStyle(

@@ -1,20 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:shakti_hormann/widgets/caption_text.dart';
 
 class TimePickerField extends StatefulWidget {
   const TimePickerField({
     super.key,
-    this.title,
+    required this.title,
     this.hintText,
     this.initialTime,
     required this.onTimeChanged,
     this.readOnly = false,
+    this.isRequired = false,
+
   });
 
-  final String? title;
+  final String title;
   final String? hintText;
   final String? initialTime;
   final ValueChanged<String> onTimeChanged;
   final bool readOnly;
+   final bool isRequired;
 
   @override
   State<TimePickerField> createState() => _TimePickerFieldState();
@@ -34,14 +38,19 @@ class _TimePickerFieldState extends State<TimePickerField> {
 
     TimeOfDay initialTime = TimeOfDay.now();
 
-    if (widget.initialTime != null && widget.initialTime!.isNotEmpty) {
-      final parts = widget.initialTime!.split(':');
-      if (parts.length >= 2) {
-        final hour = int.tryParse(parts[0]) ?? 0;
-        final minute = int.tryParse(parts[1]) ?? 0;
-        initialTime = TimeOfDay(hour: hour, minute: minute);
-      }
+     if (widget.initialTime != null && widget.initialTime!.isNotEmpty) {
+    // if backend sends "HH:mm:ss", trim it
+    final parts = widget.initialTime!.split(':');
+    if (parts.length >= 2) {
+      final hour = parts[0].padLeft(2, '0');
+      final minute = parts[1].padLeft(2, '0');
+      _controller = TextEditingController(text: '$hour:$minute');
+    } else {
+      _controller = TextEditingController(text: widget.initialTime!);
     }
+  } else {
+    _controller = TextEditingController();
+  }
 
     final pickedTime = await showTimePicker(
       context: context,
@@ -77,20 +86,14 @@ class _TimePickerFieldState extends State<TimePickerField> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (widget.title != null && widget.title!.isNotEmpty) ...[
-          Text(
-            widget.title!,
-            style: const TextStyle(
-              fontWeight: FontWeight.w600,
-              fontSize: 15,
-              fontFamily: 'Urbanist',
-            ),
-          ),
-          const SizedBox(height: 2),
-        ],
+      
+          CaptionText(title: widget.title, isRequired: widget.isRequired),
+          // const SizedBox(height: 3),
+        
+        const SizedBox(height: 12),
         TextField(
           controller: _controller,
-          readOnly: true, // prevent manual typing
+          readOnly: true,
           onTap: _pickTime,
           decoration: InputDecoration(
             hintText: widget.hintText ?? 'Select Time',

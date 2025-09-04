@@ -15,6 +15,7 @@ _$PurchaseOrderFormImpl _$$PurchaseOrderFormImplFromJson(
   supplierName: json['supplier_name'] as String?,
   orderDate: json['order_date'] as String? ?? '',
   remarks: json['custom_remarks'] as String?,
+  gateNumber: json['gate_number'] as String?,
 );
 
 Map<String, dynamic> _$$PurchaseOrderFormImplToJson(
@@ -26,4 +27,5 @@ Map<String, dynamic> _$$PurchaseOrderFormImplToJson(
   'supplier_name': instance.supplierName,
   'order_date': instance.orderDate,
   'custom_remarks': instance.remarks,
+  'gate_number': instance.gateNumber,
 };

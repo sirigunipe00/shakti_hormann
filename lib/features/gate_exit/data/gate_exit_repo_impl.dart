@@ -5,7 +5,6 @@ import 'package:dartz/dartz.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:http/http.dart' as http;
 import 'package:injectable/injectable.dart';
-import 'package:intl/intl.dart';
 import 'package:path/path.dart' as p;
 import 'package:shakti_hormann/features/gate_exit/data/gate_exit_repo.dart';
 import 'package:shakti_hormann/features/gate_exit/model/gate_exit_form.dart';
@@ -101,12 +100,7 @@ class GateExitRepoimpl extends BaseApiRepository implements GateExitRepo {
               vehiclefrontcompressedBytes == null
                   ? null
                   : base64Encode(vehiclefrontcompressedBytes),
-          'gate_entry_date':
-              form.gateEntryDate != null
-                  ? DateFormat(
-                    'yyyy-MM-dd',
-                  ).format(DateFormat('dd-MM-yyyy').parse(form.gateEntryDate!))
-                  : null,
+          'gate_entry_date': form.gateEntryDate,
 
           'remarks': form.remarks,
           'by_mobile_app': 1,

@@ -7,14 +7,14 @@ import 'package:shakti_hormann/features/loading_confirmation/data/loading_cnfm_r
 import 'package:shakti_hormann/features/loading_confirmation/model/item_model.dart';
 import 'package:shakti_hormann/features/loading_confirmation/model/loading_cnfm.dart';
 
-typedef LoadingCnfmCubit =
-    InfiniteListCubit<LoadingCnfmForm, Pair<String?, String?>, Pair<String?, String?>>;
+typedef LoadingCnfmCubit =InfiniteListCubit<LoadingCnfmForm, Pair<String?, String?>, Pair<String?, String?>>;
 typedef LoadingCnfmState = InfiniteListState<LoadingCnfmForm>;
 
-typedef ItemList
-    = NetworkRequestCubit<List<ItemModel>, String>;
-typedef ItemState
-    = NetworkRequestState<List<ItemModel>>;
+typedef ItemList = NetworkRequestCubit<List<ItemModel>, String>;
+typedef ItemState= NetworkRequestState<List<ItemModel>>;
+
+typedef GetLoadedList = NetworkRequestCubit<List<ItemModel>, String>;
+typedef GetLoadedState= NetworkRequestState<List<ItemModel>>;
 
 @lazySingleton
 class LoadingCnfmBlocProvider {
@@ -35,4 +35,9 @@ class LoadingCnfmBlocProvider {
   ItemList itemList() => ItemList(
     onRequest: (params, state) => repo.fetchItemList(params ?? ''),
   );
+
+  GetLoadedList  getItems() => GetLoadedList(
+    onRequest: (params, state) => repo.getItems(params ?? ''),
+  );
+  
 }

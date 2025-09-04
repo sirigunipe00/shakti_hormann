@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:shakti_hormann/core/utils/typedefs.dart';
 
 part 'item_model.freezed.dart';
 part 'item_model.g.dart';
@@ -34,7 +37,7 @@ class ItemModel with _$ItemModel {
     @JsonKey(name: 'asset_naming_series') String? assetNamingSeries,
     @JsonKey(name: 'over_delivery_receipt_allowance') double? overDeliveryReceiptAllowance,
     @JsonKey(name: 'over_billing_allowance') double? overBillingAllowance,
-    @JsonKey(name: 'image') String? image,
+    @JsonKey(name : 'loaded_item_photo') String? loadedItemPhoto,
     @JsonKey(name: 'description') String? description,
     @JsonKey(name: 'brand') String? brand,
     @JsonKey(name: 'shelf_life_in_days') int? shelfLifeInDays,
@@ -85,6 +88,15 @@ class ItemModel with _$ItemModel {
     @JsonKey(name: 'default_item_manufacturer') String? defaultItemManufacturer,
     @JsonKey(name: 'default_manufacturer_part_no') String? defaultManufacturerPartNo,
     @JsonKey(name: 'total_projected_qty') double? totalProjectedQty,
+    @JsonKey(name: 'qty_loaded') double? qtyLoaded,
+    String? uom,
+    @JsonKey(
+      includeFromJson: true,
+      includeToJson: false,
+      toJson: toNull,
+      fromJson: toNull,
+    )
+    File? imageFile,
   }) = _ItemModel;
 
   factory ItemModel.fromJson(Map<String, dynamic> json) => _$ItemModelFromJson(json);

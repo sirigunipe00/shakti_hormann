@@ -267,6 +267,9 @@ class CreateVehicleCubit extends AppBaseCubit<CreateVehicleState> {
     final form = state.form;
     if (form.linkedTransporterConfirmation.doesNotHaveValue) {
       return optionOf(const Pair('Select Logistic Request No', 0));
+    } else if (form.driverIdPhoto.doesNotHaveValue &&
+        form.driverIdPhotoImg.isNull) {
+      return optionOf(const Pair('Capture DriverID Photo.', 0));
     }
 
     return const None();

@@ -38,7 +38,7 @@ _$ItemModelImpl _$$ItemModelImplFromJson(
   overDeliveryReceiptAllowance:
       (json['over_delivery_receipt_allowance'] as num?)?.toDouble(),
   overBillingAllowance: (json['over_billing_allowance'] as num?)?.toDouble(),
-  image: json['image'] as String?,
+  loadedItemPhoto: json['loaded_item_photo'] as String?,
   description: json['description'] as String?,
   brand: json['brand'] as String?,
   shelfLifeInDays: (json['shelf_life_in_days'] as num?)?.toInt(),
@@ -92,6 +92,9 @@ _$ItemModelImpl _$$ItemModelImplFromJson(
   defaultItemManufacturer: json['default_item_manufacturer'] as String?,
   defaultManufacturerPartNo: json['default_manufacturer_part_no'] as String?,
   totalProjectedQty: (json['total_projected_qty'] as num?)?.toDouble(),
+  qtyLoaded: (json['qty_loaded'] as num?)?.toDouble(),
+  uom: json['uom'] as String?,
+  imageFile: toNull(json['imageFile']),
 );
 
 Map<String, dynamic> _$$ItemModelImplToJson(_$ItemModelImpl instance) =>
@@ -124,7 +127,7 @@ Map<String, dynamic> _$$ItemModelImplToJson(_$ItemModelImpl instance) =>
       'asset_naming_series': instance.assetNamingSeries,
       'over_delivery_receipt_allowance': instance.overDeliveryReceiptAllowance,
       'over_billing_allowance': instance.overBillingAllowance,
-      'image': instance.image,
+      'loaded_item_photo': instance.loadedItemPhoto,
       'description': instance.description,
       'brand': instance.brand,
       'shelf_life_in_days': instance.shelfLifeInDays,
@@ -177,4 +180,6 @@ Map<String, dynamic> _$$ItemModelImplToJson(_$ItemModelImpl instance) =>
       'default_item_manufacturer': instance.defaultItemManufacturer,
       'default_manufacturer_part_no': instance.defaultManufacturerPartNo,
       'total_projected_qty': instance.totalProjectedQty,
+      'qty_loaded': instance.qtyLoaded,
+      'uom': instance.uom,
     };

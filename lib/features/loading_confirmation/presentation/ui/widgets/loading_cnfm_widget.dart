@@ -1,7 +1,6 @@
 import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/material.dart';
 import 'package:shakti_hormann/core/utils/date_format_util.dart';
-import 'package:shakti_hormann/core/utils/string_utils.dart';
 import 'package:shakti_hormann/doc_status_widget.dart';
 import 'package:shakti_hormann/features/loading_confirmation/model/loading_cnfm.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
@@ -89,13 +88,13 @@ class LoadingCnfmWidget extends StatelessWidget {
                             ],
                           ),
 
-                          Text(
-                            '(SHM)',
-                            style: AppTextStyles.titleLarge(context).copyWith(
-                              color: const Color(0xFF2957A4),
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+                          // Text(
+                          //   '(SHM)',
+                          //   style: AppTextStyles.titleLarge(context).copyWith(
+                          //     color: const Color(0xFF2957A4),
+                          //     fontWeight: FontWeight.bold,
+                          //   ),
+                          // ),
                         ],
                       ),
 
@@ -112,7 +111,7 @@ class LoadingCnfmWidget extends StatelessWidget {
                               ),
                                  const SizedBox(width: 4),
                           Text(
-                            DFU.ddMMyyyyFromStr(loadingCnfmForm.creation ?? ''),
+                            DFU.ddMMyyyyFromStr(loadingCnfmForm.vehicleReportingEntryVreDate ?? ''),
                             style: const TextStyle(
                               color: Color(0xFF163A6B),
                               fontSize: 11,
@@ -123,18 +122,18 @@ class LoadingCnfmWidget extends StatelessWidget {
                           ),
                        
                       
-                          Row(
-                            children: [
-                              Image.asset('assets/images/timeicon.png'),
-                               Text(
-                            DFU.timeFromStr(loadingCnfmForm.creation ?? ''),
-                            style: AppTextStyles.titleMedium(
-                              context,
-                              AppColors.darkBlue,
-                            ).copyWith(color: const Color(0xFF53A5DF)),
-                          ),
-                            ],
-                          ),
+                          // Row(
+                          //   children: [
+                          //     Image.asset('assets/images/timeicon.png'),
+                          //      Text(
+                          //   DFU.timeFromStr(loadingCnfmForm.creation ?? ''),
+                          //   style: AppTextStyles.titleMedium(
+                          //     context,
+                          //     AppColors.darkBlue,
+                          //   ).copyWith(color: const Color(0xFF53A5DF)),
+                          // ),
+                          //   ],
+                          // ),
                          
                         ],
                       ),
@@ -168,8 +167,9 @@ class LoadingCnfmWidget extends StatelessWidget {
                     fontSize: 15,
                   ),
                 ),
+                
                 DocStatusWidget(
-                  status: StringUtils.docStatus(loadingCnfmForm.docstatus ?? 0),
+                  status: loadingCnfmForm.docstatus == 1 ? 'Submitted' : loadingCnfmForm.status ?? '',
                 ),
               ],
             ),

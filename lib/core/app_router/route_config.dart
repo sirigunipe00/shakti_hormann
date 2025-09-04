@@ -48,10 +48,7 @@ class AppRouterConfig {
     navigatorKey: parentNavigatorKey,
     initialLocation: AppRoute.login.path,
     routes: <RouteBase>[
-      // GoRoute(
-      //   path: AppRoute.initial.path,
-      //   builder: (_, state) => const AppSplashScrn(),
-      // ),
+    
       GoRoute(
         path: AppRoute.login.path,
         builder: (_, state) => const AppSplashScrn(),
@@ -101,19 +98,9 @@ class AppRouterConfig {
                           final gateEntryForm = state.extra as GateEntryForm?;
                           return MultiBlocProvider(
                             providers: [
-                              BlocProvider(
-                                create:
-                                    (_) =>
-                                        GateEntryBlocProvider.get()
-                                            .purchaseOrderList()
-                                          ..request(''),
-                              ),
-                              BlocProvider(
-                                create:
-                                    (_) =>
-                                        $sl.get<CreateGateEntryCubit>()
-                                          ..initDetails(gateEntryForm),
-                              ),
+                              BlocProvider(create:(_) =>GateEntryBlocProvider.get().purchaseOrderList()..request(''),),
+                              BlocProvider(create:(_) =>GateEntryBlocProvider.get().gateNumberList()..request(''),),
+                              BlocProvider(create:(_) =>$sl.get<CreateGateEntryCubit>()..initDetails(gateEntryForm),),
                             ],
                             child: const NewGateEntry(),
                           );
@@ -123,15 +110,12 @@ class AppRouterConfig {
                   ),
                   GoRoute(
                     path: _getPath(AppRoute.gatexit),
-                   
-
-                        builder: (ctxt, state) {
+                   builder: (ctxt, state) {
                       final filters = Pair(
                         StringUtils.docStatusInt('Draft'),
                         null,
                       );
-                      return BlocProvider(
-                        create:
+                      return BlocProvider(create:
                             (context) => GateExitBlocProvider.get().fetchGateExit()..fetchInitial(filters),
                         child: const GateExitListScrn(),
                       );
@@ -152,19 +136,8 @@ class AppRouterConfig {
                           final form = state.extra as GateExitForm?;
                           return MultiBlocProvider(
                             providers: [
-                              BlocProvider(
-                                create:
-                                    (_) =>
-                                        GateExitBlocProvider.get()
-                                            .salesInvoiceList()
-                                          ..request(''),
-                              ),
-                              BlocProvider(
-                                create:
-                                    (_) =>
-                                        $sl.get<CreateGateExitCubit>()
-                                          ..initDetails(form),
-                              ),
+                              BlocProvider(create:(_) => GateExitBlocProvider.get() .salesInvoiceList()..request(''),),
+                              BlocProvider(create:(_) =>$sl.get<CreateGateExitCubit>()..initDetails(form),),
                             ],
                             child: const NewGateExit(),
                           );
@@ -201,20 +174,10 @@ class AppRouterConfig {
                               state.extra as LogisticPlanningForm?;
                           return MultiBlocProvider(
                             providers: [
-                              BlocProvider(
-                                create:
-                                    (_) =>
-                                        $sl.get<CreateLogisticCubit>()
-                                          ..initDetails(lofisticForm),
-                              ),
-                              BlocProvider(
-                                create:
-                                    (_) => bloc.salesOrderList()..request(''),
-                              ),
-                              BlocProvider(
-                                create:
-                                    (_) => bloc.transportersList()..request(''),
-                              ),
+                              BlocProvider(create:(_) => $sl.get<CreateLogisticCubit>()..initDetails(lofisticForm),),
+                              BlocProvider(create:(_) => bloc.salesOrderList()..request(''),),
+                              BlocProvider(create:(_) => bloc.transportersList()..request(''),),
+                              BlocProvider(create:(_) => bloc.vehicleList()..request(''),),
                             ],
                             child: const NewLogisticRequest(),
                           );
@@ -251,16 +214,8 @@ class AppRouterConfig {
                           final form = state.extra;
                           return MultiBlocProvider(
                             providers: [
-                              BlocProvider(
-                                create:
-                                    (_) => bloc.transportersList()..request(''),
-                              ),
-                              BlocProvider(
-                                create:
-                                    (_) =>
-                                        $sl.get<CreateTransportCubit>()
-                                          ..initDetails(form),
-                              ),
+                              BlocProvider(create:(_) => bloc.transportersList()..request(''),),
+                              BlocProvider(create:(_) =>$sl.get<CreateTransportCubit>()..initDetails(form),),
                             ],
                             child: const NewTransportCnfm(),
                           );
@@ -272,7 +227,7 @@ class AppRouterConfig {
                     path: _getPath(AppRoute.vehcileReporting),
                     builder: (ctxt, state) {
                       final filters = Pair(
-                        StringUtils.docStatusVehicle('Reported'),
+                        StringUtils.docStatusVehicle('Draft'),
                         null,
                       );
                       return BlocProvider(
@@ -299,21 +254,9 @@ class AppRouterConfig {
                           final form = state.extra;
                           return MultiBlocProvider(
                             providers: [
-                              BlocProvider(
-                                create:
-                                    (_) =>
-                                        $sl.get<CreateVehicleCubit>()
-                                          ..initDetails(form),
-                              ),
-                              BlocProvider(
-                                create:
-                                    (_) =>
-                                        blocprovider.transportersList()
-                                          ..request(''),
-                              ),
-                              BlocProvider(
-                                create: (_) => bloc.logisticList()..request(''),
-                              ),
+                              BlocProvider(create:(_) =>$sl.get<CreateVehicleCubit>()..initDetails(form), ),
+                              BlocProvider(create:(_) =>blocprovider.transportersList()..request(''),),
+                              BlocProvider(create: (_) => bloc.logisticList()..request(''),),
                             ],
                             child: const NewVehicleReporting(),
                           );
@@ -345,11 +288,12 @@ class AppRouterConfig {
                             },
                             builder: (_, state) {
                               final blocprovider = LoadingCnfmBlocProvider.get();
-                              final form = state.extra;
+                              final form = state.extra as LoadingCnfmForm;
                               return MultiBlocProvider(
                                 providers: [
                                   BlocProvider(create: (_) => blocprovider.fetchLoadingCnfmList()),
                                   BlocProvider(create: (_)=> blocprovider.itemList()..request('')),
+                                  BlocProvider(create: (_)=> blocprovider.getItems()..request(form.name ?? '')),
                                   BlocProvider(
                                     create: (_) => $sl.get<CreateLoadingCnfmCubit>()..initDetails(form),
                                   ),
@@ -388,16 +332,12 @@ class AppRouterConfig {
   static Future<bool> _promptConf(
     BuildContext context, {
     required String formStatus,
-    
-  }) async {
+    }) async {
     final promptConf = shouldAskForConfirmation.value;
-
     if (!promptConf) return true;
-
     if (formStatus == 'Submitted') {
       return true;
     }
-
     final result = await AppDialog.askForConfirmation<bool?>(
       context,
       title: 'Are you sure?',
@@ -406,9 +346,7 @@ class AppRouterConfig {
       onTapConfirm: () => context.pop(true),
       onTapDismiss: () => context.pop(false),
     );
-
     return result ?? false;
   }
-
-  static String _getPath(AppRoute route) => route.path.split('/').last;
+static String _getPath(AppRoute route) => route.path.split('/').last;
 }

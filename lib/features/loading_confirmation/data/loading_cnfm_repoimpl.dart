@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:dartz/dartz.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:http/http.dart' as http;
 import 'package:injectable/injectable.dart';
 import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/features/loading_confirmation/data/loading_cnfm_repo.dart';
@@ -19,16 +21,21 @@ class LoadingCnfmRepoimpl extends BaseApiRepository implements LoadingCnfmRepo {
   ) async {
     final filters = <List<dynamic>>[];
 
-    if (docStatus != null && docStatus != '4') {
+    $logger.devLog('status.........$docStatus');
+
+    if (docStatus.isNotNull && docStatus != '4' && docStatus != '1') {
       filters
         ..add(['status', '=', docStatus])
-        ..add(['docstatus', '!=', 2]);
+        ..add(['docstatus', '!=',  1]);
+    } else if( docStatus == '1') {
+      filters
+        .add(['docstatus', '=',  1]);
+
     }
 
     if (serach != null && serach.isNotEmpty) {
       filters.add(['name', 'like', '%$serach%']);
     }
-    filters.add(['status', '=', 'Reported']);
     final requestConfig = RequestConfig(
       url: Urls.getList,
       parser: (json) {
@@ -76,23 +83,97 @@ class LoadingCnfmRepoimpl extends BaseApiRepository implements LoadingCnfmRepo {
         return right((r.data!));
       });
     });
+
   }
 
-  @override
+
+ 
+
+
+@override
   AsyncValueOf<Pair<String, String>> createLoadingCnfm(
-    LoadingCnfmForm form,
+    List<ItemModel> items,
+    String name,
   ) async {
+    print('items....:$items');
+    final cleanedItems = await Future.wait(
+      items.map((e) async {
+        final map = removeNullValues(e.toJson());
+
+        // If "sample_quantity" exists, rename it to "qty_loaded"
+        if (map.containsKey('sample_quantity')) {
+          map['qty_loaded'] = map['sample_quantity'];
+          map.remove('sample_quantity');
+        }
+
+        // If imageFile exists, compress & add base64
+        if (e.imageFile != null) {
+          final vehiclefrontcompressedBytes =
+              await FlutterImageCompress.compressWithFile(
+                e.imageFile!.path,
+                quality: 50,
+              );
+
+          map['loaded_item_photo'] =
+              vehiclefrontcompressedBytes == null
+                  ? null
+                  : base64Encode(vehiclefrontcompressedBytes);
+        } else if (e.loadedItemPhoto != null && e.loadedItemPhoto!.isNotEmpty) {
+          try {
+            final baseUrl = 'http://65.21.243.18:8000'; // replace with real API base URL
+            final uri = Uri.parse("$baseUrl${e.loadedItemPhoto}");
+
+            final response = await http.get(uri);
+            if (response.statusCode == 200) {
+              final bytes = response.bodyBytes;
+              map['loaded_item_photo'] = base64Encode(bytes);
+            } else {
+              map['loaded_item_photo'] = null; // fallback if fetch fails
+            }
+          } catch (err) {
+            map['loaded_item_photo'] = null;
+          }
+        }
+
+        return map;
+      }),
+    );
+
+    final cleanedJson = removeNullValues({'name': name, 'items': cleanedItems});
     return await executeSafely(() async {
-    final config = RequestConfig(
+      final config = RequestConfig(
         url: Urls.createLoadingConfirmation,
         parser: (json) {
-          final data =
-              json['message']['data']['name']
-                  as String;
+          final data = json['message']['message'] as String;
+          return Pair(data, '');
+        },
+        body: jsonEncode(cleanedJson),
+        headers: {HttpHeaders.contentTypeHeader: 'application/json'},
+      );
+
+      $logger.devLog('requestConfig.....$config');
+
+      final response = await post(config);
+
+      return response.processAsync((r) async {
+        return right(r.data!);
+      });
+    });
+  }
+
+    @override
+  AsyncValueOf<Pair<String, String>> submitLoading(
+    String name,
+  ) async {
+    return await executeSafely(() async {
+      final config = RequestConfig(
+        url: Urls.submitLoadingConfirmation,
+        parser: (json) {
+          final data = json['message']['message'] as String;
           return Pair(data, '');
         },
         body: jsonEncode({
-          'name':form.name,
+          'name': name
         }),
         headers: {HttpHeaders.contentTypeHeader: 'application/json'},
       );
@@ -103,6 +184,30 @@ class LoadingCnfmRepoimpl extends BaseApiRepository implements LoadingCnfmRepo {
 
       return response.processAsync((r) async {
         return right(r.data!);
+      });
+    });
+  }
+  @override
+  AsyncValueOf<List<ItemModel>> getItems(String name) async {
+    return await executeSafely(() async {
+      final config = RequestConfig(
+        url: Urls.getLodedItems,
+
+        parser: (json) {
+          final data = json['message']['data'];
+          final listdata = data as List<dynamic>;
+          return listdata.map((e) => ItemModel.fromJson(e)).toList();
+        },
+        reqParams: {'docname': name},
+        headers: {HttpHeaders.contentTypeHeader: 'application/json'},
+      );
+      $logger.devLog('Itemlist config.....$config');
+      final response = await get(config);
+
+      $logger.devLog('Itemlist response.....$response');
+
+      return response.processAsync((r) async {
+        return right((r.data!));
       });
     });
   }

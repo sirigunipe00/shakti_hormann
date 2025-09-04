@@ -54,7 +54,7 @@ class _AppDateFieldState extends State<AppDateField> {
     }
 
     controller = TextEditingController(text: dateToShow);
-
+ if(widget.initialValue == null && widget.initialDate == ''){
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final parts = dateToShow.split('-');
       if (parts.length == 3) {
@@ -64,6 +64,7 @@ class _AppDateFieldState extends State<AppDateField> {
         widget.onSelected(DateTime(year, month, day));
       }
     });
+ }
   }
 
   @override
@@ -71,15 +72,15 @@ class _AppDateFieldState extends State<AppDateField> {
     final isReadOnlyMode = widget.readOnly;
 
     final backgroundColor =
-        isReadOnlyMode ? AppColors.grey.withValues(alpha:0.20) : Colors.white;
+        isReadOnlyMode ? AppColors.grey.withValues(alpha: 0.20) : Colors.white;
 
     final effectiveBorderColor = isReadOnlyMode
-        ? Colors.grey.withValues(alpha:0.3)
-        : AppColors.grey.withValues(alpha:0.30);
+        ? Colors.grey.withValues(alpha: 0.3)
+        : AppColors.grey.withValues(alpha: 0.30);
 
     final effectiveTextStyle = TextStyle(
       color: isReadOnlyMode
-          ? AppColors.black.withValues(alpha:0.7)
+          ? AppColors.black.withValues(alpha: 0.7)
           : AppColors.black,
       fontSize: 14,
       fontWeight: isReadOnlyMode ? FontWeight.w500 : FontWeight.normal,
@@ -90,6 +91,7 @@ class _AppDateFieldState extends State<AppDateField> {
       defaultHeight: 4.0,
       children: [
         CaptionText(title: widget.title, isRequired: widget.isRequired),
+        const SizedBox(height: 3,),
         Container(
           margin: EdgeInsets.zero,
           padding: EdgeInsets.zero,
@@ -148,7 +150,7 @@ void _showDatePicker() async {
   final selectedDate = await showDatePicker(
     context: context,
     initialDate: initialDate,
-    firstDate: DateTime.now(), 
+    firstDate: widget.startDate, 
     lastDate: widget.endDate,
   );
 

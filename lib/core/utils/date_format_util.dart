@@ -54,6 +54,28 @@ abstract class DateFormatUtil {
     return '';
   }
 }
+static String formatArrivalDate(dynamic arrivalDateAndTime) {
+  if (arrivalDateAndTime is DateTime) {
+    return DateFormat('yyyy-MM-dd HH:mm:ss').format(arrivalDateAndTime);
+  }
+
+  if (arrivalDateAndTime is String) {
+    // check if already yyyy-MM-dd HH:mm:ss
+    final alreadyFormatted = RegExp(r'^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$')
+        .hasMatch(arrivalDateAndTime);
+
+    if (alreadyFormatted) {
+      return arrivalDateAndTime; // don’t reformat
+    }
+
+    // parse from dd-MM-yyyy HH:mm:ss
+    final parsed =
+        DateFormat('dd-MM-yyyy HH:mm:ss').parse(arrivalDateAndTime, true);
+    return DateFormat('yyyy-MM-dd HH:mm:ss').format(parsed);
+  }
+
+  return ''; // fallback
+}
 
    static String timeFromStr(String dateStr) {
     try {
@@ -64,7 +86,15 @@ abstract class DateFormatUtil {
     }
   }
 
- 
+ String? formatTime(String? backendTime) {
+  if (backendTime == null || backendTime.isEmpty) return null;
+
+  // Parse backend string "HH:MM:SS"
+  final parts = backendTime.split(':');
+  if (parts.length < 2) return backendTime;
+
+  return '${parts[0]}:${parts[1]}'; // HH:MM only
+}
 
 
   static String fromFrappeToddMMyyyy(String? dateTime) {

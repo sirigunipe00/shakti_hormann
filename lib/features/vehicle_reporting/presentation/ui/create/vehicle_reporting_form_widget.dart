@@ -30,14 +30,12 @@ class _VehicleReportingFormWidget extends State<VehicleReportingFormWidget> {
   @override
   Widget build(BuildContext context) {
     final formState = context.read<CreateVehicleCubit>().state;
-
-    final isCompleted = formState.view == VehicleView.completed;
+    final isCompleted =
+        formState.view == VehicleView.completed ||
+        (formState.form.docstatus == 1 || formState.form.status == 'Reported' || formState.form.status == 'Rejected');
     final hasVehicleNo = (vehicleForm?.vehicleNumber?.isNotEmpty ?? false);
-
     final newform = formState.form;
-    $logger.devLog(
-      'arrival date and time.=>>>>>>>>>>..........${newform.arrivalDateAndTime}',
-    );
+   
     return MultiBlocListener(
       listeners: [
         BlocListener<CreateVehicleCubit, CreateVehicleState>(
@@ -90,6 +88,7 @@ class _VehicleReportingFormWidget extends State<VehicleReportingFormWidget> {
                           top: 20,
                           left: 16,
                           right: 16,
+                          bottom: 6
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -169,7 +168,7 @@ class _VehicleReportingFormWidget extends State<VehicleReportingFormWidget> {
                   side: const BorderSide(color: Color(0xFFE8ECF4), width: 1),
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.only(top: 16, left: 16, right: 16),
+                  padding: const EdgeInsets.only(top: 16, left: 16, right: 16,bottom: 6),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -177,7 +176,7 @@ class _VehicleReportingFormWidget extends State<VehicleReportingFormWidget> {
                         title: 'Arrival Date and Time',
                         hintText: 'Select Date',
                         readOnly: isCompleted,
-                        startDate: DateTime(2020),
+                        startDate: DateTime.now(),
                         endDate: DateTime(2030),
                         initialDate: DFU.ddMMyyyyHHmmssFromStr(
                           newform.arrivalDateAndTime ?? '',
@@ -194,7 +193,6 @@ class _VehicleReportingFormWidget extends State<VehicleReportingFormWidget> {
                             now.second,
                           );
 
-                          // store in backend-friendly format
                           final formattedDate = DateFormat(
                             'dd-MM-yyyy HH:mm:ss',
                           ).format(finalDateTime);
@@ -202,9 +200,7 @@ class _VehicleReportingFormWidget extends State<VehicleReportingFormWidget> {
                           context.cubit<CreateVehicleCubit>().onValueChanged(
                             arrivalDateAndTime: formattedDate,
                           );
-
-                          print('Formatted Arrival Date: $formattedDate');
-                        },
+                           },
                         fillColor: Colors.white,
                       ),
 
@@ -212,7 +208,7 @@ class _VehicleReportingFormWidget extends State<VehicleReportingFormWidget> {
                       InputField(
                         title: 'Vehicle Number',
                         hintText: 'Vehicle No',
-                        readOnly: hasVehicleNo,
+                        readOnly: hasVehicleNo  || isCompleted,
                         borderColor: AppColors.grey,
 
                         initialValue: newform.vehicleNumber,
@@ -254,7 +250,7 @@ class _VehicleReportingFormWidget extends State<VehicleReportingFormWidget> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.all(10.0),
+                padding: const EdgeInsets.only(top: 16, left: 16, right: 16),
                 child: Card(
                   color: Colors.white,
                   shape: RoundedRectangleBorder(
@@ -299,8 +295,8 @@ class _VehicleReportingFormWidget extends State<VehicleReportingFormWidget> {
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: InputField(
-                      title: 'Driver Remarks(if any)',
-                      hintText: 'enter remarks',
+                      title: 'Driver Remarks (if any)',
+                      hintText: 'Enter Remarks',
                       readOnly: isCompleted,
                       borderColor: AppColors.grey,
                       maxLines: 3,

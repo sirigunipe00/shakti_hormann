@@ -18,6 +18,8 @@ final _privateConstructorUsedError = UnsupportedError(
 /// @nodoc
 mixin _$CreateLaodingCnfmState {
   LoadingCnfmForm get form => throw _privateConstructorUsedError;
+  List<ItemModel> get listitems => throw _privateConstructorUsedError;
+  ItemModel get items => throw _privateConstructorUsedError;
   bool get isLoading => throw _privateConstructorUsedError;
   bool get isSuccess => throw _privateConstructorUsedError;
   LoadingView get view => throw _privateConstructorUsedError;
@@ -40,6 +42,8 @@ abstract class $CreateLaodingCnfmStateCopyWith<$Res> {
   @useResult
   $Res call({
     LoadingCnfmForm form,
+    List<ItemModel> listitems,
+    ItemModel items,
     bool isLoading,
     bool isSuccess,
     LoadingView view,
@@ -48,6 +52,7 @@ abstract class $CreateLaodingCnfmStateCopyWith<$Res> {
   });
 
   $LoadingCnfmFormCopyWith<$Res> get form;
+  $ItemModelCopyWith<$Res> get items;
   $FailureCopyWith<$Res>? get error;
 }
 
@@ -70,6 +75,8 @@ class _$CreateLaodingCnfmStateCopyWithImpl<
   @override
   $Res call({
     Object? form = null,
+    Object? listitems = null,
+    Object? items = null,
     Object? isLoading = null,
     Object? isSuccess = null,
     Object? view = null,
@@ -83,6 +90,16 @@ class _$CreateLaodingCnfmStateCopyWithImpl<
                     ? _value.form
                     : form // ignore: cast_nullable_to_non_nullable
                         as LoadingCnfmForm,
+            listitems:
+                null == listitems
+                    ? _value.listitems
+                    : listitems // ignore: cast_nullable_to_non_nullable
+                        as List<ItemModel>,
+            items:
+                null == items
+                    ? _value.items
+                    : items // ignore: cast_nullable_to_non_nullable
+                        as ItemModel,
             isLoading:
                 null == isLoading
                     ? _value.isLoading
@@ -127,6 +144,16 @@ class _$CreateLaodingCnfmStateCopyWithImpl<
   /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
+  $ItemModelCopyWith<$Res> get items {
+    return $ItemModelCopyWith<$Res>(_value.items, (value) {
+      return _then(_value.copyWith(items: value) as $Val);
+    });
+  }
+
+  /// Create a copy of CreateLaodingCnfmState
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
   $FailureCopyWith<$Res>? get error {
     if (_value.error == null) {
       return null;
@@ -149,6 +176,8 @@ abstract class _$$CreateLaodingCnfmStateImplCopyWith<$Res>
   @useResult
   $Res call({
     LoadingCnfmForm form,
+    List<ItemModel> listitems,
+    ItemModel items,
     bool isLoading,
     bool isSuccess,
     LoadingView view,
@@ -158,6 +187,8 @@ abstract class _$$CreateLaodingCnfmStateImplCopyWith<$Res>
 
   @override
   $LoadingCnfmFormCopyWith<$Res> get form;
+  @override
+  $ItemModelCopyWith<$Res> get items;
   @override
   $FailureCopyWith<$Res>? get error;
 }
@@ -178,6 +209,8 @@ class __$$CreateLaodingCnfmStateImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? form = null,
+    Object? listitems = null,
+    Object? items = null,
     Object? isLoading = null,
     Object? isSuccess = null,
     Object? view = null,
@@ -191,6 +224,16 @@ class __$$CreateLaodingCnfmStateImplCopyWithImpl<$Res>
                 ? _value.form
                 : form // ignore: cast_nullable_to_non_nullable
                     as LoadingCnfmForm,
+        listitems:
+            null == listitems
+                ? _value._listitems
+                : listitems // ignore: cast_nullable_to_non_nullable
+                    as List<ItemModel>,
+        items:
+            null == items
+                ? _value.items
+                : items // ignore: cast_nullable_to_non_nullable
+                    as ItemModel,
         isLoading:
             null == isLoading
                 ? _value.isLoading
@@ -226,15 +269,27 @@ class __$$CreateLaodingCnfmStateImplCopyWithImpl<$Res>
 class _$CreateLaodingCnfmStateImpl implements _CreateLaodingCnfmState {
   const _$CreateLaodingCnfmStateImpl({
     required this.form,
+    required final List<ItemModel> listitems,
+    required this.items,
     required this.isLoading,
     required this.isSuccess,
     required this.view,
     this.successMsg,
     this.error,
-  });
+  }) : _listitems = listitems;
 
   @override
   final LoadingCnfmForm form;
+  final List<ItemModel> _listitems;
+  @override
+  List<ItemModel> get listitems {
+    if (_listitems is EqualUnmodifiableListView) return _listitems;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_listitems);
+  }
+
+  @override
+  final ItemModel items;
   @override
   final bool isLoading;
   @override
@@ -248,7 +303,7 @@ class _$CreateLaodingCnfmStateImpl implements _CreateLaodingCnfmState {
 
   @override
   String toString() {
-    return 'CreateLaodingCnfmState(form: $form, isLoading: $isLoading, isSuccess: $isSuccess, view: $view, successMsg: $successMsg, error: $error)';
+    return 'CreateLaodingCnfmState(form: $form, listitems: $listitems, items: $items, isLoading: $isLoading, isSuccess: $isSuccess, view: $view, successMsg: $successMsg, error: $error)';
   }
 
   @override
@@ -257,6 +312,11 @@ class _$CreateLaodingCnfmStateImpl implements _CreateLaodingCnfmState {
         (other.runtimeType == runtimeType &&
             other is _$CreateLaodingCnfmStateImpl &&
             (identical(other.form, form) || other.form == form) &&
+            const DeepCollectionEquality().equals(
+              other._listitems,
+              _listitems,
+            ) &&
+            (identical(other.items, items) || other.items == items) &&
             (identical(other.isLoading, isLoading) ||
                 other.isLoading == isLoading) &&
             (identical(other.isSuccess, isSuccess) ||
@@ -271,6 +331,8 @@ class _$CreateLaodingCnfmStateImpl implements _CreateLaodingCnfmState {
   int get hashCode => Object.hash(
     runtimeType,
     form,
+    const DeepCollectionEquality().hash(_listitems),
+    items,
     isLoading,
     isSuccess,
     view,
@@ -294,6 +356,8 @@ class _$CreateLaodingCnfmStateImpl implements _CreateLaodingCnfmState {
 abstract class _CreateLaodingCnfmState implements CreateLaodingCnfmState {
   const factory _CreateLaodingCnfmState({
     required final LoadingCnfmForm form,
+    required final List<ItemModel> listitems,
+    required final ItemModel items,
     required final bool isLoading,
     required final bool isSuccess,
     required final LoadingView view,
@@ -303,6 +367,10 @@ abstract class _CreateLaodingCnfmState implements CreateLaodingCnfmState {
 
   @override
   LoadingCnfmForm get form;
+  @override
+  List<ItemModel> get listitems;
+  @override
+  ItemModel get items;
   @override
   bool get isLoading;
   @override

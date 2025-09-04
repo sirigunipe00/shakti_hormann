@@ -24,7 +24,7 @@ class _NewLoadingConfirmationState extends State<NewLoadingConfirmation> {
 
   @override
   Widget build(BuildContext context) {
-    final loadingState = context.read<CreateLoadingCnfmCubit>().state;
+    final loadingState = context.watch<CreateLoadingCnfmCubit>().state;
 
     // final isCreating = vehicleState.view == VehicleView.create;
 
@@ -34,6 +34,7 @@ class _NewLoadingConfirmationState extends State<NewLoadingConfirmation> {
 
     final isNew = loadingState.view == LoadingView.create;
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       backgroundColor: AppColors.white,
       appBar:
           isNew
@@ -48,7 +49,7 @@ class _NewLoadingConfirmationState extends State<NewLoadingConfirmation> {
                           textStyle: const TextStyle(color: AppColors.darkBlue,fontWeight: FontWeight.bold,fontSize: 15),
                           isLoading: state.isLoading,
                           borderColor: Colors.grey,
-                          onPressed: context.cubit<CreateLoadingCnfmCubit>().save,
+                          onPressed: context.read<CreateLoadingCnfmCubit>().save,
                         );
                       },
                     ),
@@ -58,13 +59,16 @@ class _NewLoadingConfirmationState extends State<NewLoadingConfirmation> {
                     title: name ?? '',
                     status: StringUtils.docStatus(status ?? 0),
                     textColor: Colors.white,
-                    actionButton: BlocBuilder<CreateLoadingCnfmCubit, CreateLaodingCnfmState>(
+                    actionButton: loadingState.form.docstatus == 1 ? null :
+                    BlocBuilder<CreateLoadingCnfmCubit, CreateLaodingCnfmState>(
                       builder: (context, state) {
                         return AppButton(
                           borderColor: Colors.grey,
                           label: state.view.toName(),
                           isLoading: state.isLoading,
-                          onPressed: context.cubit<CreateLoadingCnfmCubit>().save,
+                          onPressed: () =>{
+                            context.read<CreateLoadingCnfmCubit>().save(),
+                          } 
                         );
                       },
                     ),

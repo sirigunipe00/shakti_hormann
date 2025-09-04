@@ -49,6 +49,7 @@ class AppDialog {
           imagePath: 'assets/images/error.png',
         ),
       );
+    
 
   static Future<T?> showSuccessDialog<T>(
     BuildContext context, {

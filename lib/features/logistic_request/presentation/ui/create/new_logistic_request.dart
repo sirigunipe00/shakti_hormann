@@ -33,6 +33,7 @@ class _NewLogisticRequestState extends State<NewLogisticRequest> {
 
     final isNew = logisticState.view == LogisticPlanningView.create;
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       backgroundColor: AppColors.white,
       appBar:
           isNew
@@ -43,8 +44,12 @@ class _NewLogisticRequestState extends State<NewLogisticRequest> {
                       builder: (context, state) {
                         return AppButton(
                           isLoading: state.isLoading,
-                          bgColor: const Color.fromARGB(255, 250, 193, 47),
-                          textStyle: const TextStyle(color: AppColors.darkBlue,fontWeight: FontWeight.bold,fontSize: 15),
+                          bgColor:  state.view == LogisticPlanningView.create ? const  Color.fromARGB(255, 250, 193, 47) : AppColors.green,
+                          textStyle: const TextStyle(
+                            color: AppColors.darkBlue,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15,
+                          ),
                           borderColor: Colors.grey,
                           label: state.view.toName(),
                           onPressed: () {
@@ -73,8 +78,19 @@ class _NewLogisticRequestState extends State<NewLogisticRequest> {
                       isloading: state.isLoading,
                       defaultSelection: orderForm,
                       futureRequest: (query) async {
-                        return names.toList();
+                        if (query.isEmpty) return names;
+
+                        return names.where((item) {
+                          final orderNo = item.name?.toLowerCase() ?? '';
+                          final customer =
+                              item.customerName?.toLowerCase() ?? '';
+                          final search = query.toLowerCase();
+
+                          return orderNo.contains(search) ||
+                              customer.contains(search);
+                        }).toList();
                       },
+
                       headerBuilder:
                           (_, item, __) => Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -91,17 +107,17 @@ class _NewLogisticRequestState extends State<NewLogisticRequest> {
                           (_, item, __, ___) => Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                               Text(
+                              Text(
                                 'Sales Order No: ${item.name ?? ''}',
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
                               if (item.customerName != null)
-                                Text(
-                                  'Customer Name : ${item.customerName}' 
-                                ),
-                                Text('Order Date: ${DFU.ddMMyyyyFromStr(item.orderDate ?? '')} '),
+                                Text('Customer Name : ${item.customerName}'),
+                              Text(
+                                'Order Date: ${DFU.ddMMyyyyFromStr(item.orderDate ?? '')} ',
+                              ),
 
                               const Divider(height: 8),
                             ],
@@ -133,7 +149,10 @@ class _NewLogisticRequestState extends State<NewLogisticRequest> {
                     status: StringUtils.docStatus(status ?? 0),
                     actionButton:
                         newform.status == 'Draft'
-                            ? BlocBuilder<CreateLogisticCubit,CreateLogisticState>(
+                            ? BlocBuilder<
+                              CreateLogisticCubit,
+                              CreateLogisticState
+                            >(
                               builder: (context, state) {
                                 return AppButton(
                                   textStyle: const TextStyle(
@@ -170,15 +189,6 @@ class _NewLogisticRequestState extends State<NewLogisticRequest> {
             ).then((_) {
               if (!context.mounted) return;
               context.cubit<CreateLogisticCubit>().errorHandled();
-
-              // final gateEntryFilters =
-              //     context.read<LogisticPlanningFilterCubit>().state;
-              // context.cubit<LogisticPlanningCubit>().fetchInitial(
-              //   Pair(
-              //     StringUtils.docStatuslogistic(gateEntryFilters.status),
-              //     gateEntryFilters.query,
-              //   ),
-              // );
               Navigator.pop(context, true);
               setState(() {});
             });

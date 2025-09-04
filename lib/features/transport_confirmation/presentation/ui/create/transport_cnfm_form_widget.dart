@@ -46,7 +46,7 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
         ),
       ],
       child: Container(
-        color: Colors.purple.shade100.withValues(alpha:0.15),
+        color: Colors.purple.shade100.withValues(alpha: 0.15),
         child: SingleChildScrollView(
           controller: _scrollController,
           child: SpacedColumn(
@@ -86,6 +86,7 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
                           top: 20,
                           left: 16,
                           right: 16,
+                          bottom: 6
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -97,7 +98,6 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
                               isRequired: true,
                               borderColor: AppColors.grey,
                               initialValue: newform.plantName,
-                             
 
                               onChanged:
                                   (p0) => context
@@ -186,7 +186,7 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
               ),
 
               const SizedBox(height: 15),
-           const Padding(
+              const Padding(
                 padding: EdgeInsets.only(left: 16.0),
                 child: SectionHeader(
                   title: 'Delivery Address Details',
@@ -201,7 +201,7 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
                   side: const BorderSide(color: Color(0xFFE8ECF4), width: 1),
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.only(top:16,left: 16,right: 16),
+                  padding: const EdgeInsets.only(top: 16, left: 16, right: 16,bottom: 4),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -233,14 +233,14 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
                               fillColor: Colors.grey[200],
                             ),
                           ),
-                          const SizedBox(width: 13),
+                          const SizedBox(width: 12),
                           Expanded(
                             child: TimePickerField(
                               title: 'Request Delivery Time',
                               hintText: 'Select time',
                               readOnly: true,
-                              
-                              initialTime: newform.requestedDeliveryTime,
+
+                              initialTime:formatTime (newform.requestedDeliveryTime),
                               onTimeChanged: (selectedTime) {
                                 context
                                     .cubit<CreateTransportCubit>()
@@ -252,7 +252,7 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
                           ),
                         ],
                       ),
-                     const SizedBox(height: 16),
+                      const SizedBox(height: 12),
                       InputField(
                         title: 'Shipping Address-1',
                         readOnly: true,
@@ -264,7 +264,7 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
                                 .cubit<CreateTransportCubit>()
                                 .onValueChanged(shippingAddress1: value),
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 12),
                       InputField(
                         title: 'Shipping Address-2',
                         readOnly: true,
@@ -276,8 +276,8 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
                                 .cubit<CreateTransportCubit>()
                                 .onValueChanged(shippingAddress2: value),
                       ),
-                      
-                       const SizedBox(height: 16),
+
+                      const SizedBox(height: 12),
                       InputField(
                         title: 'Shipping Country',
                         readOnly: true,
@@ -289,7 +289,7 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
                                 .cubit<CreateTransportCubit>()
                                 .onValueChanged(country: value),
                       ),
-                       const SizedBox(height: 16),
+                      const SizedBox(height: 12),
                       InputField(
                         title: 'Shipping State',
                         readOnly: true,
@@ -301,19 +301,19 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
                                 .cubit<CreateTransportCubit>()
                                 .onValueChanged(states: value),
                       ),
-                         const SizedBox(height: 16),
+                      const SizedBox(height: 12),
                       InputField(
                         title: 'Shipping City',
                         readOnly: true,
                         hintText: 'Enter City',
                         borderColor: AppColors.grey,
-                        initialValue:newform.city,
+                        initialValue: newform.city,
                         onChanged:
                             (value) => context
                                 .cubit<CreateTransportCubit>()
                                 .onValueChanged(city: value),
                       ),
-                           const SizedBox(height: 16),
+                      const SizedBox(height: 12),
                       InputField(
                         title: 'Shipping Pin Code',
                         readOnly: true,
@@ -351,7 +351,7 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
                     padding: const EdgeInsets.all(8.0),
                     child: InputField(
                       title: 'Any Special Instructions',
-                      hintText: 'enter your instrcution',
+                      hintText: 'Enter Your Instructions',
 
                       readOnly: true,
                       borderColor: AppColors.grey,
@@ -368,7 +368,7 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
                 ),
               ),
 
-                const Padding(
+              const Padding(
                 padding: EdgeInsets.only(left: 16.0),
                 child: SectionHeader(
                   title: 'Driver Details',
@@ -400,6 +400,7 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
                           top: 20,
                           left: 16,
                           right: 16,
+                          bottom: 6
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -408,7 +409,7 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
                               title: 'Transporter Confirmation Date',
                               hintText: 'Select Date',
                               readOnly: true,
-                              
+
                               startDate: DateTime(2020),
                               endDate: DateTime(2030),
 
@@ -433,6 +434,7 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
                             InputField(
                               title: 'Driver Name',
                               hintText: 'Enter Driver Name',
+                              isRequired: true,
                               borderColor: Colors.grey,
                               readOnly: isCompleted,
                               initialValue: newform.driverName,
@@ -445,7 +447,8 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
                             const SizedBox(height: 12),
 
                             InputField(
-                              title: 'Vehicle No',
+                              title: 'Vehicle Number',
+                              isRequired: true,
                               hintText: 'Enter Vehicle Number',
                               readOnly: isCompleted,
                               borderColor: Colors.grey,
@@ -461,27 +464,29 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
 
                             InputField(
                               title: 'Driver Contact No',
+                              isRequired: true,
                               hintText: 'Enter Contract Number',
                               readOnly: isCompleted,
                               borderColor: AppColors.grey,
-                              
+
                               inputFormatters: [
                                 FilteringTextInputFormatter.digitsOnly,
                                 LengthLimitingTextInputFormatter(10),
                               ],
                               inputType: TextInputType.number,
-                            
+
                               initialValue: newform.driverContact,
                               onChanged:
                                   (p0) => context
                                       .cubit<CreateTransportCubit>()
                                       .onValueChanged(driverContact: p0),
                             ),
-                            AppDateField(
-                              title: 'Estimated Arrival',
+                          AppDateField(
+                              title: 'Estimated Arrival Date and Time',
                               hintText: 'Select Date',
+                              isRequired: true,
                               readOnly: isCompleted,
-                              startDate: DateTime(2020),
+                              startDate: DateTime.now(),
                               endDate: DateTime(2030),
                               initialDate: DFU.ddMMyyyyHHmmssFromStr(
                                 newform.estimatedArrival ?? '',
@@ -498,8 +503,62 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
                                       );
                                 });
                               },
-                              fillColor: Colors.white,
+                              fillColor: Colors.grey[200],
                             ),
+                            // Row(
+                            //   crossAxisAlignment: CrossAxisAlignment.start,
+                            //   children: [
+                            //     Expanded(
+                            //       child: AppDateField(
+                            //         title: 'Estimated Arrival Date',
+                            //         hintText: 'Select Date',
+                            //         isRequired: true,
+                            //         readOnly: isCompleted,
+                            //         startDate: DateTime.now(),
+                            //         endDate: DateTime(2030),
+                            //         initialDate: DFU.ddMMyyyyFromStr(
+                            //           newform.requestedDeliveryDate ?? '',
+                            //         ),
+                            //         onSelected: (DateTime date) {
+                            //           setState(() {
+                            //             selectedDate = date;
+                            //             context
+                            //                 .cubit<CreateTransportCubit>()
+                            //                 .onValueChanged(
+                            //                   estimatedArrival: DateFormat(
+                            //                     'dd-MM-yyyy',
+                            //                   ).format(date),
+                            //                 );
+                            //           });
+                            //         },
+                            //         fillColor: Colors.grey[200],
+                            //       ),
+                            //     ),
+                            //     const SizedBox(width: 13),
+                            //     Expanded(
+                            //       child: Column(
+                            //         mainAxisSize: MainAxisSize.min,
+                            //         children: [
+                            //           TimePickerField(
+                            //             title: 'Estimated Arrival Time',
+                            //             readOnly: isCompleted,
+                            //             isRequired: true,
+                            //             hintText: 'Select Time',
+                            //             initialTime:
+                            //                 newform.requestedDeliveryTime,
+                            //             onTimeChanged: (selectedTime) {
+                            //               context
+                            //                   .cubit<CreateTransportCubit>()
+                            //                   .onValueChanged(
+                            //                     estimatedArrival: selectedTime,
+                            //                   );
+                            //             },
+                            //           ),
+                            //         ],
+                            //       ),
+                            //     ),
+                            //   ],
+                            // ),
                           ],
                         ),
                       ),
@@ -509,7 +568,7 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
               ),
 
               const SizedBox(height: 15),
-               const Padding(
+              const Padding(
                 padding: EdgeInsets.only(left: 16.0),
                 child: SectionHeader(
                   title: 'Transporter Remarks Details',
@@ -528,8 +587,8 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: InputField(
-                      title: 'Transporter Remarks(if any)',
-                      hintText: 'enter remarks',
+                      title: 'Transporter Remarks (if any)',
+                      hintText: 'Enter Remarks',
                       readOnly: isCompleted,
                       borderColor: Colors.grey,
                       maxLines: 3,
@@ -544,7 +603,6 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
                   ),
                 ),
               ),
-            
             ],
           ),
         ),
@@ -552,4 +610,12 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
     );
   }
 }
+String? formatTime(String? backendTime) {
+  if (backendTime == null || backendTime.isEmpty) return null;
 
+  // Parse backend string "HH:MM:SS"
+  final parts = backendTime.split(':');
+  if (parts.length < 2) return backendTime;
+
+  return '${parts[0]}:${parts[1]}'; // HH:MM only
+}

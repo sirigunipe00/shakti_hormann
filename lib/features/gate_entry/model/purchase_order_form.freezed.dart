@@ -33,6 +33,8 @@ mixin _$PurchaseOrderForm {
   String? get orderDate => throw _privateConstructorUsedError;
   @JsonKey(name: 'custom_remarks')
   String? get remarks => throw _privateConstructorUsedError;
+  @JsonKey(name: 'gate_number')
+  String? get gateNumber => throw _privateConstructorUsedError;
 
   /// Serializes this PurchaseOrderForm to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -58,6 +60,7 @@ abstract class $PurchaseOrderFormCopyWith<$Res> {
     @JsonKey(name: 'supplier_name') String? supplierName,
     @JsonKey(name: 'order_date', defaultValue: '') String? orderDate,
     @JsonKey(name: 'custom_remarks') String? remarks,
+    @JsonKey(name: 'gate_number') String? gateNumber,
   });
 }
 
@@ -82,6 +85,7 @@ class _$PurchaseOrderFormCopyWithImpl<$Res, $Val extends PurchaseOrderForm>
     Object? supplierName = freezed,
     Object? orderDate = freezed,
     Object? remarks = freezed,
+    Object? gateNumber = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -115,6 +119,11 @@ class _$PurchaseOrderFormCopyWithImpl<$Res, $Val extends PurchaseOrderForm>
                     ? _value.remarks
                     : remarks // ignore: cast_nullable_to_non_nullable
                         as String?,
+            gateNumber:
+                freezed == gateNumber
+                    ? _value.gateNumber
+                    : gateNumber // ignore: cast_nullable_to_non_nullable
+                        as String?,
           )
           as $Val,
     );
@@ -137,6 +146,7 @@ abstract class _$$PurchaseOrderFormImplCopyWith<$Res>
     @JsonKey(name: 'supplier_name') String? supplierName,
     @JsonKey(name: 'order_date', defaultValue: '') String? orderDate,
     @JsonKey(name: 'custom_remarks') String? remarks,
+    @JsonKey(name: 'gate_number') String? gateNumber,
   });
 }
 
@@ -160,6 +170,7 @@ class __$$PurchaseOrderFormImplCopyWithImpl<$Res>
     Object? supplierName = freezed,
     Object? orderDate = freezed,
     Object? remarks = freezed,
+    Object? gateNumber = freezed,
   }) {
     return _then(
       _$PurchaseOrderFormImpl(
@@ -193,6 +204,11 @@ class __$$PurchaseOrderFormImplCopyWithImpl<$Res>
                 ? _value.remarks
                 : remarks // ignore: cast_nullable_to_non_nullable
                     as String?,
+        gateNumber:
+            freezed == gateNumber
+                ? _value.gateNumber
+                : gateNumber // ignore: cast_nullable_to_non_nullable
+                    as String?,
       ),
     );
   }
@@ -208,6 +224,7 @@ class _$PurchaseOrderFormImpl implements _PurchaseOrderForm {
     @JsonKey(name: 'supplier_name') this.supplierName,
     @JsonKey(name: 'order_date', defaultValue: '') this.orderDate,
     @JsonKey(name: 'custom_remarks') this.remarks,
+    @JsonKey(name: 'gate_number') this.gateNumber,
   });
 
   factory _$PurchaseOrderFormImpl.fromJson(Map<String, dynamic> json) =>
@@ -231,10 +248,13 @@ class _$PurchaseOrderFormImpl implements _PurchaseOrderForm {
   @override
   @JsonKey(name: 'custom_remarks')
   final String? remarks;
+  @override
+  @JsonKey(name: 'gate_number')
+  final String? gateNumber;
 
   @override
   String toString() {
-    return 'PurchaseOrderForm(name: $name, plantName: $plantName, supplier: $supplier, supplierName: $supplierName, orderDate: $orderDate, remarks: $remarks)';
+    return 'PurchaseOrderForm(name: $name, plantName: $plantName, supplier: $supplier, supplierName: $supplierName, orderDate: $orderDate, remarks: $remarks, gateNumber: $gateNumber)';
   }
 
   @override
@@ -251,7 +271,9 @@ class _$PurchaseOrderFormImpl implements _PurchaseOrderForm {
                 other.supplierName == supplierName) &&
             (identical(other.orderDate, orderDate) ||
                 other.orderDate == orderDate) &&
-            (identical(other.remarks, remarks) || other.remarks == remarks));
+            (identical(other.remarks, remarks) || other.remarks == remarks) &&
+            (identical(other.gateNumber, gateNumber) ||
+                other.gateNumber == gateNumber));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -264,6 +286,7 @@ class _$PurchaseOrderFormImpl implements _PurchaseOrderForm {
     supplierName,
     orderDate,
     remarks,
+    gateNumber,
   );
 
   /// Create a copy of PurchaseOrderForm
@@ -291,6 +314,7 @@ abstract class _PurchaseOrderForm implements PurchaseOrderForm {
     @JsonKey(name: 'supplier_name') final String? supplierName,
     @JsonKey(name: 'order_date', defaultValue: '') final String? orderDate,
     @JsonKey(name: 'custom_remarks') final String? remarks,
+    @JsonKey(name: 'gate_number') final String? gateNumber,
   }) = _$PurchaseOrderFormImpl;
 
   factory _PurchaseOrderForm.fromJson(Map<String, dynamic> json) =
@@ -314,6 +338,9 @@ abstract class _PurchaseOrderForm implements PurchaseOrderForm {
   @override
   @JsonKey(name: 'custom_remarks')
   String? get remarks;
+  @override
+  @JsonKey(name: 'gate_number')
+  String? get gateNumber;
 
   /// Create a copy of PurchaseOrderForm
   /// with the given fields replaced by the non-null parameter values.

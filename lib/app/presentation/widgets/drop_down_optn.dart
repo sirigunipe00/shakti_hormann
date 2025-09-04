@@ -4,9 +4,18 @@ abstract class Dropdownoptions {
     'RO transporter'
    
   ];
-  static const List<String> vehicleType = [
-    'Mini Truck',
-    'Tempo',
+  
+  static const List<String> gateNumbers= [
+    '1',
+    '2',
+    '3',
+    '4',
+    '5',
+    '6',
+    '7',
+    '8',
+    '9',
+    '10',
     
    
   ];

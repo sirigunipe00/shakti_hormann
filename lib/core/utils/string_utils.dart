@@ -72,6 +72,8 @@ class StringUtils {
         return 'pending from transporter';
       case 'draft':
         return 'draft';
+      case 'submitted':
+      return '1';
       case 'all':
         return '4';
       default:
@@ -87,9 +89,11 @@ class StringUtils {
       case 'rejected':
       return 'rejected';
       case 'draft':
-      return 'draft';
+      return '';
       case 'all':
       return '4';
+      case 'submitted':
+      return '1';
       default:
       return '';
     }

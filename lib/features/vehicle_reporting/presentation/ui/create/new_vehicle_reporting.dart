@@ -30,11 +30,12 @@ class _NewVehicleReportingState extends State<NewVehicleReporting> {
     // final isCreating = vehicleState.view == VehicleView.create;
 
     final newform = vehicleState.form;
-    final status = newform.docstatus;
+    final status = newform.status;
     final name = newform.name;
 
     final isNew = vehicleState.view == VehicleView.create;
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       backgroundColor: AppColors.white,
       appBar:
           isNew
@@ -46,7 +47,10 @@ class _NewVehicleReportingState extends State<NewVehicleReporting> {
                         return AppButton(
                           label: state.view.toName(),
                           isLoading: state.isLoading,
-                          bgColor: const Color.fromARGB(255, 250, 193, 47),
+                          bgColor:
+                              state.view == VehicleView.create
+                                  ? const Color.fromARGB(255, 250, 193, 47)
+                                  : AppColors.green,
                           textStyle: const TextStyle(
                             color: AppColors.darkBlue,
                             fontWeight: FontWeight.bold,
@@ -73,11 +77,24 @@ class _NewVehicleReportingState extends State<NewVehicleReporting> {
                       key: UniqueKey(),
                       defaultSelection: transporterForm,
                       items: names,
-                      readOnly: status == 1,
                       isloading: state.isLoading,
                       futureRequest: (query) async {
-                        return names.toList();
+                        if (query.isEmpty) return names;
+
+                        return names.where((item) {
+                          final orderNo = item.name?.toLowerCase() ?? '';
+                          final customer =
+                              item.vehicleNumber?.toLowerCase() ?? '';
+                          final transporter =
+                              item.transporterName?.toLowerCase() ?? '';
+                          final search = query.toLowerCase();
+
+                          return orderNo.contains(search) ||
+                              customer.contains(search) ||
+                              transporter.contains(search);
+                        }).toList();
                       },
+
                       headerBuilder:
                           (_, item, __) => Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -106,38 +123,10 @@ class _NewVehicleReportingState extends State<NewVehicleReporting> {
                         setState(() {
                           transporterForm = selected;
                         });
-                        //                         // final requestedDateTime =
-                        //                         //     (selected.requestedDeliveryDate != null &&
-                        //                         //             selected.requestedDeliveryTime != null)
-                        //                         //         ? '${selected.requestedDeliveryDate} ${selected.requestedDeliveryTime}'
-                        //                         //         : selected.requestedDeliveryDate;
-                        //                         final estimatedArrival = selected.estimatedArrival ?? '';
-
-                        //                         $logger.devLog(
-                        //                           'estimatedDateTime......$estimatedArrival',
-                        //                         );
-
-                        //             String? arrivalDateAndTime;
-                        // if (estimatedArrival.isNotEmpty == true) {
-                        //   try {
-                        //     // Parse using actual backend format (yyyy-MM-dd HH:mm:ss)
-                        //     final parsedDate = DateFormat('yyyy-MM-dd HH:mm:ss').parse(estimatedArrival);
-                        //     $logger.devLog('parsedDate.........$parsedDate');
-
-                        //     // Format into desired format (dd-MM-yyyy HH:mm:ss)
-                        //     arrivalDateAndTime = DateFormat('dd-MM-yyyy HH:mm:ss').format(parsedDate);
-                        //     $logger.devLog('Formatted arrivalDateAndTime in repo: $arrivalDateAndTime');
-                        //   } catch (e) {
-                        //     $logger.devLog('Date parsing error: $e');
-                        //     arrivalDateAndTime = estimatedArrival;
-                        //   }
-                        // }
-
                         context.cubit<CreateVehicleCubit>().onValueChanged(
                           plantName: selected.plantName,
                           transporterName: selected.transporterName,
                           vehicleNo: selected.vehicleNumber,
-                          // arrivalDateAndTime: estimatedArrival,
                           linkedTransporterConfirmation: selected.name,
                           driverContact: selected.driverContact,
                         );
@@ -150,7 +139,7 @@ class _NewVehicleReportingState extends State<NewVehicleReporting> {
               )
               : TitleStatusAppBar(
                     title: name ?? '',
-                    status: StringUtils.docStatus(status ?? 0),
+                    status: status ?? '',
                     textColor: Colors.white,
 
                     pageMode: PageMode2.vehicleReporting,
@@ -172,7 +161,7 @@ class _NewVehicleReportingState extends State<NewVehicleReporting> {
             if (isReject) {
               AppDialog.showErrorDialog(
                 context,
-                title: 'Rejected',
+                title: 'Transporter Rejected',
                 content: state.successMsg.valueOrEmpty,
                 onTapDismiss: context.exit,
               ).then((_) {
@@ -193,6 +182,7 @@ class _NewVehicleReportingState extends State<NewVehicleReporting> {
               });
             }
           }
+
           if (state.error.isNotNull) {
             await AppDialog.showErrorDialog(
               context,

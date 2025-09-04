@@ -1,4 +1,5 @@
-import 'package:intl/intl.dart';
+import 'dart:developer';
+
 import 'package:shakti_hormann/core/core.dart';
 import 'package:dartz/dartz.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -7,17 +8,17 @@ import 'package:shakti_hormann/features/loading_confirmation/data/loading_cnfm_r
 import 'package:shakti_hormann/features/loading_confirmation/model/item_model.dart';
 import 'package:shakti_hormann/features/loading_confirmation/model/loading_cnfm.dart';
 
-
 part 'create_loading_cnfm_cubit.freezed.dart';
 
-enum LoadingView { create, edit, completed }
+enum LoadingView { create, edit, completed, sumitted }
 
 extension ActionType on LoadingView {
   String toName() {
     return switch (this) {
       LoadingView.create => 'Create',
-      LoadingView.edit => 'Submit',
-      LoadingView.completed => 'Submitted',
+      LoadingView.edit => 'Update',
+      LoadingView.completed => 'Submit',
+      LoadingView.sumitted => 'Submitted',
     };
   }
 }
@@ -28,132 +29,106 @@ class CreateLoadingCnfmCubit extends AppBaseCubit<CreateLaodingCnfmState> {
   final LoadingCnfmRepo repo;
 
   void onValueChanged({
-    String? plantName,
+    String? remarks,
+    String? itemName,
+    String? salesUom,
+    String? itemCode,
+    String? images,
     String? name,
-    String? creationDate,
-    String? owner,
-    int? docStatus,
-    int? idx,
-    String? modifiedBy,
-    String? modifiedDate,
-    String? amendedFrom,
-    String? vehicleReportingEntryVreDate,
-    String? transporterName,
-    String? arrivalDateAndTime,
-    // File? driverIdPhoto,
-    String? loadedByUser,
-    String? status,
-    String? linkedTransporterConfirmation,
-    String? vehicleNo,
-    String? driverContact,
-    // String? remarks,
-    // String? itemName,
-    // String? salesUom,
-    // String? itemCode,
-    // String? images,
-    //  String? name,
-    // int? quantityLoaded,
-    
+    int? quantityLoaded,
   }) {
     shouldAskForConfirmation.value = true;
-    final today = DateFormat('yyyy-MM-dd').format(DateTime.now());
-    final form = state.form;
-
-    // name ??= name == null ? form.name : null;
-    // final driverID =
-    //     driverIdPhoto.isNull
-    //         ? form.driverIdPhoto
-    //         : base64Encode(driverIdPhoto!.readAsBytesSync());
+    final form = state.items;
 
     final newForm = form.copyWith(
-      // plantName: plantName ?? form.plantName,
-      // name: name ?? form.name,
-      // itemCode : itemCode ?? form.itemCode,
-      // itemName : itemName ?? form.itemName,
-      // salesUom :salesUom ?? form.salesUom,
-      //  sampleQuantity: quantityLoaded ?? form.sampleQuantity
-
-      creation: today,
-      owner: owner ?? form.owner,
-      docstatus: docStatus ?? form.docstatus,
-      modifiedBy: modifiedBy ?? form.modifiedBy,
-      modified: modifiedDate ?? form.modified,
-      // vehicleReportingEntryVreDate:
-      //     vehicleReportingEntryVreDate ?? form.vehicleReportingEntryVreDate,
-      // transporterName: transporterName ?? form.transporterName,
-      // arrivalDateAndTime: arrivalDateAndTime ?? form.arrivalDateAndTime,
-      // loadedByUser: loadedByUser ?? form.loadedByUser,
-      // status: status ?? form.status,
-      // linkedTransporterConfirmation:
-      //     linkedTransporterConfirmation ?? form.linkedTransporterConfirmation,
-      // driverContact: driverContact ?? form.driverContact,
-      // vehicleNumber: vehicleNo ?? form.vehicleNumber,
-      // remarks: remarks ?? form.remarks,
-      // driverIdPhoto: driverID,
-    
-      
+      name: name ?? form.name,
+      itemCode: itemCode ?? form.itemCode,
+      itemName: itemName ?? form.itemName,
+      salesUom: salesUom ?? form.salesUom,
+      sampleQuantity: quantityLoaded ?? form.sampleQuantity,
     );
-    emitSafeState(state.copyWith(form: newForm));
+    emitSafeState(state.copyWith(items: newForm));
   }
 
   void initDetails(Object? entry) {
     shouldAskForConfirmation.value = false;
-    if (entry is ItemModel) {
-      final status = entry.docstatus;
-
-      final isSubmitted = StringUtils.equalsIgnoreCase(
-        StringUtils.docStatus(status!),
-        'Submitted',
-      );
-      final isCancelled = StringUtils.equalsIgnoreCase(
-        StringUtils.docStatus(status).trim(),
-        'Cancelled',
-      );
+    if (entry is LoadingCnfmForm) {
+      // final status = entry.docstatus;
+      // final isSubmitted = StringUtils.equalsIgnoreCase(
+      //   StringUtils.docStatus(status!),
+      //   'Submitted',
+      // );
+      // final isCancelled = StringUtils.equalsIgnoreCase(
+      //   StringUtils.docStatus(status).trim(),
+      //   'Cancelled',
+      // );
       final form = state.form;
       final updatedForm = form.copyWith(
         docstatus: entry.docstatus,
         name: entry.name,
-        
-        // remarks: entry.remarks,
-        // status: entry.status,
-        // plantName: entry.plantName,
-        // loadedByUser: entry.loadedByUser,
-        // vehicleNumber: entry.vehicleNumber,
-        // arrivalDateAndTime: entry.arrivalDateAndTime,
-        // driverContact: entry.driverContact,
-        // driverIdPhoto: entry.driverIdPhoto,
-        // vehicleReportingEntryVreDate: entry.vehicleReportingEntryVreDate,
-        // linkedTransporterConfirmation: entry.linkedTransporterConfirmation,
-        // transporterName: entry.transporterName,
-    
+
+        remarks: entry.remarks,
+        status: entry.status,
+        plantName: entry.plantName,
+        loadedByUser: entry.loadedByUser,
+        vehicleNumber: entry.vehicleNumber,
+        arrivalDateAndTime: entry.arrivalDateAndTime,
+        driverContact: entry.driverContact,
+        driverIdPhoto: entry.driverIdPhoto,
+        vehicleReportingEntryVreDate: entry.vehicleReportingEntryVreDate,
+        linkedTransporterConfirmation: entry.linkedTransporterConfirmation,
+        transporterName: entry.transporterName,
       );
-      final mode =
-          (isSubmitted || isCancelled)
-              ? LoadingView.completed
-              : LoadingView.edit;
+      final mode = LoadingView.completed;
       emitSafeState(state.copyWith(form: updatedForm, view: mode));
     }
     if (entry == null) return;
   }
 
+  void addItem(ItemModel newItem) {
+    $logger.devLog('state.listitems....: ${state.listitems}');
+    final updatedItems = [...state.listitems, newItem];
+
+    log('updatedItems---:$updatedItems');
+    // final filitems = updatedItems.where((e) => e.isActive && !e.isDeleting);
+    // final invoice = _recalculateTotals(filitems.toList());
+    final stat = state.copyWith(listitems: updatedItems, view: LoadingView.edit);
+    log('lshjafdjshf:${stat.listitems}');
+    emitSafeState(stat);
+  }
+  void addInitialItem(ItemModel newItem) {
+    $logger.devLog('state.listitems....: ${state.listitems}');
+    final updatedItems = [...state.listitems, newItem];
+    log('updatedItems---:$updatedItems');
+    final stat = state.copyWith(listitems: updatedItems);
+    log('lshjafdjshf:${stat.listitems}');
+    emitSafeState(stat);
+  }
+ void updateItem(int index, ItemModel updatedItem) {
+  final currentItems = List<ItemModel>.from(state.listitems);
+  currentItems[index] = updatedItem;
+  emitSafeState(state.copyWith(listitems: currentItems, view: LoadingView.edit));
+}
 
 
   void save() async {
+    print('state....$state:');
+    log('state.listitems--:${state.listitems}');
     final validation = _validate();
     return validation.fold(() async {
       emitSafeState(state.copyWith(isLoading: true, isSuccess: false));
-      final nextMode = switch (state.view) {
-        LoadingView.create => LoadingView.edit,
-        LoadingView.edit || LoadingView.completed => LoadingView.completed,
-      };
+      // final nextMode = switch (state.view) {
+      //   LoadingView.create => LoadingView.edit,
+      //   LoadingView.edit || LoadingView.completed => LoadingView.completed,
+      // };
 
-      final status = switch (state.view) {
-        LoadingView.create => 'Draft',
-        LoadingView.edit || LoadingView.completed => 'Submitted',
-      };
 
-      if (state.view == LoadingView.create) {
-        final response = await repo.createLoadingCnfm(state.form);
+
+      if (state.view == LoadingView.edit) {
+        final response = await repo.createLoadingCnfm(
+          state.listitems,
+          state.form.name ?? '',
+        );
 
         return response.fold(
           (l) => emitSafeState(state.copyWith(isLoading: false, error: l)),
@@ -164,33 +139,33 @@ class CreateLoadingCnfmCubit extends AppBaseCubit<CreateLaodingCnfmState> {
               state.copyWith(
                 isLoading: false,
                 isSuccess: true,
-                form: state.form.copyWith( name: docstatus),
+                form: state.form.copyWith(name: docstatus),
                 successMsg: r.first,
-                view: nextMode,
+                view: LoadingView.completed,
               ),
             );
           },
         );
       }
-      // else {
-      //   final response = await repo.submitGateEntry(state.form);
+      else {
+        final response = await repo.submitLoading(state.form.name ?? '');
 
-      //   return response.fold(
-      //     (l) => emitSafeState(state.copyWith(isLoading: false, error: l)),
-      //     (r) {
-      //       shouldAskForConfirmation.value = false;
-      //       emitSafeState(
-      //         state.copyWith(
-      //           isLoading: false,
-      //           isSuccess: true,
-      //           form: state.form.copyWith(docStatus: 1),
-      //           successMsg: r.first,
-      //           view: VehicleView.completed,
-      //         ),
-      //       );
-      //     },
-      //   );
-      // }
+        return response.fold(
+          (l) => emitSafeState(state.copyWith(isLoading: false, error: l)),
+          (r) {
+            shouldAskForConfirmation.value = false;
+            emitSafeState(
+              state.copyWith(
+                isLoading: false,
+                isSuccess: true,
+                form: state.form.copyWith(docstatus: 1),
+                successMsg: r.first,
+                view: LoadingView.sumitted,
+              ),
+            );
+          },
+        );
+      }
     }, _emitError);
   }
 
@@ -214,27 +189,38 @@ class CreateLoadingCnfmCubit extends AppBaseCubit<CreateLaodingCnfmState> {
     );
   }
 
-  Option<Pair<String, int?>> _validate() {
-    final form = state.form;
-  //   if (form.itemCode.doesNotHaveValue) {
-  //     return optionOf(const Pair('Plant Name Missing', 0));
-  //   }
-  // //   } else if (form.vehicleNumber.doesNotHaveValue) {
-  // //     return optionOf(const Pair('Enter Vehicle Number', 0));
-  // //   } else if (form.driverIdPhoto.isNull) {
-  // //     return optionOf(const Pair('Driver Id is Required ', 0));
-  // //   }else if (form.driverContact.doesNotHaveValue || form.driverContact!.length != 10) {
-  // //   return optionOf(const Pair('Please re-enter a valid 10-digit driver contact number', 0));
-  // // }
+Option<Pair<String, int?>> _validate() {
+  // final items = state.listitems;
 
-    return const None();
-  }
+//   if (items.isEmpty) {
+//     return optionOf(const Pair('At least one item is required', 0));
+//   }
+
+//   for (var item in items) {
+//     if (item.itemCode == null || item.itemCode!.isEmpty) {
+//       return optionOf(const Pair('Item Code is required', 0));
+//     }
+//     if (item.itemName == null || item.itemName!.isEmpty) {
+//       return optionOf(const Pair('Item Name is required', 0));
+//     }
+//     if (item.sampleQuantity == null || item.sampleQuantity! <= 0) {
+//       return optionOf(const Pair('Quantity Loaded must be greater than 0', 0));
+//     }
+//     if (item.stockUom == null || item.stockUom!.isEmpty) {
+//       return optionOf(const Pair('UOM is required', 0));
+//     }
+//   }
+
+  return const None(); 
+}
 }
 
 @freezed
 class CreateLaodingCnfmState with _$CreateLaodingCnfmState {
   const factory CreateLaodingCnfmState({
     required LoadingCnfmForm form,
+    required List<ItemModel> listitems,
+    required ItemModel items,
     required bool isLoading,
     required bool isSuccess,
     required LoadingView view,
@@ -244,9 +230,10 @@ class CreateLaodingCnfmState with _$CreateLaodingCnfmState {
 
   factory CreateLaodingCnfmState.initial() {
     final creationDate = DFU.friendlyFormat(DFU.now());
-    
 
     return CreateLaodingCnfmState(
+      items: const ItemModel(),
+      listitems: <ItemModel>[],
       form: LoadingCnfmForm(creation: creationDate),
       view: LoadingView.create,
       isLoading: false,

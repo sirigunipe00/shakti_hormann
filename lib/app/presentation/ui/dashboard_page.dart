@@ -185,12 +185,8 @@ List<_SupplierData> _getSupplierData() {
   ];
 }
 
-// --- Reusable Stat Card ---
+
 class StatCard extends StatelessWidget {
-  final String title;
-  final String value;
-  final String percent;
-  final bool isUp;
 
   const StatCard({
     super.key,
@@ -199,6 +195,10 @@ class StatCard extends StatelessWidget {
     required this.percent,
     required this.isUp,
   });
+  final String title;
+  final String value;
+  final String percent;
+  final bool isUp;
 
   @override
   Widget build(BuildContext context) {
@@ -214,12 +214,10 @@ class StatCard extends StatelessWidget {
               title,
               style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
             ),
-            // const SizedBox(height: 4),
             Text(
               value,
               style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
-            // const SizedBox(height: 8,),
             Row(
               children: [
                 Icon(

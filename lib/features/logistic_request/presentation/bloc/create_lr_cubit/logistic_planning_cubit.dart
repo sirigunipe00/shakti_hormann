@@ -233,7 +233,13 @@ class CreateLogisticCubit extends AppBaseCubit<CreateLogisticState> {
 
     if (form.salesOrder.doesNotHaveValue) {
       return optionOf(const Pair('Select Sales Order No', 0));
-    }
+    } else if (form.requestedDeliveryDate.isNull || 
+             (form.requestedDeliveryDate?.trim().isEmpty ?? true)) {
+    return optionOf(const Pair('Missing Request Delivery Date', 0));
+  } else if (form.requestedDeliveryTime.isNull || 
+             (form.requestedDeliveryTime?.trim().isEmpty ?? true)) {
+    return optionOf(const Pair('Missing Request Time', 0));
+  }
     return none();
   }
 }

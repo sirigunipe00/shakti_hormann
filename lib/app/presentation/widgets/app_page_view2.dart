@@ -48,12 +48,12 @@ class _AppPageView2State<T extends PageViewFiltersCubit>
   bool isTodaySelected = true;
 
   String get hintText => switch (widget.mode) {
-    PageMode2.gateentry => 'Search GI / PO',
-    PageMode2.gateexit => 'Search GO / SINV',
-    PageMode2.logisticRequest => 'Search LR / SO ID',
-    PageMode2.transportConfirmation => 'Search LR / TC',
-    PageMode2.vehicleReporting => 'Search VRE / TC',
-    PageMode2.loadingConfirmation => 'Search LC / TC',
+    PageMode2.gateentry => 'Search GI',
+    PageMode2.gateexit => 'Search GO',
+    PageMode2.logisticRequest => 'Search LR',
+    PageMode2.transportConfirmation => 'Search LR',
+    PageMode2.vehicleReporting => 'Search VRE',
+    PageMode2.loadingConfirmation => 'Search LC',
   };
 
   Color get bgColor => switch (widget.mode) {
@@ -67,6 +67,38 @@ class _AppPageView2State<T extends PageViewFiltersCubit>
 
   @override
   Widget build(BuildContext context) {
+    List<String> filters = [];
+
+    switch (widget.mode) {
+      case PageMode2.gateentry:
+      case PageMode2.gateexit:
+        filters = ['Draft', 'Submitted', 'All'];
+        break;
+
+      case PageMode2.logisticRequest:
+        filters = [
+          'Transporter Confirmed',
+          'Transporter Rejected',
+          'Pending From Transporter',
+          'Draft',
+          'All',
+        ];
+        break;
+
+      case PageMode2.transportConfirmation:
+        filters = [
+          'Transporter Confirmed',
+          'Transporter Rejected',
+          'Pending From Transporter',
+          'All',
+        ];
+        break;
+
+      case PageMode2.vehicleReporting:
+      case PageMode2.loadingConfirmation:
+        filters = ['Draft', 'Reported', 'Rejected', 'Cancelled', 'All'];
+        break;
+    }
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: PreferredSize(
@@ -96,7 +128,7 @@ class _AppPageView2State<T extends PageViewFiltersCubit>
             StatusMenuWidget(
               defaultSel: context.read<T>().state.status,
               mode: widget.mode,
-              items: const ['Draft', 'Submitted'],
+              items: filters,
               onChange: context.cubit<T>().onChangeStatus,
             ),
             
@@ -174,7 +206,7 @@ class _AppPageView2State<T extends PageViewFiltersCubit>
                 border: Border.all(color: Colors.grey.shade300),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha:0.05),
+                    color: Colors.black.withValues(alpha: 0.05),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),

@@ -7,7 +7,7 @@ import 'package:shakti_hormann/features/transport_confirmation/model/transport_c
 
 part 'create_transport_cubit.freezed.dart';
 
-enum TransportView { create, edit, completed ,reject}
+enum TransportView { create, edit, completed, reject }
 
 extension ActionType on TransportView {
   String toName() {
@@ -90,10 +90,10 @@ class CreateTransportCubit extends AppBaseCubit<CreateTransportState> {
       driverContact: driverContact ?? form.driverContact,
       shippingAddress1: shippingAddress1 ?? form.shippingAddress1,
       shippingAddress2: shippingAddress2 ?? form.shippingAddress2,
-      states : states ?? form.states,
-      country : country ?? form.country,
-      city : city ?? form.city,
-      pincode : pinCode ?? form.pincode,
+      states: states ?? form.states,
+      country: country ?? form.country,
+      city: city ?? form.city,
+      pincode: pinCode ?? form.pincode,
     );
 
     emitSafeState(state.copyWith(form: newForm));
@@ -130,7 +130,6 @@ class CreateTransportCubit extends AppBaseCubit<CreateTransportState> {
         states: entry.states,
         city: entry.city,
         pincode: entry.pincode,
-      
       );
 
       // final formattedStr = DFU.friendlyFormat(parsedDate);
@@ -156,11 +155,11 @@ class CreateTransportCubit extends AppBaseCubit<CreateTransportState> {
   }
 
   void approve() async {
+    $logger.devLog('approve........');
     final validation = _validate();
     return validation.fold(() async {
       emitSafeState(state.copyWith(isLoading: true, isSuccess: false));
 
-   
       final formToSend = state.form;
 
       final response = await repo.submitTransport(formToSend);
@@ -182,36 +181,35 @@ class CreateTransportCubit extends AppBaseCubit<CreateTransportState> {
     }, _emitError);
   }
 
-void reject(String reason) async {
-  emitSafeState(state.copyWith(isLoading: true, isSuccess: false));
+  void reject(String reason) async {
+    emitSafeState(state.copyWith(isLoading: true, isSuccess: false));
 
-  // Update form with reject reason
-  final updatedForm = state.form.copyWith(rejectReason: reason);
+    // Update form with reject reason
+    final updatedForm = state.form.copyWith(rejectReason: reason);
 
-  if (reason.isEmpty) {
-    _emitError(const Pair('Please enter reject reason', 0));
-    return;
+    if (reason.isEmpty) {
+      _emitError(const Pair('Please enter reject reason', 0));
+      return;
+    }
+
+    final response = await repo.rejectTransport(updatedForm);
+
+    response.fold(
+      (l) => emitSafeState(state.copyWith(isLoading: false, error: l)),
+      (r) {
+        shouldAskForConfirmation.value = false;
+        emitSafeState(
+          state.copyWith(
+            isLoading: false,
+            isSuccess: true,
+            form: updatedForm.copyWith(docstatus: 1),
+            successMsg: r.first,
+            view: TransportView.reject,
+          ),
+        );
+      },
+    );
   }
-
-  final response = await repo.rejectTransport(updatedForm);
-
-  response.fold(
-    (l) => emitSafeState(state.copyWith(isLoading: false, error: l)),
-    (r) {
-      shouldAskForConfirmation.value = false;
-      emitSafeState(
-        state.copyWith(
-          isLoading: false,
-          isSuccess: true,
-          form: updatedForm.copyWith(docstatus: 1),
-          successMsg: r.first,
-          view: TransportView.reject,
-        ),
-      );
-    },
-  );
-}
-
 
   void _emitError(Pair<String, int?> error) {
     final failure = Failure(
@@ -235,11 +233,21 @@ void reject(String reason) async {
 
   Option<Pair<String, int?>> _validate() {
     final form = state.form;
-   if (form.driverContact.doesNotHaveValue ||
+
+    if (form.driverContact.doesNotHaveValue ||
         form.driverContact!.length != 10) {
       return optionOf(
         const Pair('Please re-enter a valid 10-digit driver contact number', 0),
       );
+    } else if (form.driverName.isNull ||
+        (form.driverName?.trim().isEmpty ?? true)) {
+      return optionOf(const Pair('Missing Driver Name', 0));
+    } else if (form.vehicleNumber.isNull ||
+        (form.vehicleNumber?.trim().isEmpty ?? true)) {
+      return optionOf(const Pair('Missing Vehicle Number', 0));
+    } else if (form.estimatedArrival.isNull ||
+        (form.estimatedArrival?.trim().isEmpty ?? true)) {
+      return optionOf(const Pair('Missing Estimated Arrival Date', 0));
     }
 
     return const None();
@@ -260,10 +268,9 @@ class CreateTransportState with _$CreateTransportState {
 
   factory CreateTransportState.initial() {
     final creationDate = DFU.friendlyFormat(DFU.now());
-    
 
     return CreateTransportState(
-      form: TransportConfirmationForm(creation: creationDate,),
+      form: TransportConfirmationForm(creation: creationDate),
       view: TransportView.create,
       isLoading: false,
       isSuccess: false,
