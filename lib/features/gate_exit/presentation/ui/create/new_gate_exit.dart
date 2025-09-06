@@ -181,7 +181,7 @@ class _NewGateExitState extends State<NewGateExit> {
                             (context) => AlertDialog(
                               title: const Text('Error',style: TextStyle(color: Colors.red,fontSize: 14,fontWeight: FontWeight.bold)),
                               content: const Text(
-                                'Scanned Invoice Order Number is not matched with Existing Invoice Order.',
+                                'Scanned Invoice Order Number is Not Matched With Existing Invoice Order.',
                               ),
                               actions: [
                                 TextButton(
@@ -201,13 +201,8 @@ class _NewGateExitState extends State<NewGateExit> {
                     status: StringUtils.docStatus(status ?? 0),
                     onSubmit: () {},
                     onReject: () {},
-                    actionButton:
-                        (status == 1)
-                            ? null
-                            : BlocBuilder<
-                              CreateGateExitCubit,
-                              CreateGateExitState
-                            >(
+                    actionButton: (status == 1) ? null
+                    : BlocBuilder<CreateGateExitCubit,CreateGateExitState>(
                               builder: (context, state) {
                                 return AppButton(
                                   isLoading: state.isLoading,

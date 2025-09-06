@@ -38,8 +38,8 @@ mixin _$GateEntryForm {
   int? get idx => throw _privateConstructorUsedError;
   @JsonKey(name: 'plant_name')
   String? get plantName => throw _privateConstructorUsedError;
-  @JsonKey(name: 'purchase_order')
-  String? get purchaseOrder => throw _privateConstructorUsedError;
+  @JsonKey(name: 'purchase_orders')
+  List<PurchaseOrder>? get purchaseOrder => throw _privateConstructorUsedError;
   @JsonKey(name: 'scan_irn')
   String? get scanIrn => throw _privateConstructorUsedError;
   @JsonKey(name: 'vehicle_no')
@@ -115,7 +115,7 @@ abstract class $GateEntryFormCopyWith<$Res> {
     @JsonKey(name: 'modified_by') String? modifiedBy,
     @JsonKey(name: 'idx') int? idx,
     @JsonKey(name: 'plant_name') String? plantName,
-    @JsonKey(name: 'purchase_order') String? purchaseOrder,
+    @JsonKey(name: 'purchase_orders') List<PurchaseOrder>? purchaseOrder,
     @JsonKey(name: 'scan_irn') String? scanIrn,
     @JsonKey(name: 'vehicle_no') String? vehicleNo,
     @JsonKey(name: 'vendor_invoice_date') String? vendorInvoiceDate,
@@ -246,7 +246,7 @@ class _$GateEntryFormCopyWithImpl<$Res, $Val extends GateEntryForm>
                 freezed == purchaseOrder
                     ? _value.purchaseOrder
                     : purchaseOrder // ignore: cast_nullable_to_non_nullable
-                        as String?,
+                        as List<PurchaseOrder>?,
             scanIrn:
                 freezed == scanIrn
                     ? _value.scanIrn
@@ -352,7 +352,7 @@ abstract class _$$GateEntryFormImplCopyWith<$Res>
     @JsonKey(name: 'modified_by') String? modifiedBy,
     @JsonKey(name: 'idx') int? idx,
     @JsonKey(name: 'plant_name') String? plantName,
-    @JsonKey(name: 'purchase_order') String? purchaseOrder,
+    @JsonKey(name: 'purchase_orders') List<PurchaseOrder>? purchaseOrder,
     @JsonKey(name: 'scan_irn') String? scanIrn,
     @JsonKey(name: 'vehicle_no') String? vehicleNo,
     @JsonKey(name: 'vendor_invoice_date') String? vendorInvoiceDate,
@@ -480,9 +480,9 @@ class __$$GateEntryFormImplCopyWithImpl<$Res>
                     as String?,
         purchaseOrder:
             freezed == purchaseOrder
-                ? _value.purchaseOrder
+                ? _value._purchaseOrder
                 : purchaseOrder // ignore: cast_nullable_to_non_nullable
-                    as String?,
+                    as List<PurchaseOrder>?,
         scanIrn:
             freezed == scanIrn
                 ? _value.scanIrn
@@ -581,7 +581,7 @@ class _$GateEntryFormImpl implements _GateEntryForm {
     @JsonKey(name: 'modified_by') this.modifiedBy,
     @JsonKey(name: 'idx') this.idx,
     @JsonKey(name: 'plant_name') this.plantName,
-    @JsonKey(name: 'purchase_order') this.purchaseOrder,
+    @JsonKey(name: 'purchase_orders') final List<PurchaseOrder>? purchaseOrder,
     @JsonKey(name: 'scan_irn') this.scanIrn,
     @JsonKey(name: 'vehicle_no') this.vehicleNo,
     @JsonKey(name: 'vendor_invoice_date') this.vendorInvoiceDate,
@@ -616,7 +616,7 @@ class _$GateEntryFormImpl implements _GateEntryForm {
       fromJson: toNull,
     )
     this.vehicleBackPhotoImg,
-  });
+  }) : _purchaseOrder = purchaseOrder;
 
   factory _$GateEntryFormImpl.fromJson(Map<String, dynamic> json) =>
       _$$GateEntryFormImplFromJson(json);
@@ -647,9 +647,17 @@ class _$GateEntryFormImpl implements _GateEntryForm {
   @override
   @JsonKey(name: 'plant_name')
   final String? plantName;
+  final List<PurchaseOrder>? _purchaseOrder;
   @override
-  @JsonKey(name: 'purchase_order')
-  final String? purchaseOrder;
+  @JsonKey(name: 'purchase_orders')
+  List<PurchaseOrder>? get purchaseOrder {
+    final value = _purchaseOrder;
+    if (value == null) return null;
+    if (_purchaseOrder is EqualUnmodifiableListView) return _purchaseOrder;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(value);
+  }
+
   @override
   @JsonKey(name: 'scan_irn')
   final String? scanIrn;
@@ -738,8 +746,10 @@ class _$GateEntryFormImpl implements _GateEntryForm {
             (identical(other.idx, idx) || other.idx == idx) &&
             (identical(other.plantName, plantName) ||
                 other.plantName == plantName) &&
-            (identical(other.purchaseOrder, purchaseOrder) ||
-                other.purchaseOrder == purchaseOrder) &&
+            const DeepCollectionEquality().equals(
+              other._purchaseOrder,
+              _purchaseOrder,
+            ) &&
             (identical(other.scanIrn, scanIrn) || other.scanIrn == scanIrn) &&
             (identical(other.vehicleNo, vehicleNo) ||
                 other.vehicleNo == vehicleNo) &&
@@ -784,7 +794,7 @@ class _$GateEntryFormImpl implements _GateEntryForm {
     modifiedBy,
     idx,
     plantName,
-    purchaseOrder,
+    const DeepCollectionEquality().hash(_purchaseOrder),
     scanIrn,
     vehicleNo,
     vendorInvoiceDate,
@@ -828,7 +838,7 @@ abstract class _GateEntryForm implements GateEntryForm {
     @JsonKey(name: 'modified_by') final String? modifiedBy,
     @JsonKey(name: 'idx') final int? idx,
     @JsonKey(name: 'plant_name') final String? plantName,
-    @JsonKey(name: 'purchase_order') final String? purchaseOrder,
+    @JsonKey(name: 'purchase_orders') final List<PurchaseOrder>? purchaseOrder,
     @JsonKey(name: 'scan_irn') final String? scanIrn,
     @JsonKey(name: 'vehicle_no') final String? vehicleNo,
     @JsonKey(name: 'vendor_invoice_date') final String? vendorInvoiceDate,
@@ -895,8 +905,8 @@ abstract class _GateEntryForm implements GateEntryForm {
   @JsonKey(name: 'plant_name')
   String? get plantName;
   @override
-  @JsonKey(name: 'purchase_order')
-  String? get purchaseOrder;
+  @JsonKey(name: 'purchase_orders')
+  List<PurchaseOrder>? get purchaseOrder;
   @override
   @JsonKey(name: 'scan_irn')
   String? get scanIrn;

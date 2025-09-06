@@ -39,8 +39,8 @@ mixin _$LogisticPlanningForm {
   String? get amendedFrom => throw _privateConstructorUsedError;
   @JsonKey(name: 'plant_name')
   String? get plantName => throw _privateConstructorUsedError;
-  @JsonKey(name: 'sales_order')
-  String? get salesOrder => throw _privateConstructorUsedError;
+  @JsonKey(name: 'sales_orders')
+  List<SalesOrder>? get salesOrder => throw _privateConstructorUsedError;
   @JsonKey(name: 'transporter_name')
   String? get transporterName => throw _privateConstructorUsedError;
   @JsonKey(name: 'preferred_vehicle_type')
@@ -111,7 +111,7 @@ abstract class $LogisticPlanningFormCopyWith<$Res> {
     @JsonKey(name: 'idx') int? idx,
     @JsonKey(name: 'amended_from') String? amendedFrom,
     @JsonKey(name: 'plant_name') String? plantName,
-    @JsonKey(name: 'sales_order') String? salesOrder,
+    @JsonKey(name: 'sales_orders') List<SalesOrder>? salesOrder,
     @JsonKey(name: 'transporter_name') String? transporterName,
     @JsonKey(name: 'preferred_vehicle_type') String? preferredVehicleType,
     @JsonKey(name: 'delivery_address') String? deliveryAddress,
@@ -240,7 +240,7 @@ class _$LogisticPlanningFormCopyWithImpl<
                 freezed == salesOrder
                     ? _value.salesOrder
                     : salesOrder // ignore: cast_nullable_to_non_nullable
-                        as String?,
+                        as List<SalesOrder>?,
             transporterName:
                 freezed == transporterName
                     ? _value.transporterName
@@ -371,7 +371,7 @@ abstract class _$$LogisticPlanningFormImplCopyWith<$Res>
     @JsonKey(name: 'idx') int? idx,
     @JsonKey(name: 'amended_from') String? amendedFrom,
     @JsonKey(name: 'plant_name') String? plantName,
-    @JsonKey(name: 'sales_order') String? salesOrder,
+    @JsonKey(name: 'sales_orders') List<SalesOrder>? salesOrder,
     @JsonKey(name: 'transporter_name') String? transporterName,
     @JsonKey(name: 'preferred_vehicle_type') String? preferredVehicleType,
     @JsonKey(name: 'delivery_address') String? deliveryAddress,
@@ -494,9 +494,9 @@ class __$$LogisticPlanningFormImplCopyWithImpl<$Res>
                     as String?,
         salesOrder:
             freezed == salesOrder
-                ? _value.salesOrder
+                ? _value._salesOrder
                 : salesOrder // ignore: cast_nullable_to_non_nullable
-                    as String?,
+                    as List<SalesOrder>?,
         transporterName:
             freezed == transporterName
                 ? _value.transporterName
@@ -620,7 +620,7 @@ class _$LogisticPlanningFormImpl implements _LogisticPlanningForm {
     @JsonKey(name: 'idx') this.idx,
     @JsonKey(name: 'amended_from') this.amendedFrom,
     @JsonKey(name: 'plant_name') this.plantName,
-    @JsonKey(name: 'sales_order') this.salesOrder,
+    @JsonKey(name: 'sales_orders') final List<SalesOrder>? salesOrder,
     @JsonKey(name: 'transporter_name') this.transporterName,
     @JsonKey(name: 'preferred_vehicle_type') this.preferredVehicleType,
     @JsonKey(name: 'delivery_address') this.deliveryAddress,
@@ -645,7 +645,7 @@ class _$LogisticPlanningFormImpl implements _LogisticPlanningForm {
     @JsonKey(name: 'vehicle_number') this.vehicleNumber,
     @JsonKey(name: 'driver_contact') this.driverContact,
     @JsonKey(name: 'reject_reason') this.rejectReason,
-  });
+  }) : _salesOrder = salesOrder;
 
   factory _$LogisticPlanningFormImpl.fromJson(Map<String, dynamic> json) =>
       _$$LogisticPlanningFormImplFromJson(json);
@@ -677,9 +677,17 @@ class _$LogisticPlanningFormImpl implements _LogisticPlanningForm {
   @override
   @JsonKey(name: 'plant_name')
   final String? plantName;
+  final List<SalesOrder>? _salesOrder;
   @override
-  @JsonKey(name: 'sales_order')
-  final String? salesOrder;
+  @JsonKey(name: 'sales_orders')
+  List<SalesOrder>? get salesOrder {
+    final value = _salesOrder;
+    if (value == null) return null;
+    if (_salesOrder is EqualUnmodifiableListView) return _salesOrder;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(value);
+  }
+
   @override
   @JsonKey(name: 'transporter_name')
   final String? transporterName;
@@ -769,8 +777,10 @@ class _$LogisticPlanningFormImpl implements _LogisticPlanningForm {
                 other.amendedFrom == amendedFrom) &&
             (identical(other.plantName, plantName) ||
                 other.plantName == plantName) &&
-            (identical(other.salesOrder, salesOrder) ||
-                other.salesOrder == salesOrder) &&
+            const DeepCollectionEquality().equals(
+              other._salesOrder,
+              _salesOrder,
+            ) &&
             (identical(other.transporterName, transporterName) ||
                 other.transporterName == transporterName) &&
             (identical(other.preferredVehicleType, preferredVehicleType) ||
@@ -827,7 +837,7 @@ class _$LogisticPlanningFormImpl implements _LogisticPlanningForm {
     idx,
     amendedFrom,
     plantName,
-    salesOrder,
+    const DeepCollectionEquality().hash(_salesOrder),
     transporterName,
     preferredVehicleType,
     deliveryAddress,
@@ -880,7 +890,7 @@ abstract class _LogisticPlanningForm implements LogisticPlanningForm {
     @JsonKey(name: 'idx') final int? idx,
     @JsonKey(name: 'amended_from') final String? amendedFrom,
     @JsonKey(name: 'plant_name') final String? plantName,
-    @JsonKey(name: 'sales_order') final String? salesOrder,
+    @JsonKey(name: 'sales_orders') final List<SalesOrder>? salesOrder,
     @JsonKey(name: 'transporter_name') final String? transporterName,
     @JsonKey(name: 'preferred_vehicle_type') final String? preferredVehicleType,
     @JsonKey(name: 'delivery_address') final String? deliveryAddress,
@@ -940,8 +950,8 @@ abstract class _LogisticPlanningForm implements LogisticPlanningForm {
   @JsonKey(name: 'plant_name')
   String? get plantName;
   @override
-  @JsonKey(name: 'sales_order')
-  String? get salesOrder;
+  @JsonKey(name: 'sales_orders')
+  List<SalesOrder>? get salesOrder;
   @override
   @JsonKey(name: 'transporter_name')
   String? get transporterName;

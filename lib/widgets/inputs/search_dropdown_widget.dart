@@ -108,6 +108,8 @@ class _SearchDropDownListState<T> extends State<SearchDropDownList<T>> {
               headerBuilder: widget.headerBuilder,
               listItemBuilder: widget.listItemBuilder,
               onChanged: (value) {
+                print('kj;sdjhg..........:');
+
                 if (value != null) {
                   widget.onSelected(value);
                 }

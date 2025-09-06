@@ -12,6 +12,7 @@ import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/widgets/dailogs/app_snack_bar_widget.dart';
 import 'package:shakti_hormann/widgets/input_filed.dart';
 import 'package:shakti_hormann/widgets/inputs/date_picker_field.dart';
+import 'package:shakti_hormann/widgets/inputs/new_upload_photo_widget.dart';
 import 'package:shakti_hormann/widgets/inputs/search_dropdown_widget.dart';
 import 'package:shakti_hormann/widgets/loading_indicator.dart';
 import 'package:shakti_hormann/widgets/sectionheader.dart';
@@ -65,7 +66,7 @@ class _LoadingCnfmFormWidget extends State<LoadingCnfmFormWidget> {
               const Padding(
                 padding: EdgeInsets.only(left: 16.0),
                 child: SectionHeader(
-                  title: 'vehicle Request Details',
+                  title: 'Vehicle Request Details',
                   assetIcon: 'assets/images/gateentryicon.png',
                 ),
               ),
@@ -91,7 +92,7 @@ class _LoadingCnfmFormWidget extends State<LoadingCnfmFormWidget> {
                           borderRadius: BorderRadius.circular(20),
                         ),
                         padding: const EdgeInsets.only(
-                          top: 20,
+                          top: 15,
                           left: 16,
                           right: 16,
                         ),
@@ -194,6 +195,38 @@ class _LoadingCnfmFormWidget extends State<LoadingCnfmFormWidget> {
                         onChanged: (p0) {},
                       ),
                     ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              const Padding(
+                padding: EdgeInsets.only(left: 16.0),
+                child: SectionHeader(
+                  title: 'Photo',
+                  assetIcon: 'assets/images/photoicon.png',
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 16, right: 16),
+                child: Card(
+                  color: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                    side: const BorderSide(color: Color(0xFFE8ECF4), width: 1),
+                  ),
+                  child: Center(
+                    child: NewUploadPhotoWidget(
+                      fileName: 'driverid',
+                      imageUrl: newform.driverIdPhoto,
+                      title: 'Driver ID Proof',
+                      isReadOnly: true,
+                      onFileCapture: (file) {
+                        // context.cubit<CreateLoadingCnfmCubit>().onValueChanged(
+                        //   driverIdPhoto: file,
+                        // );
+                      },
+                      focusNode: focusNodes.elementAt(27),
+                    ),
                   ),
                 ),
               ),
@@ -340,14 +373,16 @@ class _ItemLoadedTableState extends State<ItemLoadedTable> {
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
               ),
-              columns: const [
+              columns:  [
                 DataColumn(label: Text('Sl. No')),
                 DataColumn(label: Text('Item Code')),
                 DataColumn(label: Text('Item Name')),
                 DataColumn(label: Text('Quantity Loaded')),
                 DataColumn(label: Text('UOM')),
                 DataColumn(label: Text('Loaded Item Photo')),
-                DataColumn(label: Text('Edit')),
+                // DataColumn(label: Text('Edit')),
+                if (widget.docstatus != 1) 
+     const DataColumn(label: Text('Edit')),
               ],
               rows: List.generate(rows.length, (index) {
                 return DataRow(
@@ -376,10 +411,11 @@ class _ItemLoadedTableState extends State<ItemLoadedTable> {
                                 : _buildImage(rows[index]['photo']),
                       ),
                     ),
+                       if (widget.docstatus != 1)   // 👈 hide edit button when docstatus == 1
+        
                     DataCell(
                       TextButton.icon(
-                        onPressed:
-                            () => addRow(index: index), // 👈 open edit dialog
+                        onPressed: () => addRow(index: index),
                         icon: const Icon(Icons.edit, color: Colors.blue),
                         label: const Text('Edit'),
                       ),
@@ -419,7 +455,7 @@ Widget _buildImage(String path) {
 
   if (path.startsWith('/files/')) {
     return Image.network(
-      "$baseUrl$path",
+      '$baseUrl$path',
       width: 50,
       height: 50,
       fit: BoxFit.cover,
@@ -566,21 +602,37 @@ class _ItemDialogWidgetState extends State<ItemDialogWidget> {
             TextFormField(
               readOnly: true,
               controller: itemNameController,
-              decoration: const InputDecoration(labelText: 'Item Name'),
+              decoration: InputDecoration(
+                label: RichText(
+                  text: const TextSpan(
+                    text: 'Item Name',
+                    style: TextStyle(color: Colors.black, fontSize: 18),
+                    children: [
+                      TextSpan(
+                        text: '*',
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ),
 
             const SizedBox(height: 10),
             TextFormField(
               readOnly: true,
               controller: uomController,
-              decoration: const InputDecoration(labelText: 'UOM'),
+              decoration: const InputDecoration(labelText: 'UOM',labelStyle: TextStyle(color:AppColors.black,fontWeight: FontWeight.bold,fontFamily: 'Urbanist')),
             ),
 
             const SizedBox(height: 10),
             TextFormField(
               controller: qtyController,
               keyboardType: TextInputType.number,
-              decoration: const InputDecoration(labelText: 'Quantity Loaded'),
+              decoration: const InputDecoration(labelText: 'Quantity Loaded',labelStyle: TextStyle(color:AppColors.black,fontWeight: FontWeight.w500,fontFamily: 'Urbanist')),
             ),
 
             const SizedBox(height: 10),
@@ -646,32 +698,37 @@ class _ItemDialogWidgetState extends State<ItemDialogWidget> {
             ),
             padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
           ),
-          onPressed: () {
-            if (qtyController.text.isEmpty) {
-              context.showSnackbar(
-                'Please enter Quantity loaded value',
-                AppSnackBarType.error,
-              );
-            } else {
-              final row = {
-                'itemCode': selectedCode,
-                'itemName': itemNameController.text,
-                'uom': uomController.text,
-                'qty': qtyController.text,
-                'photo': photoPath,
-              };
+        onPressed: () {
+  final qtyText = qtyController.text.trim();
+  final qtyValue = double.tryParse(qtyText);
 
-              final lineItem = ItemModel(
-                itemCode: selectedCode,
-                itemName: itemNameController.text,
-                sampleQuantity: int.tryParse(qtyController.text),
-                stockUom: uomController.text,
-                imageFile: photoFile,
-              );
+  if (qtyValue == null || qtyValue <= 0) {
+    context.showSnackbar(
+      'Quantity Loaded must be greater than 0',
+      AppSnackBarType.error,
+    );
+    return;
+  }
 
-              Navigator.pop(context, {'row': row, 'model': lineItem});
-            }
-          },
+  final row = {
+    'itemCode': selectedCode,
+    'itemName': itemNameController.text,
+    'uom': uomController.text,
+    'qty': qtyValue.toString(),
+    'photo': photoPath,
+  };
+
+  final lineItem = ItemModel(
+    itemCode: selectedCode,
+    itemName: itemNameController.text,
+    sampleQuantity: qtyValue?.toInt(),   // ✅ now double
+    stockUom: uomController.text,
+    imageFile: photoFile,
+  );
+
+  Navigator.pop(context, {'row': row, 'model': lineItem});
+},
+
           child: const Text(
             'Save',
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),

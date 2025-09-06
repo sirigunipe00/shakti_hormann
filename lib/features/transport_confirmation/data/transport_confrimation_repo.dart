@@ -11,5 +11,4 @@ abstract interface class TransportConfrimationRepo {
 
   AsyncValueOf<Pair<String, String>> submitTransport(TransportConfirmationForm form);
    AsyncValueOf<Pair<String, String>> rejectTransport(TransportConfirmationForm form);
-  
 }

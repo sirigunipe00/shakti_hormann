@@ -6,6 +6,7 @@ import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/core/model/page_view_filters.dart';
 import 'package:shakti_hormann/features/logistic_request/model/logistic_planning_form.dart';
 import 'package:shakti_hormann/features/logistic_request/presentation/bloc/bloc_provider.dart';
+import 'package:shakti_hormann/features/logistic_request/presentation/bloc/create_lr_cubit/logistic_planning_cubit.dart';
 import 'package:shakti_hormann/features/logistic_request/presentation/bloc/logistic_planning_filter_cubit.dart';
 import 'package:shakti_hormann/features/logistic_request/presentation/ui/widgets/logistic_request_widget.dart';
 import 'package:shakti_hormann/widgets/infinite_list_widget.dart';
@@ -58,15 +59,22 @@ class _LogisticRequestListState extends State<LogisticRequestList>
             LogisticPlanningForm
           >(
             childBuilder:
-                (context, entry) => LogisticRequestWidget(
-                  logistic: entry,
-                  onTap: () async {
-                    final refresh = await AppRoute.newLogisticRequest
-                        .push<bool?>(context, extra: entry);
-                    if (refresh == true) {
-                      _fetchInital(context);
-                    }
-                  },
+                (context, entry) => MultiBlocProvider(
+                  providers: [
+                    BlocProvider(create: (context)=> LogisticPlanningBlocProvider.get().salesList()..request(entry.name),),
+                    BlocProvider(create: (_) => $sl.get<CreateLogisticCubit>()),
+                  ],
+                 
+                  child: LogisticRequestWidget(
+                    logistic: entry,
+                    onTap: () async {
+                      final refresh = await AppRoute.newLogisticRequest
+                          .push<bool?>(context, extra: entry);
+                      if (refresh == true) {
+                        _fetchInital(context);
+                      }
+                    },
+                  ),
                 ),
             fetchInitial: () => _fetchInital(context),
             fetchMore: () => fetchMore(context),

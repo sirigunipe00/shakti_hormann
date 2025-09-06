@@ -18,7 +18,6 @@ class VehicleRequestWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print('vehicleReporting.status:${vehicleReporting.docstatus}');
     return GestureDetector(
       onTap: onTap,
       child: Card(

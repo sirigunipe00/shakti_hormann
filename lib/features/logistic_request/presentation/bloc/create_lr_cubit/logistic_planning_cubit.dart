@@ -4,6 +4,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:shakti_hormann/features/logistic_request/data/logistic_planning_repo.dart';
 import 'package:shakti_hormann/features/logistic_request/model/logistic_planning_form.dart';
+import 'package:shakti_hormann/features/logistic_request/model/sales_order.dart';
 
 part 'logistic_planning_cubit.freezed.dart';
 
@@ -32,7 +33,7 @@ class CreateLogisticCubit extends AppBaseCubit<CreateLogisticState> {
     int? idx,
     String? modifiedBy,
     String? modifiedDate,
-    String? salesOrder,
+    List<SalesOrder>? salesOrder,
     String? vehicleNumber,
     String? transporterName,
     String? preferredVehicleType,
@@ -108,7 +109,7 @@ class CreateLogisticCubit extends AppBaseCubit<CreateLogisticState> {
         name: entry.name,
         transporterRemarks: entry.transporterRemarks,
         status: entry.status,
-        salesOrder: entry.salesOrder,
+        // salesOrder: entry.salesOrder,
         plantName: entry.plantName,
         vehicleNumber: entry.vehicleNumber,
         creation: entry.creation,
@@ -207,7 +208,12 @@ class CreateLogisticCubit extends AppBaseCubit<CreateLogisticState> {
       }
     }, _emitError);
   }
+ 
+ void addsaleseorders({List<SalesOrder>? salesorder}) {
+    final form = state.form.copyWith(salesOrder: salesorder);
 
+    emitSafeState(state.copyWith(form: form));
+  }
   void _emitError(Pair<String, int?> error) {
     final failure = Failure(
       error: error.first,
@@ -231,14 +237,14 @@ class CreateLogisticCubit extends AppBaseCubit<CreateLogisticState> {
   Option<Pair<String, int?>> _validate() {
     final form = state.form;
 
-    if (form.salesOrder.doesNotHaveValue) {
+    if (form.salesOrder == null) {
       return optionOf(const Pair('Select Sales Order No', 0));
     } else if (form.requestedDeliveryDate.isNull || 
              (form.requestedDeliveryDate?.trim().isEmpty ?? true)) {
     return optionOf(const Pair('Missing Request Delivery Date', 0));
   } else if (form.requestedDeliveryTime.isNull || 
              (form.requestedDeliveryTime?.trim().isEmpty ?? true)) {
-    return optionOf(const Pair('Missing Request Time', 0));
+    return optionOf(const Pair('Missing Request Delivery Time', 0));
   }
     return none();
   }

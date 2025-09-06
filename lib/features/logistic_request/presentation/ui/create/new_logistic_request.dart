@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shakti_hormann/core/core.dart';
+import 'package:shakti_hormann/features/logistic_request/model/sales_order.dart';
 import 'package:shakti_hormann/features/logistic_request/model/sales_order_form.dart';
 import 'package:shakti_hormann/features/logistic_request/presentation/bloc/bloc_provider.dart';
 import 'package:shakti_hormann/features/logistic_request/presentation/bloc/create_lr_cubit/logistic_planning_cubit.dart';
@@ -8,7 +9,7 @@ import 'package:shakti_hormann/features/logistic_request/presentation/ui/create/
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/widgets/buttons/app_btn.dart';
 import 'package:shakti_hormann/widgets/dailogs/app_dialogs.dart';
-import 'package:shakti_hormann/widgets/inputs/search_dropdown_widget.dart';
+import 'package:shakti_hormann/widgets/inputs/multi_selection.widget.dart';
 import 'package:shakti_hormann/widgets/simple_app_bar.dart';
 import 'package:shakti_hormann/widgets/title_status_app_bar.dart';
 
@@ -20,11 +21,11 @@ class NewLogisticRequest extends StatefulWidget {
 }
 
 class _NewLogisticRequestState extends State<NewLogisticRequest> {
-  SalesOrderForm? orderForm;
+  List<SalesOrderForm> orderForm = [];
+  SalesOrderForm? salesOrderForm;
 
   @override
   Widget build(BuildContext context) {
-    $logger.devLog('orderform......$orderForm');
     final logisticState = context.read<CreateLogisticCubit>().state;
 
     final newform = logisticState.form;
@@ -44,7 +45,10 @@ class _NewLogisticRequestState extends State<NewLogisticRequest> {
                       builder: (context, state) {
                         return AppButton(
                           isLoading: state.isLoading,
-                          bgColor:  state.view == LogisticPlanningView.create ? const  Color.fromARGB(255, 250, 193, 47) : AppColors.green,
+                          bgColor:
+                              state.view == LogisticPlanningView.create
+                                  ? const Color.fromARGB(255, 250, 193, 47)
+                                  : AppColors.green,
                           textStyle: const TextStyle(
                             color: AppColors.darkBlue,
                             fontWeight: FontWeight.bold,
@@ -68,7 +72,7 @@ class _NewLogisticRequestState extends State<NewLogisticRequest> {
 
                     final names = allData.toList();
 
-                    return SearchDropDownList<SalesOrderForm>(
+                    return SearchMultiDropDownList<SalesOrderForm>(
                       key: UniqueKey(),
                       title: 'Sales Order No',
                       hint: 'Search Order No',
@@ -122,62 +126,177 @@ class _NewLogisticRequestState extends State<NewLogisticRequest> {
                               const Divider(height: 8),
                             ],
                           ),
-                      onSelected: (selected) {
+                      onSelected: (selectedList) {
                         setState(() {
-                          orderForm = selected;
-                        });
+                          orderForm = selectedList;
 
-                        context.cubit<CreateLogisticCubit>().onValueChanged(
-                          salesOrder: selected.name,
-                          plantName: selected.plantName,
-                          shippingAddress1: selected.shippingAddress1,
-                          shippingAddress2: selected.shippingAddress2,
-                          country: selected.country,
-                          states: selected.states,
-                          city: selected.city,
-                          pinCode: selected.pincode,
-                        );
+                          if (orderForm.isNotEmpty) {
+                            final first = selectedList[0];
+                            final List<SalesOrder> salesOrders =
+                                selectedList
+                                    .where((e) => e.name != null)
+                                    .map((e) => SalesOrder(name: e.name))
+                                    .toList();
+
+                            context.cubit<CreateLogisticCubit>().onValueChanged(
+                              salesOrder: salesOrders,
+
+                              plantName: first.plantName ?? '',
+                              shippingAddress1: first.shippingAddress1 ?? '',
+                              shippingAddress2: first.shippingAddress2 ?? '',
+                              states: first.states ?? '',
+                              city: first.city ?? '',
+                              pinCode: first.pincode ?? '',
+                              country: first.country ?? '',
+                            );
+                          } else {
+                            context.cubit<CreateLogisticCubit>().onValueChanged(
+                              salesOrder: [],
+                              plantName: '',
+                              shippingAddress1: '',
+                              shippingAddress2: '',
+                              states: '',
+                              city: '',
+                              pinCode: '',
+                              country: '',
+                            );
+                          }
+                        });
                       },
+
                       focusNode: FocusNode(),
                     );
                   },
                 ),
+                // dropdown: BlocBuilder<SalesOrderList, SalesOrderState>(
+                //   builder: (_, state) {
+                //     final allData = state.maybeWhen(
+                //       orElse: () => <SalesOrderForm>[],
+                //       success: (data) => data,
+                //     );
+
+                //     final names = allData.toList();
+
+                //     return SearchDropDownList<SalesOrderForm>(
+                //       title: 'Sales Order No',
+                //       hint: 'Search Sales No',
+                //       color: AppColors.white,
+                //       key: UniqueKey(),
+                //       defaultSelection: salesOrderForm,
+                //       items: names,
+                //       isloading: state.isLoading,
+                //       futureRequest: (query) async {
+                //         if (query.isEmpty) return names;
+
+                //         return names.where((item) {
+                //           final orderNo = item.name?.toLowerCase() ?? '';
+                //           final customer =
+                //               item.customerName?.toLowerCase() ?? '';
+                //           final transporter =
+                //               item.orderDate?.toLowerCase() ?? '';
+                //           final search = query.toLowerCase();
+
+                //           return orderNo.contains(search) ||
+                //               customer.contains(search) ||
+                //               transporter.contains(search);
+                //         }).toList();
+                //       },
+
+                //       headerBuilder:
+                //           (_, item, __) => Column(
+                //             crossAxisAlignment: CrossAxisAlignment.start,
+                //             children: [Text(item.name ?? '')],
+                //           ),
+                //       listItemBuilder:
+                //           (_, item, __, ___) => Column(
+                //             crossAxisAlignment: CrossAxisAlignment.start,
+                //             children: [
+                //               Text(
+                //                 'Sales Order No: ${item.name ?? ''}',
+                //                 style: const TextStyle(
+                //                   fontWeight: FontWeight.bold,
+                //                 ),
+                //               ),
+                //               if (item.customerName != null)
+                //                 Text('Customer Name : ${item.customerName}'),
+                //               Text(
+                //                 'Order Date: ${DFU.ddMMyyyyFromStr(item.orderDate ?? '')} ',
+                //               ),
+                //               const Divider(height: 8),
+                //             ],
+                //           ),
+
+                //       onSelected: (selected) {
+                //         setState(() {
+                //           salesOrderForm = selected;
+                //         });
+
+                //         context.cubit<CreateLogisticCubit>().onValueChanged(
+                //           salesOrder: selected.name ?? '',
+                //           plantName: selected.plantName ?? '',
+                //           shippingAddress1: selected.shippingAddress1 ?? '',
+                //           shippingAddress2: selected.shippingAddress2 ?? '',
+                //           country: selected.country ?? '',
+                //           states: selected.states ?? '',
+                //           city: selected.city ?? '',
+                //           pinCode: selected.pincode ?? '',
+                //         );
+                //       },
+
+                //       focusNode: FocusNode(),
+                //     );
+                //   },
+                // ),
                 showScanner: false,
               )
-              : TitleStatusAppBar(
-                    title: name,
-                    status: StringUtils.docStatus(status ?? 0),
-                    actionButton:
-                        newform.status == 'Draft'
-                            ? BlocBuilder<
-                              CreateLogisticCubit,
-                              CreateLogisticState
-                            >(
-                              builder: (context, state) {
-                                return AppButton(
-                                  textStyle: const TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                  width: 150,
-                                  isLoading: state.isLoading,
-                                  borderColor: Colors.grey,
-                                  label: state.view.toName(),
-                                  onPressed: () {
-                                    context.cubit<CreateLogisticCubit>().save();
+              : PreferredSize(
+                preferredSize: const Size.fromHeight(80),
+                child: BlocListener<SalesOrders, SalesState>(
+                      listener: (context, lstate) {
+                       lstate.maybeWhen(orElse: (){},
+                       success: (data){
+                        context.read<CreateLogisticCubit>().addsaleseorders(salesorder: data);
+                
+                       });
+                      },
+                      child: TitleStatusAppBar(
+                        title: name,
+                        status: StringUtils.docStatus(status ?? 0),
+                        actionButton:
+                            newform.status == 'Draft'
+                                ? BlocBuilder<
+                                  CreateLogisticCubit,
+                                  CreateLogisticState
+                                >(
+                                  builder: (context, state) {
+                                    return AppButton(
+                                      textStyle: const TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      width: 150,
+                                      isLoading: state.isLoading,
+                                      borderColor: Colors.grey,
+                                      label: state.view.toName(),
+                                      onPressed: () {
+                                        context
+                                            .cubit<CreateLogisticCubit>()
+                                            .save();
+                                      },
+                                    );
                                   },
-                                );
-                              },
-                            )
-                            : null,
-                    onSubmit: () {},
-                    onReject: () {},
-                    pageMode: PageMode2.logisticRequest,
-                    showRejectButton: false,
-                    textColor: Colors.white,
-                  )
-                  as PreferredSizeWidget,
+                                )
+                                : null,
+                        onSubmit: () {},
+                        onReject: () {},
+                        pageMode: PageMode2.logisticRequest,
+                        showRejectButton: false,
+                        textColor: Colors.white,
+                      ),
+                    ),
+              ),
+        
       body: BlocListener<CreateLogisticCubit, CreateLogisticState>(
         listener: (_, state) async {
           if (state.isSuccess && state.successMsg!.isNotNull) {

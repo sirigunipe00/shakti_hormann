@@ -45,7 +45,7 @@ class DocStatusWidget extends StatelessWidget {
     'Submitted' => const Color(0xFF35C285),
     'Draft' => const Color(0xFF0087FF),
     'Rejected' => const Color(0xFFFFE2DA),
-    'Reported' => const Color(0xFF35C285),
+    'Reported' => const Color(0xFF0087FF),
 
     String() => AppColors.black,
   }; 

@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/features/logistic_request/data/logistic_planning_repo.dart';
 import 'package:shakti_hormann/features/logistic_request/model/logistic_planning_form.dart';
+import 'package:shakti_hormann/features/logistic_request/model/sales_order.dart';
 import 'package:shakti_hormann/features/logistic_request/model/sales_order_form.dart';
 import 'package:shakti_hormann/features/logistic_request/model/transporter_form.dart';
 import 'package:shakti_hormann/features/logistic_request/model/vehicle_type_form.dart';
@@ -64,6 +65,28 @@ class LogisticPlanningRepoimpl extends BaseApiRepository
         formData.remove(key);
       }
 
+
+       final formattedDate =
+          form.requestedDeliveryDate != null
+              ? DateFormat('dd-MM-yyyy').format(
+                DateFormat('dd-MM-yyyy').parse(form.requestedDeliveryDate!),
+              )
+              : null;
+      final formattedTime =
+          form.requestedDeliveryTime != null
+              ? DateFormat('HH:mm').format(
+                DateFormat('HH:mm:ss').tryParse(form.requestedDeliveryTime!) ??
+                    DateFormat('HH:mm').parse(form.requestedDeliveryTime!),
+              )
+              : null;
+
+      final formattedLogisticsRequestDate =
+          form.logisticsRequestDate != null
+              ? DateFormat(
+                'dd-MM-yyyy',
+              ).format(DateTime.parse(form.logisticsRequestDate!))
+              : null;
+
       final requestConfig = RequestConfig(
         url: Urls.updateLogisticPlanning,
 
@@ -71,7 +94,25 @@ class LogisticPlanningRepoimpl extends BaseApiRepository
           final data = json['message']['message'] as String;
           return data;
         },
-        body: jsonEncode({'logistic_request_id': form.name}),
+        body: jsonEncode({
+          'logistic_request_id': form.name,
+          'sales_orders':form.salesOrder,
+          'plant_name': form.plantName,
+          'transporter_name': form.transporterName,
+          'preferred_vehicle_type': form.preferredVehicleType,
+          'requested_delivery_date': formattedDate,
+          'requested_delivery_time': formattedTime,
+          'any_special_instructions': form.anySpecialInstructions,
+          'delivery_address': form.deliveryAddress,
+          'status': form.status,
+          'logistics_request_date': formattedLogisticsRequestDate,
+          'delivery_address_1': form.shippingAddress1,
+          'delivery_address_2': form.shippingAddress2,
+          'shipping_country': form.country,
+          'shipping_state': form.city,
+          'shipping_city': form.city,
+          'shipping_pin_code': form.pincode,
+        }),
         headers: {HttpHeaders.contentTypeHeader: 'application/json'},
       );
       $logger.devLog('UpdateConfig.....$requestConfig');
@@ -115,7 +156,7 @@ class LogisticPlanningRepoimpl extends BaseApiRepository
         },
         body: jsonEncode({
           'plant_name': form.plantName,
-          'sales_order': form.salesOrder,
+          'sales_orders': form.salesOrder,
           'transporter_name': form.transporterName,
           'preferred_vehicle_type': form.preferredVehicleType,
           'requested_delivery_date': formattedDate,
@@ -170,7 +211,40 @@ class LogisticPlanningRepoimpl extends BaseApiRepository
       });
     });
   }
+@override
+  AsyncValueOf<List<SalesOrder>> fetchSales(String name) async {
+    return await executeSafely(() async {
+      final config = RequestConfig(
+        url: Urls.getList,
 
+        parser: (json) {
+          final data = json['message'];
+          final listdata = data as List<dynamic>;
+          return listdata.map((e) => SalesOrder.fromJson(e)).toList();
+        },
+        reqParams: {
+         'filters': [
+        [
+            'parent',
+            '=',
+            name
+        ],
+         ],
+          'limit': 20,
+          'order_by': 'creation desc',
+          'doctype': 'Logistic Planning and Confirmation Lines',
+          'parent': 'Logistic Planning and Confirmation',
+          'fields': ['*'],
+        },
+        headers: {HttpHeaders.contentTypeHeader: 'application/json'},
+      );
+      $logger.devLog('sales order.....$config');
+      final response = await get(config);
+      return response.processAsync((r) async {
+        return right((r.data!));
+      });
+    });
+  }
   @override
   AsyncValueOf<List<SalesOrderForm>> fetchSalesOrder(String name) async {
     return await executeSafely(() async {

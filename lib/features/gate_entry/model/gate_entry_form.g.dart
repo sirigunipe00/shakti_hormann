@@ -17,7 +17,10 @@ _$GateEntryFormImpl _$$GateEntryFormImplFromJson(Map<String, dynamic> json) =>
       modifiedBy: json['modified_by'] as String?,
       idx: (json['idx'] as num?)?.toInt(),
       plantName: json['plant_name'] as String?,
-      purchaseOrder: json['purchase_order'] as String?,
+      purchaseOrder:
+          (json['purchase_orders'] as List<dynamic>?)
+              ?.map((e) => PurchaseOrder.fromJson(e as Map<String, dynamic>))
+              .toList(),
       scanIrn: json['scan_irn'] as String?,
       vehicleNo: json['vehicle_no'] as String?,
       vendorInvoiceDate: json['vendor_invoice_date'] as String?,
@@ -47,7 +50,7 @@ Map<String, dynamic> _$$GateEntryFormImplToJson(_$GateEntryFormImpl instance) =>
       'modified_by': instance.modifiedBy,
       'idx': instance.idx,
       'plant_name': instance.plantName,
-      'purchase_order': instance.purchaseOrder,
+      'purchase_orders': instance.purchaseOrder,
       'scan_irn': instance.scanIrn,
       'vehicle_no': instance.vehicleNo,
       'vendor_invoice_date': instance.vendorInvoiceDate,

@@ -5,12 +5,12 @@ import 'package:dartz/dartz.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:http/http.dart' as http;
 import 'package:injectable/injectable.dart';
-import 'package:intl/intl.dart';
 import 'package:path/path.dart' as p;
 import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/features/gate_entry/data/gate_entry.repo.dart';
 import 'package:shakti_hormann/features/gate_entry/model/gate_entry_form.dart';
 import 'package:shakti_hormann/features/gate_entry/model/gate_number_form.dart';
+import 'package:shakti_hormann/features/gate_entry/model/purchase_order.dart';
 import 'package:shakti_hormann/features/gate_entry/model/purchase_order_form.dart';
 
 @LazySingleton(as: GateEntryRepo)
@@ -54,6 +54,42 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
 
     final response = await get(requestConfig);
     return response.process((r) => right(r.data!));
+  }
+  @override
+    AsyncValueOf<List<PurchaseOrder>> fetchPurchase(String name) async {
+    return await executeSafely(() async {
+      final config = RequestConfig(
+        url: Urls.getList,
+
+        parser: (json) {
+          final data = json['message'];
+          final listdata = data as List<dynamic>;
+          return listdata.map((e) => PurchaseOrder.fromJson(e)).toList();
+        },
+        reqParams: {
+          'filters': [
+        [
+            'parent',
+            '=',
+            name
+        ]
+          ],
+          'limit': 20,
+          'oreder_by': 'creat desc',
+          'doctype': 'Gate Entry Lines',
+          'parent': 'Gate Entry',
+          'fields': ['*'],
+        },
+        
+        headers: {HttpHeaders.contentTypeHeader: 'application/json'},
+      );
+
+      final response = await get(config);
+      $logger.devLog('response.....$response');
+      return response.processAsync((r) async {
+        return right((r.data!));
+      });
+    });
   }
   @override
   AsyncValueOf<List<PurchaseOrderForm>> fetchPurchaseOrders(String name) async {
@@ -134,7 +170,7 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
         vehiclebackcompressedBytes =
             await FlutterImageCompress.compressWithFile(filePath, quality: 50);
       } else if (form.vehicleBackPhoto != null) {
-        vehiclefrontcompressedBytes = await fetchAndConvertToBase64(
+        vehiclebackcompressedBytes = await fetchAndConvertToBase64(
           form.vehicleBackPhoto ?? '',
         );
       }
@@ -146,7 +182,7 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
           quality: 50,
         );
       } else if (form.invoicePhoto != null) {
-        vehiclefrontcompressedBytes = await fetchAndConvertToBase64(
+        invocecompressedBytes = await fetchAndConvertToBase64(
           form.invoicePhoto ?? '',
         );
       }
@@ -162,15 +198,15 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
         body: jsonEncode({
           'gate_entry_id': form.name,
           'plant_name': form.plantName,
-          'purchase_order': form.purchaseOrder,
+          'purchase_orders': form.purchaseOrder,
           'invoice_amount': form.invoiceAmount,
           
-             'vendor_invoice_date':
-              form.vendorInvoiceDate != null
-                  ? DateFormat('yyyy-MM-dd').format(
-                    DateFormat('dd-MM-yyyy').parse(form.vendorInvoiceDate!),
-                  )
-                  : null ,
+             'vendor_invoice_date':form.vendorInvoiceDate,
+              // form.vendorInvoiceDate != null
+              //     ? DateFormat('yyyy-MM-dd').format(
+              //       DateFormat('dd-MM-yyyy').parse(form.vendorInvoiceDate!),
+              //     )
+              //     : null ,
           'gate_entry_date': form.gateEntryDate,
           'vendor_invoice_no': form.vendorInvoiceNo,
           'vehicle_photo':
@@ -257,7 +293,7 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
 
       body: jsonEncode({
         'plant_name': form.plantName,
-        'purchase_order': form.purchaseOrder,
+        'purchase_orders': form.purchaseOrder,
         'invoice_amount': form.invoiceAmount,
         'vendor_invoice_date': form.vendorInvoiceDate,
         'gate_entry_date': form.gateEntryDate,

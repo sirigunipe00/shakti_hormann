@@ -140,9 +140,14 @@ void _showDatePicker() async {
         final month = int.tryParse(parts[1]) ?? 1;
         final year = int.tryParse(parts[2]) ?? 2000;
         final parsedDate = DateTime(year, month, day);
-        initialDate = parsedDate.isBefore(DateTime.now())
-            ? DateTime.now()
-            : parsedDate;
+        // initialDate = parsedDate.isBefore(DateTime.now())
+        //     ? DateTime.now()
+        //     : parsedDate;
+             if (parsedDate.isAfter(widget.startDate) &&
+            parsedDate.isBefore(widget.endDate)) {
+          initialDate = parsedDate;
+        }
+        
       }
     } catch (_) {}
   }

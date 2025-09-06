@@ -1,7 +1,10 @@
 import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shakti_hormann/core/utils/date_format_util.dart';
 import 'package:shakti_hormann/features/logistic_request/model/logistic_planning_form.dart';
+import 'package:shakti_hormann/features/logistic_request/presentation/bloc/bloc_provider.dart';
+import 'package:shakti_hormann/features/logistic_request/presentation/bloc/create_lr_cubit/logistic_planning_cubit.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/styles/app_text_styles.dart';
 import 'package:shakti_hormann/widgets/spaced_column.dart';
@@ -156,13 +159,42 @@ class LogisticRequestWidget extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  logistic.salesOrder ?? '',
-                  style: const TextStyle(
-                    color: Color(0xFF2957A4),
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15,
-                  ),
+                BlocBuilder<SalesOrders, SalesState>(
+                  builder: (context, state) {
+                    return state.maybeWhen(
+                      success: (data) {
+                        context.read<CreateLogisticCubit>().addsaleseorders(
+                          salesorder: data,
+                        );
+
+                        return Expanded(
+                          child: Wrap(
+                            spacing: 2,
+
+                            children:
+                                data.map((po) {
+                                  return Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 0,
+                                      vertical: 2,
+                                    ),
+
+                                    child: Text(
+                                      "${po.name}, ",
+                                      style: const TextStyle(
+                                        color: Color(0xFF2957A4),
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  );
+                                }).toList(),
+                          ),
+                        );
+                      },
+                      orElse: () => const SizedBox(),
+                    );
+                  },
                 ),
                 Text(
                   logistic.docstatus == 2 ? 'Cancelled' : logistic.status ?? '',

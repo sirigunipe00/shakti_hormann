@@ -6,6 +6,7 @@ import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/core/model/page_view_filters.dart';
 import 'package:shakti_hormann/features/gate_entry/model/gate_entry_form.dart';
 import 'package:shakti_hormann/features/gate_entry/presentation/bloc/bloc_provider.dart';
+import 'package:shakti_hormann/features/gate_entry/presentation/bloc/create_gate_cubit/gate_entry_cubit.dart';
 import 'package:shakti_hormann/features/gate_entry/presentation/bloc/gate_entry_filter_cubit.dart';
 import 'package:shakti_hormann/features/gate_entry/presentation/ui/widgets/gate_entry_widget.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
@@ -56,15 +57,28 @@ class _GateEntryListScrnState extends State<GateEntryListScrn>
           listener: (_, state) => _fetchInital(context),
           child: InfiniteListViewWidget<GateEntriesCubit, GateEntryForm>(
             childBuilder:
-                (context, entry) => GateEntryWidget(
-                  gateEntry: entry,
+                (context, entry) => MultiBlocProvider(
+                  providers: [
+                    BlocProvider(
+                      create:
+                          (context) =>
+                              GateEntryBlocProvider.get().getPurchase()
+                                ..request(entry.name),
+                    ),
+                    BlocProvider(create: (_) => $sl.get<CreateGateEntryCubit>()),
+                  ],
+                  child: GateEntryWidget(
+                    gateEntry: entry,
                     onTap: () async {
-                    final refresh = await AppRoute.newGateEntry
-                        .push<bool?>(context, extra: entry);
-                    if (refresh == true) {
-                      _fetchInital(context);
-                    }
-                  },
+                      final refresh = await AppRoute.newGateEntry.push<bool?>(
+                        context,
+                        extra: entry,
+                      );
+                      if (refresh == true) {
+                        _fetchInital(context);
+                      }
+                    },
+                  ),
                 ),
             fetchInitial: () => _fetchInital(context),
             fetchMore: () => fetchMore(context),

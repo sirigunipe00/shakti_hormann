@@ -11,7 +11,7 @@ class AppIcons {
 
   static const shaktiHormannLogo = AppIcon('$iconsPath/hormann-logo-new-1 1.png');
 
-  static const bubbles = AppIcon('$imagesPath/bubbles.svg');
+  // static const bubbles = AppIcon('$imagesPath/bubbles.svg');
 
   static const gateeEntry = AppIcon('$imagesPath/gateentry.png');
   static const gateExit = AppIcon('$imagesPath/gateexit.png');

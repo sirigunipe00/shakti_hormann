@@ -59,7 +59,7 @@ class _VehicleReportingFormWidget extends State<VehicleReportingFormWidget> {
               const Padding(
                 padding: EdgeInsets.only(left: 16.0),
                 child: SectionHeader(
-                  title: 'vehicle Request Details',
+                  title: 'Vehicle Request Details',
                   assetIcon: 'assets/images/gateexiticon.png',
                 ),
               ),
@@ -85,7 +85,7 @@ class _VehicleReportingFormWidget extends State<VehicleReportingFormWidget> {
                           borderRadius: BorderRadius.circular(20),
                         ),
                         padding: const EdgeInsets.only(
-                          top: 20,
+                          top: 15,
                           left: 16,
                           right: 16,
                           bottom: 6
@@ -176,6 +176,8 @@ class _VehicleReportingFormWidget extends State<VehicleReportingFormWidget> {
                         title: 'Arrival Date and Time',
                         hintText: 'Select Date',
                         readOnly: isCompleted,
+                        // key: UniqueKey(),
+                        key: ValueKey(newform.arrivalDateAndTime),
                         startDate: DateTime.now(),
                         endDate: DateTime(2030),
                         initialDate: DFU.ddMMyyyyHHmmssFromStr(
@@ -250,7 +252,7 @@ class _VehicleReportingFormWidget extends State<VehicleReportingFormWidget> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.only(top: 16, left: 16, right: 16),
+                padding: const EdgeInsets.only( left: 16, right: 16),
                 child: Card(
                   color: Colors.white,
                   shape: RoundedRectangleBorder(

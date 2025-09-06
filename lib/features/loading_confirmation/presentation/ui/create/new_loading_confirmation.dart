@@ -39,13 +39,13 @@ class _NewLoadingConfirmationState extends State<NewLoadingConfirmation> {
       appBar:
           isNew
               ? SimpleAppBar(
-                title: 'New Loading Confirmation',
+                title: 'New Dispatch Loading',
                 actionButton:
                     BlocBuilder<CreateLoadingCnfmCubit, CreateLaodingCnfmState>(
                       builder: (context, state) {
                         return AppButton(
                           label: state.view.toName(),
-                          bgColor: const Color.fromARGB(255, 250, 193, 47),
+                          bgColor:  state.view == LoadingView.create ? const  Color.fromARGB(255, 250, 193, 47) : AppColors.green,
                           textStyle: const TextStyle(color: AppColors.darkBlue,fontWeight: FontWeight.bold,fontSize: 15),
                           isLoading: state.isLoading,
                           borderColor: Colors.grey,

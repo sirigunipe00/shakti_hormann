@@ -108,7 +108,7 @@ class _TimePickerFieldState extends State<TimePickerField> {
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
               borderSide: BorderSide(
-                color: widget.readOnly ? borderColor : Colors.blue,
+                color: widget.readOnly ? borderColor : Colors.grey.shade300,
                 width: 1.2,
               ),
             ),

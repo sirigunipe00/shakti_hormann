@@ -5,6 +5,7 @@ import 'package:shakti_hormann/core/di/injector.dart';
 import 'package:shakti_hormann/core/model/pair.dart';
 import 'package:shakti_hormann/features/logistic_request/data/logistic_planning_repo.dart';
 import 'package:shakti_hormann/features/logistic_request/model/logistic_planning_form.dart';
+import 'package:shakti_hormann/features/logistic_request/model/sales_order.dart';
 import 'package:shakti_hormann/features/logistic_request/model/sales_order_form.dart';
 import 'package:shakti_hormann/features/logistic_request/model/transporter_form.dart';
 import 'package:shakti_hormann/features/logistic_request/model/vehicle_type_form.dart';
@@ -23,6 +24,9 @@ typedef TransportersList = NetworkRequestCubit<List<TransportersForm>, String>;
 typedef TransportersState = NetworkRequestState<List<TransportersForm>>;
 typedef VehicleList = NetworkRequestCubit<List<VehicleTypeForm>, String>;
 typedef VehicleListState = NetworkRequestState<List<VehicleTypeForm>>;
+
+typedef SalesOrders = NetworkRequestCubit<List<SalesOrder>, String>;
+typedef SalesState = NetworkRequestState<List<SalesOrder>>;
 
 @lazySingleton
 class LogisticPlanningBlocProvider {
@@ -51,4 +55,8 @@ class LogisticPlanningBlocProvider {
 
   VehicleList vehicleList() =>
       VehicleList(onRequest: (params, state) => repo.fetchVehicle());
+
+
+  SalesOrders salesList() =>
+      SalesOrders(onRequest: (params, state) => repo.fetchSales(params ?? ''));
 }

@@ -12,6 +12,4 @@ abstract interface class GateExitRepo {
   AsyncValueOf<Pair<String,String>> submitGateExit(GateExitForm form);
   AsyncValueOf<Pair<String,String>> createGateExit(GateExitForm form);
   AsyncValueOf<List<SalesInvoiceForm>> fetchSalesInvoice(String name);
-
- 
 }

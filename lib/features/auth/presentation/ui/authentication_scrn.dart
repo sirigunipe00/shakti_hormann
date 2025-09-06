@@ -70,9 +70,7 @@ class _LoginScrnWidgetState extends State<LoginScrnWidget> {
                     title: 'Email',
                     hintText: 'Enter your email',
                     prefixIcon: Padding(
-                      padding: const EdgeInsets.all(
-                        12.0,
-                      ), 
+                      padding: const EdgeInsets.all(12.0),
                       child: SvgPicture.asset(
                         'assets/images/mail.svg',
                         width: 24,
@@ -143,16 +141,27 @@ class _LoginScrnWidgetState extends State<LoginScrnWidget> {
                       );
                     },
                     builder: (context, state) {
-                      return AppButton(
-                        bgColor:
-                            isFormFilled ? AppColors.darkBlue : AppColors.grey,
-                        label: 'Login',
-                        onPressed: () {
-                          context.cubit<SignInCubit>().login(
-                            username.text,
-                            pswd.text,
-                          );
-                        },
+                      return state.maybeWhen(
+                        loading:
+                            () => const Center(
+                              child: CircularProgressIndicator(
+                                color: AppColors.darkBlue,
+                              ),
+                            ),
+                        orElse:
+                            () => AppButton(
+                              bgColor:
+                                  isFormFilled
+                                      ? AppColors.darkBlue
+                                      : AppColors.grey,
+                              label: 'Login',
+                              onPressed: () {
+                                context.cubit<SignInCubit>().login(
+                                  username.text,
+                                  pswd.text,
+                                );
+                              },
+                            ),
                       );
                     },
                   ),

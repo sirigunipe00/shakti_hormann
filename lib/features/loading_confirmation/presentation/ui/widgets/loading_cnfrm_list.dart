@@ -62,7 +62,7 @@ class _LoadingCnfrmListState extends State<LoadingCnfrmList>  with StatusModeSel
                   loadingCnfmForm: entry,
                    onTap: () async {
                       final refresh = await AppRoute.newLoadingConfirmation
-                          .push<bool?>(context, extra: entry);
+                          .push<bool>(context, extra: entry);
                       if (refresh == true) {
                         _fetchInital(context);
                       }

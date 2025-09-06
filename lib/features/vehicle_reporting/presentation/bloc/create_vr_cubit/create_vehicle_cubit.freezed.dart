@@ -21,6 +21,8 @@ mixin _$CreateVehicleState {
   bool get isLoading => throw _privateConstructorUsedError;
   bool get isSuccess => throw _privateConstructorUsedError;
   VehicleView get view => throw _privateConstructorUsedError;
+  bool get isSubmitting => throw _privateConstructorUsedError;
+  bool get isRejecting => throw _privateConstructorUsedError;
   String? get successMsg => throw _privateConstructorUsedError;
   Failure? get error => throw _privateConstructorUsedError;
 
@@ -43,6 +45,8 @@ abstract class $CreateVehicleStateCopyWith<$Res> {
     bool isLoading,
     bool isSuccess,
     VehicleView view,
+    bool isSubmitting,
+    bool isRejecting,
     String? successMsg,
     Failure? error,
   });
@@ -70,6 +74,8 @@ class _$CreateVehicleStateCopyWithImpl<$Res, $Val extends CreateVehicleState>
     Object? isLoading = null,
     Object? isSuccess = null,
     Object? view = null,
+    Object? isSubmitting = null,
+    Object? isRejecting = null,
     Object? successMsg = freezed,
     Object? error = freezed,
   }) {
@@ -95,6 +101,16 @@ class _$CreateVehicleStateCopyWithImpl<$Res, $Val extends CreateVehicleState>
                     ? _value.view
                     : view // ignore: cast_nullable_to_non_nullable
                         as VehicleView,
+            isSubmitting:
+                null == isSubmitting
+                    ? _value.isSubmitting
+                    : isSubmitting // ignore: cast_nullable_to_non_nullable
+                        as bool,
+            isRejecting:
+                null == isRejecting
+                    ? _value.isRejecting
+                    : isRejecting // ignore: cast_nullable_to_non_nullable
+                        as bool,
             successMsg:
                 freezed == successMsg
                     ? _value.successMsg
@@ -149,6 +165,8 @@ abstract class _$$CreateVehicleStateImplCopyWith<$Res>
     bool isLoading,
     bool isSuccess,
     VehicleView view,
+    bool isSubmitting,
+    bool isRejecting,
     String? successMsg,
     Failure? error,
   });
@@ -177,6 +195,8 @@ class __$$CreateVehicleStateImplCopyWithImpl<$Res>
     Object? isLoading = null,
     Object? isSuccess = null,
     Object? view = null,
+    Object? isSubmitting = null,
+    Object? isRejecting = null,
     Object? successMsg = freezed,
     Object? error = freezed,
   }) {
@@ -202,6 +222,16 @@ class __$$CreateVehicleStateImplCopyWithImpl<$Res>
                 ? _value.view
                 : view // ignore: cast_nullable_to_non_nullable
                     as VehicleView,
+        isSubmitting:
+            null == isSubmitting
+                ? _value.isSubmitting
+                : isSubmitting // ignore: cast_nullable_to_non_nullable
+                    as bool,
+        isRejecting:
+            null == isRejecting
+                ? _value.isRejecting
+                : isRejecting // ignore: cast_nullable_to_non_nullable
+                    as bool,
         successMsg:
             freezed == successMsg
                 ? _value.successMsg
@@ -225,6 +255,8 @@ class _$CreateVehicleStateImpl implements _CreateVehicleState {
     required this.isLoading,
     required this.isSuccess,
     required this.view,
+    this.isSubmitting = false,
+    this.isRejecting = false,
     this.successMsg,
     this.error,
   });
@@ -238,13 +270,19 @@ class _$CreateVehicleStateImpl implements _CreateVehicleState {
   @override
   final VehicleView view;
   @override
+  @JsonKey()
+  final bool isSubmitting;
+  @override
+  @JsonKey()
+  final bool isRejecting;
+  @override
   final String? successMsg;
   @override
   final Failure? error;
 
   @override
   String toString() {
-    return 'CreateVehicleState(form: $form, isLoading: $isLoading, isSuccess: $isSuccess, view: $view, successMsg: $successMsg, error: $error)';
+    return 'CreateVehicleState(form: $form, isLoading: $isLoading, isSuccess: $isSuccess, view: $view, isSubmitting: $isSubmitting, isRejecting: $isRejecting, successMsg: $successMsg, error: $error)';
   }
 
   @override
@@ -258,6 +296,10 @@ class _$CreateVehicleStateImpl implements _CreateVehicleState {
             (identical(other.isSuccess, isSuccess) ||
                 other.isSuccess == isSuccess) &&
             (identical(other.view, view) || other.view == view) &&
+            (identical(other.isSubmitting, isSubmitting) ||
+                other.isSubmitting == isSubmitting) &&
+            (identical(other.isRejecting, isRejecting) ||
+                other.isRejecting == isRejecting) &&
             (identical(other.successMsg, successMsg) ||
                 other.successMsg == successMsg) &&
             (identical(other.error, error) || other.error == error));
@@ -270,6 +312,8 @@ class _$CreateVehicleStateImpl implements _CreateVehicleState {
     isLoading,
     isSuccess,
     view,
+    isSubmitting,
+    isRejecting,
     successMsg,
     error,
   );
@@ -292,6 +336,8 @@ abstract class _CreateVehicleState implements CreateVehicleState {
     required final bool isLoading,
     required final bool isSuccess,
     required final VehicleView view,
+    final bool isSubmitting,
+    final bool isRejecting,
     final String? successMsg,
     final Failure? error,
   }) = _$CreateVehicleStateImpl;
@@ -304,6 +350,10 @@ abstract class _CreateVehicleState implements CreateVehicleState {
   bool get isSuccess;
   @override
   VehicleView get view;
+  @override
+  bool get isSubmitting;
+  @override
+  bool get isRejecting;
   @override
   String? get successMsg;
   @override

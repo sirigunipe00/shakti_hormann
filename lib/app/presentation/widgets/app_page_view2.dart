@@ -14,7 +14,7 @@ enum PageMode2 {
   logisticRequest('Logistic Request'),
   transportConfirmation('Transport Confirmation'),
   vehicleReporting('Vehicle Reporting Entry'),
-  loadingConfirmation('Laoding Confirmation');
+  loadingConfirmation('Dispatch Loading');
 
   const PageMode2(this.name);
 
@@ -53,7 +53,7 @@ class _AppPageView2State<T extends PageViewFiltersCubit>
     PageMode2.logisticRequest => 'Search LR',
     PageMode2.transportConfirmation => 'Search LR',
     PageMode2.vehicleReporting => 'Search VRE',
-    PageMode2.loadingConfirmation => 'Search LC',
+    PageMode2.loadingConfirmation => 'Search VRE',
   };
 
   Color get bgColor => switch (widget.mode) {

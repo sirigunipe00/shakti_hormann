@@ -35,4 +35,5 @@ class GateExitBlocProvider {
   SalesInvoiceList salesInvoiceList() => SalesInvoiceList(
     onRequest: (params, state) => repo.fetchSalesInvoice(params ?? ''),
   );
+
 }

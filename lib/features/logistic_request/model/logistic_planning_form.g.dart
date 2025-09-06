@@ -18,7 +18,10 @@ _$LogisticPlanningFormImpl _$$LogisticPlanningFormImplFromJson(
   idx: (json['idx'] as num?)?.toInt(),
   amendedFrom: json['amended_from'] as String?,
   plantName: json['plant_name'] as String?,
-  salesOrder: json['sales_order'] as String?,
+  salesOrder:
+      (json['sales_orders'] as List<dynamic>?)
+          ?.map((e) => SalesOrder.fromJson(e as Map<String, dynamic>))
+          .toList(),
   transporterName: json['transporter_name'] as String?,
   preferredVehicleType: json['preferred_vehicle_type'] as String?,
   deliveryAddress: json['delivery_address'] as String?,
@@ -54,7 +57,7 @@ Map<String, dynamic> _$$LogisticPlanningFormImplToJson(
   'idx': instance.idx,
   'amended_from': instance.amendedFrom,
   'plant_name': instance.plantName,
-  'sales_order': instance.salesOrder,
+  'sales_orders': instance.salesOrder,
   'transporter_name': instance.transporterName,
   'preferred_vehicle_type': instance.preferredVehicleType,
   'delivery_address': instance.deliveryAddress,

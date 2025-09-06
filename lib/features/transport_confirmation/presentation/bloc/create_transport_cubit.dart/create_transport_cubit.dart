@@ -158,18 +158,18 @@ class CreateTransportCubit extends AppBaseCubit<CreateTransportState> {
     $logger.devLog('approve........');
     final validation = _validate();
     return validation.fold(() async {
-      emitSafeState(state.copyWith(isLoading: true, isSuccess: false));
+      emitSafeState(state.copyWith(isSubmitting: true, isSuccess: false));
 
       final formToSend = state.form;
 
       final response = await repo.submitTransport(formToSend);
       return response.fold(
-        (l) => emitSafeState(state.copyWith(isLoading: false, error: l)),
+        (l) => emitSafeState(state.copyWith(isSubmitting: false, error: l)),
         (r) {
           shouldAskForConfirmation.value = false;
           emitSafeState(
             state.copyWith(
-              isLoading: false,
+              isSubmitting: false,
               isSuccess: true,
               form: formToSend.copyWith(name: r.second),
               successMsg: r.first,
@@ -182,7 +182,7 @@ class CreateTransportCubit extends AppBaseCubit<CreateTransportState> {
   }
 
   void reject(String reason) async {
-    emitSafeState(state.copyWith(isLoading: true, isSuccess: false));
+    emitSafeState(state.copyWith(isRejecting: true, isSuccess: false));
 
     // Update form with reject reason
     final updatedForm = state.form.copyWith(rejectReason: reason);
@@ -195,12 +195,12 @@ class CreateTransportCubit extends AppBaseCubit<CreateTransportState> {
     final response = await repo.rejectTransport(updatedForm);
 
     response.fold(
-      (l) => emitSafeState(state.copyWith(isLoading: false, error: l)),
+      (l) => emitSafeState(state.copyWith(isRejecting: false, error: l)),
       (r) {
         shouldAskForConfirmation.value = false;
         emitSafeState(
           state.copyWith(
-            isLoading: false,
+            isRejecting: false,
             isSuccess: true,
             form: updatedForm.copyWith(docstatus: 1),
             successMsg: r.first,
@@ -261,6 +261,9 @@ class CreateTransportState with _$CreateTransportState {
     required bool isLoading,
     required bool isSuccess,
     required TransportView view,
+    @Default(false) bool isSubmitting,
+    @Default(false) bool isRejecting,
+
 
     String? successMsg,
     Failure? error,
@@ -274,6 +277,8 @@ class CreateTransportState with _$CreateTransportState {
       view: TransportView.create,
       isLoading: false,
       isSuccess: false,
+      isRejecting: false,
+      isSubmitting: false,
     );
   }
 }

@@ -34,7 +34,7 @@ class CustomAppBar extends StatelessWidget {
           ),
           const SizedBox(width: 60),
           Image.asset(
-            'assets/logo/hormann-logo-new-1 1.png',
+            'assets/logo/shakti_logo.png',
             width: 180,
             fit: BoxFit.contain,
           ),

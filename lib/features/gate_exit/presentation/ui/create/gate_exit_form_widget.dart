@@ -125,7 +125,7 @@ class _GateExitFormWidgetState extends State<GateExitFormWidget> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.all(10.0),
+                padding: const EdgeInsets.only( left: 16, right: 16),
                 child: Card(
                   color: Colors.white,
                   shape: RoundedRectangleBorder(

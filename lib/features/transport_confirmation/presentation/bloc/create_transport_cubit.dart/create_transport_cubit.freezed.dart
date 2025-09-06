@@ -21,6 +21,8 @@ mixin _$CreateTransportState {
   bool get isLoading => throw _privateConstructorUsedError;
   bool get isSuccess => throw _privateConstructorUsedError;
   TransportView get view => throw _privateConstructorUsedError;
+  bool get isSubmitting => throw _privateConstructorUsedError;
+  bool get isRejecting => throw _privateConstructorUsedError;
   String? get successMsg => throw _privateConstructorUsedError;
   Failure? get error => throw _privateConstructorUsedError;
 
@@ -43,6 +45,8 @@ abstract class $CreateTransportStateCopyWith<$Res> {
     bool isLoading,
     bool isSuccess,
     TransportView view,
+    bool isSubmitting,
+    bool isRejecting,
     String? successMsg,
     Failure? error,
   });
@@ -73,6 +77,8 @@ class _$CreateTransportStateCopyWithImpl<
     Object? isLoading = null,
     Object? isSuccess = null,
     Object? view = null,
+    Object? isSubmitting = null,
+    Object? isRejecting = null,
     Object? successMsg = freezed,
     Object? error = freezed,
   }) {
@@ -98,6 +104,16 @@ class _$CreateTransportStateCopyWithImpl<
                     ? _value.view
                     : view // ignore: cast_nullable_to_non_nullable
                         as TransportView,
+            isSubmitting:
+                null == isSubmitting
+                    ? _value.isSubmitting
+                    : isSubmitting // ignore: cast_nullable_to_non_nullable
+                        as bool,
+            isRejecting:
+                null == isRejecting
+                    ? _value.isRejecting
+                    : isRejecting // ignore: cast_nullable_to_non_nullable
+                        as bool,
             successMsg:
                 freezed == successMsg
                     ? _value.successMsg
@@ -152,6 +168,8 @@ abstract class _$$CreateTransportStateImplCopyWith<$Res>
     bool isLoading,
     bool isSuccess,
     TransportView view,
+    bool isSubmitting,
+    bool isRejecting,
     String? successMsg,
     Failure? error,
   });
@@ -180,6 +198,8 @@ class __$$CreateTransportStateImplCopyWithImpl<$Res>
     Object? isLoading = null,
     Object? isSuccess = null,
     Object? view = null,
+    Object? isSubmitting = null,
+    Object? isRejecting = null,
     Object? successMsg = freezed,
     Object? error = freezed,
   }) {
@@ -205,6 +225,16 @@ class __$$CreateTransportStateImplCopyWithImpl<$Res>
                 ? _value.view
                 : view // ignore: cast_nullable_to_non_nullable
                     as TransportView,
+        isSubmitting:
+            null == isSubmitting
+                ? _value.isSubmitting
+                : isSubmitting // ignore: cast_nullable_to_non_nullable
+                    as bool,
+        isRejecting:
+            null == isRejecting
+                ? _value.isRejecting
+                : isRejecting // ignore: cast_nullable_to_non_nullable
+                    as bool,
         successMsg:
             freezed == successMsg
                 ? _value.successMsg
@@ -228,6 +258,8 @@ class _$CreateTransportStateImpl implements _CreateTransportState {
     required this.isLoading,
     required this.isSuccess,
     required this.view,
+    this.isSubmitting = false,
+    this.isRejecting = false,
     this.successMsg,
     this.error,
   });
@@ -241,13 +273,19 @@ class _$CreateTransportStateImpl implements _CreateTransportState {
   @override
   final TransportView view;
   @override
+  @JsonKey()
+  final bool isSubmitting;
+  @override
+  @JsonKey()
+  final bool isRejecting;
+  @override
   final String? successMsg;
   @override
   final Failure? error;
 
   @override
   String toString() {
-    return 'CreateTransportState(form: $form, isLoading: $isLoading, isSuccess: $isSuccess, view: $view, successMsg: $successMsg, error: $error)';
+    return 'CreateTransportState(form: $form, isLoading: $isLoading, isSuccess: $isSuccess, view: $view, isSubmitting: $isSubmitting, isRejecting: $isRejecting, successMsg: $successMsg, error: $error)';
   }
 
   @override
@@ -261,6 +299,10 @@ class _$CreateTransportStateImpl implements _CreateTransportState {
             (identical(other.isSuccess, isSuccess) ||
                 other.isSuccess == isSuccess) &&
             (identical(other.view, view) || other.view == view) &&
+            (identical(other.isSubmitting, isSubmitting) ||
+                other.isSubmitting == isSubmitting) &&
+            (identical(other.isRejecting, isRejecting) ||
+                other.isRejecting == isRejecting) &&
             (identical(other.successMsg, successMsg) ||
                 other.successMsg == successMsg) &&
             (identical(other.error, error) || other.error == error));
@@ -273,6 +315,8 @@ class _$CreateTransportStateImpl implements _CreateTransportState {
     isLoading,
     isSuccess,
     view,
+    isSubmitting,
+    isRejecting,
     successMsg,
     error,
   );
@@ -296,6 +340,8 @@ abstract class _CreateTransportState implements CreateTransportState {
     required final bool isLoading,
     required final bool isSuccess,
     required final TransportView view,
+    final bool isSubmitting,
+    final bool isRejecting,
     final String? successMsg,
     final Failure? error,
   }) = _$CreateTransportStateImpl;
@@ -308,6 +354,10 @@ abstract class _CreateTransportState implements CreateTransportState {
   bool get isSuccess;
   @override
   TransportView get view;
+  @override
+  bool get isSubmitting;
+  @override
+  bool get isRejecting;
   @override
   String? get successMsg;
   @override

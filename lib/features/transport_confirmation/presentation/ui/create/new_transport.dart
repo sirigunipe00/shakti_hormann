@@ -45,20 +45,29 @@ class _NewTransportCnfmState extends State<NewTransportCnfm> {
                 ),
                 dropdown: const SizedBox(),
               )
-              : TitleStatusAppBar(
-                    title: name ?? '',
-                    status: StringUtils.docStatus(status ?? 0),
-                    onSubmit: () {
-                      context.cubit<CreateTransportCubit>().approve();
-                    },
-                    onReject: () {
-                      showRejectDialog(context);
-                    },
-                    textColor: Colors.white,
-                    pageMode: PageMode2.transportConfirmation,
-                    showRejectButton: true,
-                  )
-                  as PreferredSizeWidget,
+              : PreferredSize(
+                preferredSize: const Size.fromHeight(86),
+                child: BlocBuilder<CreateTransportCubit, CreateTransportState>(
+                      builder: (context, state) {
+                        return TitleStatusAppBar(
+                          title: name ?? '',
+                          status: StringUtils.docStatus(status ?? 0),
+                          onSubmit: () {
+                            context.cubit<CreateTransportCubit>().approve();
+                          },
+                          onReject: () {
+                            showRejectDialog(context);
+                          },
+                          textColor: Colors.white,
+                          pageMode: PageMode2.transportConfirmation,
+                          showRejectButton: true,
+                          isSubmitting: state.isSubmitting,
+                          isRejecting: state.isRejecting,
+                        );
+                      },
+                    )
+                 
+              ),
 
       body: BlocListener<CreateTransportCubit, CreateTransportState>(
         listener: (_, state) async {
@@ -66,6 +75,7 @@ class _NewTransportCnfmState extends State<NewTransportCnfm> {
             final isReject = state.successMsg!.toLowerCase().contains('reject');
 
             if (isReject) {
+              $logger.devLog('rejected............$state');
               AppDialog.showErrorDialog(
                 context,
                 title: 'Transporter Rejected',

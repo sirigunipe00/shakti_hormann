@@ -40,8 +40,7 @@ class __LogisticPlanningFormWidgetState
     final isCompleted =
         formState.view == LogisticPlanningView.completed ||
         (formState.form.docstatus == 1 ||
-            formState.form.status == 'Pending From Transporter' ||
-            formState.form.status == 'Draft');
+            formState.form.status == 'Pending From Transporter');
 
     final newform = formState.form;
 
@@ -95,7 +94,7 @@ class __LogisticPlanningFormWidgetState
                           borderRadius: BorderRadius.circular(20),
                         ),
                         padding: const EdgeInsets.only(
-                          top: 20,
+                          top: 15,
                           left: 16,
                           right: 16,
                           bottom: 8,
@@ -350,7 +349,7 @@ class __LogisticPlanningFormWidgetState
                       InputField(
                         title: 'Shipping Address-1',
                         readOnly: true,
-                        hintText: 'Enter Address',
+                        // hintText: 'Enter Address',
                         borderColor: AppColors.grey,
                         initialValue: newform.shippingAddress1,
                         onChanged:
@@ -362,7 +361,7 @@ class __LogisticPlanningFormWidgetState
                       InputField(
                         title: 'Shipping Address-2',
                         readOnly: true,
-                        hintText: 'Enter Address',
+                        // hintText: 'Enter Address',
                         borderColor: AppColors.grey,
                         initialValue: newform.shippingAddress2,
                         onChanged:
@@ -375,7 +374,7 @@ class __LogisticPlanningFormWidgetState
                       InputField(
                         title: 'Shipping Country',
                         readOnly: true,
-                        hintText: 'Enter Country',
+                        // hintText: 'Enter Country',
                         borderColor: AppColors.grey,
                         initialValue: newform.country,
                         onChanged:
@@ -387,7 +386,7 @@ class __LogisticPlanningFormWidgetState
                       InputField(
                         title: 'Shipping State',
                         readOnly: true,
-                        hintText: 'Enter State',
+                        // hintText: 'Enter State',
                         borderColor: AppColors.grey,
                         initialValue: newform.states,
                         onChanged:
@@ -399,7 +398,7 @@ class __LogisticPlanningFormWidgetState
                       InputField(
                         title: 'Shipping City',
                         readOnly: true,
-                        hintText: 'Enter City',
+                        // hintText: 'Enter City',
                         borderColor: AppColors.grey,
                         initialValue: newform.city,
                         onChanged:
@@ -411,7 +410,7 @@ class __LogisticPlanningFormWidgetState
                       InputField(
                         title: 'Shipping Pin Code',
                         readOnly: true,
-                        hintText: 'Enter Pincode',
+                        // hintText: 'Enter Pincode',
                         borderColor: AppColors.grey,
                         initialValue: newform.pincode,
                         onChanged:

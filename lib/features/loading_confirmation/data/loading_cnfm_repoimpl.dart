@@ -21,7 +21,6 @@ class LoadingCnfmRepoimpl extends BaseApiRepository implements LoadingCnfmRepo {
   ) async {
     final filters = <List<dynamic>>[];
 
-    $logger.devLog('status.........$docStatus');
 
     if (docStatus.isNotNull && docStatus != '4' && docStatus != '1') {
       filters
@@ -85,28 +84,20 @@ class LoadingCnfmRepoimpl extends BaseApiRepository implements LoadingCnfmRepo {
     });
 
   }
-
-
- 
-
-
 @override
   AsyncValueOf<Pair<String, String>> createLoadingCnfm(
     List<ItemModel> items,
     String name,
   ) async {
-    print('items....:$items');
     final cleanedItems = await Future.wait(
       items.map((e) async {
         final map = removeNullValues(e.toJson());
 
-        // If "sample_quantity" exists, rename it to "qty_loaded"
         if (map.containsKey('sample_quantity')) {
           map['qty_loaded'] = map['sample_quantity'];
           map.remove('sample_quantity');
         }
 
-        // If imageFile exists, compress & add base64
         if (e.imageFile != null) {
           final vehiclefrontcompressedBytes =
               await FlutterImageCompress.compressWithFile(
@@ -120,15 +111,15 @@ class LoadingCnfmRepoimpl extends BaseApiRepository implements LoadingCnfmRepo {
                   : base64Encode(vehiclefrontcompressedBytes);
         } else if (e.loadedItemPhoto != null && e.loadedItemPhoto!.isNotEmpty) {
           try {
-            final baseUrl = 'http://65.21.243.18:8000'; // replace with real API base URL
-            final uri = Uri.parse("$baseUrl${e.loadedItemPhoto}");
+            final baseUrl = 'http://65.21.243.18:8000';
+            final uri = Uri.parse('$baseUrl${e.loadedItemPhoto}');
 
             final response = await http.get(uri);
             if (response.statusCode == 200) {
               final bytes = response.bodyBytes;
               map['loaded_item_photo'] = base64Encode(bytes);
             } else {
-              map['loaded_item_photo'] = null; // fallback if fetch fails
+              map['loaded_item_photo'] = null; 
             }
           } catch (err) {
             map['loaded_item_photo'] = null;

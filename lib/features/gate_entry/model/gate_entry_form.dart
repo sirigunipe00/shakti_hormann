@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:shakti_hormann/core/utils/typedefs.dart';
+import 'package:shakti_hormann/features/gate_entry/model/purchase_order.dart';
 
 
 part 'gate_entry_form.freezed.dart';
@@ -20,7 +21,7 @@ class GateEntryForm with _$GateEntryForm {
     @JsonKey(name: 'modified_by') String? modifiedBy,
     @JsonKey(name: 'idx') int? idx,
     @JsonKey(name: 'plant_name') String? plantName,
-    @JsonKey(name: 'purchase_order') String? purchaseOrder,
+    @JsonKey(name: 'purchase_orders') List<PurchaseOrder>? purchaseOrder,
     @JsonKey(name: 'scan_irn') String? scanIrn,
     @JsonKey(name: 'vehicle_no') String? vehicleNo,
     @JsonKey(name: 'vendor_invoice_date')

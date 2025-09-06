@@ -53,7 +53,7 @@ class _AppSplashScrnState extends State<AppSplashScrn> {
               SizedBox(
                 width: 220,
                 child: Image.asset(
-                  'assets/logo/hormann-logo-new-1 1.png',
+                  'assets/logo/shakti_logo.png',
                   fit: BoxFit.contain,
                 ),
               ),

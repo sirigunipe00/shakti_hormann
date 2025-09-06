@@ -75,7 +75,7 @@ class GateExitRepoimpl extends BaseApiRepository implements GateExitRepo {
         vehiclebackcompressedBytes =
             await FlutterImageCompress.compressWithFile(filePath, quality: 50);
       } else if (form.vehicleBackPhoto != null) {
-        vehiclefrontcompressedBytes = await fetchAndConvertToBase64(
+        vehiclebackcompressedBytes = await fetchAndConvertToBase64(
           form.vehicleBackPhoto ?? '',
         );
       }

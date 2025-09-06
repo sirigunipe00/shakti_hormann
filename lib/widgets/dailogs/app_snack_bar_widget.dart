@@ -26,18 +26,18 @@ class AppSnackBarWidget extends StatelessWidget {
               borderRadius: BorderRadius.circular(18),
             ),
           ),
-          Positioned(
-            bottom: 0,
-            left: 0,
-            child: ClipRRect(
-              borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(20)),
-              child: SvgPicture.asset(
-                AppIcons.bubbles.path,
-                height: context.sizeOfHeight * 0.06,
-                width: context.sizeOfWidth * 0.05,
-              ),
-            ),
-          ),
+          // Positioned(
+          //   bottom: 0,
+          //   left: 0,
+          //   child: ClipRRect(
+          //     borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(20)),
+          //     child: SvgPicture.asset(
+          //       AppIcons.bubbles.path,
+          //       height: context.sizeOfHeight * 0.06,
+          //       width: context.sizeOfWidth * 0.05,
+          //     ),
+          //   ),
+          // ),
           Positioned.fill(
             child: Center(
               child: Text(content, 

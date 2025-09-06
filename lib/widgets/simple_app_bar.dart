@@ -12,7 +12,7 @@ class SimpleAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.textStyle,
     required this.actionButton,
     this.onScan,
-    this.showScanner = false, // new flag
+    this.showScanner = false,
   });
 
   final String title;
@@ -22,14 +22,15 @@ class SimpleAppBar extends StatelessWidget implements PreferredSizeWidget {
   final TextStyle? textStyle;
   final Widget? actionButton;
   final VoidCallback? onScan;
-  final bool showScanner; // new property
+  final bool showScanner;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(top: 35.0, bottom: 0),
       child: Container(
-        height: 185,
+      constraints: const BoxConstraints(minHeight: 80), 
+
         width: MediaQuery.of(context).size.width,
         decoration: const BoxDecoration(
           color: AppColors.darkBlue,
@@ -41,6 +42,7 @@ class SimpleAppBar extends StatelessWidget implements PreferredSizeWidget {
         ),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Title Row

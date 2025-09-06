@@ -29,7 +29,7 @@ class FrappeApiResponseParser<T> implements ApiResponseParser<T> {
           if (status == 200) {
             final result = parser(response);
             return ApiResponse.success(result);
-          } else if (status == 500 || status == 400 || status == 422 || status == 401) {
+          } else if (status == 500 || status == 400 || status == 422 || status == 401 || status == 'error') {
             final message = messageObj['message'];
             return ApiResponse.failure(message, status: 400);
           }

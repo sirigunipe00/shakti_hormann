@@ -83,7 +83,7 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
                           borderRadius: BorderRadius.circular(20),
                         ),
                         padding: const EdgeInsets.only(
-                          top: 20,
+                          top: 15,
                           left: 16,
                           right: 16,
                           bottom: 6
@@ -209,7 +209,7 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
                         children: [
                           Expanded(
                             child: AppDateField(
-                              title: 'Requested Delivery Date',
+                              title: 'Request Delivery Date',
                               hintText: 'Select Date',
                               readOnly: true,
                               startDate: DateTime(2020),
@@ -237,7 +237,7 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
                           Expanded(
                             child: TimePickerField(
                               title: 'Request Delivery Time',
-                              hintText: 'Select time',
+                              hintText: 'Select Time',
                               readOnly: true,
 
                               initialTime:formatTime (newform.requestedDeliveryTime),

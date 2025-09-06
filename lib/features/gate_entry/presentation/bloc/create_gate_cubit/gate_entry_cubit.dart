@@ -7,6 +7,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:shakti_hormann/features/gate_entry/data/gate_entry.repo.dart';
 import 'package:shakti_hormann/features/gate_entry/model/gate_entry_form.dart';
+import 'package:shakti_hormann/features/gate_entry/model/purchase_order.dart';
 
 part 'gate_entry_cubit.freezed.dart';
 
@@ -35,7 +36,7 @@ class CreateGateEntryCubit extends AppBaseCubit<CreateGateEntryState> {
     int? docStatus,
     String? modifiedBy,
     String? modifiedDate,
-    String? purchaseOrder,
+    List<PurchaseOrder>? purchaseOrder,
     String? vehicleNo,
     String? vendorInvoiceDate,
     String? vendorInvoiceNo,
@@ -46,7 +47,6 @@ class CreateGateEntryCubit extends AppBaseCubit<CreateGateEntryState> {
     String? scanIrn,
     String? remarks,
     String? gateNumber,
-    
 
     File? vehiclePhoto,
     File? invoicePhoto,
@@ -69,7 +69,6 @@ class CreateGateEntryCubit extends AppBaseCubit<CreateGateEntryState> {
       docStatus: docStatus ?? form.docStatus,
       modifiedBy: modifiedBy ?? form.modifiedBy,
       gateNumber: gateNumber ?? form.gateNumber,
-
       modifiedDate: modifiedDate ?? form.modifiedDate,
       purchaseOrder: purchaseOrder ?? form.purchaseOrder,
       vehicleNo: vehicleNo ?? form.vehicleNo,
@@ -85,13 +84,14 @@ class CreateGateEntryCubit extends AppBaseCubit<CreateGateEntryState> {
       invoicePhotoImg: vendorInvoicePhotoBase64,
       vehicleBackPhotoImg: vehiclebackPhotos,
     );
+
     emitSafeState(state.copyWith(form: newForm));
   }
 
   void initDetails(Object? entry) {
     shouldAskForConfirmation.value = false;
     if (entry is GateEntryForm) {
-      log('entry.gateEntryDate loggg: ${entry.gateEntryDate}');
+      log('entry.gateEntryDate loggg: ${state.form.purchaseOrder}');
 
       final parsedDate = DFU.toDateTime(
         entry.creationDate.valueOrEmpty,
@@ -104,7 +104,7 @@ class CreateGateEntryCubit extends AppBaseCubit<CreateGateEntryState> {
         name: entry.name,
         remarks: entry.remarks,
         plantName: entry.plantName,
-        purchaseOrder: entry.purchaseOrder,
+        // purchaseOrder: state.form.purchaseOrder,
         gateEntryDate: entry.gateEntryDate,
         vendorInvoiceNo: entry.vendorInvoiceNo,
         vendorInvoiceDate: entry.vendorInvoiceDate,
@@ -115,7 +115,7 @@ class CreateGateEntryCubit extends AppBaseCubit<CreateGateEntryState> {
         invoiceAmount: entry.invoiceAmount,
         invoiceQuantity: entry.invoiceQuantity,
         scanIrn: entry.scanIrn,
-        gateNumber : entry.gateNumber,
+        gateNumber: entry.gateNumber,
         creationDate: formattedStr,
       );
 
@@ -129,6 +129,7 @@ class CreateGateEntryCubit extends AppBaseCubit<CreateGateEntryState> {
         StringUtils.docStatus(status).trim(),
         'Cancelled',
       );
+
       final mode =
           (isSubmitted || isCancelled)
               ? GateEntryView.completed
@@ -140,6 +141,12 @@ class CreateGateEntryCubit extends AppBaseCubit<CreateGateEntryState> {
 
   void clearVehiclePhoto() {
     final form = state.form.copyWith(vehiclePhoto: null);
+    emitSafeState(state.copyWith(form: form));
+  }
+
+  void addpurchseorders({List<PurchaseOrder>? purchaseorder}) {
+    final form = state.form.copyWith(purchaseOrder: purchaseorder);
+
     emitSafeState(state.copyWith(form: form));
   }
 
@@ -232,30 +239,34 @@ class CreateGateEntryCubit extends AppBaseCubit<CreateGateEntryState> {
   }
 
   Option<Pair<String, int?>> _validate() {
-  final form = state.form;
+    final form = state.form;
 
-  if (form.purchaseOrder.doesNotHaveValue) {
-    return optionOf(const Pair('Select Purchase Order', 0));
-  } else if ( form.vehiclePhotoImg.isNull && form.vehiclePhoto.doesNotHaveValue) {
-    return optionOf(const Pair('Missing VehicleFront Photo', 0));
-  } else if (form.vehicleBackPhotoImg.isNull && form.vehicleBackPhoto.doesNotHaveValue) {
-    return optionOf(const Pair('Missing VehicleBack Photo', 0));
-  } else if (form.invoicePhotoImg.isNull && form.invoicePhoto.doesNotHaveValue) {
-    return optionOf(const Pair('Missing VendorInvoice Photo', 0));
-  } else if (form.vendorInvoiceDate.isNull || 
-             (form.vendorInvoiceDate?.trim().isEmpty ?? true)) {
-    return optionOf(const Pair('Missing VendorInvoice Date', 0));
-  } else if (form.vendorInvoiceNo.isNull || 
-             (form.vendorInvoiceNo?.trim().isEmpty ?? true)) {
-    return optionOf(const Pair('Missing VendorInvoice No', 0));
-  } else if (form.vehicleNo.isNull || 
-             (form.vehicleNo?.trim().isEmpty ?? true)) {
-    return optionOf(const Pair('Missing Vehicle Number', 0));
+
+    if (form.purchaseOrder == null) {
+      return optionOf(const Pair('Select Purchase Order', 0));
+    } else 
+    if (form.vehiclePhotoImg.isNull &&
+        form.vehiclePhoto.doesNotHaveValue) {
+      return optionOf(const Pair('Missing VehicleFront Photo', 0));
+    } else if (form.vehicleBackPhotoImg.isNull &&
+        form.vehicleBackPhoto.doesNotHaveValue) {
+      return optionOf(const Pair('Missing VehicleBack Photo', 0));
+    } else if (form.invoicePhotoImg.isNull &&
+        form.invoicePhoto.doesNotHaveValue) {
+      return optionOf(const Pair('Missing VendorInvoice Photo', 0));
+    } else if (form.vendorInvoiceDate.isNull ||
+        (form.vendorInvoiceDate?.trim().isEmpty ?? true)) {
+      return optionOf(const Pair('Missing VendorInvoice Date', 0));
+    } else if (form.vendorInvoiceNo.isNull ||
+        (form.vendorInvoiceNo?.trim().isEmpty ?? true)) {
+      return optionOf(const Pair('Missing VendorInvoice No', 0));
+    } else if (form.vehicleNo.isNull ||
+        (form.vehicleNo?.trim().isEmpty ?? true)) {
+      return optionOf(const Pair('Missing Vehicle Number', 0));
+    }
+
+    return const None();
   }
-
-  return const None();
-}
-
 }
 
 @freezed

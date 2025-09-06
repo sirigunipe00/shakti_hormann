@@ -56,10 +56,7 @@ class _VehicleReportingListState extends State<VehicleReportingList>
             },
         child: BlocListener<VehicleReportingFilterCubit, PageViewFilters>(
           listener: (_, state) => _fetchInital(context),
-          child: InfiniteListViewWidget<
-            VehicleReportingCubit,
-            VehicleReportingForm
-          >(
+          child: InfiniteListViewWidget<VehicleReportingCubit,VehicleReportingForm>(
             childBuilder:
                 (context, entry) => VehicleRequestWidget(
                   vehicleReporting: entry,

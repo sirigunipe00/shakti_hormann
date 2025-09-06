@@ -189,18 +189,18 @@ class CreateVehicleCubit extends AppBaseCubit<CreateVehicleState> {
   void approve() async {
     final validation = _validate();
     return validation.fold(() async {
-      emitSafeState(state.copyWith(isLoading: true, isSuccess: false));
+      emitSafeState(state.copyWith(isSubmitting: true, isSuccess: false));
 
       final formToSend = state.form;
 
       final response = await repo.submitVehicleReporting(formToSend);
       return response.fold(
-        (l) => emitSafeState(state.copyWith(isLoading: false, error: l)),
+        (l) => emitSafeState(state.copyWith(isSubmitting: false, error: l)),
         (r) {
           shouldAskForConfirmation.value = false;
           emitSafeState(
             state.copyWith(
-              isLoading: false,
+              isSubmitting: false,
               isSuccess: true,
               form: formToSend.copyWith(name: r.second),
               successMsg: r.first,
@@ -213,7 +213,7 @@ class CreateVehicleCubit extends AppBaseCubit<CreateVehicleState> {
   }
 
   void reject(String reason) async {
-    emitSafeState(state.copyWith(isLoading: true, isSuccess: false));
+    emitSafeState(state.copyWith(isRejecting: true, isSuccess: false));
 
     // Update form with reject reason
     final updatedForm = state.form.copyWith(rejectReason: reason);
@@ -226,12 +226,12 @@ class CreateVehicleCubit extends AppBaseCubit<CreateVehicleState> {
     final response = await repo.rejectVehicleReporting(updatedForm);
 
     response.fold(
-      (l) => emitSafeState(state.copyWith(isLoading: false, error: l)),
+      (l) => emitSafeState(state.copyWith(isRejecting: false, error: l)),
       (r) {
         shouldAskForConfirmation.value = false;
         emitSafeState(
           state.copyWith(
-            isLoading: false,
+            isRejecting: false,
             isSuccess: true,
             form: updatedForm.copyWith(docstatus: 1),
             successMsg: r.first,
@@ -283,6 +283,8 @@ class CreateVehicleState with _$CreateVehicleState {
     required bool isLoading,
     required bool isSuccess,
     required VehicleView view,
+    @Default(false) bool isSubmitting,
+    @Default(false) bool isRejecting,
     String? successMsg,
     Failure? error,
   }) = _CreateVehicleState;
@@ -295,6 +297,8 @@ class CreateVehicleState with _$CreateVehicleState {
       view: VehicleView.create,
       isLoading: false,
       isSuccess: false,
+      isRejecting: false,
+      isSubmitting: false
     );
   }
 }

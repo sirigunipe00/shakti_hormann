@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:shakti_hormann/features/logistic_request/model/sales_order.dart';
 
 part 'logistic_planning_form.freezed.dart';
 part 'logistic_planning_form.g.dart';
@@ -15,7 +16,7 @@ class LogisticPlanningForm with _$LogisticPlanningForm {
     @JsonKey(name: 'idx') int? idx,
     @JsonKey(name: 'amended_from') String? amendedFrom,
     @JsonKey(name: 'plant_name') String? plantName,
-    @JsonKey(name: 'sales_order') String? salesOrder,
+    @JsonKey(name: 'sales_orders') List<SalesOrder>? salesOrder,
     @JsonKey(name: 'transporter_name') String? transporterName,
     @JsonKey(name: 'preferred_vehicle_type') String? preferredVehicleType,
     @JsonKey(name: 'delivery_address') String? deliveryAddress,

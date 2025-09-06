@@ -137,31 +137,39 @@ class _NewVehicleReportingState extends State<NewVehicleReporting> {
                 ),
                 showScanner: false,
               )
-              : TitleStatusAppBar(
-                    title: name ?? '',
-                    status: status ?? '',
-                    textColor: Colors.white,
-
-                    pageMode: PageMode2.vehicleReporting,
-                    showRejectButton: true,
-                    onSubmit: () {
-                      context.cubit<CreateVehicleCubit>().approve();
-                    },
-                    onReject: () {
-                      showRejectDialogs(context);
-                    },
-                  )
-                  as PreferredSizeWidget,
+             : PreferredSize(
+              preferredSize: const Size.fromHeight(86),
+               child: BlocBuilder<CreateVehicleCubit, CreateVehicleState>(
+                   builder: (context, state) {
+                     return TitleStatusAppBar(
+                       title: name ?? '',
+                       status: status ?? '',
+                       textColor: Colors.white,
+                       pageMode: PageMode2.vehicleReporting,
+                       showRejectButton: true,
+                       isSubmitting: state.isSubmitting,
+                       isRejecting: state.isRejecting,
+                       onSubmit: () {
+                         context.cubit<CreateVehicleCubit>().approve();
+                       },
+                       onReject: () {
+                         showRejectDialogs(context);
+                       },
+                     );
+                   },
+                 )
+                    // as PreferredSizeWidget,
+             ),
 
       body: BlocListener<CreateVehicleCubit, CreateVehicleState>(
         listener: (_, state) async {
           if (state.isSuccess && state.successMsg!.isNotNull) {
-            final isReject = state.successMsg!.toLowerCase().contains('reject');
+            // final isReject = state.successMsg!.toLowerCase().contains('reject');
 
-            if (isReject) {
+            if (state.view == VehicleView.reject) {
               AppDialog.showErrorDialog(
                 context,
-                title: 'Transporter Rejected',
+                title: 'Vehicle Rejected',
                 content: state.successMsg.valueOrEmpty,
                 onTapDismiss: context.exit,
               ).then((_) {

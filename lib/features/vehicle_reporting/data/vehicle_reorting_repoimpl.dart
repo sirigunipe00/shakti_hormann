@@ -24,7 +24,6 @@ class VehicleReportingRepoimpl extends BaseApiRepository
   ) async {
     final filters = <List<dynamic>>[];
 
-    print('docstatus in reo.:$docStatus');
 
     if (docStatus != null && docStatus != '4') {
       filters

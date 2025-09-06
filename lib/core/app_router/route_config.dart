@@ -100,7 +100,18 @@ class AppRouterConfig {
                             providers: [
                               BlocProvider(create:(_) =>GateEntryBlocProvider.get().purchaseOrderList()..request(''),),
                               BlocProvider(create:(_) =>GateEntryBlocProvider.get().gateNumberList()..request(''),),
+
                               BlocProvider(create:(_) =>$sl.get<CreateGateEntryCubit>()..initDetails(gateEntryForm),),
+
+                                  BlocProvider(
+                                create:
+                                    (_) =>
+                                        GateEntryBlocProvider.get()
+                                            .getPurchase()
+                                          ..request(gateEntryForm?.name ?? ''),
+                              ),
+
+
                             ],
                             child: const NewGateEntry(),
                           );
@@ -170,14 +181,17 @@ class AppRouterConfig {
                             },
                         builder: (_, state) {
                           final bloc = LogisticPlanningBlocProvider.get();
-                          final lofisticForm =
+                          final logisticForm =
                               state.extra as LogisticPlanningForm?;
                           return MultiBlocProvider(
                             providers: [
-                              BlocProvider(create:(_) => $sl.get<CreateLogisticCubit>()..initDetails(lofisticForm),),
+                              BlocProvider(create:(_) => $sl.get<CreateLogisticCubit>()..initDetails(logisticForm),),
                               BlocProvider(create:(_) => bloc.salesOrderList()..request(''),),
                               BlocProvider(create:(_) => bloc.transportersList()..request(''),),
                               BlocProvider(create:(_) => bloc.vehicleList()..request(''),),
+                              BlocProvider(create:(_) => bloc.salesList()..request(logisticForm?.name ?? ''),),
+
+
                             ],
                             child: const NewLogisticRequest(),
                           );

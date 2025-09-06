@@ -3,6 +3,7 @@ import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/features/gate_entry/data/gate_entry.repo.dart';
 import 'package:shakti_hormann/features/gate_entry/model/gate_entry_form.dart';
 import 'package:shakti_hormann/features/gate_entry/model/gate_number_form.dart';
+import 'package:shakti_hormann/features/gate_entry/model/purchase_order.dart';
 import 'package:shakti_hormann/features/gate_entry/model/purchase_order_form.dart';
 
 typedef GateEntriesCubit =
@@ -21,7 +22,10 @@ typedef GateNumberList
 typedef GateNumberState
     = NetworkRequestState<List<GateNumberForm>>;
 
-
+typedef Purchase
+    = NetworkRequestCubit<List<PurchaseOrder>, String>;
+typedef PurchaseState
+    = NetworkRequestState<List<PurchaseOrder>>;
 
 @lazySingleton
 class GateEntryBlocProvider {
@@ -45,5 +49,7 @@ class GateEntryBlocProvider {
       GateNumberList gateNumberList() => GateNumberList(
     onRequest: (params, state) => repo.fetchGateNumber(params ?? ''),
   );
-  
+    Purchase getPurchase() => Purchase(
+    onRequest: (params, state) => repo.fetchPurchase(params ?? ''),
+  );
 }

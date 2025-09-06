@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/features/gate_entry/model/purchase_order_form.dart';
+import 'package:shakti_hormann/features/logistic_request/model/sales_order_form.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/widgets/app_spacer.dart';
 import 'package:shakti_hormann/widgets/caption_text.dart';
@@ -91,59 +92,156 @@ class _SearchMultiDropDownListState<T>
               onTap: () async {
                 // make a local copy, so edits don’t affect parent state until confirmed
                 final tempSelected = List<T>.from(_selectedValues);
-
                 final results = await showModalBottomSheet<List<T>>(
                   context: context,
+                  isScrollControlled: true,
+                  backgroundColor: Colors.white,
                   builder: (context) {
                     final availableItems = widget.items;
+                    List<T> filteredItems = List.from(availableItems);
+                    final searchController = TextEditingController();
 
                     return StatefulBuilder(
                       builder: (context, setModalState) {
-                        return Column(
-                          children: [
-                            Expanded(
-                              child: ListView.builder(
-                                itemCount: availableItems.length,
-                                itemBuilder: (context, index) {
-                                  final item = availableItems[index];
-                                  final isSelected = tempSelected.contains(
-                                    item,
-                                  );
+                        void filterItems(String query) {
+                          setModalState(() {
+                            filteredItems =
+                                availableItems.where((item) {
+                                  String itemName = '';
 
-                                  return CheckboxListTile(
-                                    title:
-                                        widget.listItemBuilder != null
-                                            ? widget.listItemBuilder!(
-                                              context,
-                                              item,
-                                              index,
-                                              isSelected,
-                                            )
-                                            : Text(item.toString()),
-                                    value: isSelected,
-                                    onChanged: (checked) {
-                                      setModalState(() {
-                                        if (checked == true) {
-                                          tempSelected.add(item);
-                                        } else {
-                                          tempSelected.remove(item);
-                                        }
-                                      });
-                                    },
+                                  if (item is PurchaseOrderForm) {
+                                    itemName = [
+                                      item.name ?? '',
+                                      item.supplier ?? '',
+                                      item.supplierName ?? '',
+                                    ].join(' ');
+                                  } else if (item is SalesOrderForm) {
+                                    itemName = [
+                                      item.name ?? '',
+                                      item.customerName ?? '',
+                                    ].join(' ');
+                                  } else {
+                                    itemName = item.toString();
+                                  }
+
+                                  return itemName.toLowerCase().contains(
+                                    query.toLowerCase(),
                                   );
-                                },
-                              ),
+                                }).toList();
+                          });
+                        }
+
+                        return SafeArea(
+                          child: SizedBox(
+                            height:
+                                MediaQuery.of(context).size.height *
+                                0.8, // 80% screen height
+                            child: Column(
+                              children: [
+                                // 🔍 Search Bar
+                                Padding(
+                                  padding: const EdgeInsets.only(
+                                    left: 8.0,
+                                    right: 8.0,
+                                    bottom: 8.0,
+                                    top: 20.0,
+                                  ),
+                                  child: TextField(
+                                    controller: searchController,
+                                    decoration: InputDecoration(
+                                      prefixIcon: const Icon(Icons.search),
+                                      hintText: 'Search...',
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                    ),
+                                    onChanged: filterItems,
+                                  ),
+                                ),
+
+                                // List of Items
+                                // List of Items
+                                Expanded(
+                                  child:
+                                      filteredItems.isNotEmpty
+                                      
+                                          ? ListView.builder(
+                                            controller: scrollCtlr,
+                                            itemCount: filteredItems.length,
+                                            itemBuilder: (context, index) {
+                                              final item = filteredItems[index];
+                                              final isSelected = tempSelected
+                                                  .contains(item);
+
+                                              return CheckboxListTile(
+                                                title:
+                                                    widget.listItemBuilder !=
+                                                            null
+                                                        ? widget
+                                                            .listItemBuilder!(
+                                                          context,
+                                                          item,
+                                                          index,
+                                                          isSelected,
+                                                        )
+                                                        : Text(
+                                                          (item
+                                                                  is PurchaseOrderForm)
+                                                              ? (item.name ??
+                                                                  '')
+                                                              : (item
+                                                                  is SalesOrderForm)
+                                                              ? (item.name ??
+                                                                  '')
+                                                              : item.toString(),
+                                                        ),
+                                                value: isSelected,
+                                                onChanged: (checked) {
+                                                  setModalState(() {
+                                                    if (checked == true) {
+                                                      tempSelected.add(item);
+                                                    } else {
+                                                      tempSelected.remove(item);
+                                                    }
+                                                  });
+                                                },
+                                              );
+                                            },
+                                          )
+                                          : Center(
+                                            child: Text(
+                                              'No results found',
+                                              style: TextStyle(
+                                                color: Colors.grey[600],
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                          ),
+                                ),
+
+                                // Done button
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: AppColors.darkBlue,
+                                      textStyle: const TextStyle(
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    onPressed: () {
+                                      Navigator.pop(context, tempSelected);
+                                    },
+                                    child: const Text(
+                                      'Done',
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
-                            ElevatedButton(
-                              onPressed: () {
-                                Navigator.pop(
-                                  context,
-                                  tempSelected,
-                                ); // ✅ only commit on Done
-                              },
-                              child: const Text('Done'),
-                            ),
-                          ],
+                          ),
                         );
                       },
                     );
@@ -174,6 +272,8 @@ class _SearchMultiDropDownListState<T>
                               .map((e) {
                                 if (e is PurchaseOrderForm) {
                                   return e.name ?? '';
+                                } else if (e is SalesOrderForm) {
+                                  return e.name ?? '';
                                 }
                                 return e.toString();
                               })
@@ -184,7 +284,7 @@ class _SearchMultiDropDownListState<T>
                             fontWeight: FontWeight.w600,
                             fontFamily: 'Urbanist',
                           ),
-                          maxLines: 2,
+                          maxLines: 10,
                           overflow: TextOverflow.ellipsis,
                         )
                         : Text(
