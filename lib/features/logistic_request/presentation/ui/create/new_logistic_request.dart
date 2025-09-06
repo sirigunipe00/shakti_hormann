@@ -8,7 +8,7 @@ import 'package:shakti_hormann/features/logistic_request/presentation/ui/create/
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/widgets/buttons/app_btn.dart';
 import 'package:shakti_hormann/widgets/dailogs/app_dialogs.dart';
-import 'package:shakti_hormann/widgets/inputs/search_dropdown_widget.dart';
+import 'package:shakti_hormann/widgets/inputs/multi_selection.widget.dart';
 import 'package:shakti_hormann/widgets/simple_app_bar.dart';
 import 'package:shakti_hormann/widgets/title_status_app_bar.dart';
 
@@ -21,6 +21,7 @@ class NewLogisticRequest extends StatefulWidget {
 
 class _NewLogisticRequestState extends State<NewLogisticRequest> {
   SalesOrderForm? orderForm;
+  List<SalesOrderForm> selectedPurchaseOrders = [];
 
   @override
   Widget build(BuildContext context) {
@@ -39,12 +40,14 @@ class _NewLogisticRequestState extends State<NewLogisticRequest> {
           isNew
               ? SimpleAppBar(
                 title: 'New Logistic Request',
-                actionButton:
-                    BlocBuilder<CreateLogisticCubit, CreateLogisticState>(
+                actionButton: BlocBuilder<CreateLogisticCubit, CreateLogisticState>(
                       builder: (context, state) {
                         return AppButton(
                           isLoading: state.isLoading,
-                          bgColor:  state.view == LogisticPlanningView.create ? const  Color.fromARGB(255, 250, 193, 47) : AppColors.green,
+                          bgColor:
+                              state.view == LogisticPlanningView.create
+                                  ? const Color.fromARGB(255, 250, 193, 47)
+                                  : AppColors.green,
                           textStyle: const TextStyle(
                             color: AppColors.darkBlue,
                             fontWeight: FontWeight.bold,
@@ -65,10 +68,8 @@ class _NewLogisticRequestState extends State<NewLogisticRequest> {
                       orElse: () => <SalesOrderForm>[],
                       success: (data) => data,
                     );
-
                     final names = allData.toList();
-
-                    return SearchDropDownList<SalesOrderForm>(
+                    return SearchMultiDropDownList<SalesOrderForm>(
                       key: UniqueKey(),
                       title: 'Sales Order No',
                       hint: 'Search Order No',
@@ -76,7 +77,7 @@ class _NewLogisticRequestState extends State<NewLogisticRequest> {
                       items: names,
                       readOnly: status == 1,
                       isloading: state.isLoading,
-                      defaultSelection: orderForm,
+                      defaultSelection: selectedPurchaseOrders,
                       futureRequest: (query) async {
                         if (query.isEmpty) return names;
 
@@ -92,7 +93,9 @@ class _NewLogisticRequestState extends State<NewLogisticRequest> {
                       },
 
                       headerBuilder:
-                          (_, item, __) => Column(
+                          (_, item, __) {
+                            print('item.name ...:${item.name }');
+                            return Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
@@ -102,7 +105,8 @@ class _NewLogisticRequestState extends State<NewLogisticRequest> {
                                 ),
                               ),
                             ],
-                          ),
+                          );
+                          },
                       listItemBuilder:
                           (_, item, __, ___) => Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -115,28 +119,46 @@ class _NewLogisticRequestState extends State<NewLogisticRequest> {
                               ),
                               if (item.customerName != null)
                                 Text('Customer Name : ${item.customerName}'),
-                              Text(
-                                'Order Date: ${DFU.ddMMyyyyFromStr(item.orderDate ?? '')} ',
-                              ),
+                              Text('Order Date: ${DFU.ddMMyyyyFromStr(item.orderDate ?? '')} '),
 
                               const Divider(height: 8),
                             ],
                           ),
-                      onSelected: (selected) {
+                      onSelected: (selectedList) {
                         setState(() {
-                          orderForm = selected;
+                          selectedPurchaseOrders = selectedList;
                         });
 
-                        context.cubit<CreateLogisticCubit>().onValueChanged(
-                          salesOrder: selected.name,
-                          plantName: selected.plantName,
-                          shippingAddress1: selected.shippingAddress1,
-                          shippingAddress2: selected.shippingAddress2,
-                          country: selected.country,
-                          states: selected.states,
-                          city: selected.city,
-                          pinCode: selected.pincode,
-                        );
+
+                        print('selectedList....:$selectedPurchaseOrders');
+
+                        if (selectedPurchaseOrders.isNotEmpty) {
+                          context.cubit<CreateLogisticCubit>().onValueChanged(
+                            salesOrder: selectedList
+                                .map((e) => e.name)
+                                .join(', '),
+                            plantName: selectedPurchaseOrders[0].plantName,
+                            shippingAddress1:
+                                selectedPurchaseOrders[0].shippingAddress1,
+                            shippingAddress2:
+                                selectedPurchaseOrders[0].shippingAddress2,
+                            country: selectedPurchaseOrders[0].country,
+                            states: selectedPurchaseOrders[0].states,
+                            city: selectedPurchaseOrders[0].city,
+                            pinCode: selectedPurchaseOrders[0].pincode,
+                          );
+                        } else {
+                          context.cubit<CreateLogisticCubit>().onValueChanged(
+                            salesOrder: '',
+                            plantName: '',
+                            shippingAddress1: '',
+                            shippingAddress2: '',
+                            country: '',
+                            states: '',
+                            city: '',
+                            pinCode: '',
+                          );
+                        }
                       },
                       focusNode: FocusNode(),
                     );

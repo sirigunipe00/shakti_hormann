@@ -1,11 +1,11 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:dartz/dartz.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:http/http.dart' as http;
 import 'package:injectable/injectable.dart';
-import 'package:intl/intl.dart';
 import 'package:path/path.dart' as p;
 import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/features/gate_entry/data/gate_entry.repo.dart';
@@ -55,6 +55,7 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
     final response = await get(requestConfig);
     return response.process((r) => right(r.data!));
   }
+
   @override
   AsyncValueOf<List<PurchaseOrderForm>> fetchPurchaseOrders(String name) async {
     return await executeSafely(() async {
@@ -70,7 +71,10 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
           'limit': 20,
           'oreder_by': 'creat desc',
           'doctype': 'SAP Purchase Order',
-          'fields': ['*'],
+          'fields': ['*']
+          // 'filters': [
+          //   ['company', '=', user().depoName],
+          // ],
         },
         headers: {HttpHeaders.contentTypeHeader: 'application/json'},
       );
@@ -82,6 +86,7 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
       });
     });
   }
+
   @override
   AsyncValueOf<List<GateNumberForm>> fetchGateNumber(String name) async {
     return await executeSafely(() async {
@@ -110,8 +115,6 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
     });
   }
 
-  
-
   @override
   AsyncValueOf<Pair<String, String>> submitGateEntry(GateEntryForm form) async {
     return await executeSafely(() async {
@@ -134,7 +137,7 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
         vehiclebackcompressedBytes =
             await FlutterImageCompress.compressWithFile(filePath, quality: 50);
       } else if (form.vehicleBackPhoto != null) {
-        vehiclefrontcompressedBytes = await fetchAndConvertToBase64(
+        vehiclebackcompressedBytes = await fetchAndConvertToBase64(
           form.vehicleBackPhoto ?? '',
         );
       }
@@ -146,12 +149,12 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
           quality: 50,
         );
       } else if (form.invoicePhoto != null) {
-        vehiclefrontcompressedBytes = await fetchAndConvertToBase64(
+        invocecompressedBytes = await fetchAndConvertToBase64(
           form.invoicePhoto ?? '',
         );
       }
 
-
+      log('vendore invoice date repo...:${form.vendorInvoiceDate}');
 
       final config = RequestConfig(
         url: Urls.submitGateEntry,
@@ -164,13 +167,13 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
           'plant_name': form.plantName,
           'purchase_order': form.purchaseOrder,
           'invoice_amount': form.invoiceAmount,
-          
-             'vendor_invoice_date':
-              form.vendorInvoiceDate != null
-                  ? DateFormat('yyyy-MM-dd').format(
-                    DateFormat('dd-MM-yyyy').parse(form.vendorInvoiceDate!),
-                  )
-                  : null ,
+
+          'vendor_invoice_date': form.vendorInvoiceDate,
+          // form.vendorInvoiceDate != null
+          //     ? DateFormat('yyyy-MM-dd').format(
+          //       DateFormat('dd-MM-yyyy').parse(form.vendorInvoiceDate!),
+          //     )
+          //     : null ,
           'gate_entry_date': form.gateEntryDate,
           'vendor_invoice_no': form.vendorInvoiceNo,
           'vehicle_photo':
@@ -189,7 +192,7 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
           'vendor_invoice_quantity': form.invoiceQuantity,
           'remarks': form.remarks,
           'scan_irn': form.scanIrn,
-          'gate_number':form.gateNumber,
+          'gate_number': form.gateNumber,
         }),
         headers: {HttpHeaders.contentTypeHeader: 'application/json'},
       );
@@ -278,7 +281,7 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
         'vendor_invoice_quantity': form.invoiceQuantity,
         'remarks': form.remarks,
         'scan_irn': form.scanIrn,
-        'gate_number':form.gateNumber,
+        'gate_number': form.gateNumber,
       }),
       headers: {HttpHeaders.contentTypeHeader: 'application/json'},
     );

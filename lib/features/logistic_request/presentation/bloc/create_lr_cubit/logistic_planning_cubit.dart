@@ -58,6 +58,8 @@ class CreateLogisticCubit extends AppBaseCubit<CreateLogisticState> {
     shouldAskForConfirmation.value = true;
     final form = state.form;
 
+    print('shippingAddress1...:$shippingAddress1');
+
     final newForm = form.copyWith(
       plantName: plantName ?? form.plantName,
       name: name ?? form.name,
@@ -95,6 +97,8 @@ class CreateLogisticCubit extends AppBaseCubit<CreateLogisticState> {
       pincode : pinCode ?? form.pincode,
 
     );
+
+    print('shippingAddress1 11...:${newForm.shippingAddress1}');
 
     emitSafeState(state.copyWith(form: newForm));
   }

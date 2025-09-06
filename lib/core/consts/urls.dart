@@ -32,10 +32,8 @@ class Urls {
   static final submitGateEntry = '$cusWs/shaktihormann.api.submit_gate_entry';
   static final createGateExit = '$cusWs/shaktihormann.api.create_gate_exit';
   static final submitGateExit = '$cusWs/shaktihormann.api.submit_gate_exit';
-  static final createLogisticPlanning =
-      '$cusWs/shaktihormann.api.create_logistic_planning';
-  static final updateLogisticPlanning =
-      '$cusWs/shaktihormann.api.update_logistic_planning';
+  static final createLogisticPlanning = '$cusWs/shaktihormann.api.create_logistic_planning';
+  static final updateLogisticPlanning = '$cusWs/shaktihormann.api.update_logistic_planning';
   static final updateTransport='$cusWs/shaktihormann.api.update_logistic_transporter';
   static final createVehicleReporting='$cusWs/shaktihormann.api.create_vehicle_reporting';
   static final updateVehicleReporting = '$cusWs/shaktihormann.api.update_vehicle_reporting';

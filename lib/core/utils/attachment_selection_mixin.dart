@@ -6,7 +6,7 @@ import 'package:image_picker/image_picker.dart';
 mixin AttahcmentSelectionMixin {
   Future<File?> captureImage() async {
     if(Platform.isMacOS) return await selectImageFromLocal();
-    final XFile? selectedXFile = await ImagePicker().pickImage(source: ImageSource.camera, preferredCameraDevice: CameraDevice.rear);
+    final XFile? selectedXFile = await ImagePicker().pickImage(source: ImageSource.gallery, preferredCameraDevice: CameraDevice.rear);
     if (selectedXFile != null) return File(selectedXFile.path);
     return null;
   }

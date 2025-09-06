@@ -149,16 +149,18 @@ class CreateLoadingCnfmCubit extends AppBaseCubit<CreateLaodingCnfmState> {
       }
       else {
         final response = await repo.submitLoading(state.form.name ?? '');
+        // submitLoading(state.form.name ?? '');
 
         return response.fold(
           (l) => emitSafeState(state.copyWith(isLoading: false, error: l)),
           (r) {
+             final docstatus = r.second;
             shouldAskForConfirmation.value = false;
             emitSafeState(
               state.copyWith(
                 isLoading: false,
                 isSuccess: true,
-                form: state.form.copyWith(docstatus: 1),
+                form: state.form.copyWith(name: docstatus),
                 successMsg: r.first,
                 view: LoadingView.sumitted,
               ),

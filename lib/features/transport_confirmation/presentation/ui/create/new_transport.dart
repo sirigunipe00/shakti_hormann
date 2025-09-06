@@ -20,6 +20,7 @@ class NewTransportCnfm extends StatefulWidget {
 
 class _NewTransportCnfmState extends State<NewTransportCnfm> {
   SalesOrderForm? orderForm;
+  
 
   @override
   Widget build(BuildContext context) {
@@ -49,6 +50,7 @@ class _NewTransportCnfmState extends State<NewTransportCnfm> {
                     title: name ?? '',
                     status: StringUtils.docStatus(status ?? 0),
                     onSubmit: () {
+
                       context.cubit<CreateTransportCubit>().approve();
                     },
                     onReject: () {

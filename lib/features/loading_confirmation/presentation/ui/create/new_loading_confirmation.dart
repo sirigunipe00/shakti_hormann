@@ -32,6 +32,8 @@ class _NewLoadingConfirmationState extends State<NewLoadingConfirmation> {
     final status = newform.docstatus;
     final name = newform.name;
 
+    print('loadingState.form.docstatus ...:${loadingState.form.docstatus}');
+
     final isNew = loadingState.view == LoadingView.create;
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -82,6 +84,7 @@ class _NewLoadingConfirmationState extends State<NewLoadingConfirmation> {
       body: BlocListener<CreateLoadingCnfmCubit, CreateLaodingCnfmState>(
         listener: (_, state) async {
           if (state.isSuccess && state.successMsg!.isNotNull) {
+          print('state success.......:$state');
             AppDialog.showSuccessDialog(
               context,
               title: 'Success',

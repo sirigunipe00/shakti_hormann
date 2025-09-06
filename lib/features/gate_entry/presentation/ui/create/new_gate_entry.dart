@@ -23,7 +23,7 @@ class NewGateEntry extends StatefulWidget {
 }
 
 class _NewGateEntryState extends State<NewGateEntry> {
-List<PurchaseOrderForm> selectedPurchaseOrders = [];
+  List<PurchaseOrderForm> selectedPurchaseOrders = [];
   GateNumberForm? gateNumberForm;
   @override
   Widget build(BuildContext context) {
@@ -45,8 +45,15 @@ List<PurchaseOrderForm> selectedPurchaseOrders = [];
                       builder: (context, state) {
                         return AppButton(
                           borderColor: Colors.grey,
-                          bgColor: state.view == GateEntryView.create ? const Color.fromARGB(255, 250, 193, 47) : AppColors.green,
-                          textStyle: const TextStyle(color: AppColors.darkBlue,fontWeight: FontWeight.bold,fontSize: 15),
+                          bgColor:
+                              state.view == GateEntryView.create
+                                  ? const Color.fromARGB(255, 250, 193, 47)
+                                  : AppColors.green,
+                          textStyle: const TextStyle(
+                            color: AppColors.darkBlue,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15,
+                          ),
                           isLoading: state.isLoading,
                           label: state.view.toName(),
                           onPressed: () {
@@ -116,9 +123,13 @@ List<PurchaseOrderForm> selectedPurchaseOrders = [];
                             context
                                 .cubit<CreateGateEntryCubit>()
                                 .onValueChanged(
-                                  purchaseOrder: selectedList.map((e) => e.name).join(', '),
-                                  plantName: selectedPurchaseOrders[0].plantName,
-                                  gateNumber: selectedPurchaseOrders[0].gateNumber,
+                                  purchaseOrder: selectedList
+                                      .map((e) => e.name)
+                                      .join(', '),
+                                  plantName:
+                                      selectedPurchaseOrders[0].plantName,
+                                  gateNumber:
+                                      selectedPurchaseOrders[0].gateNumber,
                                 );
                           } else {
                             context
@@ -133,23 +144,18 @@ List<PurchaseOrderForm> selectedPurchaseOrders = [];
                       },
                       focusNode: FocusNode(),
                     );
-
                   },
                 ),
                 showScanner: false,
               )
               : TitleStatusAppBar(
                     title: '$name',
-
                     status: StringUtils.docStatus(status ?? 0),
                     actionButton:
                         (status == 1)
                             ? null
-                            : BlocBuilder<
-                              CreateGateEntryCubit,
-                              CreateGateEntryState
-                            >(
-                              builder: (context, state) {
+                            : BlocBuilder<CreateGateEntryCubit, CreateGateEntryState>
+                            (builder: (context, state) {
                                 return AppButton(
                                   borderColor: Colors.grey,
                                   isLoading: state.isLoading,

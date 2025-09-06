@@ -64,7 +64,7 @@ class _NewUploadPhotoWidgetState extends State<NewUploadPhotoWidget>
     try {
       final picker = ImagePicker();
       final pickedFile = await picker.pickImage(
-        source: ImageSource.camera,
+        source: ImageSource.gallery,
         imageQuality: 85,
       );
 

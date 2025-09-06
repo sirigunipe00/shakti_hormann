@@ -38,23 +38,18 @@ class TitleStatusAppBar extends StatelessWidget implements PreferredSizeWidget {
   final Color textColor;
   final DocNoAlignment alignment;
   final PageMode2 pageMode;
-
   final VoidCallback onSubmit;
   final VoidCallback onReject;
-
   final dynamic showRejectButton;
   final bool isSubmitting;
-
-  final Widget? actionButton; 
+  final Widget? actionButton;
 
   @override
   Widget build(BuildContext context) {
     final cleanedStatus = status.trim().toLowerCase();
 
     final String submitLabel =
-        pageMode == PageMode2.logisticRequest
-            ? 'Send for\nApproval'
-            : pageMode == PageMode2.transportConfirmation
+      pageMode == PageMode2.transportConfirmation
             ? 'Accept'
             : 'Submit';
 
@@ -87,8 +82,10 @@ class TitleStatusAppBar extends StatelessWidget implements PreferredSizeWidget {
             if (actionButton != null) ...[
               const SizedBox(width: 8),
               actionButton!,
-            ] else if (status != 'Submitted' && status != 'Reported' && status != 'Rejected') ...[
-              _buildDefaultButtons(cleanedStatus, submitLabel),
+            ] else if (status != 'Submitted' &&
+                status != 'Reported' &&
+                status != 'Rejected') ...[
+              _buildDefaultButtons(cleanedStatus),
             ],
           ],
         ),
@@ -115,41 +112,44 @@ class TitleStatusAppBar extends StatelessWidget implements PreferredSizeWidget {
       ),
     );
   }
-Widget _buildDefaultButtons(String cleanedStatus, String submitLabel) {
-  String? buttonLabel;
 
-  if (pageMode == PageMode2.logisticRequest && cleanedStatus != 'draft') {
-    buttonLabel = 'Send for\nApproval';
-  } else if (pageMode == PageMode2.transportConfirmation) {
-    buttonLabel = 'Approve';
-  } else if (pageMode == PageMode2.vehicleReporting) {
-    buttonLabel = 'Accept\nVehicle';
-  }
+  Widget _buildDefaultButtons(String cleanedStatus) {
+    String? buttonLabel;
 
-  return Row(
-    children: [
-      if (buttonLabel != null) ...[
-        _buildActionButton(
-          buttonLabel,
-          onSubmit,
-          status == 'submitted' ? Colors.grey : Colors.green,
-          isLoading: isSubmitting,
-        ),
-        const SizedBox(width: 8),
+    if (pageMode == PageMode2.logisticRequest && cleanedStatus != 'draft') {
+      buttonLabel = 'Send for\nApproval';
+    } else if (pageMode == PageMode2.transportConfirmation) {
+      buttonLabel = 'Approve';
+    } else if (pageMode == PageMode2.vehicleReporting) {
+      buttonLabel = 'Accept\nVehicle';
+    }
+
+    return Row(
+      children: [
+        if (buttonLabel != null) ...[
+          _buildActionButton(
+            buttonLabel,
+            onSubmit,
+            status == 'submitted' ? Colors.grey : Colors.green,
+            isLoading: isSubmitting,
+          ),
+          const SizedBox(width: 8),
+        ],
+
+        if (showRejectButton &&
+            pageMode != PageMode2.logisticRequest &&
+            pageMode != PageMode2.gateentry &&
+            pageMode != PageMode2.gateexit)
+          _buildActionButton(
+            pageMode == PageMode2.vehicleReporting
+                ? 'Reject\nVehicle'
+                : 'Reject',
+            onReject,
+            Colors.red,
+          ),
       ],
-
-      if (showRejectButton &&
-          pageMode != PageMode2.logisticRequest && 
-          pageMode != PageMode2.gateentry &&
-          pageMode != PageMode2.gateexit)
-        _buildActionButton(
-           pageMode == PageMode2.vehicleReporting
-              ? 'Reject\nVehicle'
-              : 'Reject',
-           onReject, Colors.red),
-    ],
-  );
-}
+    );
+  }
 
   Widget _buildActionButton(
     String text,

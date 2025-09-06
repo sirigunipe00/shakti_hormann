@@ -217,11 +217,23 @@ class _GateEntryFormWidgetState extends State<GateEntryFormWidget> {
                       ),
                       onSelected: (DateTime date) {
                         setState(() {
-                          context.cubit<CreateGateEntryCubit>().onValueChanged(
-                            vendorInvoiceDate: DateFormat(
-                              'dd-MM-yyyy',
-                            ).format(date),
-                          );
+                          if (formState.form.docStatus == 0) {
+                            context
+                                .cubit<CreateGateEntryCubit>()
+                                .onValueChanged(
+                                  vendorInvoiceDate: DateFormat(
+                                    'yyyy-MM-dd',
+                                  ).format(date),
+                                );
+                          } else {
+                            context
+                                .cubit<CreateGateEntryCubit>()
+                                .onValueChanged(
+                                  vendorInvoiceDate: DateFormat(
+                                    'dd-MM-yyyy',
+                                  ).format(date),
+                                );
+                          }
                         });
                       },
                       hintText: 'Select a date',

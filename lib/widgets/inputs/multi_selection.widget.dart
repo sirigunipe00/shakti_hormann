@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/features/gate_entry/model/purchase_order_form.dart';
+import 'package:shakti_hormann/features/logistic_request/model/sales_order_form.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/widgets/app_spacer.dart';
 import 'package:shakti_hormann/widgets/caption_text.dart';
@@ -93,57 +94,110 @@ class _SearchMultiDropDownListState<T>
                 final tempSelected = List<T>.from(_selectedValues);
 
                 final results = await showModalBottomSheet<List<T>>(
+                  
                   context: context,
+                  isScrollControlled: true,
                   builder: (context) {
-                    final availableItems = widget.items;
+                    List<T> availableItems = widget.items;
 
                     return StatefulBuilder(
                       builder: (context, setModalState) {
-                        return Column(
-                          children: [
-                            Expanded(
-                              child: ListView.builder(
-                                itemCount: availableItems.length,
-                                itemBuilder: (context, index) {
-                                  final item = availableItems[index];
-                                  final isSelected = tempSelected.contains(
-                                    item,
-                                  );
+                        final searchController = TextEditingController();
+                        bool isLoading = false;
 
-                                  return CheckboxListTile(
-                                    title:
-                                        widget.listItemBuilder != null
-                                            ? widget.listItemBuilder!(
-                                              context,
-                                              item,
-                                              index,
-                                              isSelected,
-                                            )
-                                            : Text(item.toString()),
-                                    value: isSelected,
-                                    onChanged: (checked) {
-                                      setModalState(() {
-                                        if (checked == true) {
-                                          tempSelected.add(item);
-                                        } else {
-                                          tempSelected.remove(item);
-                                        }
-                                      });
-                                    },
-                                  );
-                                },
+                        Future<void> onSearch(String query) async {
+                          if (query != null) {
+                            setModalState(() => isLoading = true);
+                            try {
+                              final fetched = await widget.futureRequest!(
+                                query,
+                              );
+                              setModalState(() {
+                                availableItems = fetched;
+                                isLoading = false;
+                              });
+                            } catch (_) {
+                              setModalState(() => isLoading = false);
+                            }
+                          } else {
+                            // local filter
+                            setModalState(() {
+                              availableItems =
+                                  widget.items
+                                      .where(
+                                        (e) => e
+                                            .toString()
+                                            .toLowerCase()
+                                            .contains(query.toLowerCase()),
+                                      )
+                                      .toList();
+                            });
+                          }
+                        }
+
+                        return SafeArea(
+                          child: Column(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.all(12.0),
+                                child: TextField(
+                                  controller: searchController,
+                                  decoration: InputDecoration(
+                                    hintText: "Search...",
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    prefixIcon: const Icon(Icons.search),
+                                  ),
+                                  // onChanged: (value) => onSearch(value),
+                                ),
                               ),
-                            ),
-                            ElevatedButton(
-                              onPressed: () {
-                                Navigator.pop(
-                                  context,
-                                  tempSelected,
-                                ); // ✅ only commit on Done
-                              },
-                              child: const Text('Done'),
-                            ),
-                          ],
+                              if (isLoading)
+                                const Padding(
+                                  padding: EdgeInsets.all(16.0),
+                                  child: CircularProgressIndicator(),
+                                ),
+                              Expanded(
+                                child: ListView.builder(
+                                  itemCount: availableItems.length,
+                                  itemBuilder: (context, index) {
+                                    final item = availableItems[index];
+                                    final isSelected = tempSelected.contains(
+                                      item,
+                                    );
+
+                                    return CheckboxListTile(
+                                      title:
+                                          widget.listItemBuilder != null
+                                              ? widget.listItemBuilder!(
+                                                context,
+                                                item,
+                                                index,
+                                                isSelected,
+                                              )
+                                              : Text(item.toString()),
+                                      value: isSelected,
+                                      onChanged: (checked) {
+                                        setModalState(() {
+                                          if (checked == true) {
+                                            tempSelected.add(item);
+                                          } else {
+                                            tempSelected.remove(item);
+                                          }
+                                        });
+                                      },
+                                    );
+                                  },
+                                ),
+                              ),
+                              ElevatedButton(
+                                onPressed: () {
+                                  Navigator.pop(context, tempSelected);
+                                },
+                                child: const Text('Done'),
+                              ),
+                            ],
+                          ),
                         );
                       },
                     );
@@ -173,6 +227,8 @@ class _SearchMultiDropDownListState<T>
                           _selectedValues
                               .map((e) {
                                 if (e is PurchaseOrderForm) {
+                                  return e.name ?? '';
+                                } else if (e is SalesOrderForm) {
                                   return e.name ?? '';
                                 }
                                 return e.toString();
