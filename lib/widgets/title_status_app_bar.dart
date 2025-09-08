@@ -33,6 +33,9 @@ class TitleStatusAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.isRejecting = false,
     required this.onSubmit,
     required this.onReject,
+    this.dropdown, // ✅ Added dropdown
+    this.showScanner = false, // ✅ Optional QR scanner
+    this.onScan,
   });
 
   final String title;
@@ -42,6 +45,9 @@ class TitleStatusAppBar extends StatelessWidget implements PreferredSizeWidget {
   final PageMode2 pageMode;
   final dynamic showRejectButton;
   final Widget? actionButton;
+  final Widget? dropdown; // ✅ Dropdown widget
+  final bool showScanner;
+  final VoidCallback? onScan;
 
   final bool isSubmitting;
   final bool isRejecting;
@@ -53,18 +59,17 @@ class TitleStatusAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     final cleanedStatus = status.trim().toLowerCase();
 
-    final String submitLabel =
-        pageMode == PageMode2.logisticRequest
-            ? 'Send for\nApproval'
-            : pageMode == PageMode2.transportConfirmation
-                ? 'Accept'
-                : 'Submit';
+    final String submitLabel = pageMode == PageMode2.logisticRequest
+        ? 'Send for\nApproval'
+        : pageMode == PageMode2.transportConfirmation
+            ? 'Accept'
+            : 'Submit';
 
     return Padding(
       padding: const EdgeInsets.only(top: 45.0),
       child: Container(
         width: MediaQuery.of(context).size.width,
-        height: 100,
+        constraints: const BoxConstraints(minHeight: 100),
         decoration: const BoxDecoration(
           color: AppColors.darkBlue,
           borderRadius: BorderRadius.only(
@@ -73,27 +78,63 @@ class TitleStatusAppBar extends StatelessWidget implements PreferredSizeWidget {
             topRight: Radius.circular(20.0),
           ),
         ),
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        child: Row(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            _buildBackButton(context),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                title,
-                style: AppTextStyles.titleLarge(context).copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w600,
+            /// Top Row (Back + Title + Action Button)
+            Row(
+              children: [
+                _buildBackButton(context),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    title,
+                    style: AppTextStyles.titleLarge(context).copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ),
-              ),
+                if (actionButton != null) ...[
+                  const SizedBox(width: 8),
+                  actionButton!,
+                ] else if (status != 'Submitted' &&
+                    status != 'Reported' &&
+                    status != 'Rejected') ...[
+                  _buildDefaultButtons(cleanedStatus, submitLabel),
+                ],
+              ],
             ),
-            if (actionButton != null) ...[
-              const SizedBox(width: 8),
-              actionButton!,
-            ] else if (status != 'Submitted' &&
-                status != 'Reported' &&
-                status != 'Rejected') ...[
-              _buildDefaultButtons(cleanedStatus, submitLabel),
+
+            /// Dropdown row with optional scanner (like SimpleAppBar)
+            if (dropdown != null) ...[
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(child: dropdown!), // ✅ Injected dropdown
+                  if (showScanner) ...[
+                    const SizedBox(width: 8),
+                    GestureDetector(
+                      onTap: onScan,
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 20.0),
+                        child: Container(
+                          height: 50,
+                          width: 50,
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(Icons.qr_code_scanner,
+                              color: AppColors.darkBlue),
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
             ],
           ],
         ),
@@ -119,7 +160,7 @@ class TitleStatusAppBar extends StatelessWidget implements PreferredSizeWidget {
             buttonLabel,
             onSubmit,
             status == 'submitted' ? Colors.grey : Colors.green,
-            isLoading: isSubmitting, // ✅ only submit button shows
+            isLoading: isSubmitting,
           ),
           const SizedBox(width: 8),
         ],
@@ -128,10 +169,12 @@ class TitleStatusAppBar extends StatelessWidget implements PreferredSizeWidget {
             pageMode != PageMode2.gateentry &&
             pageMode != PageMode2.gateexit)
           _buildActionButton(
-            pageMode == PageMode2.vehicleReporting ? 'Reject\nVehicle' : 'Reject',
+            pageMode == PageMode2.vehicleReporting
+                ? 'Reject\nVehicle'
+                : 'Reject',
             onReject,
             Colors.red,
-            isLoading: isRejecting, // ✅ only reject button shows
+            isLoading: isRejecting,
           ),
       ],
     );
@@ -195,8 +238,9 @@ class TitleStatusAppBar extends StatelessWidget implements PreferredSizeWidget {
   }
 
   @override
-  Size get preferredSize => const Size.fromHeight(86);
+  Size get preferredSize => const Size.fromHeight(250);
 }
+
 
 
 

@@ -26,11 +26,13 @@ class GateEntryFormWidget extends StatefulWidget {
 class _GateEntryFormWidgetState extends State<GateEntryFormWidget> {
   final ScrollController _scrollController = ScrollController();
   final _scanIrnController = TextEditingController();
+  final TextEditingController vehicleNo = TextEditingController();
+  final TextEditingController vendorInvoiceNo = TextEditingController();
+
   GateEntryForm? gateEntryForm;
   GateNumberForm? gateNumberForm;
   String scanVal = '';
 
- 
   final focusNodes = List.generate(40, (index) => FocusNode());
   // final _indianFormat = NumberFormat.decimalPattern('en_IN');
   // final _invoiceAmountController = TextEditingController();
@@ -138,6 +140,8 @@ class _GateEntryFormWidgetState extends State<GateEntryFormWidget> {
                   defaultHeight: 6,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+              
+
                     InputField(
                       readOnly: true,
                       isRequired: true,
@@ -351,7 +355,10 @@ class _GateEntryFormWidgetState extends State<GateEntryFormWidget> {
                         child: const Icon(Icons.qr_code_scanner),
                       ),
                     ),
-                   BlocBuilder<GateNumberList, GateNumberState>(
+                    BlocBuilder<GateNumberList, GateNumberState>(
+                      buildWhen: (previous, current) => previous != current,
+
+                      // return previous.runtimeType != current.runtimeType;
                       builder: (_, state) {
                         final allData = state.maybeWhen(
                           orElse: () => <GateNumberForm>[],
@@ -363,13 +370,13 @@ class _GateEntryFormWidgetState extends State<GateEntryFormWidget> {
                         return SearchDropDownList(
                           title: 'Gate Number',
                           hint: 'Search Gate Number',
-                          key: UniqueKey(),
+                          key: ValueKey(newform.gateNumber),
+                          // key: UniqueKey(),
                           color: AppColors.black,
                           items: names,
                           readOnly: isCompleted,
                           isloading: state.isLoading,
-                          defaultSelection:  
-                            names.firstWhere(
+                          defaultSelection: names.firstWhere(
                             (g) =>
                                 g.name ==
                                 context
@@ -430,14 +437,13 @@ class _GateEntryFormWidgetState extends State<GateEntryFormWidget> {
                             setState(() {
                               gateNumberForm = selected;
 
-                               context
-                                .cubit<CreateGateEntryCubit>()
-                                .onValueChanged(gateNumber: selected.name);
+                              context
+                                  .cubit<CreateGateEntryCubit>()
+                                  .onValueChanged(gateNumber: selected.name);
                             });
-                           
                           },
 
-                          focusNode:focusNodes.elementAt(3),
+                          focusNode: focusNodes.elementAt(3),
                         );
                       },
                     ),

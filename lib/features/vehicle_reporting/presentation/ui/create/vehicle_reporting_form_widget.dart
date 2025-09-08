@@ -36,6 +36,7 @@ class _VehicleReportingFormWidget extends State<VehicleReportingFormWidget> {
     final hasVehicleNo = (vehicleForm?.vehicleNumber?.isNotEmpty ?? false);
     final newform = formState.form;
    
+
     return MultiBlocListener(
       listeners: [
         BlocListener<CreateVehicleCubit, CreateVehicleState>(
@@ -176,9 +177,8 @@ class _VehicleReportingFormWidget extends State<VehicleReportingFormWidget> {
                         title: 'Arrival Date and Time',
                         hintText: 'Select Date',
                         readOnly: isCompleted,
-                        // key: UniqueKey(),
                         key: ValueKey(newform.arrivalDateAndTime),
-                        startDate: DateTime.now(),
+                        startDate: DateTime(2000), 
                         endDate: DateTime(2030),
                         initialDate: DFU.ddMMyyyyHHmmssFromStr(
                           newform.arrivalDateAndTime ?? '',
@@ -204,6 +204,7 @@ class _VehicleReportingFormWidget extends State<VehicleReportingFormWidget> {
                           );
                            },
                         fillColor: Colors.white,
+                      
                       ),
 
                       const SizedBox(height: 12),

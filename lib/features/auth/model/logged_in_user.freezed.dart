@@ -45,6 +45,8 @@ mixin _$LoggedInUser {
   String? get bithDate => throw _privateConstructorUsedError;
   @JsonKey(name: 'depo_name')
   String? get depoName => throw _privateConstructorUsedError;
+  @JsonKey(name: 'plant_name')
+  String? get plantName => throw _privateConstructorUsedError;
   @JsonKey(name: 'full_name')
   String? get fullName => throw _privateConstructorUsedError;
   String? get phone => throw _privateConstructorUsedError;
@@ -87,6 +89,7 @@ abstract class $LoggedInUserCopyWith<$Res> {
     @JsonKey(name: 'gender') String? gender,
     @JsonKey(name: 'birth_date') String? bithDate,
     @JsonKey(name: 'depo_name') String? depoName,
+    @JsonKey(name: 'plant_name') String? plantName,
     @JsonKey(name: 'full_name') String? fullName,
     String? phone,
     String? location,
@@ -124,6 +127,7 @@ class _$LoggedInUserCopyWithImpl<$Res, $Val extends LoggedInUser>
     Object? gender = freezed,
     Object? bithDate = freezed,
     Object? depoName = freezed,
+    Object? plantName = freezed,
     Object? fullName = freezed,
     Object? phone = freezed,
     Object? location = freezed,
@@ -198,6 +202,11 @@ class _$LoggedInUserCopyWithImpl<$Res, $Val extends LoggedInUser>
                     ? _value.depoName
                     : depoName // ignore: cast_nullable_to_non_nullable
                         as String?,
+            plantName:
+                freezed == plantName
+                    ? _value.plantName
+                    : plantName // ignore: cast_nullable_to_non_nullable
+                        as String?,
             fullName:
                 freezed == fullName
                     ? _value.fullName
@@ -258,6 +267,7 @@ abstract class _$$LoggedInUserImplCopyWith<$Res>
     @JsonKey(name: 'gender') String? gender,
     @JsonKey(name: 'birth_date') String? bithDate,
     @JsonKey(name: 'depo_name') String? depoName,
+    @JsonKey(name: 'plant_name') String? plantName,
     @JsonKey(name: 'full_name') String? fullName,
     String? phone,
     String? location,
@@ -294,6 +304,7 @@ class __$$LoggedInUserImplCopyWithImpl<$Res>
     Object? gender = freezed,
     Object? bithDate = freezed,
     Object? depoName = freezed,
+    Object? plantName = freezed,
     Object? fullName = freezed,
     Object? phone = freezed,
     Object? location = freezed,
@@ -368,6 +379,11 @@ class __$$LoggedInUserImplCopyWithImpl<$Res>
                 ? _value.depoName
                 : depoName // ignore: cast_nullable_to_non_nullable
                     as String?,
+        plantName:
+            freezed == plantName
+                ? _value.plantName
+                : plantName // ignore: cast_nullable_to_non_nullable
+                    as String?,
         fullName:
             freezed == fullName
                 ? _value.fullName
@@ -420,6 +436,7 @@ class _$LoggedInUserImpl extends _LoggedInUser {
     @JsonKey(name: 'gender') this.gender,
     @JsonKey(name: 'birth_date') this.bithDate,
     @JsonKey(name: 'depo_name') this.depoName,
+    @JsonKey(name: 'plant_name') this.plantName,
     @JsonKey(name: 'full_name') required this.fullName,
     this.phone,
     this.location,
@@ -469,6 +486,9 @@ class _$LoggedInUserImpl extends _LoggedInUser {
   @JsonKey(name: 'depo_name')
   final String? depoName;
   @override
+  @JsonKey(name: 'plant_name')
+  final String? plantName;
+  @override
   @JsonKey(name: 'full_name')
   final String? fullName;
   @override
@@ -486,7 +506,7 @@ class _$LoggedInUserImpl extends _LoggedInUser {
 
   @override
   String toString() {
-    return 'LoggedInUser(name: $name, username: $username, firstName: $firstName, lastName: $lastName, apiKey: $apiKey, apiSecret: $apiSecret, email: $email, password: $password, roleProfileName: $roleProfileName, userType: $userType, gender: $gender, bithDate: $bithDate, depoName: $depoName, fullName: $fullName, phone: $phone, location: $location, bio: $bio, mobileNo: $mobileNo, isOtpVerfied: $isOtpVerfied)';
+    return 'LoggedInUser(name: $name, username: $username, firstName: $firstName, lastName: $lastName, apiKey: $apiKey, apiSecret: $apiSecret, email: $email, password: $password, roleProfileName: $roleProfileName, userType: $userType, gender: $gender, bithDate: $bithDate, depoName: $depoName, plantName: $plantName, fullName: $fullName, phone: $phone, location: $location, bio: $bio, mobileNo: $mobileNo, isOtpVerfied: $isOtpVerfied)';
   }
 
   @override
@@ -516,6 +536,8 @@ class _$LoggedInUserImpl extends _LoggedInUser {
                 other.bithDate == bithDate) &&
             (identical(other.depoName, depoName) ||
                 other.depoName == depoName) &&
+            (identical(other.plantName, plantName) ||
+                other.plantName == plantName) &&
             (identical(other.fullName, fullName) ||
                 other.fullName == fullName) &&
             (identical(other.phone, phone) || other.phone == phone) &&
@@ -545,6 +567,7 @@ class _$LoggedInUserImpl extends _LoggedInUser {
     gender,
     bithDate,
     depoName,
+    plantName,
     fullName,
     phone,
     location,
@@ -584,6 +607,7 @@ abstract class _LoggedInUser extends LoggedInUser {
     @JsonKey(name: 'gender') final String? gender,
     @JsonKey(name: 'birth_date') final String? bithDate,
     @JsonKey(name: 'depo_name') final String? depoName,
+    @JsonKey(name: 'plant_name') final String? plantName,
     @JsonKey(name: 'full_name') required final String? fullName,
     final String? phone,
     final String? location,
@@ -633,6 +657,9 @@ abstract class _LoggedInUser extends LoggedInUser {
   @override
   @JsonKey(name: 'depo_name')
   String? get depoName;
+  @override
+  @JsonKey(name: 'plant_name')
+  String? get plantName;
   @override
   @JsonKey(name: 'full_name')
   String? get fullName;

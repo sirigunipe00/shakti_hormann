@@ -70,7 +70,7 @@ class _NewUploadPhotoWidgetState extends State<NewUploadPhotoWidget>
 
       if (pickedFile != null) {
         final selectedImage = File(pickedFile.path);
-        debugPrint('🖼️ Image picked from gallery: ${selectedImage.path}');
+        debugPrint('🖼️ Image picked from camera: ${selectedImage.path}');
 
         setState(() {
           _selectedImage = selectedImage;
@@ -102,14 +102,33 @@ class _NewUploadPhotoWidgetState extends State<NewUploadPhotoWidget>
       children: [
         GestureDetector(
           onTap: () {
-            if (widget.isReadOnly) return;
+            // View-only mode
+            if (widget.isReadOnly) {
+              if (_photoState == PhotoState.view) {
+                context.goToPage(
+                  ImagePreviewPage(
+                    imageUrl: widget.imageUrl,
+                    image: _selectedImage,
+                    title: widget.title.valueOrEmpty,
+                    isReadOnly: true, 
+                    onRetake: () {},  
+                    onDone: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                );
+              }
+              return;
+            }
 
+            
             if (_photoState == PhotoState.view) {
               context.goToPage(
                 ImagePreviewPage(
                   imageUrl: widget.imageUrl,
                   image: _selectedImage,
                   title: widget.title.valueOrEmpty,
+                  isReadOnly: false,
                   onRetake: () async {
                     Navigator.pop(context);
                     await _capture();
@@ -124,7 +143,7 @@ class _NewUploadPhotoWidgetState extends State<NewUploadPhotoWidget>
             }
           },
           child: Padding(
-            padding: const EdgeInsets.only(top:10),
+            padding: const EdgeInsets.only(top: 10),
             child: Container(
               height: 70,
               width: 70,
@@ -133,38 +152,37 @@ class _NewUploadPhotoWidgetState extends State<NewUploadPhotoWidget>
                 color: _getBgColor(widget.fileName),
               ),
               child: ClipOval(
-                child:
-                    _photoState == PhotoState.capture
-                        ? Padding(
-                          padding: const EdgeInsets.all(12),
-                          child: Image.asset(
-                            'assets/images/${widget.fileName}.png',
-                            fit: BoxFit.contain,
-                          ),
-                        )
-                        : (_selectedImage != null
-                            ? Image.file(_selectedImage!, fit: BoxFit.cover)
-                            : (widget.imageUrl != null
-                                ? Image.network(
-                                  getFullImageUrl(widget.imageUrl),
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) {
-                                    return Padding(
-                                      padding: const EdgeInsets.all(12),
-                                      child: Image.asset(
-                                        'assets/images/${widget.fileName}.png',
-                                        fit: BoxFit.contain,
-                                      ),
-                                    );
-                                  },
-                                )
-                                : Padding(
-                                  padding: const EdgeInsets.all(12),
-                                  child: Image.asset(
-                                    'assets/images/${widget.fileName}.png',
-                                    fit: BoxFit.contain,
-                                  ),
-                                ))),
+                child: _photoState == PhotoState.capture
+                    ? Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: Image.asset(
+                          'assets/images/${widget.fileName}.png',
+                          fit: BoxFit.contain,
+                        ),
+                      )
+                    : (_selectedImage != null
+                        ? Image.file(_selectedImage!, fit: BoxFit.cover)
+                        : (widget.imageUrl != null
+                            ? Image.network(
+                                getFullImageUrl(widget.imageUrl),
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Padding(
+                                    padding: const EdgeInsets.all(12),
+                                    child: Image.asset(
+                                      'assets/images/${widget.fileName}.png',
+                                      fit: BoxFit.contain,
+                                    ),
+                                  );
+                                },
+                              )
+                            : Padding(
+                                padding: const EdgeInsets.all(12),
+                                child: Image.asset(
+                                  'assets/images/${widget.fileName}.png',
+                                  fit: BoxFit.contain,
+                                ),
+                              ))),
               ),
             ),
           ),
@@ -184,6 +202,7 @@ class ImagePreviewPage extends StatelessWidget {
     required this.title,
     required this.onRetake,
     required this.onDone,
+    required this.isReadOnly,
   });
 
   final String title;
@@ -191,6 +210,7 @@ class ImagePreviewPage extends StatelessWidget {
   final String? imageUrl;
   final VoidCallback onRetake;
   final VoidCallback onDone;
+  final bool isReadOnly;
 
   String getFullImageUrl(String? url) {
     if (url == null || url.isEmpty) return '';
@@ -243,11 +263,10 @@ class ImagePreviewPage extends StatelessWidget {
                     return Center(
                       child: CircularProgressIndicator(
                         color: AppColors.grey,
-                        value:
-                            loadingProgress.expectedTotalBytes != null
-                                ? loadingProgress.cumulativeBytesLoaded /
-                                    loadingProgress.expectedTotalBytes!
-                                : null,
+                        value: loadingProgress.expectedTotalBytes != null
+                            ? loadingProgress.cumulativeBytesLoaded /
+                                loadingProgress.expectedTotalBytes!
+                            : null,
                       ),
                     );
                   },
@@ -260,22 +279,24 @@ class ImagePreviewPage extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             child: Row(
               children: [
-                Expanded(
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.darkBlue,
-                    ),
-                    onPressed: onRetake,
-                    child: const Text(
-                      'RETAKE',
-                      style: TextStyle(
-                        color: AppColors.white,
-                        fontWeight: FontWeight.bold,
+                if (!isReadOnly) ...[
+                  Expanded(
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.darkBlue,
+                      ),
+                      onPressed: onRetake,
+                      child: const Text(
+                        'RETAKE',
+                        style: TextStyle(
+                          color: AppColors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 12),
+                  const SizedBox(width: 12),
+                ],
                 Expanded(
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(

@@ -232,20 +232,13 @@ class _NewGateEntryState extends State<NewGateEntry> {
                 showScanner: false,
               )
               : PreferredSize(
-                preferredSize: const Size.fromHeight(80),
+                preferredSize: const Size.fromHeight(250),
                 child: BlocListener<Purchase, PurchaseState>(
                       listener: (context, pstate) {
                         pstate.maybeWhen(
                           orElse: () {},
                           success: (data) {
-                
-                            print('sate...:$data');
-                            // setState(() {
-                            //   dataorders = data;
-                
-                            // });
-                
-                            context.read<CreateGateEntryCubit>().addpurchseorders(
+                 context.read<CreateGateEntryCubit>().addpurchseorders(
                               purchaseorder: data,
                             );
                           },
@@ -274,6 +267,122 @@ class _NewGateEntryState extends State<NewGateEntry> {
                                     );
                                   },
                                 ),
+            dropdown: BlocBuilder<PurchaseOrderList, PurchaseOrderState>(
+                  builder: (_, state) {
+                    final allData = state.maybeWhen(
+                      orElse: () => <PurchaseOrderForm>[],
+                      success: (data) => data,
+                    );
+
+                    final names = allData.toList();
+                    final selectedOrders =
+                            context
+                                .watch<CreateGateEntryCubit>()
+                                .state
+                                .form
+                                .purchaseOrder ??
+                            [];
+
+                    return SearchMultiDropDownList<PurchaseOrderForm>(
+                      title: 'Purchase Order No',
+                      hint: 'Search Purchase Order',
+                      color: AppColors.white,
+                      key: UniqueKey(),
+                      items: names,
+                      readOnly: status == 1,
+                      isloading: state.isLoading,
+                      defaultSelection: names
+                                  .where(
+                                    (item) => selectedOrders.any(
+                                      (so) => so.name == item.name,
+                                    ),
+                                  )
+                                  .toList(),
+                                                 futureRequest: (query) async {
+                            if (query.isEmpty) return names;
+
+                            return names.where((item) {
+                              final orderNo = item.name?.toLowerCase() ?? '';
+                              final customer =
+                                  item.supplierName?.toLowerCase() ?? '';
+                              final search = query.toLowerCase();
+
+                              return orderNo.contains(search) ||
+                                  customer.contains(search);
+                            }).toList();
+                          },
+                      headerBuilder: (_, item, _) {
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              item.name ?? '',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.white
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+
+                      listItemBuilder:
+                          (_, item, __, ___) => Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Purchase No: ${item.name ?? ''}',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              if (item.supplierName != null)
+                                Text('Supplier Name : ${item.supplierName}'),
+                              Text(
+                                'Order Date: ${DFU.ddMMyyyyFromStr(item.orderDate ?? '')} ',
+                              ),
+                              const Divider(height: 8),
+                            ],
+                          ),
+                      onSelected: (selectedList) {
+                        setState(() {
+                          selectedPurchaseOrders = selectedList;
+                          if (selectedPurchaseOrders.isNotEmpty) {
+                            final List<PurchaseOrder> purchaseOrders =
+                                selectedList
+                                    .where(
+                                      (e) => e.name != null,
+                                    ) // filter nulls
+                                    .map(
+                                      (e) => PurchaseOrder(name: e.name),
+                                    ) // convert form -> PurchaseOrder
+                                    .toList();
+
+
+                            context
+                                .cubit<CreateGateEntryCubit>()
+                                .onValueChanged(
+                                  purchaseOrder: purchaseOrders,
+                                  plantName:
+                                      selectedPurchaseOrders[0].plantName,
+                                  gateNumber:
+                                      selectedPurchaseOrders[0].gateNumber,
+                                );
+                          } else {
+                            context
+                                .cubit<CreateGateEntryCubit>()
+                                .onValueChanged(
+                                  purchaseOrder: [],
+                                  plantName: '',
+                                  // gateNumber: '',
+                                );
+                          }
+                        });
+                      },
+                      focusNode: FocusNode(),
+                    );
+                  },
+                ),
                         onSubmit: () {},
                         onReject: () {},
                         textColor: Colors.white,

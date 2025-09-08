@@ -55,8 +55,9 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
     final response = await get(requestConfig);
     return response.process((r) => right(r.data!));
   }
+
   @override
-    AsyncValueOf<List<PurchaseOrder>> fetchPurchase(String name) async {
+  AsyncValueOf<List<PurchaseOrder>> fetchPurchase(String name) async {
     return await executeSafely(() async {
       final config = RequestConfig(
         url: Urls.getList,
@@ -68,11 +69,7 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
         },
         reqParams: {
           'filters': [
-        [
-            'parent',
-            '=',
-            name
-        ]
+            ['parent', '=', name],
           ],
           'limit': 20,
           'oreder_by': 'creat desc',
@@ -80,7 +77,7 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
           'parent': 'Gate Entry',
           'fields': ['*'],
         },
-        
+
         headers: {HttpHeaders.contentTypeHeader: 'application/json'},
       );
 
@@ -91,9 +88,27 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
       });
     });
   }
+
   @override
   AsyncValueOf<List<PurchaseOrderForm>> fetchPurchaseOrders(String name) async {
     return await executeSafely(() async {
+    
+
+      final plantName = user().plantName;
+
+      final reqParams = {
+        'limit': 20,
+        'order_by': 'creation desc',
+        'doctype': 'SAP Purchase Order',
+        'fields': ['*'],
+      };
+
+      if (plantName != null && plantName.isNotEmpty) {
+        reqParams['filters'] = [
+          ['company', '=', plantName],
+        ];
+      }
+
       final config = RequestConfig(
         url: Urls.getList,
 
@@ -102,12 +117,9 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
           final listdata = data as List<dynamic>;
           return listdata.map((e) => PurchaseOrderForm.fromJson(e)).toList();
         },
-        reqParams: {
-          'limit': 20,
-          'oreder_by': 'creat desc',
-          'doctype': 'SAP Purchase Order',
-          'fields': ['*'],
-        },
+
+        reqParams: reqParams,
+
         headers: {HttpHeaders.contentTypeHeader: 'application/json'},
       );
 
@@ -118,6 +130,7 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
       });
     });
   }
+
   @override
   AsyncValueOf<List<GateNumberForm>> fetchGateNumber(String name) async {
     return await executeSafely(() async {
@@ -145,8 +158,6 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
       });
     });
   }
-
-  
 
   @override
   AsyncValueOf<Pair<String, String>> submitGateEntry(GateEntryForm form) async {
@@ -187,8 +198,6 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
         );
       }
 
-
-
       final config = RequestConfig(
         url: Urls.submitGateEntry,
         parser: (json) {
@@ -200,13 +209,13 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
           'plant_name': form.plantName,
           'purchase_orders': form.purchaseOrder,
           'invoice_amount': form.invoiceAmount,
-          
-             'vendor_invoice_date':form.vendorInvoiceDate,
-              // form.vendorInvoiceDate != null
-              //     ? DateFormat('yyyy-MM-dd').format(
-              //       DateFormat('dd-MM-yyyy').parse(form.vendorInvoiceDate!),
-              //     )
-              //     : null ,
+
+          'vendor_invoice_date': form.vendorInvoiceDate,
+          // form.vendorInvoiceDate != null
+          //     ? DateFormat('yyyy-MM-dd').format(
+          //       DateFormat('dd-MM-yyyy').parse(form.vendorInvoiceDate!),
+          //     )
+          //     : null ,
           'gate_entry_date': form.gateEntryDate,
           'vendor_invoice_no': form.vendorInvoiceNo,
           'vehicle_photo':
@@ -225,7 +234,7 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
           'vendor_invoice_quantity': form.invoiceQuantity,
           'remarks': form.remarks,
           'scan_irn': form.scanIrn,
-          'gate_number':form.gateNumber,
+          'gate_number': form.gateNumber,
         }),
         headers: {HttpHeaders.contentTypeHeader: 'application/json'},
       );
@@ -314,7 +323,7 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
         'vendor_invoice_quantity': form.invoiceQuantity,
         'remarks': form.remarks,
         'scan_irn': form.scanIrn,
-        'gate_number':form.gateNumber,
+        'gate_number': form.gateNumber,
       }),
       headers: {HttpHeaders.contentTypeHeader: 'application/json'},
     );

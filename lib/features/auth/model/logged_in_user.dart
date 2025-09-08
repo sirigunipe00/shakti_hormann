@@ -21,6 +21,8 @@ class LoggedInUser with _$LoggedInUser {
     @JsonKey(name: 'gender') String? gender,
     @JsonKey(name: 'birth_date') String? bithDate,
     @JsonKey(name: 'depo_name') String? depoName,
+    @JsonKey(name: 'plant_name') String? plantName,
+
     @JsonKey(name: 'full_name') required String? fullName,
     String? phone,
     String? location,

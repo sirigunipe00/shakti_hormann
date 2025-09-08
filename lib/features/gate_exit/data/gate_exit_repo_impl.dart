@@ -186,6 +186,21 @@ class GateExitRepoimpl extends BaseApiRepository implements GateExitRepo {
   @override
   AsyncValueOf<List<SalesInvoiceForm>> fetchSalesInvoice(String name) async {
     return await executeSafely(() async {
+          final plantName = user().plantName;
+
+      final reqParams = {
+        'limit': 20,
+          'oreder_by': 'create desc',
+          'doctype': 'SAP Sales Invoice',
+          'fields': ['*'],
+      };
+
+      if (plantName != null && plantName.isNotEmpty) {
+        reqParams['filters'] = [
+          ['company', '=', plantName],
+        ];
+      }
+     
       final config = RequestConfig(
         url: Urls.getList,
 
@@ -194,12 +209,7 @@ class GateExitRepoimpl extends BaseApiRepository implements GateExitRepo {
           final listdata = data as List<dynamic>;
           return listdata.map((e) => SalesInvoiceForm.fromJson(e)).toList();
         },
-        reqParams: {
-          'limit': 20,
-          'oreder_by': 'create desc',
-          'doctype': 'SAP Sales Invoice',
-          'fields': ['*'],
-        },
+        reqParams:reqParams,
         headers: {HttpHeaders.contentTypeHeader: 'application/json'},
       );
       $logger.devLog('salesinvoice.....$config');

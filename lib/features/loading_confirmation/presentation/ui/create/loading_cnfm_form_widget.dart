@@ -721,7 +721,7 @@ class _ItemDialogWidgetState extends State<ItemDialogWidget> {
   final lineItem = ItemModel(
     itemCode: selectedCode,
     itemName: itemNameController.text,
-    sampleQuantity: qtyValue?.toInt(),   // ✅ now double
+    sampleQuantity: qtyValue.toInt(),   // ✅ now double
     stockUom: uomController.text,
     imageFile: photoFile,
   );

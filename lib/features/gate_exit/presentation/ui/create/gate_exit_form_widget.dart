@@ -20,6 +20,8 @@ class GateExitFormWidget extends StatefulWidget {
 class _GateExitFormWidgetState extends State<GateExitFormWidget> {
   final ScrollController _scrollController = ScrollController();
   final TextEditingController remarks = TextEditingController();
+  final TextEditingController vehicleNo = TextEditingController();
+
 
   final focusNodes = List.generate(40, (index) => FocusNode());
   @override
@@ -72,7 +74,7 @@ class _GateExitFormWidgetState extends State<GateExitFormWidget> {
                   defaultHeight: 6,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    InputField(
+                   InputField(
                       title: 'Plant Name',
                       hintText: 'Enter Plant Name',
                       readOnly: true,
@@ -102,6 +104,7 @@ class _GateExitFormWidgetState extends State<GateExitFormWidget> {
                     InputField(
                       title: 'Vehicle Number',
                       hintText: 'Enter Vehicle No',
+                      controller: vehicleNo,
                       readOnly: isCompleted,
                       isRequired: true,
                       borderColor: AppColors.grey,

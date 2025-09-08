@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
-import 'package:shakti_hormann/styles/app_icons.dart';
 
 
 enum AppSnackBarType { error, success, info}

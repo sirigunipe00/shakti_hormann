@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:shakti_hormann/core/core.dart';
+import 'package:shakti_hormann/features/logistic_request/model/sales_order_form.dart';
 import 'package:shakti_hormann/features/logistic_request/model/transporter_form.dart';
 import 'package:shakti_hormann/features/logistic_request/model/vehicle_type_form.dart';
 import 'package:shakti_hormann/features/logistic_request/presentation/bloc/bloc_provider.dart';
@@ -27,6 +28,7 @@ class __LogisticPlanningFormWidgetState
     extends State<LogisticPlanningFormWidget> {
   TransportersForm? transportersForm;
   VehicleTypeForm? vehicleTypeForm;
+  List<SalesOrderForm> orderForm = [];
   final ScrollController _scrollController = ScrollController();
   final TextEditingController remarks = TextEditingController();
   final TextEditingController city = TextEditingController();
@@ -102,7 +104,7 @@ class __LogisticPlanningFormWidgetState
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            InputField(
+                           InputField(
                               isRequired: true,
                               readOnly: true,
                               title: 'Plant Name',
@@ -138,6 +140,8 @@ class __LogisticPlanningFormWidgetState
                             const SizedBox(height: 12),
 
                             BlocBuilder<TransportersList, TransportersState>(
+                              buildWhen:
+                                  (previous, current) => previous != current,
                               builder: (_, state) {
                                 final allData = state.maybeWhen(
                                   orElse: () => <TransportersForm>[],
@@ -148,7 +152,7 @@ class __LogisticPlanningFormWidgetState
                                 final names = allData.toList();
 
                                 return SearchDropDownList(
-                                  key: UniqueKey(),
+                                  key: ValueKey(newform.transporterName),
                                   readOnly: isCompleted,
                                   color: AppColors.black,
                                   items: names,
@@ -202,6 +206,8 @@ class __LogisticPlanningFormWidgetState
 
                             const SizedBox(height: 12),
                             BlocBuilder<VehicleList, VehicleListState>(
+                              buildWhen:
+                                  (previous, current) => previous != current,
                               builder: (_, state) {
                                 final allData = state.maybeWhen(
                                   orElse: () => <VehicleTypeForm>[],
@@ -212,7 +218,7 @@ class __LogisticPlanningFormWidgetState
                                 final names = allData.toList();
 
                                 return SearchDropDownList(
-                                  key: UniqueKey(),
+                                  key: ValueKey(newform.preferredVehicleType),
                                   readOnly: isCompleted,
                                   color: AppColors.black,
                                   items: names,
@@ -287,7 +293,12 @@ class __LogisticPlanningFormWidgetState
                   side: const BorderSide(color: Color(0xFFE8ECF4), width: 1),
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.only(top: 16, left: 16, right: 16,bottom: 4),
+                  padding: const EdgeInsets.only(
+                    top: 16,
+                    left: 16,
+                    right: 16,
+                    bottom: 4,
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -330,7 +341,9 @@ class __LogisticPlanningFormWidgetState
                                   readOnly: isCompleted,
                                   isRequired: true,
                                   hintText: 'Select Time',
-                                  initialTime: formatTime(newform.requestedDeliveryTime),
+                                  initialTime: formatTime(
+                                    newform.requestedDeliveryTime,
+                                  ),
                                   onTimeChanged: (selectedTime) {
                                     context
                                         .cubit<CreateLogisticCubit>()
@@ -466,11 +479,12 @@ class __LogisticPlanningFormWidgetState
     );
   }
 }
+
 String? formatTime(String? backendTime) {
   if (backendTime == null || backendTime.isEmpty) return null;
 
   final parts = backendTime.split(':');
   if (parts.length < 2) return backendTime;
 
-  return '${parts[0]}:${parts[1]}'; 
+  return '${parts[0]}:${parts[1]}';
 }

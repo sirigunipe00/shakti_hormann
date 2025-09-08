@@ -56,6 +56,13 @@ class _SearchDropDownListState<T> extends State<SearchDropDownList<T>> {
     super.initState();
     _selectedValue = widget.defaultSelection;
   }
+  @override
+void didUpdateWidget(covariant SearchDropDownList<T> oldWidget) {
+  super.didUpdateWidget(oldWidget);
+  if (widget.defaultSelection != oldWidget.defaultSelection) {
+    _selectedValue = widget.defaultSelection;
+  }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -83,6 +90,7 @@ class _SearchDropDownListState<T> extends State<SearchDropDownList<T>> {
           AbsorbPointer(
             absorbing: widget.readOnly || widget.isloading,
             child: CustomDropdown<T>.searchRequest(
+
               hideSelectedFieldWhenExpanded: true,
               excludeSelected: false,
               closedHeaderPadding: const EdgeInsets.all(16.0),

@@ -214,6 +214,7 @@ class LogisticPlanningRepoimpl extends BaseApiRepository
 @override
   AsyncValueOf<List<SalesOrder>> fetchSales(String name) async {
     return await executeSafely(() async {
+       
       final config = RequestConfig(
         url: Urls.getList,
 
@@ -223,12 +224,14 @@ class LogisticPlanningRepoimpl extends BaseApiRepository
           return listdata.map((e) => SalesOrder.fromJson(e)).toList();
         },
         reqParams: {
-         'filters': [
+         'filters': 
+         [
         [
             'parent',
             '=',
             name
         ],
+        
          ],
           'limit': 20,
           'order_by': 'creation desc',
@@ -248,6 +251,19 @@ class LogisticPlanningRepoimpl extends BaseApiRepository
   @override
   AsyncValueOf<List<SalesOrderForm>> fetchSalesOrder(String name) async {
     return await executeSafely(() async {
+       final plantName = user().plantName;
+
+      final reqParams = {
+          'limit': 20,
+          'order_by': 'creation desc',
+          'doctype': 'SAP Sales Order',
+          'fields': ['*'],
+      };
+       if (plantName != null && plantName.isNotEmpty) {
+        reqParams['filters'] = [
+          ['company', '=', plantName],
+        ];
+      }
       final config = RequestConfig(
         url: Urls.getList,
 
@@ -256,12 +272,7 @@ class LogisticPlanningRepoimpl extends BaseApiRepository
           final listdata = data as List<dynamic>;
           return listdata.map((e) => SalesOrderForm.fromJson(e)).toList();
         },
-        reqParams: {
-          'limit': 20,
-          'order_by': 'creation desc',
-          'doctype': 'SAP Sales Order',
-          'fields': ['*'],
-        },
+        reqParams: reqParams,
         headers: {HttpHeaders.contentTypeHeader: 'application/json'},
       );
       $logger.devLog('salesinvoice.....$config');

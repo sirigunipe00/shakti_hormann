@@ -238,31 +238,31 @@ class _AppPageView2State<T extends PageViewFiltersCubit>
                       ),
                     ),
                   ),
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () => setState(() => isTodaySelected = false),
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
-                        decoration: BoxDecoration(
-                          color:
-                              !isTodaySelected
-                                  ? AppColors.darkBlue
-                                  : Colors.transparent,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        alignment: Alignment.center,
-                        child: Text(
-                          'Tomorrow',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontFamily: 'Urbanist',
-                            color:
-                                !isTodaySelected ? Colors.white : Colors.grey,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
+                  // Expanded(
+                  //   child: GestureDetector(
+                  //     onTap: () => setState(() => isTodaySelected = false),
+                  //     child: AnimatedContainer(
+                  //       duration: const Duration(milliseconds: 200),
+                  //       decoration: BoxDecoration(
+                  //         color:
+                  //             !isTodaySelected
+                  //                 ? AppColors.darkBlue
+                  //                 : Colors.transparent,
+                  //         borderRadius: BorderRadius.circular(10),
+                  //       ),
+                  //       alignment: Alignment.center,
+                  //       child: Text(
+                  //         'Tomorrow',
+                  //         style: TextStyle(
+                  //           fontWeight: FontWeight.w600,
+                  //           fontFamily: 'Urbanist',
+                  //           color:
+                  //               !isTodaySelected ? Colors.white : Colors.grey,
+                  //         ),
+                  //       ),
+                  //     ),
+                  //   ),
+                  // ),
                 ],
               ),
             ),
