@@ -19,7 +19,7 @@ _$LoggedInUserImpl _$$LoggedInUserImplFromJson(Map<String, dynamic> json) =>
       roleProfileName: json['role_profile_name'] as String? ?? '',
       userType: json['user_type'] as String?,
       gender: json['gender'] as String?,
-      bithDate: json['birth_date'] as String?,
+      birthDate: json['birth_date'] as String?,
       depoName: json['depo_name'] as String?,
       plantName: json['plant_name'] as String?,
       fullName: json['full_name'] as String?,
@@ -27,7 +27,13 @@ _$LoggedInUserImpl _$$LoggedInUserImplFromJson(Map<String, dynamic> json) =>
       location: json['location'] as String?,
       bio: json['bio'] as String?,
       mobileNo: json['mobile_no'] as String?,
-      isOtpVerfied: json['otp_verified'] as bool?,
+      isOtpVerified: json['otp_verified'] as bool?,
+      roleStatus:
+          json['role_status'] == null
+              ? null
+              : RoleStatus.fromJson(
+                json['role_status'] as Map<String, dynamic>,
+              ),
     );
 
 Map<String, dynamic> _$$LoggedInUserImplToJson(_$LoggedInUserImpl instance) =>
@@ -43,7 +49,7 @@ Map<String, dynamic> _$$LoggedInUserImplToJson(_$LoggedInUserImpl instance) =>
       'role_profile_name': instance.roleProfileName,
       'user_type': instance.userType,
       'gender': instance.gender,
-      'birth_date': instance.bithDate,
+      'birth_date': instance.birthDate,
       'depo_name': instance.depoName,
       'plant_name': instance.plantName,
       'full_name': instance.fullName,
@@ -51,5 +57,37 @@ Map<String, dynamic> _$$LoggedInUserImplToJson(_$LoggedInUserImpl instance) =>
       'location': instance.location,
       'bio': instance.bio,
       'mobile_no': instance.mobileNo,
-      'otp_verified': instance.isOtpVerfied,
+      'otp_verified': instance.isOtpVerified,
+      'role_status': instance.roleStatus,
     };
+
+_$RoleStatusImpl _$$RoleStatusImplFromJson(Map<String, dynamic> json) =>
+    _$RoleStatusImpl(
+      showDashboards: (json['Show Dashboards in Mobile App'] as num?)?.toInt(),
+      showGateEntry: (json['Show Gate Entry in Mobile App'] as num?)?.toInt(),
+      showGateExit: (json['Show Gate Exit in Mobile App'] as num?)?.toInt(),
+      showLogisticRequest:
+          (json['Show Logistic Request in Mobile App'] as num?)?.toInt(),
+      showTransporterConfirmation:
+          (json['Show Transporter Confirmation in Mobile App'] as num?)
+              ?.toInt(),
+      showVehicleReporting:
+          (json['Show Vehicle Reporting in Mobile App'] as num?)?.toInt(),
+      showLoadingConfirmation:
+          (json['Show Loading Confirmation in Mobile App'] as num?)?.toInt(),
+      showpod: (json['Show Proof of Delivery in Mobile App'] as num?)?.toInt(),
+    );
+
+Map<String, dynamic> _$$RoleStatusImplToJson(
+  _$RoleStatusImpl instance,
+) => <String, dynamic>{
+  'Show Dashboards in Mobile App': instance.showDashboards,
+  'Show Gate Entry in Mobile App': instance.showGateEntry,
+  'Show Gate Exit in Mobile App': instance.showGateExit,
+  'Show Logistic Request in Mobile App': instance.showLogisticRequest,
+  'Show Transporter Confirmation in Mobile App':
+      instance.showTransporterConfirmation,
+  'Show Vehicle Reporting in Mobile App': instance.showVehicleReporting,
+  'Show Loading Confirmation in Mobile App': instance.showLoadingConfirmation,
+  'Show Proof of Delivery in Mobile App': instance.showpod,
+};

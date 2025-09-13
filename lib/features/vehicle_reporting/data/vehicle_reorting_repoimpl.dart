@@ -30,12 +30,17 @@ class VehicleReportingRepoimpl extends BaseApiRepository
         ..add(['status', '=', docStatus])
         ..add(['docstatus', '!=', 2])
         ..add(['docstatus', '!=', 1]);
-      ;
+      
     }
 
     if (serach != null && serach.isNotEmpty) {
       filters.add(['name', 'like', '%$serach%']);
     }
+         final plantName = user().plantName;
+  if (plantName != null && plantName.isNotEmpty) {
+    filters.add(['plant_name', '=', plantName]); 
+   
+  }
     final requestConfig = RequestConfig(
       url: Urls.getList,
       parser: (json) {
@@ -117,7 +122,8 @@ class VehicleReportingRepoimpl extends BaseApiRepository
     $logger.devLog('arrtival date repo......${form.arrivalDateAndTime}');
 
     return await executeSafely(() async {
-      final date = DFU.formatArrivalDate(form.arrivalDateAndTime);
+      $logger.devLog('repodate........${form.arrivalDateAndTime}');
+    
 
       Uint8List? driverIdfrontcompressedBytes;
 
@@ -140,7 +146,7 @@ class VehicleReportingRepoimpl extends BaseApiRepository
           'plant_name': form.plantName,
           'name': form.name,
           'linked_transporter_confirmation': form.linkedTransporterConfirmation,
-          'arrival_date_and__time': date,
+          'arrival_date_and__time': form.arrivalDateAndTime,
 
           'driver_id_proof':
               driverIdfrontcompressedBytes == null
@@ -202,6 +208,15 @@ class VehicleReportingRepoimpl extends BaseApiRepository
     String name,
   ) async {
     return await executeSafely(() async {
+      final plantName = user().plantName;
+       final filters = <List<dynamic>>[];
+
+    if (plantName != null && plantName.isNotEmpty) {
+      filters.add(['plant_name', '=', plantName]);
+    }
+        filters..add(['docstatus', '=', 1])
+    ..add(['status', '=', 'Transporter Confirmed'])
+    ..add(['vehicle_reported_loaded', '=', 0]);
       final config = RequestConfig(
         url: Urls.getList,
 
@@ -213,11 +228,7 @@ class VehicleReportingRepoimpl extends BaseApiRepository
               .toList();
         },
         reqParams: {
-          'filters': jsonEncode([
-            ['docstatus', '=', 1],
-            ['status', '=', 'Transporter Confirmed'],
-            ['vehicle_reported_loaded', '=', 0],
-          ]),
+          'filters': jsonEncode(filters),
           'limit': 20,
           'order_by': 'creation desc',
           'doctype': 'Logistic Planning and Confirmation',

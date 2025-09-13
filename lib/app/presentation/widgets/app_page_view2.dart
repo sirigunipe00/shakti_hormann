@@ -14,7 +14,8 @@ enum PageMode2 {
   logisticRequest('Logistic Request'),
   transportConfirmation('Transport Confirmation'),
   vehicleReporting('Vehicle Reporting Entry'),
-  loadingConfirmation('Dispatch Loading');
+  loadingConfirmation('Dispatch Loading'),
+  proofOfDelivery('Proof Of Delivery');
 
   const PageMode2(this.name);
 
@@ -54,6 +55,7 @@ class _AppPageView2State<T extends PageViewFiltersCubit>
     PageMode2.transportConfirmation => 'Search LR',
     PageMode2.vehicleReporting => 'Search VRE',
     PageMode2.loadingConfirmation => 'Search VRE',
+    PageMode2.proofOfDelivery => 'Search POD',
   };
 
   Color get bgColor => switch (widget.mode) {
@@ -63,6 +65,7 @@ class _AppPageView2State<T extends PageViewFiltersCubit>
     PageMode2.transportConfirmation => AppColors.white,
     PageMode2.vehicleReporting => AppColors.white,
     PageMode2.loadingConfirmation => AppColors.white,
+    PageMode2.proofOfDelivery => AppColors.white,
   };
 
   @override
@@ -72,6 +75,7 @@ class _AppPageView2State<T extends PageViewFiltersCubit>
     switch (widget.mode) {
       case PageMode2.gateentry:
       case PageMode2.gateexit:
+      case PageMode2.proofOfDelivery:
         filters = ['Draft', 'Submitted', 'All'];
         break;
 
@@ -196,48 +200,49 @@ class _AppPageView2State<T extends PageViewFiltersCubit>
             ),
           ),
           const SizedBox(height: 3),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Container(
-              height: 45,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: Colors.grey.shade300),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.05),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () => setState(() => isTodaySelected = true),
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
-                        decoration: BoxDecoration(
-                          color:
-                              isTodaySelected
-                                  ? AppColors.darkBlue
-                                  : Colors.transparent,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        alignment: Alignment.center,
-                        child: Text(
-                          'Today',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontFamily: 'Urbanist',
-                            color: isTodaySelected ? Colors.white : Colors.grey,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
+          // Padding(
+          //   padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          //   child: Container(
+          //     height: 45,
+          //     decoration: BoxDecoration(
+          //       color: Colors.white,
+          //       borderRadius: BorderRadius.circular(10),
+          //       border: Border.all(color: Colors.grey.shade300),
+          //       boxShadow: [
+          //         BoxShadow(
+          //           color: Colors.black.withValues(alpha: 0.05),
+          //           blurRadius: 8,
+          //           offset: const Offset(0, 2),
+          //         ),
+          //       ],
+          //     ),
+          //     child: AppSpacer()
+              // const Row(
+              //   children: [
+                  // Expanded(
+                  //   child: GestureDetector(
+                  //     onTap: () => setState(() => isTodaySelected = true),
+                  //     child: AnimatedContainer(
+                  //       duration: const Duration(milliseconds: 200),
+                  //       decoration: BoxDecoration(
+                  //         color:
+                  //             isTodaySelected
+                  //                 ? AppColors.darkBlue
+                  //                 : Colors.transparent,
+                  //         borderRadius: BorderRadius.circular(10),
+                  //       ),
+                  //       alignment: Alignment.center,
+                  //       child: Text(
+                  //         'Today',
+                  //         style: TextStyle(
+                  //           fontWeight: FontWeight.w600,
+                  //           fontFamily: 'Urbanist',
+                  //           color: isTodaySelected ? Colors.white : Colors.grey,
+                  //         ),
+                  //       ),
+                  //     ),
+                  //   ),
+                  // ),
                   // Expanded(
                   //   child: GestureDetector(
                   //     onTap: () => setState(() => isTodaySelected = false),
@@ -263,10 +268,10 @@ class _AppPageView2State<T extends PageViewFiltersCubit>
                   //     ),
                   //   ),
                   // ),
-                ],
-              ),
-            ),
-          ),
+              //   ],
+          //     // ),
+          //   ),
+          // ),
 
           Expanded(
             child: Padding(

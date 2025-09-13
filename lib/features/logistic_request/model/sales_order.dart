@@ -7,7 +7,10 @@ part 'sales_order.g.dart';
 @freezed
 class SalesOrder with _$SalesOrder {
   const factory SalesOrder({
-    @JsonKey(name : 'sales_order') String? name
+    @JsonKey(name : 'sales_order') String? name,
+    @JsonKey(name : 'city') String? city,
+    @JsonKey(name : 'state') String? state,
+   
   }) = _SalesOrder;
 factory SalesOrder.fromJson(Map<String, dynamic> json) => _$SalesOrderFromJson(json);
 }

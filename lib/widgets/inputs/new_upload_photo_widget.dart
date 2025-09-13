@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter_svg/svg.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shakti_hormann/core/core.dart';
 import 'package:flutter/material.dart';
@@ -155,8 +156,8 @@ class _NewUploadPhotoWidgetState extends State<NewUploadPhotoWidget>
                 child: _photoState == PhotoState.capture
                     ? Padding(
                         padding: const EdgeInsets.all(12),
-                        child: Image.asset(
-                          'assets/images/${widget.fileName}.png',
+                        child: SvgPicture.asset(
+                          'assets/images/${widget.fileName}.svg',
                           fit: BoxFit.contain,
                         ),
                       )
@@ -169,8 +170,8 @@ class _NewUploadPhotoWidgetState extends State<NewUploadPhotoWidget>
                                 errorBuilder: (context, error, stackTrace) {
                                   return Padding(
                                     padding: const EdgeInsets.all(12),
-                                    child: Image.asset(
-                                      'assets/images/${widget.fileName}.png',
+                                    child: SvgPicture.asset(
+                                      'assets/images/${widget.fileName}.svg',
                                       fit: BoxFit.contain,
                                     ),
                                   );
@@ -178,8 +179,8 @@ class _NewUploadPhotoWidgetState extends State<NewUploadPhotoWidget>
                               )
                             : Padding(
                                 padding: const EdgeInsets.all(12),
-                                child: Image.asset(
-                                  'assets/images/${widget.fileName}.png',
+                                child: SvgPicture.asset(
+                                  'assets/images/${widget.fileName}.svg',
                                   fit: BoxFit.contain,
                                 ),
                               ))),
@@ -234,89 +235,56 @@ class ImagePreviewPage extends StatelessWidget {
           ),
         ),
       ),
-      body: Column(
-        children: [
-          if (image != null) ...[
-            SizedBox(
-              height: 400,
-              width: context.sizeOfWidth,
-              child: Card(
+      body: SafeArea(
+  child: Column(
+    children: [
+      Expanded(
+        child: image != null
+            ? Card(
+                margin: const EdgeInsets.all(16),
                 shape: Border.all(color: AppColors.green),
-                child: Image.file(image!, fit: BoxFit.fill),
-              ),
-            ),
-          ] else if (imageUrl.containsValidValue) ...[
-            SizedBox(
-              height: 400,
-              width: context.sizeOfWidth,
-              child: Card(
-                shape: Border.all(color: AppColors.green),
-                child: Image.network(
-                  getFullImageUrl(imageUrl),
-                  fit: BoxFit.fill,
-                  loadingBuilder: (
-                    BuildContext context,
-                    Widget child,
-                    ImageChunkEvent? loadingProgress,
-                  ) {
-                    if (loadingProgress == null) return child;
-                    return Center(
-                      child: CircularProgressIndicator(
-                        color: AppColors.grey,
-                        value: loadingProgress.expectedTotalBytes != null
-                            ? loadingProgress.cumulativeBytesLoaded /
-                                loadingProgress.expectedTotalBytes!
-                            : null,
-                      ),
-                    );
-                  },
+                child: Image.file(image!, fit: BoxFit.contain, width: double.infinity),
+              )
+            : (imageUrl.containsValidValue
+                ? Card(
+                    margin: const EdgeInsets.all(16),
+                    shape: Border.all(color: AppColors.green),
+                    child: Image.network(getFullImageUrl(imageUrl), fit: BoxFit.contain),
+                  )
+                : const SizedBox()),
+      ),
+      Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            if (!isReadOnly) ...[
+              Expanded(
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.darkBlue,
+                  ),
+                  onPressed: onRetake,
+                  child: const Text('RETAKE',style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),),
                 ),
+              ),
+              const SizedBox(width: 12),
+            ],
+            Expanded(
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.green,
+                ),
+                onPressed: onDone,
+                child: const Text('DONE',style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),),
               ),
             ),
           ],
-          const Spacer(),
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                if (!isReadOnly) ...[
-                  Expanded(
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.darkBlue,
-                      ),
-                      onPressed: onRetake,
-                      child: const Text(
-                        'RETAKE',
-                        style: TextStyle(
-                          color: AppColors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                ],
-                Expanded(
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.green,
-                    ),
-                    onPressed: onDone,
-                    child: const Text(
-                      'DONE',
-                      style: TextStyle(
-                        color: AppColors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
+        ),
       ),
+    ],
+  ),
+),
+
     );
   }
 }
@@ -329,6 +297,8 @@ Color _getBgColor(String fileName) {
       return Colors.orange.shade50;
     case 'vehicleinvoice':
       return const Color(0xFFf2eeff);
+    case 'driverid':
+       return const Color(0xFF3681F2).withValues(alpha: 0.15);
     default:
       return Colors.grey.shade200;
   }

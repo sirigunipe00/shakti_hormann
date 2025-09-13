@@ -50,14 +50,12 @@ class _StatusMenuWidgetState extends State<StatusMenuWidget>
               pageMode: widget.mode,
             );
 
-            print('selected filter...:${selected}');
             if (selected != null) {
               setState(() {
                 _selectedDuration = selected;
               });
             } 
 
-            print('widget.defaultSel---:${widget.defaultSel}');
 
             widget.onChange.call(selected ?? _selectedDuration ?? '');
           },

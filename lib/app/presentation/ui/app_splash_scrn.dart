@@ -1,5 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
+import 'package:shakti_hormann/core/app_router/app_route.dart';
+import 'package:shakti_hormann/core/di/injector.dart';
+import 'package:shakti_hormann/features/auth/model/logged_in_user.dart';
 import 'package:shakti_hormann/features/auth/presentation/ui/authentication_scrn.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
 
@@ -12,6 +18,25 @@ class AppSplashScrn extends StatefulWidget {
 }
 
 class _AppSplashScrnState extends State<AppSplashScrn> {
+
+    @override
+  void initState() {
+    super.initState();
+
+    Timer(const Duration(minutes: 15), () {
+      if(!mounted) return;
+      final loggedInUser = $sl.isRegistered<LoggedInUser>()
+          ? $sl<LoggedInUser>()
+          : null;
+
+      if (loggedInUser != null) {
+        context.go(AppRoute.home.path);
+      } else {
+
+        context.go(AppRoute.login.path);
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +57,7 @@ class _AppSplashScrnState extends State<AppSplashScrn> {
                   ),
                 ),
                 child: Image.asset(
-                  'assets/logo/doorlady-1 1.png',
+                  'assets/logo/doorlady-1 1 (1).png',
                   fit: BoxFit.contain,
                 ),
               ),
@@ -51,9 +76,9 @@ class _AppSplashScrnState extends State<AppSplashScrn> {
               const SizedBox(height: 24),
           
               SizedBox(
-                width: 220,
+                width: 320,
                 child: Image.asset(
-                  'assets/logo/shakti_logo.png',
+                  'assets/logo/hormann-logo-new-1 1-Picsart-AiImageEnhancer.jpg',
                   fit: BoxFit.contain,
                 ),
               ),

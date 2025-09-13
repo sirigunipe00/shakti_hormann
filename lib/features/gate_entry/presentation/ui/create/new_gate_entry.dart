@@ -38,7 +38,7 @@ class _NewGateEntryState extends State<NewGateEntry> {
 
     final isNew = gateEntryState.view == GateEntryView.create;
     return Scaffold(
-      resizeToAvoidBottomInset: false,
+      resizeToAvoidBottomInset: true,
       backgroundColor: AppColors.white,
       appBar:
           isNew
@@ -130,7 +130,6 @@ class _NewGateEntryState extends State<NewGateEntry> {
                                     ) // convert form -> PurchaseOrder
                                     .toList();
 
-                            print('purchaseOrders..:$purchaseOrders');
 
                             context
                                 .cubit<CreateGateEntryCubit>()

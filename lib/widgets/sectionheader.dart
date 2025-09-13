@@ -1,5 +1,6 @@
 import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class SectionHeader extends StatelessWidget {
   const SectionHeader({
@@ -18,11 +19,17 @@ class SectionHeader extends StatelessWidget {
       children: [
         Column(
           children: [
-            CircleAvatar(
-              radius: 20,
-              backgroundColor: Colors.transparent,
-              backgroundImage: AssetImage(assetIcon),
-            ),
+            // CircleAvatar(
+            //   radius: 22, 
+            //   backgroundColor: const Color(0xFF2957A4).withValues(alpha: 0.15),
+            //   child:
+               SvgPicture.asset(
+                assetIcon,
+                width: 50, 
+                height: 50,
+                fit: BoxFit.contain,
+              ),
+            // ),
             const DottedLine(
               direction: Axis.vertical,
               dashGapLength: 3,

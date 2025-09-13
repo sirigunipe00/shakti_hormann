@@ -13,14 +13,16 @@ class AppIcons {
 
   // static const bubbles = AppIcon('$imagesPath/bubbles.svg');
 
-  static const gateeEntry = AppIcon('$imagesPath/gateentry.png');
-  static const gateExit = AppIcon('$imagesPath/gateexit.png');
-  static const logisticRequest = AppIcon('$imagesPath/Logistics-pana 1.png');
+  static const gateeEntry = AppIcon('$imagesPath/gateentry.svg');
+  static const gateExit = AppIcon('$imagesPath/gateexit.svg');
+  static const logisticRequest = AppIcon('$imagesPath/Logistics-pana 1.svg');
   static const transportrterConfirmation = AppIcon(
-    '$imagesPath/transportconfirmation.png',
+    '$imagesPath/transportconfirmation.svg',
   );
-  static const vehicleReporting = AppIcon('$imagesPath/vehiclereporting.png');
-  static const loadingConfirmation = AppIcon('$imagesPath/loadingconfirmation.png');
+  static const vehicleReporting = AppIcon('$imagesPath/vehiclereportings.svg');
+  static const loadingConfirmation = AppIcon('$imagesPath/loadingconfirmation.svg');
+  static const pod = AppIcon('$imagesPath/pod.svg');
+
  
 
 }

@@ -42,7 +42,7 @@ mixin _$LoggedInUser {
   @JsonKey(name: 'gender')
   String? get gender => throw _privateConstructorUsedError;
   @JsonKey(name: 'birth_date')
-  String? get bithDate => throw _privateConstructorUsedError;
+  String? get birthDate => throw _privateConstructorUsedError;
   @JsonKey(name: 'depo_name')
   String? get depoName => throw _privateConstructorUsedError;
   @JsonKey(name: 'plant_name')
@@ -55,7 +55,9 @@ mixin _$LoggedInUser {
   @JsonKey(name: 'mobile_no')
   String? get mobileNo => throw _privateConstructorUsedError;
   @JsonKey(name: 'otp_verified')
-  bool? get isOtpVerfied => throw _privateConstructorUsedError;
+  bool? get isOtpVerified => throw _privateConstructorUsedError;
+  @JsonKey(name: 'role_status')
+  RoleStatus? get roleStatus => throw _privateConstructorUsedError;
 
   /// Serializes this LoggedInUser to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -87,7 +89,7 @@ abstract class $LoggedInUserCopyWith<$Res> {
     String? roleProfileName,
     @JsonKey(name: 'user_type') String? userType,
     @JsonKey(name: 'gender') String? gender,
-    @JsonKey(name: 'birth_date') String? bithDate,
+    @JsonKey(name: 'birth_date') String? birthDate,
     @JsonKey(name: 'depo_name') String? depoName,
     @JsonKey(name: 'plant_name') String? plantName,
     @JsonKey(name: 'full_name') String? fullName,
@@ -95,8 +97,11 @@ abstract class $LoggedInUserCopyWith<$Res> {
     String? location,
     String? bio,
     @JsonKey(name: 'mobile_no') String? mobileNo,
-    @JsonKey(name: 'otp_verified') bool? isOtpVerfied,
+    @JsonKey(name: 'otp_verified') bool? isOtpVerified,
+    @JsonKey(name: 'role_status') RoleStatus? roleStatus,
   });
+
+  $RoleStatusCopyWith<$Res>? get roleStatus;
 }
 
 /// @nodoc
@@ -125,7 +130,7 @@ class _$LoggedInUserCopyWithImpl<$Res, $Val extends LoggedInUser>
     Object? roleProfileName = freezed,
     Object? userType = freezed,
     Object? gender = freezed,
-    Object? bithDate = freezed,
+    Object? birthDate = freezed,
     Object? depoName = freezed,
     Object? plantName = freezed,
     Object? fullName = freezed,
@@ -133,7 +138,8 @@ class _$LoggedInUserCopyWithImpl<$Res, $Val extends LoggedInUser>
     Object? location = freezed,
     Object? bio = freezed,
     Object? mobileNo = freezed,
-    Object? isOtpVerfied = freezed,
+    Object? isOtpVerified = freezed,
+    Object? roleStatus = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -192,10 +198,10 @@ class _$LoggedInUserCopyWithImpl<$Res, $Val extends LoggedInUser>
                     ? _value.gender
                     : gender // ignore: cast_nullable_to_non_nullable
                         as String?,
-            bithDate:
-                freezed == bithDate
-                    ? _value.bithDate
-                    : bithDate // ignore: cast_nullable_to_non_nullable
+            birthDate:
+                freezed == birthDate
+                    ? _value.birthDate
+                    : birthDate // ignore: cast_nullable_to_non_nullable
                         as String?,
             depoName:
                 freezed == depoName
@@ -232,14 +238,33 @@ class _$LoggedInUserCopyWithImpl<$Res, $Val extends LoggedInUser>
                     ? _value.mobileNo
                     : mobileNo // ignore: cast_nullable_to_non_nullable
                         as String?,
-            isOtpVerfied:
-                freezed == isOtpVerfied
-                    ? _value.isOtpVerfied
-                    : isOtpVerfied // ignore: cast_nullable_to_non_nullable
+            isOtpVerified:
+                freezed == isOtpVerified
+                    ? _value.isOtpVerified
+                    : isOtpVerified // ignore: cast_nullable_to_non_nullable
                         as bool?,
+            roleStatus:
+                freezed == roleStatus
+                    ? _value.roleStatus
+                    : roleStatus // ignore: cast_nullable_to_non_nullable
+                        as RoleStatus?,
           )
           as $Val,
     );
+  }
+
+  /// Create a copy of LoggedInUser
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $RoleStatusCopyWith<$Res>? get roleStatus {
+    if (_value.roleStatus == null) {
+      return null;
+    }
+
+    return $RoleStatusCopyWith<$Res>(_value.roleStatus!, (value) {
+      return _then(_value.copyWith(roleStatus: value) as $Val);
+    });
   }
 }
 
@@ -265,7 +290,7 @@ abstract class _$$LoggedInUserImplCopyWith<$Res>
     String? roleProfileName,
     @JsonKey(name: 'user_type') String? userType,
     @JsonKey(name: 'gender') String? gender,
-    @JsonKey(name: 'birth_date') String? bithDate,
+    @JsonKey(name: 'birth_date') String? birthDate,
     @JsonKey(name: 'depo_name') String? depoName,
     @JsonKey(name: 'plant_name') String? plantName,
     @JsonKey(name: 'full_name') String? fullName,
@@ -273,8 +298,12 @@ abstract class _$$LoggedInUserImplCopyWith<$Res>
     String? location,
     String? bio,
     @JsonKey(name: 'mobile_no') String? mobileNo,
-    @JsonKey(name: 'otp_verified') bool? isOtpVerfied,
+    @JsonKey(name: 'otp_verified') bool? isOtpVerified,
+    @JsonKey(name: 'role_status') RoleStatus? roleStatus,
   });
+
+  @override
+  $RoleStatusCopyWith<$Res>? get roleStatus;
 }
 
 /// @nodoc
@@ -302,7 +331,7 @@ class __$$LoggedInUserImplCopyWithImpl<$Res>
     Object? roleProfileName = freezed,
     Object? userType = freezed,
     Object? gender = freezed,
-    Object? bithDate = freezed,
+    Object? birthDate = freezed,
     Object? depoName = freezed,
     Object? plantName = freezed,
     Object? fullName = freezed,
@@ -310,7 +339,8 @@ class __$$LoggedInUserImplCopyWithImpl<$Res>
     Object? location = freezed,
     Object? bio = freezed,
     Object? mobileNo = freezed,
-    Object? isOtpVerfied = freezed,
+    Object? isOtpVerified = freezed,
+    Object? roleStatus = freezed,
   }) {
     return _then(
       _$LoggedInUserImpl(
@@ -369,10 +399,10 @@ class __$$LoggedInUserImplCopyWithImpl<$Res>
                 ? _value.gender
                 : gender // ignore: cast_nullable_to_non_nullable
                     as String?,
-        bithDate:
-            freezed == bithDate
-                ? _value.bithDate
-                : bithDate // ignore: cast_nullable_to_non_nullable
+        birthDate:
+            freezed == birthDate
+                ? _value.birthDate
+                : birthDate // ignore: cast_nullable_to_non_nullable
                     as String?,
         depoName:
             freezed == depoName
@@ -409,11 +439,16 @@ class __$$LoggedInUserImplCopyWithImpl<$Res>
                 ? _value.mobileNo
                 : mobileNo // ignore: cast_nullable_to_non_nullable
                     as String?,
-        isOtpVerfied:
-            freezed == isOtpVerfied
-                ? _value.isOtpVerfied
-                : isOtpVerfied // ignore: cast_nullable_to_non_nullable
+        isOtpVerified:
+            freezed == isOtpVerified
+                ? _value.isOtpVerified
+                : isOtpVerified // ignore: cast_nullable_to_non_nullable
                     as bool?,
+        roleStatus:
+            freezed == roleStatus
+                ? _value.roleStatus
+                : roleStatus // ignore: cast_nullable_to_non_nullable
+                    as RoleStatus?,
       ),
     );
   }
@@ -434,15 +469,16 @@ class _$LoggedInUserImpl extends _LoggedInUser {
     @JsonKey(name: 'role_profile_name', defaultValue: '') this.roleProfileName,
     @JsonKey(name: 'user_type') this.userType,
     @JsonKey(name: 'gender') this.gender,
-    @JsonKey(name: 'birth_date') this.bithDate,
+    @JsonKey(name: 'birth_date') this.birthDate,
     @JsonKey(name: 'depo_name') this.depoName,
     @JsonKey(name: 'plant_name') this.plantName,
-    @JsonKey(name: 'full_name') required this.fullName,
+    @JsonKey(name: 'full_name') this.fullName,
     this.phone,
     this.location,
     this.bio,
     @JsonKey(name: 'mobile_no') this.mobileNo,
-    @JsonKey(name: 'otp_verified') this.isOtpVerfied,
+    @JsonKey(name: 'otp_verified') this.isOtpVerified,
+    @JsonKey(name: 'role_status') this.roleStatus,
   }) : super._();
 
   factory _$LoggedInUserImpl.fromJson(Map<String, dynamic> json) =>
@@ -481,7 +517,7 @@ class _$LoggedInUserImpl extends _LoggedInUser {
   final String? gender;
   @override
   @JsonKey(name: 'birth_date')
-  final String? bithDate;
+  final String? birthDate;
   @override
   @JsonKey(name: 'depo_name')
   final String? depoName;
@@ -502,11 +538,14 @@ class _$LoggedInUserImpl extends _LoggedInUser {
   final String? mobileNo;
   @override
   @JsonKey(name: 'otp_verified')
-  final bool? isOtpVerfied;
+  final bool? isOtpVerified;
+  @override
+  @JsonKey(name: 'role_status')
+  final RoleStatus? roleStatus;
 
   @override
   String toString() {
-    return 'LoggedInUser(name: $name, username: $username, firstName: $firstName, lastName: $lastName, apiKey: $apiKey, apiSecret: $apiSecret, email: $email, password: $password, roleProfileName: $roleProfileName, userType: $userType, gender: $gender, bithDate: $bithDate, depoName: $depoName, plantName: $plantName, fullName: $fullName, phone: $phone, location: $location, bio: $bio, mobileNo: $mobileNo, isOtpVerfied: $isOtpVerfied)';
+    return 'LoggedInUser(name: $name, username: $username, firstName: $firstName, lastName: $lastName, apiKey: $apiKey, apiSecret: $apiSecret, email: $email, password: $password, roleProfileName: $roleProfileName, userType: $userType, gender: $gender, birthDate: $birthDate, depoName: $depoName, plantName: $plantName, fullName: $fullName, phone: $phone, location: $location, bio: $bio, mobileNo: $mobileNo, isOtpVerified: $isOtpVerified, roleStatus: $roleStatus)';
   }
 
   @override
@@ -532,8 +571,8 @@ class _$LoggedInUserImpl extends _LoggedInUser {
             (identical(other.userType, userType) ||
                 other.userType == userType) &&
             (identical(other.gender, gender) || other.gender == gender) &&
-            (identical(other.bithDate, bithDate) ||
-                other.bithDate == bithDate) &&
+            (identical(other.birthDate, birthDate) ||
+                other.birthDate == birthDate) &&
             (identical(other.depoName, depoName) ||
                 other.depoName == depoName) &&
             (identical(other.plantName, plantName) ||
@@ -546,8 +585,10 @@ class _$LoggedInUserImpl extends _LoggedInUser {
             (identical(other.bio, bio) || other.bio == bio) &&
             (identical(other.mobileNo, mobileNo) ||
                 other.mobileNo == mobileNo) &&
-            (identical(other.isOtpVerfied, isOtpVerfied) ||
-                other.isOtpVerfied == isOtpVerfied));
+            (identical(other.isOtpVerified, isOtpVerified) ||
+                other.isOtpVerified == isOtpVerified) &&
+            (identical(other.roleStatus, roleStatus) ||
+                other.roleStatus == roleStatus));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -565,7 +606,7 @@ class _$LoggedInUserImpl extends _LoggedInUser {
     roleProfileName,
     userType,
     gender,
-    bithDate,
+    birthDate,
     depoName,
     plantName,
     fullName,
@@ -573,7 +614,8 @@ class _$LoggedInUserImpl extends _LoggedInUser {
     location,
     bio,
     mobileNo,
-    isOtpVerfied,
+    isOtpVerified,
+    roleStatus,
   ]);
 
   /// Create a copy of LoggedInUser
@@ -605,15 +647,16 @@ abstract class _LoggedInUser extends LoggedInUser {
     final String? roleProfileName,
     @JsonKey(name: 'user_type') final String? userType,
     @JsonKey(name: 'gender') final String? gender,
-    @JsonKey(name: 'birth_date') final String? bithDate,
+    @JsonKey(name: 'birth_date') final String? birthDate,
     @JsonKey(name: 'depo_name') final String? depoName,
     @JsonKey(name: 'plant_name') final String? plantName,
-    @JsonKey(name: 'full_name') required final String? fullName,
+    @JsonKey(name: 'full_name') final String? fullName,
     final String? phone,
     final String? location,
     final String? bio,
     @JsonKey(name: 'mobile_no') final String? mobileNo,
-    @JsonKey(name: 'otp_verified') final bool? isOtpVerfied,
+    @JsonKey(name: 'otp_verified') final bool? isOtpVerified,
+    @JsonKey(name: 'role_status') final RoleStatus? roleStatus,
   }) = _$LoggedInUserImpl;
   const _LoggedInUser._() : super._();
 
@@ -653,7 +696,7 @@ abstract class _LoggedInUser extends LoggedInUser {
   String? get gender;
   @override
   @JsonKey(name: 'birth_date')
-  String? get bithDate;
+  String? get birthDate;
   @override
   @JsonKey(name: 'depo_name')
   String? get depoName;
@@ -674,12 +717,399 @@ abstract class _LoggedInUser extends LoggedInUser {
   String? get mobileNo;
   @override
   @JsonKey(name: 'otp_verified')
-  bool? get isOtpVerfied;
+  bool? get isOtpVerified;
+  @override
+  @JsonKey(name: 'role_status')
+  RoleStatus? get roleStatus;
 
   /// Create a copy of LoggedInUser
   /// with the given fields replaced by the non-null parameter values.
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
   _$$LoggedInUserImplCopyWith<_$LoggedInUserImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+RoleStatus _$RoleStatusFromJson(Map<String, dynamic> json) {
+  return _RoleStatus.fromJson(json);
+}
+
+/// @nodoc
+mixin _$RoleStatus {
+  @JsonKey(name: 'Show Dashboards in Mobile App')
+  int? get showDashboards => throw _privateConstructorUsedError;
+  @JsonKey(name: 'Show Gate Entry in Mobile App')
+  int? get showGateEntry => throw _privateConstructorUsedError;
+  @JsonKey(name: 'Show Gate Exit in Mobile App')
+  int? get showGateExit => throw _privateConstructorUsedError;
+  @JsonKey(name: 'Show Logistic Request in Mobile App')
+  int? get showLogisticRequest => throw _privateConstructorUsedError;
+  @JsonKey(name: 'Show Transporter Confirmation in Mobile App')
+  int? get showTransporterConfirmation => throw _privateConstructorUsedError;
+  @JsonKey(name: 'Show Vehicle Reporting in Mobile App')
+  int? get showVehicleReporting => throw _privateConstructorUsedError;
+  @JsonKey(name: 'Show Loading Confirmation in Mobile App')
+  int? get showLoadingConfirmation => throw _privateConstructorUsedError;
+  @JsonKey(name: 'Show Proof of Delivery in Mobile App')
+  int? get showpod => throw _privateConstructorUsedError;
+
+  /// Serializes this RoleStatus to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of RoleStatus
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $RoleStatusCopyWith<RoleStatus> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $RoleStatusCopyWith<$Res> {
+  factory $RoleStatusCopyWith(
+    RoleStatus value,
+    $Res Function(RoleStatus) then,
+  ) = _$RoleStatusCopyWithImpl<$Res, RoleStatus>;
+  @useResult
+  $Res call({
+    @JsonKey(name: 'Show Dashboards in Mobile App') int? showDashboards,
+    @JsonKey(name: 'Show Gate Entry in Mobile App') int? showGateEntry,
+    @JsonKey(name: 'Show Gate Exit in Mobile App') int? showGateExit,
+    @JsonKey(name: 'Show Logistic Request in Mobile App')
+    int? showLogisticRequest,
+    @JsonKey(name: 'Show Transporter Confirmation in Mobile App')
+    int? showTransporterConfirmation,
+    @JsonKey(name: 'Show Vehicle Reporting in Mobile App')
+    int? showVehicleReporting,
+    @JsonKey(name: 'Show Loading Confirmation in Mobile App')
+    int? showLoadingConfirmation,
+    @JsonKey(name: 'Show Proof of Delivery in Mobile App') int? showpod,
+  });
+}
+
+/// @nodoc
+class _$RoleStatusCopyWithImpl<$Res, $Val extends RoleStatus>
+    implements $RoleStatusCopyWith<$Res> {
+  _$RoleStatusCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of RoleStatus
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? showDashboards = freezed,
+    Object? showGateEntry = freezed,
+    Object? showGateExit = freezed,
+    Object? showLogisticRequest = freezed,
+    Object? showTransporterConfirmation = freezed,
+    Object? showVehicleReporting = freezed,
+    Object? showLoadingConfirmation = freezed,
+    Object? showpod = freezed,
+  }) {
+    return _then(
+      _value.copyWith(
+            showDashboards:
+                freezed == showDashboards
+                    ? _value.showDashboards
+                    : showDashboards // ignore: cast_nullable_to_non_nullable
+                        as int?,
+            showGateEntry:
+                freezed == showGateEntry
+                    ? _value.showGateEntry
+                    : showGateEntry // ignore: cast_nullable_to_non_nullable
+                        as int?,
+            showGateExit:
+                freezed == showGateExit
+                    ? _value.showGateExit
+                    : showGateExit // ignore: cast_nullable_to_non_nullable
+                        as int?,
+            showLogisticRequest:
+                freezed == showLogisticRequest
+                    ? _value.showLogisticRequest
+                    : showLogisticRequest // ignore: cast_nullable_to_non_nullable
+                        as int?,
+            showTransporterConfirmation:
+                freezed == showTransporterConfirmation
+                    ? _value.showTransporterConfirmation
+                    : showTransporterConfirmation // ignore: cast_nullable_to_non_nullable
+                        as int?,
+            showVehicleReporting:
+                freezed == showVehicleReporting
+                    ? _value.showVehicleReporting
+                    : showVehicleReporting // ignore: cast_nullable_to_non_nullable
+                        as int?,
+            showLoadingConfirmation:
+                freezed == showLoadingConfirmation
+                    ? _value.showLoadingConfirmation
+                    : showLoadingConfirmation // ignore: cast_nullable_to_non_nullable
+                        as int?,
+            showpod:
+                freezed == showpod
+                    ? _value.showpod
+                    : showpod // ignore: cast_nullable_to_non_nullable
+                        as int?,
+          )
+          as $Val,
+    );
+  }
+}
+
+/// @nodoc
+abstract class _$$RoleStatusImplCopyWith<$Res>
+    implements $RoleStatusCopyWith<$Res> {
+  factory _$$RoleStatusImplCopyWith(
+    _$RoleStatusImpl value,
+    $Res Function(_$RoleStatusImpl) then,
+  ) = __$$RoleStatusImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({
+    @JsonKey(name: 'Show Dashboards in Mobile App') int? showDashboards,
+    @JsonKey(name: 'Show Gate Entry in Mobile App') int? showGateEntry,
+    @JsonKey(name: 'Show Gate Exit in Mobile App') int? showGateExit,
+    @JsonKey(name: 'Show Logistic Request in Mobile App')
+    int? showLogisticRequest,
+    @JsonKey(name: 'Show Transporter Confirmation in Mobile App')
+    int? showTransporterConfirmation,
+    @JsonKey(name: 'Show Vehicle Reporting in Mobile App')
+    int? showVehicleReporting,
+    @JsonKey(name: 'Show Loading Confirmation in Mobile App')
+    int? showLoadingConfirmation,
+    @JsonKey(name: 'Show Proof of Delivery in Mobile App') int? showpod,
+  });
+}
+
+/// @nodoc
+class __$$RoleStatusImplCopyWithImpl<$Res>
+    extends _$RoleStatusCopyWithImpl<$Res, _$RoleStatusImpl>
+    implements _$$RoleStatusImplCopyWith<$Res> {
+  __$$RoleStatusImplCopyWithImpl(
+    _$RoleStatusImpl _value,
+    $Res Function(_$RoleStatusImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of RoleStatus
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? showDashboards = freezed,
+    Object? showGateEntry = freezed,
+    Object? showGateExit = freezed,
+    Object? showLogisticRequest = freezed,
+    Object? showTransporterConfirmation = freezed,
+    Object? showVehicleReporting = freezed,
+    Object? showLoadingConfirmation = freezed,
+    Object? showpod = freezed,
+  }) {
+    return _then(
+      _$RoleStatusImpl(
+        showDashboards:
+            freezed == showDashboards
+                ? _value.showDashboards
+                : showDashboards // ignore: cast_nullable_to_non_nullable
+                    as int?,
+        showGateEntry:
+            freezed == showGateEntry
+                ? _value.showGateEntry
+                : showGateEntry // ignore: cast_nullable_to_non_nullable
+                    as int?,
+        showGateExit:
+            freezed == showGateExit
+                ? _value.showGateExit
+                : showGateExit // ignore: cast_nullable_to_non_nullable
+                    as int?,
+        showLogisticRequest:
+            freezed == showLogisticRequest
+                ? _value.showLogisticRequest
+                : showLogisticRequest // ignore: cast_nullable_to_non_nullable
+                    as int?,
+        showTransporterConfirmation:
+            freezed == showTransporterConfirmation
+                ? _value.showTransporterConfirmation
+                : showTransporterConfirmation // ignore: cast_nullable_to_non_nullable
+                    as int?,
+        showVehicleReporting:
+            freezed == showVehicleReporting
+                ? _value.showVehicleReporting
+                : showVehicleReporting // ignore: cast_nullable_to_non_nullable
+                    as int?,
+        showLoadingConfirmation:
+            freezed == showLoadingConfirmation
+                ? _value.showLoadingConfirmation
+                : showLoadingConfirmation // ignore: cast_nullable_to_non_nullable
+                    as int?,
+        showpod:
+            freezed == showpod
+                ? _value.showpod
+                : showpod // ignore: cast_nullable_to_non_nullable
+                    as int?,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$RoleStatusImpl extends _RoleStatus {
+  const _$RoleStatusImpl({
+    @JsonKey(name: 'Show Dashboards in Mobile App') this.showDashboards,
+    @JsonKey(name: 'Show Gate Entry in Mobile App') this.showGateEntry,
+    @JsonKey(name: 'Show Gate Exit in Mobile App') this.showGateExit,
+    @JsonKey(name: 'Show Logistic Request in Mobile App')
+    this.showLogisticRequest,
+    @JsonKey(name: 'Show Transporter Confirmation in Mobile App')
+    this.showTransporterConfirmation,
+    @JsonKey(name: 'Show Vehicle Reporting in Mobile App')
+    this.showVehicleReporting,
+    @JsonKey(name: 'Show Loading Confirmation in Mobile App')
+    this.showLoadingConfirmation,
+    @JsonKey(name: 'Show Proof of Delivery in Mobile App') this.showpod,
+  }) : super._();
+
+  factory _$RoleStatusImpl.fromJson(Map<String, dynamic> json) =>
+      _$$RoleStatusImplFromJson(json);
+
+  @override
+  @JsonKey(name: 'Show Dashboards in Mobile App')
+  final int? showDashboards;
+  @override
+  @JsonKey(name: 'Show Gate Entry in Mobile App')
+  final int? showGateEntry;
+  @override
+  @JsonKey(name: 'Show Gate Exit in Mobile App')
+  final int? showGateExit;
+  @override
+  @JsonKey(name: 'Show Logistic Request in Mobile App')
+  final int? showLogisticRequest;
+  @override
+  @JsonKey(name: 'Show Transporter Confirmation in Mobile App')
+  final int? showTransporterConfirmation;
+  @override
+  @JsonKey(name: 'Show Vehicle Reporting in Mobile App')
+  final int? showVehicleReporting;
+  @override
+  @JsonKey(name: 'Show Loading Confirmation in Mobile App')
+  final int? showLoadingConfirmation;
+  @override
+  @JsonKey(name: 'Show Proof of Delivery in Mobile App')
+  final int? showpod;
+
+  @override
+  String toString() {
+    return 'RoleStatus(showDashboards: $showDashboards, showGateEntry: $showGateEntry, showGateExit: $showGateExit, showLogisticRequest: $showLogisticRequest, showTransporterConfirmation: $showTransporterConfirmation, showVehicleReporting: $showVehicleReporting, showLoadingConfirmation: $showLoadingConfirmation, showpod: $showpod)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$RoleStatusImpl &&
+            (identical(other.showDashboards, showDashboards) ||
+                other.showDashboards == showDashboards) &&
+            (identical(other.showGateEntry, showGateEntry) ||
+                other.showGateEntry == showGateEntry) &&
+            (identical(other.showGateExit, showGateExit) ||
+                other.showGateExit == showGateExit) &&
+            (identical(other.showLogisticRequest, showLogisticRequest) ||
+                other.showLogisticRequest == showLogisticRequest) &&
+            (identical(
+                  other.showTransporterConfirmation,
+                  showTransporterConfirmation,
+                ) ||
+                other.showTransporterConfirmation ==
+                    showTransporterConfirmation) &&
+            (identical(other.showVehicleReporting, showVehicleReporting) ||
+                other.showVehicleReporting == showVehicleReporting) &&
+            (identical(
+                  other.showLoadingConfirmation,
+                  showLoadingConfirmation,
+                ) ||
+                other.showLoadingConfirmation == showLoadingConfirmation) &&
+            (identical(other.showpod, showpod) || other.showpod == showpod));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(
+    runtimeType,
+    showDashboards,
+    showGateEntry,
+    showGateExit,
+    showLogisticRequest,
+    showTransporterConfirmation,
+    showVehicleReporting,
+    showLoadingConfirmation,
+    showpod,
+  );
+
+  /// Create a copy of RoleStatus
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$RoleStatusImplCopyWith<_$RoleStatusImpl> get copyWith =>
+      __$$RoleStatusImplCopyWithImpl<_$RoleStatusImpl>(this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$RoleStatusImplToJson(this);
+  }
+}
+
+abstract class _RoleStatus extends RoleStatus {
+  const factory _RoleStatus({
+    @JsonKey(name: 'Show Dashboards in Mobile App') final int? showDashboards,
+    @JsonKey(name: 'Show Gate Entry in Mobile App') final int? showGateEntry,
+    @JsonKey(name: 'Show Gate Exit in Mobile App') final int? showGateExit,
+    @JsonKey(name: 'Show Logistic Request in Mobile App')
+    final int? showLogisticRequest,
+    @JsonKey(name: 'Show Transporter Confirmation in Mobile App')
+    final int? showTransporterConfirmation,
+    @JsonKey(name: 'Show Vehicle Reporting in Mobile App')
+    final int? showVehicleReporting,
+    @JsonKey(name: 'Show Loading Confirmation in Mobile App')
+    final int? showLoadingConfirmation,
+    @JsonKey(name: 'Show Proof of Delivery in Mobile App') final int? showpod,
+  }) = _$RoleStatusImpl;
+  const _RoleStatus._() : super._();
+
+  factory _RoleStatus.fromJson(Map<String, dynamic> json) =
+      _$RoleStatusImpl.fromJson;
+
+  @override
+  @JsonKey(name: 'Show Dashboards in Mobile App')
+  int? get showDashboards;
+  @override
+  @JsonKey(name: 'Show Gate Entry in Mobile App')
+  int? get showGateEntry;
+  @override
+  @JsonKey(name: 'Show Gate Exit in Mobile App')
+  int? get showGateExit;
+  @override
+  @JsonKey(name: 'Show Logistic Request in Mobile App')
+  int? get showLogisticRequest;
+  @override
+  @JsonKey(name: 'Show Transporter Confirmation in Mobile App')
+  int? get showTransporterConfirmation;
+  @override
+  @JsonKey(name: 'Show Vehicle Reporting in Mobile App')
+  int? get showVehicleReporting;
+  @override
+  @JsonKey(name: 'Show Loading Confirmation in Mobile App')
+  int? get showLoadingConfirmation;
+  @override
+  @JsonKey(name: 'Show Proof of Delivery in Mobile App')
+  int? get showpod;
+
+  /// Create a copy of RoleStatus
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$RoleStatusImplCopyWith<_$RoleStatusImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

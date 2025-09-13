@@ -1,25 +1,39 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shakti_hormann/features/auth/model/logged_in_user.dart';
 
 class AppScaffoldWidget extends StatelessWidget {
-  const AppScaffoldWidget({super.key, required this.navigationShell});
+  const AppScaffoldWidget({super.key, required this.navigationShell,required this.roleStatus});
 
   final StatefulNavigationShell navigationShell;
+  final RoleStatus? roleStatus;
+    int get dashboardStatus => roleStatus?.showDashboards == 1 ? 1 : 0;
 
-  void _goBranch(int index) {
-    navigationShell.goBranch(
-      index,
-      initialLocation: index == navigationShell.currentIndex,
-    );
+
+int getVisibleTabIndex(int branchIndex) {
+  if (dashboardStatus == 1) return branchIndex;
+  return branchIndex == 0 ? 0 : 1;
+}
+
+void _goBranch(int tabIndex) {
+  int branchIndex;
+  if (dashboardStatus == 1) {
+    branchIndex = tabIndex;
+  } else {
+    branchIndex = tabIndex == 0 ? 0 : 2; 
   }
+  navigationShell.goBranch(branchIndex);
+}
+
 
   @override
   Widget build(BuildContext context) {
     return ScaffoldWithNavigationBar(
       body: navigationShell,
-      selectedIndex: navigationShell.currentIndex,
+      selectedIndex: getVisibleTabIndex(navigationShell.currentIndex),
       onDestinationSelected: _goBranch,
+      dashboardStatus: dashboardStatus,
     );
   }
 }
@@ -30,12 +44,13 @@ class ScaffoldWithNavigationBar extends StatelessWidget {
     required this.body,
     required this.selectedIndex,
     required this.onDestinationSelected,
+    required this.dashboardStatus,
   });
 
   final Widget body;
   final int selectedIndex;
   final ValueChanged<int> onDestinationSelected;
-
+  final int dashboardStatus;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -71,6 +86,7 @@ class ScaffoldWithNavigationBar extends StatelessWidget {
                       iconPath: 'assets/images/home.png',
                       label: 'Home',
                     ),
+                    if(dashboardStatus == 1)
                     _buildDestination(
                       index: 1,
                       selectedIndex: selectedIndex,
@@ -78,7 +94,7 @@ class ScaffoldWithNavigationBar extends StatelessWidget {
                       label: 'Dashboard',
                     ),
                     _buildDestination(
-                      index: 2,
+                      index: dashboardStatus == 1 ? 2 :1,
                       selectedIndex: selectedIndex,
                       iconPath: 'assets/images/profile.png',
                       label: 'Profile',

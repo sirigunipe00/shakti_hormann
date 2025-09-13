@@ -12,7 +12,9 @@ enum PageMode2 {
   logisticRequest('Logistic Request'),
   transportConfirmation('Transport Confirmation'),
   vehicleReporting('Vehicle Reporting Entry'),
-  loadingConfirmation('Dispatch Loading');
+  loadingConfirmation('Dispatch Loading'),
+  proofOfDelivery('Proof of Delivery');
+
 
   const PageMode2(this.name);
 

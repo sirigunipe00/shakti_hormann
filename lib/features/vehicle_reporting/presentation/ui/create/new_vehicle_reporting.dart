@@ -35,7 +35,7 @@ class _NewVehicleReportingState extends State<NewVehicleReporting> {
 
     final isNew = vehicleState.view == VehicleView.create;
     return Scaffold(
-      resizeToAvoidBottomInset: false,
+      resizeToAvoidBottomInset: true,
       backgroundColor: AppColors.white,
       appBar:
           isNew
@@ -137,29 +137,134 @@ class _NewVehicleReportingState extends State<NewVehicleReporting> {
                 ),
                 showScanner: false,
               )
-             : PreferredSize(
-              preferredSize: const Size.fromHeight(86),
-               child: BlocBuilder<CreateVehicleCubit, CreateVehicleState>(
-                   builder: (context, state) {
-                     return TitleStatusAppBar(
-                       title: name ?? '',
-                       status: status ?? '',
-                       textColor: Colors.white,
-                       pageMode: PageMode2.vehicleReporting,
-                       showRejectButton: true,
-                       isSubmitting: state.isSubmitting,
-                       isRejecting: state.isRejecting,
-                       onSubmit: () {
-                         context.cubit<CreateVehicleCubit>().approve();
-                       },
-                       onReject: () {
-                         showRejectDialogs(context);
-                       },
-                     );
-                   },
-                 )
-                    // as PreferredSizeWidget,
-             ),
+              : PreferredSize(
+                preferredSize: const Size.fromHeight(200),
+                child: BlocBuilder<CreateVehicleCubit, CreateVehicleState>(
+                  builder: (context, state) {
+                    return TitleStatusAppBar(
+                      title: name ?? '',
+                      status: status ?? '',
+                      textColor: Colors.white,
+                      pageMode: PageMode2.vehicleReporting,
+                      showRejectButton: true,
+                      isSubmitting: state.isSubmitting,
+                      isRejecting: state.isRejecting,
+                      onSubmit: () {
+                        context.cubit<CreateVehicleCubit>().approve();
+                      },
+                      onReject: () {
+                        showRejectDialogs(context);
+                      },
+                      dropdown: BlocBuilder<
+                        LogisticRequest,
+                        LogisticRequestState
+                      >(
+                        builder: (_, state) {
+                          final allData = state.maybeWhen(
+                            orElse: () => <TransportConfirmationForm>[],
+                            success: (data) => data,
+                          );
+
+                          final names = allData.toList();
+                          final selectedOrders =
+                              context
+                                  .watch<CreateVehicleCubit>()
+                                  .state
+                                  .form
+                                  .linkedTransporterConfirmation ??
+                              '';
+
+                          return SearchDropDownList<TransportConfirmationForm>(
+                            title: 'Logistic Request No',
+                            hint: 'Search Logistic No',
+                            color: AppColors.white,
+                            key: UniqueKey(),
+                            defaultSelection: () {
+                              if (names.isEmpty || selectedOrders.isEmpty) {
+                                return null;
+                              }
+
+                              final selected = names.firstWhere(
+                                (item) => item.name == selectedOrders,
+                                orElse:
+                                    () => TransportConfirmationForm(
+                                      name: selectedOrders,
+                                    ),
+                              );
+
+                              return selected;
+                            }(),
+                            items: names,
+                            isloading: state.isLoading,
+                            futureRequest: (query) async {
+                              if (query.isEmpty) return names;
+
+                              return names.where((item) {
+                                final orderNo = item.name?.toLowerCase() ?? '';
+                                final customer =
+                                    item.vehicleNumber?.toLowerCase() ?? '';
+                                final transporter =
+                                    item.transporterName?.toLowerCase() ?? '';
+                                final search = query.toLowerCase();
+
+                                return orderNo.contains(search) ||
+                                    customer.contains(search) ||
+                                    transporter.contains(search);
+                              }).toList();
+                            },
+
+                            headerBuilder:
+                                (_, item, __) => Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [Text(item.name ?? '')],
+                                ),
+                            listItemBuilder:
+                                (_, item, __, ___) => Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Logistic No: ${item.name ?? ''}',
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: AppColors.black,
+                                        
+                                      ),
+                                    ),
+                                    if (item.transporterName != null)
+                                      Text(
+                                        'Transporter Name : ${item.transporterName}',
+                                      ),
+                                    Text(
+                                      'Vehicle No: ${item.vehicleNumber ?? ''}',
+                                    ),
+                                    const Divider(height: 8),
+                                  ],
+                                ),
+
+                            onSelected: (selected) {
+                              setState(() {
+                                transporterForm = selected;
+                              });
+                              context
+                                  .cubit<CreateVehicleCubit>()
+                                  .onValueChanged(
+                                    plantName: selected.plantName,
+                                    transporterName: selected.transporterName,
+                                    vehicleNo: selected.vehicleNumber,
+                                    linkedTransporterConfirmation:
+                                        selected.name,
+                                    driverContact: selected.driverContact,
+                                  );
+                            },
+                            focusNode: FocusNode(),
+                          );
+                        },
+                      ),
+                    );
+                  },
+                ),
+                // as PreferredSizeWidget,
+              ),
 
       body: BlocListener<CreateVehicleCubit, CreateVehicleState>(
         listener: (_, state) async {
@@ -187,6 +292,7 @@ class _NewVehicleReportingState extends State<NewVehicleReporting> {
                 if (!context.mounted) return;
                 context.cubit<CreateVehicleCubit>().errorHandled();
                 Navigator.pop(context, true);
+                setState(() {});
               });
             }
           }
@@ -202,6 +308,7 @@ class _NewVehicleReportingState extends State<NewVehicleReporting> {
             context.cubit<CreateVehicleCubit>().errorHandled();
           }
         },
+
         child: VehicleReportingFormWidget(key: ValueKey(status)),
       ),
     );

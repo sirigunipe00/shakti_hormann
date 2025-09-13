@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/widgets/app_spacer.dart';
@@ -44,7 +45,7 @@ class SuccessContent extends StatelessWidget {
               Stack(
                 alignment: Alignment.center,
                 children: [
-                  Image.asset(
+                  SvgPicture.asset(
                     imagePath, 
                     width: 64,
                     height: 64,
@@ -145,7 +146,7 @@ class ErrorContent extends StatelessWidget {
               Stack(
                 alignment: Alignment.center,
                 children: [
-                  Image.asset(
+                  SvgPicture.asset(
                     imagePath, 
                     width: 64,
                     height: 64,

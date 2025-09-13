@@ -117,7 +117,7 @@ Widget _infoText(String label, String? value) {
 /// Helper for photo card
 Widget _photoCard(String label, String pathOrUrl) {
   const String baseUrl = 'http://65.21.243.18:8000';
-  final String url = pathOrUrl.startsWith('http') ? pathOrUrl : "$baseUrl$pathOrUrl";
+  final String url = pathOrUrl.startsWith('http') ? pathOrUrl : '$baseUrl$pathOrUrl';
 
   return Column(
     mainAxisSize: MainAxisSize.min,

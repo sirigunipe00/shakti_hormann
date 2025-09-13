@@ -30,6 +30,12 @@ class GateExitRepoimpl extends BaseApiRepository implements GateExitRepo {
       filters.add(['name', 'like', '%$search%']);
     }
 
+        final plantName = user().plantName;
+  if (plantName != null && plantName.isNotEmpty) {
+    filters.add(['plant_name', '=', plantName]); 
+   
+  }
+
     final requestConfig = RequestConfig(
       url: Urls.getList,
       parser: (json) {

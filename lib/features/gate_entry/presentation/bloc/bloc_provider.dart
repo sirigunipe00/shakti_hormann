@@ -36,6 +36,7 @@ class GateEntryBlocProvider {
   static GateEntryBlocProvider get() => $sl.get<GateEntryBlocProvider>();
 
   GateEntriesCubit fetchGateEntries() => GateEntriesCubit(
+  
     requestInitial:
         (params, state) => repo.fetchEntries(0, params!.first, params.second),
     requestMore:

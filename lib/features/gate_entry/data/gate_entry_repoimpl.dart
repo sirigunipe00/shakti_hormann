@@ -31,7 +31,11 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
     if (search != null && search.isNotEmpty) {
       filters.add(['name', 'like', '%$search%']);
     }
-
+       final plantName = user().plantName;
+  if (plantName != null && plantName.isNotEmpty) {
+    filters.add(['plant_name', '=', plantName]); 
+   
+  }
     final requestConfig = RequestConfig(
       url: Urls.getList,
       parser: (json) {
@@ -95,19 +99,21 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
     
 
       final plantName = user().plantName;
+       final filters = <List<dynamic>>[];
+
+    if (plantName != null && plantName.isNotEmpty) {
+      filters.add(['company', '=', plantName]);
+    }
 
       final reqParams = {
-        'limit': 20,
-        'order_by': 'creation desc',
-        'doctype': 'SAP Purchase Order',
-        'fields': ['*'],
-      };
+      'limit': 20,
+      'order_by': 'creation desc',
+      'doctype': 'SAP Purchase Order',
+      'fields': jsonEncode(['*']),   
+      'filters': jsonEncode(filters), 
+    };
 
-      if (plantName != null && plantName.isNotEmpty) {
-        reqParams['filters'] = [
-          ['company', '=', plantName],
-        ];
-      }
+     
 
       final config = RequestConfig(
         url: Urls.getList,
@@ -276,7 +282,7 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
         quality: 50,
       );
     } else if (form.vehicleBackPhoto != null) {
-      vehiclefrontcompressedBytes = await fetchAndConvertToBase64(
+      vehiclebackcompressedBytes = await fetchAndConvertToBase64(
         form.vehicleBackPhoto ?? '',
       );
     }
@@ -288,7 +294,7 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
         quality: 50,
       );
     } else if (form.invoicePhoto != null) {
-      vehiclefrontcompressedBytes = await fetchAndConvertToBase64(
+      invocecompressedBytes = await fetchAndConvertToBase64(
         form.invoicePhoto ?? '',
       );
     }

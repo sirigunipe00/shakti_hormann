@@ -58,7 +58,7 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
                 padding: EdgeInsets.only(left: 16.0),
                 child: SectionHeader(
                   title: 'Logistic Planning Details',
-                  assetIcon: 'assets/images/gateexiticon.png',
+                  assetIcon: 'assets/images/gateentryicon.svg',
                 ),
               ),
               Container(
@@ -91,6 +91,7 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                         
                             InputField(
                               title: 'Plant Name',
                               hintText: 'Enter Plant Name',
@@ -148,6 +149,33 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
                               ),
                             ),
                             const SizedBox(height: 12),
+                              InputField(
+                              title: 'Transport Type',
+
+                              readOnly: true,
+
+                              borderColor: AppColors.grey,
+                              initialValue: newform.preferredVehicleType,
+
+                              onChanged:
+                                  (p0) => context
+                                      .cubit<CreateTransportCubit>()
+                                      .onValueChanged(preferredVehicleType: p0),
+                            ),
+                            const SizedBox(height: 12.0,),
+                              InputField(
+                              title: 'Dispatch Type',
+
+                              readOnly: true,
+
+                              borderColor: AppColors.grey,
+                              initialValue: newform.preferredVehicleType,
+
+                              onChanged:
+                                  (p0) => context
+                                      .cubit<CreateTransportCubit>()
+                                      .onValueChanged(preferredVehicleType: p0),
+                            ),
 
                             InputField(
                               title: 'Transporter Name',
@@ -165,7 +193,7 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
                             const SizedBox(height: 12),
 
                             InputField(
-                              title: 'Prefrred Vehicle Type',
+                              title: 'Preferred Vehicle Type',
 
                               readOnly: true,
 
@@ -190,9 +218,24 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
                 padding: EdgeInsets.only(left: 16.0),
                 child: SectionHeader(
                   title: 'Delivery Address Details',
-                  assetIcon: 'assets/images/vehicleinvoiceicon.png',
+                  assetIcon: 'assets/images/vehicleinvoicicon.svg',
                 ),
               ),
+              // Card(
+//   color: Colors.white,
+//   shape: RoundedRectangleBorder(
+//     borderRadius: BorderRadius.circular(20),
+//     side: const BorderSide(color: Color(0xFFE8ECF4), width: 1),
+//   ),
+//   child: Padding(
+//     padding: const EdgeInsets.all(8.0),
+//     child: SalesOrderTable(
+//       salesOrders: context.read<CreateLogisticCubit>().state.form.salesOrder ?? [],
+//       widthFactor: 1.2, // adjust if needed
+//     ),
+//   ),
+// ),
+
 
               Card(
                 color: Colors.white,
@@ -335,7 +378,7 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
                 padding: EdgeInsets.only(left: 16.0),
                 child: SectionHeader(
                   title: 'Remarks',
-                  assetIcon: 'assets/images/reamraksicon.png',
+                  assetIcon: 'assets/images/remarksicon.svg',
                 ),
               ),
               Padding(
@@ -372,7 +415,7 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
                 padding: EdgeInsets.only(left: 16.0),
                 child: SectionHeader(
                   title: 'Driver Details',
-                  assetIcon: 'assets/images/vehicleinvoiceicon.png',
+                  assetIcon: 'assets/images/vehicleinvoicicon.svg',
                 ),
               ),
               Container(
@@ -572,7 +615,7 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
                 padding: EdgeInsets.only(left: 16.0),
                 child: SectionHeader(
                   title: 'Transporter Remarks Details',
-                  assetIcon: 'assets/images/reamraksicon.png',
+                  assetIcon: 'assets/images/remarksicon.svg',
                 ),
               ),
               Padding(

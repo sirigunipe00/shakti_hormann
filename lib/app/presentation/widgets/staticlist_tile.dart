@@ -13,6 +13,7 @@ mixin StatusModeSelectionMixin {
     switch (pageMode) {
       case PageMode2.gateentry:
       case PageMode2.gateexit:
+      case PageMode2.proofOfDelivery:
       
         filters = ['Draft', 'Submitted', 'All'];
         break;

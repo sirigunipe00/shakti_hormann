@@ -1,7 +1,7 @@
 import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/material.dart';
 import 'package:shakti_hormann/core/utils/date_format_util.dart';
-import 'package:shakti_hormann/doc_status_widget.dart';
+import 'package:shakti_hormann/widgets/doc_status_widget.dart';
 import 'package:shakti_hormann/features/loading_confirmation/model/loading_cnfm.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/styles/app_text_styles.dart';

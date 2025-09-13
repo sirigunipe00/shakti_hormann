@@ -180,7 +180,7 @@ class LogisticRequestWidget extends StatelessWidget {
                                     ),
 
                                     child: Text(
-                                      "${po.name}, ",
+                                      '${po.name} ,',
                                       style: const TextStyle(
                                         color: Color(0xFF2957A4),
                                         fontWeight: FontWeight.bold,

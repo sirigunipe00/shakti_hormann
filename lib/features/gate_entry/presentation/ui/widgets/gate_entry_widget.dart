@@ -2,7 +2,7 @@ import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shakti_hormann/core/core.dart';
-import 'package:shakti_hormann/doc_status_widget.dart';
+import 'package:shakti_hormann/widgets/doc_status_widget.dart';
 import 'package:shakti_hormann/features/gate_entry/model/gate_entry_form.dart';
 import 'package:shakti_hormann/features/gate_entry/model/purchase_order_form.dart';
 import 'package:shakti_hormann/features/gate_entry/presentation/bloc/bloc_provider.dart';
@@ -201,7 +201,7 @@ class GateEntryWidget extends StatelessWidget {
                                     ),
 
                                     child: Text(
-                                      "${po.name}, ",
+                                      '${po.name}, ',
                                       style: const TextStyle(
                                         color: Color(0xFF2957A4),
                                         fontWeight: FontWeight.bold,

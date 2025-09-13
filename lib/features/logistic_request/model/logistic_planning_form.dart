@@ -16,6 +16,8 @@ class LogisticPlanningForm with _$LogisticPlanningForm {
     @JsonKey(name: 'idx') int? idx,
     @JsonKey(name: 'amended_from') String? amendedFrom,
     @JsonKey(name: 'plant_name') String? plantName,
+    @JsonKey(name: 'transport_type') String? transporterType,
+    @JsonKey(name: 'dispatch_type') String? dispatchType,
     @JsonKey(name: 'sales_orders') List<SalesOrder>? salesOrder,
     @JsonKey(name: 'transporter_name') String? transporterName,
     @JsonKey(name: 'preferred_vehicle_type') String? preferredVehicleType,

@@ -19,6 +19,15 @@ abstract class Dropdownoptions {
     
    
   ];
+  static const List<String> transporterType =[
+   'Client/Dealer',
+   'Hormann'
+  ];
+
+  static const List<String> dispatchType =[
+   'Single Point',
+   'Milky Run/2 Point Delivery'
+  ];
   static const  List<String> indianStates = [
   'Andhra Pradesh',
   'Arunachal Pradesh',

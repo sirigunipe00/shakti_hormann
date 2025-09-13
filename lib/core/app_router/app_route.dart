@@ -20,6 +20,8 @@ abstract class _AppRoutePaths {
   static const newVehiclereporting='/home/vehiclereporting/newvehiclereporting';
   static const loadingConfirmation='/home/loadingConfirmation';
   static const newloadingConfirmation='/home/loadingConfirmation/newLoadingConfirmation';
+  static const proofOfDelivery ='/home/proofOfDelivery';
+  static const newproofOfDelivery='/home/proofOfDelivery/newproofOfDelivery';
 }
 
 enum AppRoute {
@@ -35,12 +37,15 @@ enum AppRoute {
   newLoadingConfirmation(_AppRoutePaths.newloadingConfirmation),
   newTarnsportCnfrm(_AppRoutePaths.newTarnsportCnfrm),
   newVehiclereporting(_AppRoutePaths.newVehiclereporting),
+  newproofOfDelivery(_AppRoutePaths.newproofOfDelivery),
   account(_AppRoutePaths.account),
   logisticRequest(_AppRoutePaths.logisticRequest),
   transportConfirmation(_AppRoutePaths.transportConfirmation),
   vehcileReporting(_AppRoutePaths.vehcileReporting),
   loadingConfirmation(_AppRoutePaths.loadingConfirmation),
+  proofOfDelivery(_AppRoutePaths.proofOfDelivery),
   notifications(_AppRoutePaths.notifications);
+
   
 
   const AppRoute(this.path);

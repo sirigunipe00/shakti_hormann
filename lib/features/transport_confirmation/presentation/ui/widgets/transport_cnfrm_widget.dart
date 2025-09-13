@@ -158,17 +158,19 @@ class TransportCnfrmWidget extends StatelessWidget {
            
 
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.start,
+              // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text(
-                  transport.name ?? '',
-                  style:const TextStyle(
-                    color: Color(0xFF2957A4),
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15,
-                  ),
-                ),
+                const Spacer(),
+
+                // Text(
+                //   transport.name ?? '',
+                //   style:const TextStyle(
+                //     color: Color(0xFF2957A4),
+                //     fontWeight: FontWeight.bold,
+                //     fontSize: 15,
+                //   ),
+                // ),
                    Text(
                     transport.docstatus == 2 ? 'Cancelled' :
                   transport.status ?? '',

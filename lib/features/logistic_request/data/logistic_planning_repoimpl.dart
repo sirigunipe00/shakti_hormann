@@ -33,7 +33,11 @@ class LogisticPlanningRepoimpl extends BaseApiRepository
     if (serach != null && serach.isNotEmpty) {
       filters.add(['name', 'like', '%$serach%']);
     }
-
+       final plantName = user().plantName;
+  if (plantName != null && plantName.isNotEmpty) {
+    filters.add(['plant_name', '=', plantName]); 
+   
+  }
     final requestConfig = RequestConfig(
       url: Urls.getList,
       parser: (json) {
@@ -104,6 +108,8 @@ class LogisticPlanningRepoimpl extends BaseApiRepository
           'requested_delivery_time': formattedTime,
           'any_special_instructions': form.anySpecialInstructions,
           'delivery_address': form.deliveryAddress,
+          'transport_type': form.transporterType,
+          'dispatch_type' : form.dispatchType,
           'status': form.status,
           'logistics_request_date': formattedLogisticsRequestDate,
           'delivery_address_1': form.shippingAddress1,
@@ -163,6 +169,8 @@ class LogisticPlanningRepoimpl extends BaseApiRepository
           'requested_delivery_time': formattedTime,
           'any_special_instructions': form.anySpecialInstructions,
           'delivery_address': form.deliveryAddress,
+          'transport_type': form.transporterType,
+          'dispatch_type' : form.dispatchType,
           'status': form.status,
           'logistics_request_date': formattedLogisticsRequestDate,
           'delivery_address_1': form.shippingAddress1,
@@ -219,6 +227,12 @@ class LogisticPlanningRepoimpl extends BaseApiRepository
         url: Urls.getList,
 
         parser: (json) {
+
+
+          $logger.devLog('repojson...----$json');
+
+
+
           final data = json['message'];
           final listdata = data as List<dynamic>;
           return listdata.map((e) => SalesOrder.fromJson(e)).toList();
@@ -241,8 +255,8 @@ class LogisticPlanningRepoimpl extends BaseApiRepository
         },
         headers: {HttpHeaders.contentTypeHeader: 'application/json'},
       );
-      $logger.devLog('sales order.....$config');
       final response = await get(config);
+      $logger.devLog('reposales........$response');
       return response.processAsync((r) async {
         return right((r.data!));
       });
@@ -251,19 +265,20 @@ class LogisticPlanningRepoimpl extends BaseApiRepository
   @override
   AsyncValueOf<List<SalesOrderForm>> fetchSalesOrder(String name) async {
     return await executeSafely(() async {
+      final filters = <List<dynamic>>[];
        final plantName = user().plantName;
+       if (plantName != null && plantName.isNotEmpty) {
+      filters.add(['company', '=', plantName]);
+    }
 
       final reqParams = {
           'limit': 20,
           'order_by': 'creation desc',
           'doctype': 'SAP Sales Order',
           'fields': ['*'],
+          'filters': jsonEncode(filters),
       };
-       if (plantName != null && plantName.isNotEmpty) {
-        reqParams['filters'] = [
-          ['company', '=', plantName],
-        ];
-      }
+      
       final config = RequestConfig(
         url: Urls.getList,
 

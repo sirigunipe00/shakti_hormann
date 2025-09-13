@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:shakti_hormann/app_bar.dart';
+import 'package:shakti_hormann/widgets/app_bar.dart';
 import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/features/auth/presentation/bloc/auth/auth_cubit.dart';
 import 'package:shakti_hormann/features/auth/presentation/ui/sign_in/sign_in_cubit.dart';
-import 'package:shakti_hormann/forgot_password.dart';
+import 'package:shakti_hormann/widgets/forgot_password.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/widgets/buttons/app_btn.dart';
 import 'package:shakti_hormann/widgets/dailogs/app_dialogs.dart';
@@ -68,7 +68,7 @@ class _LoginScrnWidgetState extends State<LoginScrnWidget> {
 
                   AppTextField(
                     title: 'Email',
-                    hintText: 'Enter your email',
+                    hintText: 'Enter Your Email',
                     prefixIcon: Padding(
                       padding: const EdgeInsets.all(12.0),
                       child: SvgPicture.asset(
@@ -86,7 +86,7 @@ class _LoginScrnWidgetState extends State<LoginScrnWidget> {
                   AppTextField(
                     obscureText: _obscureText,
                     title: 'Password',
-                    hintText: 'Enter your password',
+                    hintText: 'Enter Your Password',
                     controller: pswd,
                     prefixIcon: const Icon(Icons.lock_outline),
                     suffixIcon: GestureDetector(
@@ -114,14 +114,15 @@ class _LoginScrnWidgetState extends State<LoginScrnWidget> {
                           ),
                         );
                       },
-                      child: const Text(
-                        'Forgot Password?',
-                        style: TextStyle(
-                          color: Color(0xFF0095FF),
-                          fontWeight: FontWeight.w600,
-                          fontFamily: 'Urbanist',
-                        ),
-                      ),
+                      child: SizedBox()
+                      // const Text(
+                      //   'Forgot Password?',
+                      //   style: TextStyle(
+                      //     color: Color(0xFF0095FF),
+                      //     fontWeight: FontWeight.w600,
+                      //     fontFamily: 'Urbanist',
+                      //   ),
+                      // ),
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -171,8 +172,8 @@ class _LoginScrnWidgetState extends State<LoginScrnWidget> {
                   Center(
                     child: Column(
                       children: [
-                        Image.asset(
-                          'assets/logo/easycloud 245x132 1.png',
+                        SvgPicture.asset(
+                          'assets/logo/EasyCloud Logo 150 x 80.svg',
                           width: 78,
                           height: 40,
                           fit: BoxFit.fitWidth,

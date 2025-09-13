@@ -94,11 +94,26 @@ class CreateLoadingCnfmCubit extends AppBaseCubit<CreateLaodingCnfmState> {
     // log('lshjafdjshf:${stat.listitems}');
     emitSafeState(stat);
   }
- void updateItem(int index, ItemModel updatedItem) {
+void updateItem(int index, ItemModel updatedItem) {
   final currentItems = List<ItemModel>.from(state.listitems);
-  currentItems[index] = updatedItem;
-  emitSafeState(state.copyWith(listitems: currentItems, view: LoadingView.edit));
+  final oldItem = currentItems[index];
+
+  final mergedItem = updatedItem.copyWith(
+  loadedItemPhoto: updatedItem.loadedItemPhoto?.isNotEmpty == true
+      ? updatedItem.loadedItemPhoto
+      : oldItem.loadedItemPhoto,
+  imageFile: updatedItem.imageFile ?? oldItem.imageFile,
+);
+
+
+  currentItems[index] = mergedItem;
+
+  emitSafeState(state.copyWith(
+    listitems: currentItems,
+    view: LoadingView.edit,
+  ));
 }
+
 
 
   void save() async {

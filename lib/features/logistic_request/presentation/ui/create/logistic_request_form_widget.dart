@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:shakti_hormann/app/presentation/widgets/drop_down_optn.dart';
 import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/features/logistic_request/model/sales_order_form.dart';
 import 'package:shakti_hormann/features/logistic_request/model/transporter_form.dart';
 import 'package:shakti_hormann/features/logistic_request/model/vehicle_type_form.dart';
 import 'package:shakti_hormann/features/logistic_request/presentation/bloc/bloc_provider.dart';
 import 'package:shakti_hormann/features/logistic_request/presentation/bloc/create_lr_cubit/logistic_planning_cubit.dart';
+import 'package:shakti_hormann/features/logistic_request/presentation/ui/create/salesorder.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/widgets/input_filed.dart';
 import 'package:shakti_hormann/widgets/inputs/compact_listtile.dart';
@@ -17,7 +19,8 @@ import 'package:shakti_hormann/widgets/sectionheader.dart';
 import 'package:shakti_hormann/widgets/spaced_column.dart';
 
 class LogisticPlanningFormWidget extends StatefulWidget {
-  const LogisticPlanningFormWidget({super.key});
+  const LogisticPlanningFormWidget({super.key, required this.orderForm});
+  final List<SalesOrderForm> orderForm;
 
   @override
   State<LogisticPlanningFormWidget> createState() =>
@@ -28,7 +31,6 @@ class __LogisticPlanningFormWidgetState
     extends State<LogisticPlanningFormWidget> {
   TransportersForm? transportersForm;
   VehicleTypeForm? vehicleTypeForm;
-  List<SalesOrderForm> orderForm = [];
   final ScrollController _scrollController = ScrollController();
   final TextEditingController remarks = TextEditingController();
   final TextEditingController city = TextEditingController();
@@ -45,6 +47,10 @@ class __LogisticPlanningFormWidgetState
             formState.form.status == 'Pending From Transporter');
 
     final newform = formState.form;
+
+    final salesOrders = newform.salesOrder ?? [];
+
+    $logger.devLog('oredrform.....$salesOrders');
 
     return MultiBlocListener(
       listeners: [
@@ -71,7 +77,7 @@ class __LogisticPlanningFormWidgetState
                 padding: EdgeInsets.only(left: 16.0),
                 child: SectionHeader(
                   title: 'Logistic Request Details',
-                  assetIcon: 'assets/images/gateentryicon.png',
+                  assetIcon: 'assets/images/gateentryicon.svg',
                 ),
               ),
               Container(
@@ -104,7 +110,7 @@ class __LogisticPlanningFormWidgetState
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                           InputField(
+                            InputField(
                               isRequired: true,
                               readOnly: true,
                               title: 'Plant Name',
@@ -136,8 +142,68 @@ class __LogisticPlanningFormWidgetState
                                     );
                               },
                             ),
+                            const SizedBox(height: 12),
+
+                            SearchDropDownList<String>(
+                              title: 'Transport Type',
+                              hint: 'Select Transporter Type',
+                              readOnly: isCompleted,
+                              color: AppColors.black,
+                              items: Dropdownoptions.transporterType,
+                              defaultSelection: newform.transporterType,
+                              headerBuilder: (_, item, __) => Text(item),
+                              listItemBuilder:
+                                  (_, item, __, ___) =>
+                                      CompactListTile(title: item),
+                              futureRequest: (searchText) async {
+                                final all = Dropdownoptions.transporterType;
+                                if (searchText.trim().isEmpty) return all;
+                                return all
+                                    .where(
+                                      (item) => item.toLowerCase().contains(
+                                        searchText.trim().toLowerCase(),
+                                      ),
+                                    )
+                                    .toList();
+                              },
+                              onSelected: (selected) {
+                                context
+                                    .cubit<CreateLogisticCubit>()
+                                    .onValueChanged(transporterType: selected);
+                              },
+                              focusNode: focusNodes.elementAt(5),
+                            ),
 
                             const SizedBox(height: 12),
+                            SearchDropDownList<String>(
+                              title: 'Dispatch Type',
+                              hint: 'Select Dispatch Type',
+                              readOnly: isCompleted,
+                              color: AppColors.black,
+                              items: Dropdownoptions.dispatchType,
+                              defaultSelection: newform.dispatchType,
+                              headerBuilder: (_, item, __) => Text(item),
+                              listItemBuilder:
+                                  (_, item, __, ___) =>
+                                      CompactListTile(title: item),
+                              futureRequest: (searchText) async {
+                                final all = Dropdownoptions.dispatchType;
+                                if (searchText.trim().isEmpty) return all;
+                                return all
+                                    .where(
+                                      (item) => item.toLowerCase().contains(
+                                        searchText.trim().toLowerCase(),
+                                      ),
+                                    )
+                                    .toList();
+                              },
+                              onSelected: (selected) {
+                                context
+                                    .cubit<CreateLogisticCubit>()
+                                    .onValueChanged(dispatchType: selected);
+                              },
+                              focusNode: focusNodes.elementAt(5),
+                            ),
 
                             BlocBuilder<TransportersList, TransportersState>(
                               buildWhen:
@@ -166,7 +232,7 @@ class __LogisticPlanningFormWidgetState
                                           )
                                           .firstOrNull,
                                   title: 'Transporters',
-                                  hint: 'Select transporter',
+                                  hint: 'Select Transporter',
                                   isloading: state.isLoading,
                                   futureRequest: (searchText) async {
                                     if (searchText.trim().isEmpty) {
@@ -231,7 +297,7 @@ class __LogisticPlanningFormWidgetState
                                                 newform.preferredVehicleType,
                                           )
                                           .firstOrNull,
-                                  title: 'Vehicle Type',
+                                  title: 'Preferred Vehicle Type',
                                   hint: 'Select Vehicle Type',
                                   isloading: state.isLoading,
                                   futureRequest: (searchText) async {
@@ -281,10 +347,120 @@ class __LogisticPlanningFormWidgetState
               const Padding(
                 padding: EdgeInsets.only(left: 16.0),
                 child: SectionHeader(
-                  title: 'Delivery Address Details',
-                  assetIcon: 'assets/images/vehicleinvoiceicon.png',
+                  title: 'Delivery Order Details',
+                  assetIcon: 'assets/images/vehicleinvoicicon.svg',
                 ),
               ),
+              // Card(
+              //   color: Colors.white,
+              //   shape: RoundedRectangleBorder(
+              //     borderRadius: BorderRadius.circular(20),
+              //     side: const BorderSide(color: Color(0xFFE8ECF4), width: 1),
+              //   ),
+              //   child: Padding(
+              //     padding: const EdgeInsets.all(8.0),
+              //     child:
+              //         salesOrders.isEmpty
+              //             ? const Center(
+              //               child: Text(
+              //                 'No Sales Orders Selected',
+              //                 style: TextStyle(color: Colors.grey),
+              //               ),
+              //             )
+              //             : SizedBox(
+              //               width:
+              //                   MediaQuery.of(context).size.width *
+              //                   1.5, // <-- increase width
+              //               child: DataTable(
+              //                 headingRowColor: WidgetStateProperty.all(
+              //                   Colors.grey.shade200,
+              //                 ),
+              //                 border: TableBorder.all(
+              //                   color: Colors.grey.shade300,
+              //                 ),
+              //                 columnSpacing: 20,
+              //                 horizontalMargin: 10,
+              //                 columns: const [
+              //                   DataColumn(
+              //                     label: Text(
+              //                       'Sales Order No',
+              //                       style: TextStyle(
+              //                         fontWeight: FontWeight.bold,
+              //                       ),
+              //                     ),
+              //                   ),
+              //                   DataColumn(
+              //                     label: Text(
+              //                       'State',
+              //                       style: TextStyle(
+              //                         fontWeight: FontWeight.bold,
+              //                       ),
+              //                     ),
+              //                   ),
+              //                   DataColumn(
+              //                     label: Text(
+              //                       'City',
+              //                       style: TextStyle(
+              //                         fontWeight: FontWeight.bold,
+              //                       ),
+              //                     ),
+              //                   ),
+              //                 ],
+              //                 rows:
+              //                     salesOrders.map((order) {
+              //                       return DataRow(
+              //                         cells: [
+              //                           DataCell(
+              //                             Text(
+              //                               order.name?.isNotEmpty == true
+              //                                   ? order.name!
+              //                                   : '-',
+              //                             ),
+              //                           ),
+              //                           DataCell(
+              //                             ConstrainedBox(
+              //                               constraints: const BoxConstraints(
+              //                                 minWidth: 100,
+              //                               ),
+              //                               child: Text(
+              //                                 order.state?.isNotEmpty == true
+              //                                     ? order.state!
+              //                                     : '-',
+              //                               ),
+              //                             ),
+              //                           ),
+              //                           DataCell(
+              //                             ConstrainedBox(
+              //                               constraints: const BoxConstraints(
+              //                                 minWidth: 100,
+              //                               ),
+              //                               child: Text(
+              //                                 order.city?.isNotEmpty == true
+              //                                     ? order.city!
+              //                                     : '-',
+              //                               ),
+              //                             ),
+              //                           ),
+              //                         ],
+              //                       );
+              //                     }).toList(),
+              //               ),
+              //             ),
+              //   ),
+              // ),
+
+              Card(
+  color: Colors.white,
+  shape: RoundedRectangleBorder(
+    borderRadius: BorderRadius.circular(20),
+    side: const BorderSide(color: Color(0xFFE8ECF4), width: 1),
+  ),
+  child: Padding(
+    padding: const EdgeInsets.all(8.0),
+    child: SalesOrderTable(salesOrders: salesOrders),
+  ),
+),
+
 
               Card(
                 color: Colors.white,
@@ -357,91 +533,94 @@ class __LogisticPlanningFormWidgetState
                           ),
                         ],
                       ),
-
-                      const SizedBox(height: 16),
-                      InputField(
-                        title: 'Shipping Address-1',
-                        readOnly: true,
-                        // hintText: 'Enter Address',
-                        borderColor: AppColors.grey,
-                        initialValue: newform.shippingAddress1,
-                        onChanged:
-                            (value) => context
-                                .cubit<CreateLogisticCubit>()
-                                .onValueChanged(shippingAddress1: value),
-                      ),
-                      const SizedBox(height: 16),
-                      InputField(
-                        title: 'Shipping Address-2',
-                        readOnly: true,
-                        // hintText: 'Enter Address',
-                        borderColor: AppColors.grey,
-                        initialValue: newform.shippingAddress2,
-                        onChanged:
-                            (value) => context
-                                .cubit<CreateLogisticCubit>()
-                                .onValueChanged(shippingAddress2: value),
-                      ),
-
-                      const SizedBox(height: 16),
-                      InputField(
-                        title: 'Shipping Country',
-                        readOnly: true,
-                        // hintText: 'Enter Country',
-                        borderColor: AppColors.grey,
-                        initialValue: newform.country,
-                        onChanged:
-                            (value) => context
-                                .cubit<CreateLogisticCubit>()
-                                .onValueChanged(country: value),
-                      ),
-                      const SizedBox(height: 16),
-                      InputField(
-                        title: 'Shipping State',
-                        readOnly: true,
-                        // hintText: 'Enter State',
-                        borderColor: AppColors.grey,
-                        initialValue: newform.states,
-                        onChanged:
-                            (value) => context
-                                .cubit<CreateLogisticCubit>()
-                                .onValueChanged(states: value),
-                      ),
-                      const SizedBox(height: 16),
-                      InputField(
-                        title: 'Shipping City',
-                        readOnly: true,
-                        // hintText: 'Enter City',
-                        borderColor: AppColors.grey,
-                        initialValue: newform.city,
-                        onChanged:
-                            (value) => context
-                                .cubit<CreateLogisticCubit>()
-                                .onValueChanged(city: value),
-                      ),
-                      const SizedBox(height: 16),
-                      InputField(
-                        title: 'Shipping Pin Code',
-                        readOnly: true,
-                        // hintText: 'Enter Pincode',
-                        borderColor: AppColors.grey,
-                        initialValue: newform.pincode,
-                        onChanged:
-                            (value) => context
-                                .cubit<CreateLogisticCubit>()
-                                .onValueChanged(pinCode: value),
-                      ),
                     ],
                   ),
                 ),
               ),
 
+              //         const SizedBox(height: 16),
+              //         InputField(
+              //           title: 'Shipping Address-1',
+              //           readOnly: true,
+              //           // hintText: 'Enter Address',
+              //           borderColor: AppColors.grey,
+              //           initialValue: newform.shippingAddress1,
+              //           onChanged:
+              //               (value) => context
+              //                   .cubit<CreateLogisticCubit>()
+              //                   .onValueChanged(shippingAddress1: value),
+              //         ),
+              //         const SizedBox(height: 16),
+              //         InputField(
+              //           title: 'Shipping Address-2',
+              //           readOnly: true,
+              //           // hintText: 'Enter Address',
+              //           borderColor: AppColors.grey,
+              //           initialValue: newform.shippingAddress2,
+              //           onChanged:
+              //               (value) => context
+              //                   .cubit<CreateLogisticCubit>()
+              //                   .onValueChanged(shippingAddress2: value),
+              //         ),
+
+              //         const SizedBox(height: 16),
+              //         InputField(
+              //           title: 'Shipping Country',
+              //           readOnly: true,
+              //           // hintText: 'Enter Country',
+              //           borderColor: AppColors.grey,
+              //           initialValue: newform.country,
+              //           onChanged:
+              //               (value) => context
+              //                   .cubit<CreateLogisticCubit>()
+              //                   .onValueChanged(country: value),
+              //         ),
+              //         const SizedBox(height: 16),
+              //         InputField(
+              //           title: 'Shipping State',
+              //           readOnly: true,
+              //           // hintText: 'Enter State',
+              //           borderColor: AppColors.grey,
+              //           initialValue: newform.states,
+              //           onChanged:
+              //               (value) => context
+              //                   .cubit<CreateLogisticCubit>()
+              //                   .onValueChanged(states: value),
+              //         ),
+              //         const SizedBox(height: 16),
+              //         InputField(
+              //           title: 'Shipping City',
+              //           readOnly: true,
+              //           // hintText: 'Enter City',
+              //           borderColor: AppColors.grey,
+              //           initialValue: newform.city,
+              //           onChanged:
+              //               (value) => context
+              //                   .cubit<CreateLogisticCubit>()
+              //                   .onValueChanged(city: value),
+              //         ),
+              //         const SizedBox(height: 16),
+              //         InputField(
+              //           title: 'Shipping Pin Code',
+              //           readOnly: true,
+              //           // hintText: 'Enter Pincode',
+              //           borderColor: AppColors.grey,
+              //           initialValue: newform.pincode,
+              //           onChanged:
+              //               (value) => context
+              //                   .cubit<CreateLogisticCubit>()
+              //                   .onValueChanged(pinCode: value),
+              //         ),
+              //       ],
+              //     ),
+              //   ),
+              // ),
               const SizedBox(height: 15),
               const Padding(
                 padding: EdgeInsets.only(left: 16.0),
                 child: SectionHeader(
                   title: 'Any Special Instructions',
-                  assetIcon: 'assets/images/reamraksicon.png',
+                  assetIcon: 'assets/images/remarksicon.svg',
                 ),
               ),
               Padding(
@@ -459,6 +638,7 @@ class __LogisticPlanningFormWidgetState
                       title: 'Any Special Instructions',
                       hintText: 'Enter Your Instructions',
                       readOnly: isCompleted,
+                      controller: remarks,
                       borderColor: AppColors.grey,
                       maxLines: 3,
                       minLines: 3,

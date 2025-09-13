@@ -31,10 +31,14 @@ class _NewLogisticRequestState extends State<NewLogisticRequest> {
     final newform = logisticState.form;
     final status = newform.docstatus;
     final name = newform.name;
+      final isCompleted =
+        logisticState.view == LogisticPlanningView.completed ||
+        (logisticState.form.docstatus == 1 ||
+            logisticState.form.status == 'Pending From Transporter');
 
     final isNew = logisticState.view == LogisticPlanningView.create;
     return Scaffold(
-      resizeToAvoidBottomInset: false,
+      resizeToAvoidBottomInset: true,
       backgroundColor: AppColors.white,
       appBar:
           isNew
@@ -135,7 +139,10 @@ class _NewLogisticRequestState extends State<NewLogisticRequest> {
                             final List<SalesOrder> salesOrders =
                                 selectedList
                                     .where((e) => e.name != null)
-                                    .map((e) => SalesOrder(name: e.name))
+                                    .map((e) => SalesOrder(name: e.name,
+                                    city: e.city,
+                                    state: e.states,
+                                    ))
                                     .toList();
 
                             context.cubit<CreateLogisticCubit>().onValueChanged(
@@ -311,8 +318,10 @@ class _NewLogisticRequestState extends State<NewLogisticRequest> {
                           hint: 'Search Order No',
                           color: AppColors.white,
                           items: names,
-                          readOnly: status == 1,
+                          readOnly: isCompleted,
+
                           isloading: state.isLoading,
+                          
                           defaultSelection:
                               names
                                   .where(
@@ -341,9 +350,9 @@ class _NewLogisticRequestState extends State<NewLogisticRequest> {
                                 children: [
                                   Text(
                                     item.name ?? '',
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontWeight: FontWeight.bold,
-                                      color: AppColors.white
+                                      color: isCompleted ? AppColors.white : AppColors.black
                                     ),
                                   ),
                                 ],
@@ -378,7 +387,11 @@ class _NewLogisticRequestState extends State<NewLogisticRequest> {
                                 final List<SalesOrder> salesOrders =
                                     selectedList
                                         .where((e) => e.name != null)
-                                        .map((e) => SalesOrder(name: e.name))
+                                        .map((e) => SalesOrder(name: e.name,
+                                        state: e.states,
+                                        city: e.city,
+
+                                        ))
                                         .toList();
 
                                 context
@@ -452,7 +465,7 @@ class _NewLogisticRequestState extends State<NewLogisticRequest> {
             context.cubit<CreateLogisticCubit>().errorHandled();
           }
         },
-        child: LogisticPlanningFormWidget(key: ValueKey(status)),
+        child: LogisticPlanningFormWidget(key: ValueKey(status), orderForm: orderForm,),
       ),
     );
   }

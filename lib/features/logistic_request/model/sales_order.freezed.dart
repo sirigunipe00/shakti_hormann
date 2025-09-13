@@ -23,6 +23,10 @@ SalesOrder _$SalesOrderFromJson(Map<String, dynamic> json) {
 mixin _$SalesOrder {
   @JsonKey(name: 'sales_order')
   String? get name => throw _privateConstructorUsedError;
+  @JsonKey(name: 'city')
+  String? get city => throw _privateConstructorUsedError;
+  @JsonKey(name: 'state')
+  String? get state => throw _privateConstructorUsedError;
 
   /// Serializes this SalesOrder to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -41,7 +45,11 @@ abstract class $SalesOrderCopyWith<$Res> {
     $Res Function(SalesOrder) then,
   ) = _$SalesOrderCopyWithImpl<$Res, SalesOrder>;
   @useResult
-  $Res call({@JsonKey(name: 'sales_order') String? name});
+  $Res call({
+    @JsonKey(name: 'sales_order') String? name,
+    @JsonKey(name: 'city') String? city,
+    @JsonKey(name: 'state') String? state,
+  });
 }
 
 /// @nodoc
@@ -58,13 +66,27 @@ class _$SalesOrderCopyWithImpl<$Res, $Val extends SalesOrder>
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({Object? name = freezed}) {
+  $Res call({
+    Object? name = freezed,
+    Object? city = freezed,
+    Object? state = freezed,
+  }) {
     return _then(
       _value.copyWith(
             name:
                 freezed == name
                     ? _value.name
                     : name // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            city:
+                freezed == city
+                    ? _value.city
+                    : city // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            state:
+                freezed == state
+                    ? _value.state
+                    : state // ignore: cast_nullable_to_non_nullable
                         as String?,
           )
           as $Val,
@@ -81,7 +103,11 @@ abstract class _$$SalesOrderImplCopyWith<$Res>
   ) = __$$SalesOrderImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({@JsonKey(name: 'sales_order') String? name});
+  $Res call({
+    @JsonKey(name: 'sales_order') String? name,
+    @JsonKey(name: 'city') String? city,
+    @JsonKey(name: 'state') String? state,
+  });
 }
 
 /// @nodoc
@@ -97,13 +123,27 @@ class __$$SalesOrderImplCopyWithImpl<$Res>
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({Object? name = freezed}) {
+  $Res call({
+    Object? name = freezed,
+    Object? city = freezed,
+    Object? state = freezed,
+  }) {
     return _then(
       _$SalesOrderImpl(
         name:
             freezed == name
                 ? _value.name
                 : name // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        city:
+            freezed == city
+                ? _value.city
+                : city // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        state:
+            freezed == state
+                ? _value.state
+                : state // ignore: cast_nullable_to_non_nullable
                     as String?,
       ),
     );
@@ -113,7 +153,11 @@ class __$$SalesOrderImplCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$SalesOrderImpl implements _SalesOrder {
-  const _$SalesOrderImpl({@JsonKey(name: 'sales_order') this.name});
+  const _$SalesOrderImpl({
+    @JsonKey(name: 'sales_order') this.name,
+    @JsonKey(name: 'city') this.city,
+    @JsonKey(name: 'state') this.state,
+  });
 
   factory _$SalesOrderImpl.fromJson(Map<String, dynamic> json) =>
       _$$SalesOrderImplFromJson(json);
@@ -121,10 +165,16 @@ class _$SalesOrderImpl implements _SalesOrder {
   @override
   @JsonKey(name: 'sales_order')
   final String? name;
+  @override
+  @JsonKey(name: 'city')
+  final String? city;
+  @override
+  @JsonKey(name: 'state')
+  final String? state;
 
   @override
   String toString() {
-    return 'SalesOrder(name: $name)';
+    return 'SalesOrder(name: $name, city: $city, state: $state)';
   }
 
   @override
@@ -132,12 +182,14 @@ class _$SalesOrderImpl implements _SalesOrder {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$SalesOrderImpl &&
-            (identical(other.name, name) || other.name == name));
+            (identical(other.name, name) || other.name == name) &&
+            (identical(other.city, city) || other.city == city) &&
+            (identical(other.state, state) || other.state == state));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, name);
+  int get hashCode => Object.hash(runtimeType, name, city, state);
 
   /// Create a copy of SalesOrder
   /// with the given fields replaced by the non-null parameter values.
@@ -156,6 +208,8 @@ class _$SalesOrderImpl implements _SalesOrder {
 abstract class _SalesOrder implements SalesOrder {
   const factory _SalesOrder({
     @JsonKey(name: 'sales_order') final String? name,
+    @JsonKey(name: 'city') final String? city,
+    @JsonKey(name: 'state') final String? state,
   }) = _$SalesOrderImpl;
 
   factory _SalesOrder.fromJson(Map<String, dynamic> json) =
@@ -164,6 +218,12 @@ abstract class _SalesOrder implements SalesOrder {
   @override
   @JsonKey(name: 'sales_order')
   String? get name;
+  @override
+  @JsonKey(name: 'city')
+  String? get city;
+  @override
+  @JsonKey(name: 'state')
+  String? get state;
 
   /// Create a copy of SalesOrder
   /// with the given fields replaced by the non-null parameter values.

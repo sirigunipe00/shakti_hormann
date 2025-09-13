@@ -33,7 +33,7 @@ class _NewTransportCnfmState extends State<NewTransportCnfm> {
 
     final isNew = transportState.view == TransportView.create;
     return Scaffold(
-      resizeToAvoidBottomInset: false,
+      resizeToAvoidBottomInset: true,
       backgroundColor: AppColors.white,
       appBar:
           isNew

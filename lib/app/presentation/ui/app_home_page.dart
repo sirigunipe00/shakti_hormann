@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:shakti_hormann/app/presentation/widgets/dashboard_item.dart';
 import 'package:shakti_hormann/app/presentation/widgets/greeting_widget.dart';
-import 'package:shakti_hormann/app/presentation/widgets/task_widget.dart';
 import 'package:shakti_hormann/core/app_router/app_route.dart';
+import 'package:shakti_hormann/core/di/injector.dart';
+import 'package:shakti_hormann/features/auth/model/logged_in_user.dart';
 import 'package:shakti_hormann/styles/app_icons.dart';
 
 class AppHomePage extends StatefulWidget {
@@ -13,6 +15,18 @@ class AppHomePage extends StatefulWidget {
 }
 
 class _AppHomePageState extends State<AppHomePage> {
+    @override
+  void initState() {
+    super.initState();
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.dark, 
+        statusBarBrightness: Brightness.light,    
+      ),
+    );
+  }
+
   final List<DashboardItem> dashboardItems = [
     DashboardItem(
       title: 'Gate Entry',
@@ -21,6 +35,7 @@ class _AppHomePageState extends State<AppHomePage> {
        
         AppRoute.gateEntry.push<bool?>(context);
       },
+      permissionSelector: (roleStatus) => roleStatus?.showGateEntry,
     ),
     DashboardItem(
       title: 'Gate Exit',
@@ -29,6 +44,7 @@ class _AppHomePageState extends State<AppHomePage> {
         
         AppRoute.gatexit.push<bool?>(context);
       },
+       permissionSelector: (roleStatus) => roleStatus?.showGateExit,
     ),
     DashboardItem(
       title: 'Logistic Request',
@@ -36,6 +52,7 @@ class _AppHomePageState extends State<AppHomePage> {
       onTap: (context) {
         AppRoute.logisticRequest.push<bool?>(context);
       },
+       permissionSelector: (roleStatus) => roleStatus?.showLogisticRequest,
     ),
     DashboardItem(
       title: 'Transport\nConfirmation',
@@ -43,6 +60,7 @@ class _AppHomePageState extends State<AppHomePage> {
       onTap: (context) {
         AppRoute.transportConfirmation.push<bool?>(context);
       },
+       permissionSelector: (roleStatus) => roleStatus?.showTransporterConfirmation,
     ),
     DashboardItem(
       title: 'Vehicle Reporting\nEntry',
@@ -50,6 +68,7 @@ class _AppHomePageState extends State<AppHomePage> {
       onTap: (context) {
         AppRoute.vehcileReporting.push<bool?>(context);
       },
+       permissionSelector: (roleStatus) => roleStatus?.showVehicleReporting,
     ),
     DashboardItem(
       title: 'Dispatch\nLoading',
@@ -57,10 +76,20 @@ class _AppHomePageState extends State<AppHomePage> {
       onTap: (context) {
         AppRoute.loadingConfirmation.push<bool?>(context);
       },
+       permissionSelector: (roleStatus) => roleStatus?.showLoadingConfirmation,
+    ),
+      DashboardItem(
+      title: 'Proof Of Delivery',
+      icon: AppIcons.pod,
+      onTap: (context) {
+        AppRoute.proofOfDelivery.push<bool?>(context);
+      },
+       permissionSelector: (roleStatus) => roleStatus?.showpod,
     ),
   ];
 
   Widget buildDashboardCard(DashboardItem item) {
+   
     return GestureDetector(
       onTap: () => item.onTap(context),
       child: Container(
@@ -100,6 +129,20 @@ class _AppHomePageState extends State<AppHomePage> {
 
   @override
   Widget build(BuildContext context) {
+
+    LoggedInUser? user;
+    try{
+      user =$sl<LoggedInUser>();
+    }
+    catch(_){
+      user = null;
+    }
+
+    final roleStatus = user?.roleStatus;
+
+     final visibleItems = dashboardItems.where(
+    (item) => item.permissionSelector(roleStatus) == 1,
+  ).toList();
     return Scaffold(
       backgroundColor: const Color(0xFFF7F8FA),
       body: SafeArea(
@@ -164,18 +207,18 @@ class _AppHomePageState extends State<AppHomePage> {
               ),
             ),
 
-            const TaskWidget(
-              title: "Your Today's Task",
-              subtitle: 'Almost done!',
-              icon: Icons.check_circle,
-              onCancel: null,
-            ),
+            // const TaskWidget(
+            //   title: "Your Today's Task",
+            //   subtitle: 'Almost done!',
+            //   icon: Icons.check_circle,
+            //   onCancel: null,
+            // ),
 
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: GridView.builder(
-                  itemCount: dashboardItems.length,
+                  itemCount: visibleItems.length,
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
                     childAspectRatio: 1,
@@ -183,7 +226,7 @@ class _AppHomePageState extends State<AppHomePage> {
                     mainAxisSpacing: 16,
                   ),
                   itemBuilder: (context, index) {
-                    return buildDashboardCard(dashboardItems[index]);
+                    return buildDashboardCard(visibleItems[index]);
                   },
                 ),
               ),

@@ -46,8 +46,9 @@ class AppProfilePage extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Image.asset(
-                    'assets/logo/hormann-logo-new-1 1.png',
+                    'assets/logo/hormann-logo-new-1 1-Picsart-AiImageEnhancer.jpg',
                     height: 40,
+                  
                   ),
                   const SizedBox(height: 16),
                 ],
@@ -99,11 +100,12 @@ class AppProfilePage extends StatelessWidget {
                           ),
                           const SizedBox(height: 12),
                           Text(
-                            context.user.username ?? '',
+                            context.user.firstName ?? '',
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 18,
                               color: Colors.black,
+                              fontFamily: 'Urbanist'
                             ),
                           ),
                           const SizedBox(height: 15,),

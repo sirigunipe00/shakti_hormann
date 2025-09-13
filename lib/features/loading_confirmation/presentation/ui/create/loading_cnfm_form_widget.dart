@@ -67,7 +67,7 @@ class _LoadingCnfmFormWidget extends State<LoadingCnfmFormWidget> {
                 padding: EdgeInsets.only(left: 16.0),
                 child: SectionHeader(
                   title: 'Vehicle Request Details',
-                  assetIcon: 'assets/images/gateentryicon.png',
+                  assetIcon: 'assets/images/gateentryicon.svg',
                 ),
               ),
               Container(
@@ -109,6 +109,17 @@ class _LoadingCnfmFormWidget extends State<LoadingCnfmFormWidget> {
                               onChanged: (p0) {},
                             ),
                             const SizedBox(height: 12),
+                             InputField(
+                              title: 'Linked Transporter No',
+                              hintText: 'Linked Transporter No',
+                              readOnly: true,
+                              isRequired: true,
+                              borderColor: AppColors.grey,
+                              initialValue: newform.linkedTransporterConfirmation,
+        
+                              onChanged:
+                                  (p0) {}
+                            ),
                             AppDateField(
                               title: 'Vehicle Reporting Date',
                               hintText: 'Select Date',
@@ -143,7 +154,7 @@ class _LoadingCnfmFormWidget extends State<LoadingCnfmFormWidget> {
                 padding: EdgeInsets.only(left: 16.0),
                 child: SectionHeader(
                   title: 'Vehicle and Driver Details',
-                  assetIcon: 'assets/images/vehicleinvoiceicon.png',
+                  assetIcon: 'assets/images/vehicleinvoicicon.svg',
                 ),
               ),
               Card(
@@ -203,7 +214,7 @@ class _LoadingCnfmFormWidget extends State<LoadingCnfmFormWidget> {
                 padding: EdgeInsets.only(left: 16.0),
                 child: SectionHeader(
                   title: 'Photo',
-                  assetIcon: 'assets/images/photoicon.png',
+                  assetIcon: 'assets/images/photoicon.svg',
                 ),
               ),
               Padding(
@@ -236,7 +247,7 @@ class _LoadingCnfmFormWidget extends State<LoadingCnfmFormWidget> {
                 padding: EdgeInsets.only(left: 16.0),
                 child: SectionHeader(
                   title: 'Item Details',
-                  assetIcon: 'assets/images/photoicon.png',
+                  assetIcon: 'assets/images/remarksicon.svg',
                 ),
               ),
               BlocBuilder<GetLoadedList, GetLoadedState>(
@@ -283,21 +294,15 @@ class _ItemLoadedTableState extends State<ItemLoadedTable> {
     super.initState();
 
     // Map ItemModel list into rows
-    rows =
-        widget.initialData.map((item) {
-          final baseUrl = 'http://65.21.243.18:8000';
-
-          return {
-            'itemCode': item.itemCode,
-            'itemName': item.itemName,
-            'qty': item.qtyLoaded?.toString() ?? '',
-            'uom': item.uom,
-            'photo':
-                item.loadedItemPhoto != null
-                    ? "$baseUrl${item.loadedItemPhoto}"
-                    : null,
-          };
-        }).toList();
+   rows = widget.initialData.map((item) {
+  return {
+    'itemCode': item.itemCode,
+    'itemName': item.itemName,
+    'qty': item.qtyLoaded?.toString() ?? '',
+    'uom': item.uom,
+    'photo': item.loadedItemPhoto ?? '', // 👈 keep raw value
+  };
+}).toList();
 
     // 🔹 Push API-loaded records to cubit as well
     Future.microtask(() {
@@ -374,12 +379,12 @@ class _ItemLoadedTableState extends State<ItemLoadedTable> {
                 fontWeight: FontWeight.bold,
               ),
               columns:  [
-                DataColumn(label: Text('Sl. No')),
-                DataColumn(label: Text('Item Code')),
-                DataColumn(label: Text('Item Name')),
-                DataColumn(label: Text('Quantity Loaded')),
-                DataColumn(label: Text('UOM')),
-                DataColumn(label: Text('Loaded Item Photo')),
+                const DataColumn(label: Text('Sl. No')),
+                const DataColumn(label: Text('Item Code')),
+                const DataColumn(label: Text('Item Name')),
+                const DataColumn(label: Text('Quantity Loaded')),
+                const DataColumn(label: Text('UOM')),
+                const DataColumn(label: Text('Loaded Item Photo')),
                 // DataColumn(label: Text('Edit')),
                 if (widget.docstatus != 1) 
      const DataColumn(label: Text('Edit')),
@@ -506,6 +511,7 @@ class _ItemDialogWidgetState extends State<ItemDialogWidget> {
       text: widget.initialRow?['qty'] ?? '',
     );
     photoPath = widget.initialRow?['photo'];
+  
     if (selectedCode != null) {
       itemFrom = ItemModel(
         name: selectedCode,
@@ -715,16 +721,17 @@ class _ItemDialogWidgetState extends State<ItemDialogWidget> {
     'itemName': itemNameController.text,
     'uom': uomController.text,
     'qty': qtyValue.toString(),
-    'photo': photoPath,
+     'photo': photoFile != null ? photoFile!.path : photoPath,
   };
 
-  final lineItem = ItemModel(
-    itemCode: selectedCode,
-    itemName: itemNameController.text,
-    sampleQuantity: qtyValue.toInt(),   // ✅ now double
-    stockUom: uomController.text,
-    imageFile: photoFile,
-  );
+final lineItem = ItemModel(
+  itemCode: selectedCode,
+  itemName: itemNameController.text,
+  sampleQuantity: qtyValue.toInt(),
+  stockUom: uomController.text,
+  imageFile: photoFile,
+  loadedItemPhoto: photoFile != null ? null : photoPath, // 👈 stays raw /files/... if no new capture
+);
 
   Navigator.pop(context, {'row': row, 'model': lineItem});
 },

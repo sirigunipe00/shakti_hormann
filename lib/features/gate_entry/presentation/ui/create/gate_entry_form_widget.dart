@@ -28,6 +28,7 @@ class _GateEntryFormWidgetState extends State<GateEntryFormWidget> {
   final _scanIrnController = TextEditingController();
   final TextEditingController vehicleNo = TextEditingController();
   final TextEditingController vendorInvoiceNo = TextEditingController();
+  final TextEditingController remarks = TextEditingController();
 
   GateEntryForm? gateEntryForm;
   GateNumberForm? gateNumberForm;
@@ -122,7 +123,7 @@ class _GateEntryFormWidgetState extends State<GateEntryFormWidget> {
                 padding: EdgeInsets.only(left: 16.0),
                 child: SectionHeader(
                   title: 'Gate Entry Details',
-                  assetIcon: 'assets/images/gateentryicon.png',
+                  assetIcon: 'assets/images/gateentryicon.svg',
                 ),
               ),
 
@@ -178,7 +179,7 @@ class _GateEntryFormWidgetState extends State<GateEntryFormWidget> {
                 padding: EdgeInsets.only(left: 16.0),
                 child: SectionHeader(
                   title: 'Invoice Details',
-                  assetIcon: 'assets/images/vehicleinvoiceicon.png',
+                  assetIcon: 'assets/images/vehicleinvoicicon.svg',
                 ),
               ),
 
@@ -202,6 +203,7 @@ class _GateEntryFormWidgetState extends State<GateEntryFormWidget> {
                       title: 'Vendor Invoice Number',
                       hintText: 'Enter Invoice No',
                       isRequired: true,
+                      controller: vendorInvoiceNo,
 
                       borderColor: AppColors.grey,
                       onChanged: (p0) {
@@ -296,6 +298,7 @@ class _GateEntryFormWidgetState extends State<GateEntryFormWidget> {
                       borderColor: AppColors.grey,
                       readOnly: isCompleted,
                       isRequired: true,
+                      controller: vehicleNo,
                       initialValue: newform.vehicleNo,
                       title: 'Vehicle Number',
                       hintText: 'Enter Vehicle No',
@@ -384,7 +387,7 @@ class _GateEntryFormWidgetState extends State<GateEntryFormWidget> {
                                     .state
                                     .form
                                     .gateNumber,
-                            orElse: () => GateNumberForm(),
+                            orElse: () => const GateNumberForm(),
                           ),
 
                           futureRequest: (query) async {
@@ -456,7 +459,7 @@ class _GateEntryFormWidgetState extends State<GateEntryFormWidget> {
                 padding: EdgeInsets.only(left: 16.0),
                 child: SectionHeader(
                   title: 'Photo',
-                  assetIcon: 'assets/images/photoicon.png',
+                  assetIcon: 'assets/images/photoicon.svg',
                 ),
               ),
 
@@ -522,7 +525,7 @@ class _GateEntryFormWidgetState extends State<GateEntryFormWidget> {
                 padding: EdgeInsets.only(left: 16.0),
                 child: SectionHeader(
                   title: 'Remarks',
-                  assetIcon: 'assets/images/reamraksicon.png',
+                  assetIcon: 'assets/images/remarksicon.svg',
                 ),
               ),
               Padding(
@@ -538,6 +541,7 @@ class _GateEntryFormWidgetState extends State<GateEntryFormWidget> {
                     padding: const EdgeInsets.all(8.0),
                     child: InputField(
                       readOnly: isCompleted,
+                      controller: remarks,
                       minLines: 3,
                       maxLines: 6,
                       hintText: 'Enter Here.....',

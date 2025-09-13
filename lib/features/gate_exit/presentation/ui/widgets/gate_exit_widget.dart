@@ -1,8 +1,9 @@
 import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:shakti_hormann/core/utils/date_format_util.dart';
 import 'package:shakti_hormann/core/utils/string_utils.dart';
-import 'package:shakti_hormann/doc_status_widget.dart';
+import 'package:shakti_hormann/widgets/doc_status_widget.dart';
 import 'package:shakti_hormann/features/gate_exit/model/gate_exit_form.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/styles/app_text_styles.dart';
@@ -44,10 +45,11 @@ class GateExitWidget extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Center(
-                    child: Image.asset(
-                      'assets/images/gateexiticon.png',
+                    child: SvgPicture.asset(
+                      'assets/images/gateexiticon.svg',
                      
                       fit: BoxFit.fill,
+                      height: 50,
                     ),
                   ),
                 ),

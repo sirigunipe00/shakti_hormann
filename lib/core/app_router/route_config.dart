@@ -4,7 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:shakti_hormann/app/presentation/ui/app_profile_page.dart';
 import 'package:shakti_hormann/app/presentation/ui/app_home_page.dart';
 import 'package:shakti_hormann/app/presentation/ui/app_splash_scrn.dart';
-import 'package:shakti_hormann/app/presentation/ui/dashboard_page.dart';
+import 'package:shakti_hormann/features/auth/model/logged_in_user.dart';
+import 'package:shakti_hormann/features/dashboard/presentation/dashboard_page.dart';
 import 'package:shakti_hormann/app/presentation/widgets/app_scaffold_widget.dart';
 import 'package:shakti_hormann/app/presentation/widgets/notifcations_scrn.dart';
 import 'package:shakti_hormann/core/consts/messages.dart';
@@ -29,6 +30,11 @@ import 'package:shakti_hormann/features/logistic_request/presentation/bloc/bloc_
 import 'package:shakti_hormann/features/logistic_request/presentation/bloc/create_lr_cubit/logistic_planning_cubit.dart';
 import 'package:shakti_hormann/features/logistic_request/presentation/ui/create/new_logistic_request.dart';
 import 'package:shakti_hormann/features/logistic_request/presentation/ui/widgets/logistic_request_list.dart';
+import 'package:shakti_hormann/features/proof_of_delivery/model/proof_of_delivery.dart';
+import 'package:shakti_hormann/features/proof_of_delivery/presentation/bloc/bloc_provider.dart';
+import 'package:shakti_hormann/features/proof_of_delivery/presentation/bloc/create_pd_cubit/create_pod_cubit.dart';
+import 'package:shakti_hormann/features/proof_of_delivery/presentation/ui/new_pod.dart';
+import 'package:shakti_hormann/features/proof_of_delivery/presentation/widget/pod_list.dart';
 import 'package:shakti_hormann/features/transport_confirmation/model/transport_confirmation_form.dart';
 import 'package:shakti_hormann/features/transport_confirmation/presentation/bloc/bloc_provider.dart';
 import 'package:shakti_hormann/features/transport_confirmation/presentation/bloc/create_transport_cubit.dart/create_transport_cubit.dart';
@@ -44,6 +50,12 @@ import 'package:shakti_hormann/widgets/dailogs/app_dialogs.dart';
 class AppRouterConfig {
   static final parentNavigatorKey = GlobalKey<NavigatorState>();
 
+  static int dashboardStatus = 0;
+
+   static void setDashboardStatus(int status) {
+    dashboardStatus = status;
+  }
+
   static final GoRouter router = GoRouter(
     navigatorKey: parentNavigatorKey,
     initialLocation: AppRoute.login.path,
@@ -54,9 +66,24 @@ class AppRouterConfig {
         builder: (_, state) => const AppSplashScrn(),
       ),
       StatefulShellRoute.indexedStack(
-        builder: (context, state, navigationShell) {
-          return AppScaffoldWidget(navigationShell: navigationShell);
-        },
+       builder: (context, state, navigationShell) {
+  LoggedInUser? loggedInUser;
+
+  try {
+    loggedInUser = $sl.isRegistered<LoggedInUser>() ? $sl<LoggedInUser>() : null;
+  } catch (_) {
+    loggedInUser = null;
+  }
+
+  final roleStatus = loggedInUser?.roleStatus;
+   AppRouterConfig.setDashboardStatus(roleStatus?.showDashboards == 1 ? 1 : 0);
+
+  return AppScaffoldWidget(
+    navigationShell: navigationShell,
+    roleStatus: roleStatus,
+  );
+},
+
         branches: [
           StatefulShellBranch(
             routes: [
@@ -226,9 +253,12 @@ class AppRouterConfig {
                           final bloc = LogisticPlanningBlocProvider.get();
 
                           final form = state.extra;
+                          // final logisticform =state.extra as LogisticPlanningForm?;
+
                           return MultiBlocProvider(
                             providers: [
                               BlocProvider(create:(_) => bloc.transportersList()..request(''),),
+                              // BlocProvider(create: (_) => $sl.get<CreateLogisticCubit>()..initDetails(logisticform)),
                               BlocProvider(create:(_) =>$sl.get<CreateTransportCubit>()..initDetails(form),),
                             ],
                             child: const NewTransportCnfm(),
@@ -318,6 +348,46 @@ class AppRouterConfig {
                       )
                     ],
                   ),
+                   GoRoute(
+                    path: _getPath(AppRoute.proofOfDelivery),
+                    builder: (ctxt, state) {
+                      final filters = Pair(
+                        StringUtils.docStatusInt('Draft'),
+                        null,
+                      );
+                      return BlocProvider(
+                        create:
+                            (context) => ProofOfDeliveryBlocProvider.get().fetchProofOfDelivery()..fetchInitial(filters),
+                        child: const PodListScrn(),
+                      );
+                    },
+                    routes: [
+                      GoRoute(
+                        path: _getPath(AppRoute.newproofOfDelivery),
+                            onExit: (context, state) async {
+                              final form = state.extra as ProofOfDelivery?;
+                                final formStatus =
+                              form?.docStatus == 1 ? 'Submitted' : 'Reported';
+                               return  _promptConf(context, formStatus: formStatus);
+                            },
+                            builder: (_, state) {
+                              final blocprovider = ProofOfDeliveryBlocProvider.get();
+                              final form = state.extra as ProofOfDelivery?;
+                              return MultiBlocProvider(
+                                providers: [
+                                  BlocProvider(create: (_) => blocprovider.fetchProofOfDelivery()),
+                                  BlocProvider(create: (_)=> blocprovider.salesInvoiceList()..request('')),
+                                  // BlocProvider(create: (_)=> blocprovider.getItems()..request(form.name ?? '')),
+                                  BlocProvider(
+                                    create: (_) => $sl.get<CreatePodCubit>()..initDetails(form),
+                                  ),
+                                ],
+                                child: const NewPod(),
+                              );
+                            },
+                      )
+                    ],
+                  ),
                 ],
               ),
             ],
@@ -326,6 +396,8 @@ class AppRouterConfig {
             routes: [
               GoRoute(
                 path: AppRoute.dashboard.path,
+                redirect: (_, __) =>
+                    dashboardStatus == 1 ? null : AppRoute.home.path,
                 builder: (_, __) => const AppDashboardPage(),
               ),
             ],

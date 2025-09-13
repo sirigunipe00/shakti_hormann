@@ -32,10 +32,14 @@ class _NewGateExitState extends State<NewGateExit> {
     final newform = gateEntryState.form;
     final status = newform.docStatus;
     final name = newform.name;
+    final isCompleted = gateEntryState.view == GateExitView.completed;
+
+            
+
 
     final isNew = gateEntryState.view == GateExitView.create;
     return Scaffold(
-      resizeToAvoidBottomInset: false,
+      resizeToAvoidBottomInset: true,
       backgroundColor: AppColors.white,
       appBar:
           isNew
@@ -282,9 +286,9 @@ class _NewGateExitState extends State<NewGateExit> {
                               children: [
                                 Text(
                                   item.name ?? '',
-                                  style: const TextStyle(
+                                  style:  TextStyle(
                                     fontWeight: FontWeight.bold,
-                                    
+                                    color: isCompleted ? AppColors.white : AppColors.black,
                                   ),
                                 ),
                               ],

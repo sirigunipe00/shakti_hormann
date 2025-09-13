@@ -16,6 +16,8 @@ class TransportConfirmationForm with _$TransportConfirmationForm {
     @JsonKey(name: 'amended_from') String? amendedFrom,
     @JsonKey(name: 'plant_name') String? plantName,
     @JsonKey(name: 'sales_order') String? salesOrder,
+    @JsonKey(name: 'transport_type') String? transporterType,
+    @JsonKey(name: 'dispatch_type') String? dispatchType,
     @JsonKey(name: 'transporter_name') String? transporterName,
     @JsonKey(name: 'preferred_vehicle_type') String? preferredVehicleType,
     @JsonKey(name: 'delivery_address') String? deliveryAddress,

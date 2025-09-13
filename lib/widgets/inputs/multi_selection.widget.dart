@@ -64,6 +64,7 @@ class _SearchMultiDropDownListState<T>
   @override
   Widget build(BuildContext context) {
     final isReadOnlyMode = widget.readOnly;
+    
 
     final backgroundColor =
         isReadOnlyMode ? AppColors.grey.withValues(alpha: 0.20) : Colors.white;
@@ -280,7 +281,7 @@ class _SearchMultiDropDownListState<T>
                               .where((name) => name.isNotEmpty)
                               .join(', '),
                           style: context.textTheme.titleMedium?.copyWith(
-                            color: AppColors.black,
+                            color: widget.readOnly ? AppColors.white : AppColors.black,
                             fontWeight: FontWeight.w600,
                             fontFamily: 'Urbanist',
                           ),
@@ -290,7 +291,7 @@ class _SearchMultiDropDownListState<T>
                         : Text(
                           widget.hint ?? 'Select items',
                           style: context.textTheme.titleMedium?.copyWith(
-                            color: AppColors.black.withOpacity(0.6),
+                            color: AppColors.black.withValues(alpha: 0.6),
                             fontWeight: FontWeight.w400,
                             fontFamily: 'Urbanist',
                           ),

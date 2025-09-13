@@ -116,7 +116,6 @@ void didUpdateWidget(covariant SearchDropDownList<T> oldWidget) {
               headerBuilder: widget.headerBuilder,
               listItemBuilder: widget.listItemBuilder,
               onChanged: (value) {
-                print('kj;sdjhg..........:');
 
                 if (value != null) {
                   widget.onSelected(value);

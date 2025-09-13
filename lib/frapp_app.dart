@@ -11,6 +11,8 @@ import 'package:shakti_hormann/features/loading_confirmation/presentation/bloc/b
 import 'package:shakti_hormann/features/loading_confirmation/presentation/bloc/loading_cnfm_filters_cubit.dart';
 import 'package:shakti_hormann/features/logistic_request/presentation/bloc/bloc_provider.dart';
 import 'package:shakti_hormann/features/logistic_request/presentation/bloc/logistic_planning_filter_cubit.dart';
+import 'package:shakti_hormann/features/proof_of_delivery/presentation/bloc/bloc_provider.dart';
+import 'package:shakti_hormann/features/proof_of_delivery/presentation/bloc/pod_filters_cubit.dart';
 import 'package:shakti_hormann/features/transport_confirmation/presentation/bloc/bloc_provider.dart';
 import 'package:shakti_hormann/features/transport_confirmation/presentation/bloc/transport_filter_cubit.dart';
 import 'package:shakti_hormann/features/vehicle_reporting/presentation/bloc/bloc_provider.dart';
@@ -32,6 +34,7 @@ class ShaktiHormann extends StatelessWidget {
         BlocProvider(create: (_)=> TransportFilterCubit()),
         BlocProvider(create: (_)=> VehicleReportingFilterCubit()),
         BlocProvider(create: (_)=> LoadingCnfmFiltersCubit()),
+        BlocProvider(create: (_)=> PodFiltersCubit()),
 
 
         BlocProvider(
@@ -52,6 +55,9 @@ class ShaktiHormann extends StatelessWidget {
          BlocProvider(
           create: (_) => LoadingCnfmBlocProvider.get().fetchLoadingCnfmList(),
         ),
+        BlocProvider(
+          create: (_) => ProofOfDeliveryBlocProvider.get().fetchProofOfDelivery(),
+        ),
       ],
       child: BlocConsumer<AuthCubit, AuthState>(
         listener: (_, state) {
@@ -70,6 +76,8 @@ class ShaktiHormann extends StatelessWidget {
               routerCtxt.cubit<TransportCubit>().fetchInitial(filter);
               routerCtxt.cubit<VehicleReportingCubit>().fetchInitial(filterss);
               routerCtxt.cubit<LoadingCnfmCubit>().fetchInitial(filterss);
+              routerCtxt.cubit<ProofOfDeliveryCubit>().fetchInitial(filters);
+
 
 
               AppRoute.home.go(routerCtxt);

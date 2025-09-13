@@ -21,6 +21,9 @@ import '../../features/auth/data/auth_repo_impl.dart' as _i328;
 import '../../features/auth/presentation/bloc/auth/auth_cubit.dart' as _i190;
 import '../../features/auth/presentation/ui/sign_in/sign_in_cubit.dart'
     as _i947;
+import '../../features/dashboard/data/dashboard_repoimpl.dart' as _i959;
+import '../../features/dashboard/data/dashboardrepo.dart' as _i886;
+import '../../features/dashboard/presentation/bloc_provider.dart' as _i627;
 import '../../features/gate_entry/data/gate_entry.repo.dart' as _i936;
 import '../../features/gate_entry/data/gate_entry_repoimpl.dart' as _i403;
 import '../../features/gate_entry/presentation/bloc/bloc_provider.dart'
@@ -48,6 +51,12 @@ import '../../features/logistic_request/presentation/bloc/bloc_provider.dart'
     as _i614;
 import '../../features/logistic_request/presentation/bloc/create_lr_cubit/logistic_planning_cubit.dart'
     as _i714;
+import '../../features/proof_of_delivery/data/pod_repo.dart' as _i25;
+import '../../features/proof_of_delivery/data/pod_repo_impl.dart' as _i690;
+import '../../features/proof_of_delivery/presentation/bloc/bloc_provider.dart'
+    as _i110;
+import '../../features/proof_of_delivery/presentation/bloc/create_pd_cubit/create_pod_cubit.dart'
+    as _i971;
 import '../../features/transport_confirmation/data/transport_confrimation_repo.dart'
     as _i271;
 import '../../features/transport_confirmation/data/transport_confrimation_repoimpl.dart'
@@ -68,6 +77,7 @@ import '../core.dart' as _i351;
 import '../local_storage/key_vale_storage.dart' as _i1012;
 import '../network/api_client.dart' as _i557;
 import '../network/internet_check.dart' as _i402;
+import '../network/network.dart' as _i855;
 import 'injector.dart' as _i811;
 
 extension GetItInjectableX on _i174.GetIt {
@@ -109,6 +119,9 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i351.KeyValueStorage>(),
       ),
     );
+    gh.lazySingleton<_i25.ProofOfDeliveryRepo>(
+      () => _i690.PodRepoImpl(gh<_i351.ApiClient>()),
+    );
     gh.lazySingleton<_i66.LoadingCnfmRepo>(
       () => _i186.LoadingCnfmRepoimpl(gh<_i351.ApiClient>()),
     );
@@ -139,6 +152,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i585.CreateVehicleCubit>(
       () => _i585.CreateVehicleCubit(gh<_i906.VehicleReportingRepo>()),
     );
+    gh.lazySingleton<_i886.Dashboardrepo>(
+      () => _i959.DashboardRepoimpl(gh<_i855.ApiClient>()),
+    );
     gh.factory<_i947.SignInCubit>(
       () => _i947.SignInCubit(gh<_i585.AuthRepo>()),
     );
@@ -155,6 +171,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i565.GateExitBlocProvider>(
       () => _i565.GateExitBlocProvider(gh<_i495.GateExitRepo>()),
     );
+    gh.lazySingleton<_i627.DashBoardBlocProvider>(
+      () => _i627.DashBoardBlocProvider(gh<_i886.Dashboardrepo>()),
+    );
     gh.factory<_i0.CreateTransportCubit>(
       () => _i0.CreateTransportCubit(gh<_i271.TransportConfrimationRepo>()),
     );
@@ -162,6 +181,12 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i351.TransportCnfmBlocProvider(
         gh<_i271.TransportConfrimationRepo>(),
       ),
+    );
+    gh.lazySingleton<_i110.ProofOfDeliveryBlocProvider>(
+      () => _i110.ProofOfDeliveryBlocProvider(gh<_i25.ProofOfDeliveryRepo>()),
+    );
+    gh.factory<_i971.CreatePodCubit>(
+      () => _i971.CreatePodCubit(gh<_i25.ProofOfDeliveryRepo>()),
     );
     gh.factory<_i714.CreateLogisticCubit>(
       () => _i714.CreateLogisticCubit(gh<_i876.LogisticPlanningRepo>()),

@@ -57,7 +57,7 @@ class _GateExitFormWidgetState extends State<GateExitFormWidget> {
                 padding: EdgeInsets.only(left: 16.0),
                 child: SectionHeader(
                   title: 'Gate Exit Details',
-                  assetIcon: 'assets/images/gateexiticon.png',
+                  assetIcon: 'assets/images/gateexiticons.svg',
                 ),
               ),
 
@@ -124,7 +124,7 @@ class _GateExitFormWidgetState extends State<GateExitFormWidget> {
                 padding: EdgeInsets.only(left: 16.0),
                 child: SectionHeader(
                   title: 'Photo',
-                  assetIcon: 'assets/images/photoicon.png',
+                  assetIcon: 'assets/images/photoicon.svg',
                 ),
               ),
               Padding(
@@ -173,7 +173,7 @@ class _GateExitFormWidgetState extends State<GateExitFormWidget> {
                 padding: EdgeInsets.only(left: 16.0),
                 child: SectionHeader(
                   title: 'Remarks',
-                  assetIcon: 'assets/images/reamraksicon.png',
+                  assetIcon: 'assets/images/remarksicon.svg',
                 ),
               ),
               Padding(

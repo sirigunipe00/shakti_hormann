@@ -7,7 +7,7 @@ class GreetingHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final greeting = context.dayOfTimeGreeting();
-    final userName = context.user.username;
+    final userName = context.user.firstName;
 
     return Container(
       height: 70,
@@ -43,13 +43,13 @@ class GreetingHeader extends StatelessWidget {
 
 extension on BuildContext {
   String dayOfTimeGreeting() {
-      final currHour = DFU.now().hour;
+    final currHour = DFU.now().hour;
     return switch (currHour) {
-      < 12 => 'Good Morning,',
-      > 12 && <= 16 => 'Good Afternoon,',
-      > 16 && < 20 => 'Good Evening,',
-      >= 20 => 'Good Night,',
-      _ => '',
+      >= 0 && < 12 => 'Good Morning,',
+      >= 12 && < 17 => 'Good Afternoon,',
+      >= 17 && < 20 => 'Good Evening,',
+      _ => 'Good Night,',
     };
   }
 }
+

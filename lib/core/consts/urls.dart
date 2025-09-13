@@ -28,6 +28,7 @@ class Urls {
   static final appVersion = '$cusWs/easy_common.api.get_app_version';
 
   static final companyName = '$jsonWs/Company';
+  static final dashBoard = '$cusWs/shaktihormann.api.gate_dashboard';
   static final createGateEntry = '$cusWs/shaktihormann.api.createGateEntry';
   static final submitGateEntry = '$cusWs/shaktihormann.api.submit_gate_entry';
   static final createGateExit = '$cusWs/shaktihormann.api.create_gate_exit';
@@ -42,5 +43,8 @@ class Urls {
   static final createLoadingConfirmation ='$cusWs/shaktihormann.api.create_items_loaded';
   static final submitLoadingConfirmation = '$cusWs/shaktihormann.api.submit_vehicle_loading';
   static final getLodedItems = '$cusWs/shaktihormann.api.get_loaded_items';
+  static final createproofOfDelivery = '$cusWs/shaktihormann.api.createProofOfDelivery';
+  static final submitproofOfDelivery = '$cusWs/shaktihormann.api.submitProofOfDelivery';
+
 
 }
