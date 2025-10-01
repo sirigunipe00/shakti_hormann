@@ -12,11 +12,14 @@ class AppProfilePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final height = size.height;
+    final width = size.width;
     return Scaffold(
       body: Column(
         children: [
           Container(
-            height: 250,
+            height: height * 0.28,
             width: double.infinity,
             decoration: const BoxDecoration(
               color: Color(0xFFFDCB27),
@@ -28,9 +31,9 @@ class AppProfilePage extends StatelessWidget {
             child: SafeArea(
               child: Column(
                 children: [
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    child: Row(
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: width * 0.04, vertical: height * 0.015),
+                    child: const Row(
                       children: [
                         SizedBox(width: 8),
                         Text(
@@ -44,13 +47,13 @@ class AppProfilePage extends StatelessWidget {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  SizedBox(height: height * 0.01),
                   Image.asset(
                     'assets/logo/hormann-logo-new-1 1-Picsart-AiImageEnhancer.jpg',
-                    height: 40,
+                    height: height * 0.05,
                   
                   ),
-                  const SizedBox(height: 16),
+                   SizedBox(height: height * 0.02),
                 ],
               ),
             ),
@@ -61,10 +64,10 @@ class AppProfilePage extends StatelessWidget {
               child: Column(
                 children: [
                   Transform.translate(
-                    offset: const Offset(0, -40),
+                    offset:  Offset(0, -height * 0.06),
                     child: Container(
-                      width: MediaQuery.of(context).size.width * 0.85,
-                      padding: const EdgeInsets.all(20),
+                      width: width * 0.85,
+                      padding:  EdgeInsets.all(width * 0.05),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(24),
@@ -80,7 +83,7 @@ class AppProfilePage extends StatelessWidget {
                       child: Column(
                         children: [
                           Container(
-                            padding: const EdgeInsets.all(8),
+                            padding:  EdgeInsets.all(width * 0.02),
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               border: Border.all(
@@ -88,31 +91,31 @@ class AppProfilePage extends StatelessWidget {
                                 width: 2,
                               ),
                             ),
-                            child: const CircleAvatar(
-                              radius: 30,
+                            child:  CircleAvatar(
+                              radius: width * 0.09,
                               backgroundColor: Colors.transparent,
                               child: Icon(
                                 Icons.person,
-                                size: 40,
-                                color: Color(0xFFFDCB27),
+                                size: width * 0.12,
+                                color: const  Color(0xFFFDCB27),
                               ),
                             ),
                           ),
-                          const SizedBox(height: 12),
+                           SizedBox(height: height * 0.015),
                           Text(
                             context.user.firstName ?? '',
-                            style: const TextStyle(
+                            style:  TextStyle(
                               fontWeight: FontWeight.bold,
-                              fontSize: 18,
+                              fontSize: width * 0.045,
                               color: Colors.black,
                               fontFamily: 'Urbanist'
                             ),
                           ),
-                          const SizedBox(height: 15,),
+                           SizedBox(height: height * 0.02,),
                           Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 6,
+                            padding:  EdgeInsets.symmetric(
+                              horizontal: width * 0.04,
+                              vertical: height * 0.008,
                             ),
                             decoration: BoxDecoration(
                               color: AppColors.darkBlue,
@@ -120,9 +123,9 @@ class AppProfilePage extends StatelessWidget {
                             ),
                             child: Text(
                               context.user.email.toString(),
-                              style: const TextStyle(
+                              style:  TextStyle(
                                 color: Colors.white,
-                                fontSize: 13,
+                                fontSize: width * 0.035,
                               ),
                             ),
                           ),
@@ -170,12 +173,12 @@ class AppProfilePage extends StatelessWidget {
                     ),
                   ),
 
-                  const SizedBox(height:40),
+                   SizedBox(height: height * 0.035,),
 
                   Center(
                     child: AppButton(
                       label: 'Logout',
-                      width: 500,
+                      width:  width * 0.85,
                       icon: Transform.rotate(
                         angle: 180 * math.pi / 180,
                         child: const Icon(
@@ -185,19 +188,20 @@ class AppProfilePage extends StatelessWidget {
                       ),
                       onPressed: context.cubit<AuthCubit>().signOut,
                       bgColor: AppColors.darkBlue,
-                      margin: const EdgeInsets.symmetric(horizontal: 32),
+                      margin:  EdgeInsets.symmetric(horizontal: width * 0.08),
                     ),
                   ),
 
-                  const SizedBox(height: 65),
+                   SizedBox(height: height * 0.08),
 
                   Column(
                     children: [
                       SvgPicture.asset(
                         'assets/logo/EasyCloud Logo 150 x 80.svg',
-                        height: 40,
+                         height: height * 0.05, 
+                        fit: BoxFit.contain,
                       ),
-                      const SizedBox(height: 4),
+                       SizedBox(height: height * 0.005),
                       const Text(
                         'Powered by EasyCloud',
                         style: TextStyle(

@@ -34,7 +34,6 @@ class CreateGateExitCubit extends AppBaseCubit<CreateGateExitState> {
     int? docStatus,
     String? modifiedBy,
     String? modifiedDate,
-    String? purchaseOrder,
     String? vehicleNo,
     String? salesInvoiceNo,
     String? gateEntryDate,

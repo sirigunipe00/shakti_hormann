@@ -83,7 +83,7 @@ class ScaffoldWithNavigationBar extends StatelessWidget {
                     _buildDestination(
                       index: 0,
                       selectedIndex: selectedIndex,
-                      iconPath: 'assets/images/home.png',
+                      iconPath: 'assets/images/home (1).png',
                       label: 'Home',
                     ),
                     if(dashboardStatus == 1)
@@ -105,7 +105,7 @@ class ScaffoldWithNavigationBar extends StatelessWidget {
                       fontFamily: 'Urbanist',
                       fontWeight: FontWeight.w600,
                       fontSize: 12,
-                      color: Colors.black87,
+                      color: Colors.black,
                     ),
                   ),
                 ),

@@ -2,6 +2,7 @@ import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/material.dart';
 import 'package:shakti_hormann/core/utils/date_format_util.dart';
 import 'package:shakti_hormann/features/vehicle_reporting/model/vehicle_reporting_form.dart';
+import 'package:shakti_hormann/features/vehicle_reporting/presentation/ui/widgets/crad_details.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/styles/app_text_styles.dart';
 import 'package:shakti_hormann/widgets/spaced_column.dart';
@@ -19,6 +20,7 @@ class VehicleRequestWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
+      onLongPress: ()=> showVehicleReportingDialog(context,vehicleReporting),
       onTap: onTap,
       child: Card(
         color: Colors.white,

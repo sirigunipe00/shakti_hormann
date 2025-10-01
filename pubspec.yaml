@@ -58,6 +58,7 @@ dependencies:
   flutter_image_compress: ^2.4.0
   syncfusion_flutter_charts: ^30.2.7
   fl_chart: ^1.0.0
+  onesignal_flutter: ^5.3.4
   
   
   

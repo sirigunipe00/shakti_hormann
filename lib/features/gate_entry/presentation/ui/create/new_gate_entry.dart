@@ -40,8 +40,7 @@ class _NewGateEntryState extends State<NewGateEntry> {
     return Scaffold(
       resizeToAvoidBottomInset: true,
       backgroundColor: AppColors.white,
-      appBar:
-          isNew
+      appBar: isNew
               ? SimpleAppBar(
                 title: 'New Gate Entry',
                 actionButton:
@@ -121,17 +120,12 @@ class _NewGateEntryState extends State<NewGateEntry> {
                           selectedPurchaseOrders = selectedList;
                           if (selectedPurchaseOrders.isNotEmpty) {
                             final List<PurchaseOrder> purchaseOrders =
-                                selectedList
-                                    .where(
+                                selectedList.where(
                                       (e) => e.name != null,
-                                    ) // filter nulls
-                                    .map(
+                                    ).map(
                                       (e) => PurchaseOrder(name: e.name),
-                                    ) // convert form -> PurchaseOrder
-                                    .toList();
-
-
-                            context
+                                    ) .toList();
+                                context
                                 .cubit<CreateGateEntryCubit>()
                                 .onValueChanged(
                                   purchaseOrder: purchaseOrders,
@@ -246,13 +240,9 @@ class _NewGateEntryState extends State<NewGateEntry> {
                       child: TitleStatusAppBar(
                         title: '$name',
                         status: StringUtils.docStatus(status ?? 0),
-                        actionButton:
-                            (status == 1)
+                        actionButton: (status == 1)
                                 ? null
-                                : BlocBuilder<
-                                  CreateGateEntryCubit,
-                                  CreateGateEntryState
-                                >(
+                                : BlocBuilder<CreateGateEntryCubit,CreateGateEntryState>(
                                   builder: (context, state) {
                                     return AppButton(
                                       borderColor: Colors.grey,
@@ -275,12 +265,7 @@ class _NewGateEntryState extends State<NewGateEntry> {
 
                     final names = allData.toList();
                     final selectedOrders =
-                            context
-                                .watch<CreateGateEntryCubit>()
-                                .state
-                                .form
-                                .purchaseOrder ??
-                            [];
+                            context.watch<CreateGateEntryCubit>().state.form.purchaseOrder ??[];
 
                     return SearchMultiDropDownList<PurchaseOrderForm>(
                       title: 'Purchase Order No',
@@ -297,7 +282,7 @@ class _NewGateEntryState extends State<NewGateEntry> {
                                     ),
                                   )
                                   .toList(),
-                                                 futureRequest: (query) async {
+                          futureRequest: (query) async {
                             if (query.isEmpty) return names;
 
                             return names.where((item) {
@@ -348,17 +333,12 @@ class _NewGateEntryState extends State<NewGateEntry> {
                           selectedPurchaseOrders = selectedList;
                           if (selectedPurchaseOrders.isNotEmpty) {
                             final List<PurchaseOrder> purchaseOrders =
-                                selectedList
-                                    .where(
+                                selectedList.where(
                                       (e) => e.name != null,
-                                    ) // filter nulls
-                                    .map(
+                                    ).map(
                                       (e) => PurchaseOrder(name: e.name),
-                                    ) // convert form -> PurchaseOrder
-                                    .toList();
-
-
-                            context
+                                    ) .toList();
+                                 context
                                 .cubit<CreateGateEntryCubit>()
                                 .onValueChanged(
                                   purchaseOrder: purchaseOrders,

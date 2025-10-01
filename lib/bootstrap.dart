@@ -6,6 +6,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:injectable/injectable.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
+import 'package:shakti_hormann/commans/const.dart';
 import 'package:shakti_hormann/core/consts/urls.dart';
 import 'package:shakti_hormann/core/di/injector.dart';
 import 'package:shakti_hormann/core/logger/app_logger.dart';
@@ -35,6 +37,13 @@ Future<void> _initFirebase() async {
   if (kDebugMode) {
     await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(false);
   }
+   // Enable verbose logging for debugging (remove in production)
+  OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
+  // Initialize with your OneSignal App ID
+  OneSignal.initialize(onesignalid);
+  // Use this method to prompt for push notifications.
+  // We recommend removing this method after testing and instead use In-App Messages to prompt for notification permission.
+  OneSignal.Notifications.requestPermission(false);
 }
 
 

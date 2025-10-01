@@ -21,6 +21,7 @@ class SearchDropDownList<T> extends StatefulWidget {
     this.futureRequest,
     this.fontSize,
     this.hintBuilder,
+    this.isRequired = false,
     this.closedFillColor,
     this.focusNode,
     required this.color,
@@ -29,6 +30,7 @@ class SearchDropDownList<T> extends StatefulWidget {
   final String? title;
   final String? hint;
   final double? fontSize;
+  final bool isRequired;
   final List<T> items;
   final HeaderBuilder<T>? headerBuilder;
   final ListItemBuilder<T>? listItemBuilder;
@@ -83,7 +85,7 @@ void didUpdateWidget(covariant SearchDropDownList<T> oldWidget) {
             CaptionText(
               title: widget.title ?? '',
               color: widget.color,
-              isRequired: widget.isMandatory,
+              isRequired: widget.isRequired,
             ),
             AppSpacer.p4(),
           ],

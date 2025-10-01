@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:shakti_hormann/core/utils/date_format_util.dart';
 import 'package:shakti_hormann/core/utils/string_utils.dart';
+import 'package:shakti_hormann/features/gate_exit/presentation/ui/widgets/card_details.dart';
 import 'package:shakti_hormann/widgets/doc_status_widget.dart';
 import 'package:shakti_hormann/features/gate_exit/model/gate_exit_form.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
@@ -21,6 +22,7 @@ class GateExitWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
   return GestureDetector(
+    onLongPress: ()=> showGateExitDialog(context,gateExit),
       onTap: onTap,
       child: Card(
         color: Colors.white,

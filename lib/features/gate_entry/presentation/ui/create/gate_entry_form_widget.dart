@@ -126,7 +126,6 @@ class _GateEntryFormWidgetState extends State<GateEntryFormWidget> {
                   assetIcon: 'assets/images/gateentryicon.svg',
                 ),
               ),
-
               Container(
                 padding: const EdgeInsets.only(top: 12, left: 12, right: 12),
                 width: MediaQuery.of(context).size.width,
@@ -136,13 +135,10 @@ class _GateEntryFormWidgetState extends State<GateEntryFormWidget> {
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: Colors.grey.shade300),
                 ),
-
-                child: SpacedColumn(
+                 child: SpacedColumn(
                   defaultHeight: 6,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-              
-
                     InputField(
                       readOnly: true,
                       isRequired: true,
@@ -155,7 +151,6 @@ class _GateEntryFormWidgetState extends State<GateEntryFormWidget> {
                               .cubit<CreateGateEntryCubit>()
                               .onValueChanged(plantName: p0),
                     ),
-
                     AppDateField(
                       title: 'Gate Entry Date',
                       startDate: DateTime(2020),
@@ -182,7 +177,6 @@ class _GateEntryFormWidgetState extends State<GateEntryFormWidget> {
                   assetIcon: 'assets/images/vehicleinvoicicon.svg',
                 ),
               ),
-
               Container(
                 padding: const EdgeInsets.only(top: 12, left: 12, right: 12),
                 width: MediaQuery.of(context).size.width,
@@ -198,13 +192,11 @@ class _GateEntryFormWidgetState extends State<GateEntryFormWidget> {
                   children: [
                     InputField(
                       readOnly: isCompleted,
-                      // key: UniqueKey(),
                       initialValue: newform.vendorInvoiceNo,
                       title: 'Vendor Invoice Number',
                       hintText: 'Enter Invoice No',
                       isRequired: true,
                       controller: vendorInvoiceNo,
-
                       borderColor: AppColors.grey,
                       onChanged: (p0) {
                         context.cubit<CreateGateEntryCubit>().onValueChanged(
@@ -315,26 +307,16 @@ class _GateEntryFormWidgetState extends State<GateEntryFormWidget> {
                       title: 'Scan IRN',
                       hintText: 'Tap to Scan QR Code',
                       borderColor: AppColors.grey,
-                      initialValue:
-                          context
-                              .read<CreateGateEntryCubit>()
-                              .state
-                              .form
-                              .scanIrn,
+                      initialValue: context.read<CreateGateEntryCubit>().state.form.scanIrn,
                       onChanged: (val) {
                         context.cubit<CreateGateEntryCubit>().onValueChanged(
                           scanIrn: val,
                         );
                       },
                       suffixIcon: GestureDetector(
-                        onTap:
-                            isCompleted
-                                ? null
+                        onTap: isCompleted ? null
                                 : () async {
-                                  final scanResult = await Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder:
+                                  final scanResult = await Navigator.push( context,MaterialPageRoute(builder:
                                           (context) =>
                                               const SimpleBarcodeScannerPage(
                                                 scanType: ScanType.qr,
@@ -343,7 +325,6 @@ class _GateEntryFormWidgetState extends State<GateEntryFormWidget> {
                                               ),
                                     ),
                                   );
-
                                   if (scanResult != null) {
                                     String irn = extractIrnFromQr(scanResult);
                                     setState(() {
@@ -360,16 +341,12 @@ class _GateEntryFormWidgetState extends State<GateEntryFormWidget> {
                     ),
                     BlocBuilder<GateNumberList, GateNumberState>(
                       buildWhen: (previous, current) => previous != current,
-
-                      // return previous.runtimeType != current.runtimeType;
                       builder: (_, state) {
                         final allData = state.maybeWhen(
                           orElse: () => <GateNumberForm>[],
                           success: (data) => data,
                         );
-
                         final names = allData.toList();
-
                         return SearchDropDownList(
                           title: 'Gate Number',
                           hint: 'Search Gate Number',
@@ -380,30 +357,20 @@ class _GateEntryFormWidgetState extends State<GateEntryFormWidget> {
                           readOnly: isCompleted,
                           isloading: state.isLoading,
                           defaultSelection: names.firstWhere(
-                            (g) =>
-                                g.name ==
-                                context
-                                    .read<CreateGateEntryCubit>()
-                                    .state
-                                    .form
-                                    .gateNumber,
+                            (g) => g.name == context.read<CreateGateEntryCubit>().state.form.gateNumber,
                             orElse: () => const GateNumberForm(),
                           ),
-
                           futureRequest: (query) async {
                             if (query.isEmpty) return names;
-
                             return names.where((item) {
                               final orderNo = item.name?.toLowerCase() ?? '';
                               final pointName =
                                   item.pointName?.toLowerCase() ?? '';
                               final search = query.toLowerCase();
-
                               return orderNo.contains(search) ||
                                   pointName.contains(search);
                             }).toList();
                           },
-
                           headerBuilder:
                               (_, item, __) => Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -416,8 +383,7 @@ class _GateEntryFormWidgetState extends State<GateEntryFormWidget> {
                                   ),
                                 ],
                               ),
-
-                          listItemBuilder:
+                              listItemBuilder:
                               (_, item, __, ___) => Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -431,15 +397,12 @@ class _GateEntryFormWidgetState extends State<GateEntryFormWidget> {
                                     Text(
                                       'UnLoading Point Name : ${item.pointName}',
                                     ),
-
-                                  const Divider(height: 8),
+                                    const Divider(height: 8),
                                 ],
                               ),
-
-                          onSelected: (selected) {
+                              onSelected: (selected) {
                             setState(() {
                               gateNumberForm = selected;
-
                               context
                                   .cubit<CreateGateEntryCubit>()
                                   .onValueChanged(gateNumber: selected.name);
@@ -476,7 +439,6 @@ class _GateEntryFormWidgetState extends State<GateEntryFormWidget> {
                     children: [
                       NewUploadPhotoWidget(
                         fileName: 'vehiclefront',
-
                         imageUrl: newform.vehiclePhoto,
                         title: 'Vehicle Front',
                         isRequired: true,
@@ -490,7 +452,6 @@ class _GateEntryFormWidgetState extends State<GateEntryFormWidget> {
                       ),
                       NewUploadPhotoWidget(
                         fileName: 'vehicleback',
-
                         imageUrl: newform.vehicleBackPhoto,
                         title: 'Vehicle Back',
                         isRequired: true,
@@ -504,7 +465,6 @@ class _GateEntryFormWidgetState extends State<GateEntryFormWidget> {
                       ),
                       NewUploadPhotoWidget(
                         fileName: 'vehicleinvoice',
-
                         imageUrl: newform.invoicePhoto,
                         title: 'Vehicle Invoice',
                         isRequired: true,

@@ -31,11 +31,10 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
     if (search != null && search.isNotEmpty) {
       filters.add(['name', 'like', '%$search%']);
     }
-       final plantName = user().plantName;
-  if (plantName != null && plantName.isNotEmpty) {
-    filters.add(['plant_name', '=', plantName]); 
-   
-  }
+    final plantName = user().plantName;
+    if (plantName != null && plantName.isNotEmpty) {
+      filters.add(['plant_name', '=', plantName]);
+    }
     final requestConfig = RequestConfig(
       url: Urls.getList,
       parser: (json) {
@@ -96,24 +95,20 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
   @override
   AsyncValueOf<List<PurchaseOrderForm>> fetchPurchaseOrders(String name) async {
     return await executeSafely(() async {
-    
-
       final plantName = user().plantName;
-       final filters = <List<dynamic>>[];
+      final filters = <List<dynamic>>[];
 
-    if (plantName != null && plantName.isNotEmpty) {
-      filters.add(['company', '=', plantName]);
-    }
+      if (plantName != null && plantName.isNotEmpty) {
+        filters.add(['company', '=', plantName]);
+      }
 
       final reqParams = {
-      'limit': 20,
-      'order_by': 'creation desc',
-      'doctype': 'SAP Purchase Order',
-      'fields': jsonEncode(['*']),   
-      'filters': jsonEncode(filters), 
-    };
-
-     
+        'limit': 20,
+        'order_by': 'creation desc',
+        'doctype': 'SAP Purchase Order',
+        'fields': jsonEncode(['*']),
+        'filters': jsonEncode(filters),
+      };
 
       final config = RequestConfig(
         url: Urls.getList,

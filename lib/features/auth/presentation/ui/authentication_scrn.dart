@@ -114,7 +114,7 @@ class _LoginScrnWidgetState extends State<LoginScrnWidget> {
                           ),
                         );
                       },
-                      child: SizedBox()
+                      child: const SizedBox()
                       // const Text(
                       //   'Forgot Password?',
                       //   style: TextStyle(

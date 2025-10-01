@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:shakti_hormann/features/gate_entry/model/gate_entry_form.dart';
+import 'package:shakti_hormann/features/gate_exit/model/gate_exit_form.dart';
 
-void showGateEntryDialog(BuildContext context, GateEntryForm gateEntry) {
+void showGateExitDialog(BuildContext context, GateExitForm gateExit) {
   showDialog(
     context: context,
     builder: (context) {
@@ -20,23 +20,23 @@ void showGateEntryDialog(BuildContext context, GateEntryForm gateEntry) {
                 // If vehicle front photo available → show it in circle avatar
                 // CircleAvatar(
                 //   radius: 40,
-                //   backgroundImage: gateEntry.vehiclePhoto != null
-                //       ? NetworkImage('http://65.21.243.18:8000${gateEntry.vehiclePhoto!}')
+                //   backgroundImage: gateExit.vehiclePhoto != null
+                //       ? NetworkImage('http://65.21.243.18:8000${gateExit.vehiclePhoto!}')
                 //       : const AssetImage('assets/images/placeholder.png') as ImageProvider,
                 // ),
                 const SizedBox(height: 10),
 
                 // Info rows
-                _infoText('Plant Name', gateEntry.plantName),
-                _infoText('Invoice No', gateEntry.vendorInvoiceNo),
-                _infoText('Invoice Date', gateEntry.vendorInvoiceDate),
-                _infoText('Vehicle No', gateEntry.vehicleNo),
+                _infoText('Plant Name', gateExit.plantName),
+                _infoText('Gate Exit Date', gateExit.gateEntryDate),
+                _infoText('Vehicle No', gateExit.vehicleNo),
 
                 const SizedBox(height: 20),
 
-                if (gateEntry.vehiclePhoto != null ||
-                    gateEntry.vehicleBackPhoto != null ||
-                    gateEntry.invoicePhoto != null) ...[
+                // Photos Grid Section
+                if (gateExit.vehiclePhoto != null ||
+                    gateExit.vehicleBackPhoto != null 
+                 ) ...[
                   const Text(
                     'Photos',
                     style: TextStyle(
@@ -52,12 +52,11 @@ void showGateEntryDialog(BuildContext context, GateEntryForm gateEntry) {
                     runSpacing: 12,
                     alignment: WrapAlignment.center,
                     children: [
-                      if (gateEntry.vehiclePhoto != null)
-                        _photoCard('Vehicle Front', gateEntry.vehiclePhoto!),
-                      if (gateEntry.vehicleBackPhoto != null)
-                        _photoCard('Vehicle Back', gateEntry.vehicleBackPhoto!),
-                      if (gateEntry.invoicePhoto != null)
-                        _photoCard('Invoice', gateEntry.invoicePhoto!),
+                      if (gateExit.vehiclePhoto != null)
+                        _photoCard('Vehicle Front', gateExit.vehiclePhoto!),
+                      if (gateExit.vehicleBackPhoto != null)
+                        _photoCard('Vehicle Back', gateExit.vehicleBackPhoto!),
+                      
                     ],
                   ),
                 ],

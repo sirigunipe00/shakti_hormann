@@ -14,8 +14,12 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart' as _i558;
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:http/http.dart' as _i519;
 import 'package:injectable/injectable.dart' as _i526;
+import 'package:package_info_plus/package_info_plus.dart' as _i655;
 import 'package:shared_preferences/shared_preferences.dart' as _i460;
 
+import '../../app/data/app_repo.dart' as _i820;
+import '../../app/data/app_version.dart' as _i346;
+import '../../app/presentation/bloc/app_update_bloc_provider.dart' as _i117;
 import '../../features/auth/data/auth_repo.dart' as _i585;
 import '../../features/auth/data/auth_repo_impl.dart' as _i328;
 import '../../features/auth/presentation/bloc/auth/auth_cubit.dart' as _i190;
@@ -94,6 +98,10 @@ extension GetItInjectableX on _i174.GetIt {
     gh.singleton<_i558.FlutterSecureStorage>(
       () => thirdPartyDependencies.secureStorage,
     );
+    await gh.singletonAsync<_i655.PackageInfo>(
+      () => thirdPartyDependencies.packageInfo,
+      preResolve: true,
+    );
     await gh.singletonAsync<_i460.SharedPreferences>(
       () => thirdPartyDependencies.sharedPreferences,
       preResolve: true,
@@ -106,6 +114,9 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i558.FlutterSecureStorage>(),
         gh<_i460.SharedPreferences>(),
       ),
+    );
+    gh.lazySingleton<_i346.AppVersion>(
+      () => _i346.AppVersion(gh<_i655.PackageInfo>()),
     );
     gh.factory<_i557.ApiClient>(
       () => _i557.ApiClient(
@@ -159,6 +170,9 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i947.SignInCubit(gh<_i585.AuthRepo>()),
     );
     gh.factory<_i190.AuthCubit>(() => _i190.AuthCubit(gh<_i585.AuthRepo>()));
+    gh.lazySingleton<_i820.AppRepository>(
+      () => _i820.AppRepository(gh<_i351.ApiClient>(), gh<_i346.AppVersion>()),
+    );
     gh.factory<_i92.CreateGateEntryCubit>(
       () => _i92.CreateGateEntryCubit(gh<_i936.GateEntryRepo>()),
     );
@@ -170,6 +184,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i565.GateExitBlocProvider>(
       () => _i565.GateExitBlocProvider(gh<_i495.GateExitRepo>()),
+    );
+    gh.lazySingleton<_i117.AppUpdateBlocprovider>(
+      () => _i117.AppUpdateBlocprovider(gh<_i820.AppRepository>()),
     );
     gh.lazySingleton<_i627.DashBoardBlocProvider>(
       () => _i627.DashBoardBlocProvider(gh<_i886.Dashboardrepo>()),

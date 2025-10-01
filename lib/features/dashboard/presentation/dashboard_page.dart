@@ -178,9 +178,9 @@ Widget _buildChartCard({
         padding: const EdgeInsets.all(12),
         child: SfCartesianChart(
           primaryXAxis: const CategoryAxis(title: AxisTitle(text: 'Day')),
-          primaryYAxis: NumericAxis(
-            majorGridLines: const MajorGridLines(width: 0.3),
-            axisLine: const AxisLine(width: 0),
+          primaryYAxis: const NumericAxis(
+            majorGridLines:  MajorGridLines(width: 0.3),
+            axisLine:  AxisLine(width: 0),
           ),
           legend: const Legend(isVisible: true),
           series: <CartesianSeries>[
@@ -223,7 +223,7 @@ class StatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       width: MediaQuery.of(context).size.width / 2 - 24, // Responsive width
       child: Card(
         elevation: 2,

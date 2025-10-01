@@ -148,6 +148,7 @@ class __LogisticPlanningFormWidgetState
                               title: 'Transport Type',
                               hint: 'Select Transporter Type',
                               readOnly: isCompleted,
+                              isRequired: true,
                               color: AppColors.black,
                               items: Dropdownoptions.transporterType,
                               defaultSelection: newform.transporterType,
@@ -178,6 +179,7 @@ class __LogisticPlanningFormWidgetState
                             SearchDropDownList<String>(
                               title: 'Dispatch Type',
                               hint: 'Select Dispatch Type',
+                              isRequired: true,
                               readOnly: isCompleted,
                               color: AppColors.black,
                               items: Dropdownoptions.dispatchType,
@@ -286,6 +288,7 @@ class __LogisticPlanningFormWidgetState
                                 return SearchDropDownList(
                                   key: ValueKey(newform.preferredVehicleType),
                                   readOnly: isCompleted,
+                                  isRequired: true,
                                   color: AppColors.black,
                                   items: names,
 

@@ -8,6 +8,7 @@ import 'package:get_it/get_it.dart';
 import 'package:http/http.dart';
 import 'package:http/io_client.dart';
 import 'package:injectable/injectable.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'injector.config.dart';
 
@@ -43,6 +44,10 @@ abstract class ThirdPartyDependencies {
 
   @singleton
   FlutterSecureStorage get secureStorage => const FlutterSecureStorage();
+
+    @singleton
+  @preResolve
+  Future<PackageInfo> get packageInfo => PackageInfo.fromPlatform();
 
   @singleton
   @preResolve

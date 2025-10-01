@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shakti_hormann/app/presentation/bloc/app_update_bloc_provider.dart';
 import 'package:shakti_hormann/app/presentation/ui/app_profile_page.dart';
 import 'package:shakti_hormann/app/presentation/ui/app_home_page.dart';
 import 'package:shakti_hormann/app/presentation/ui/app_splash_scrn.dart';
@@ -89,8 +90,11 @@ class AppRouterConfig {
             routes: [
               GoRoute(
                 path: AppRoute.home.path,
-                builder: (_, state) => const AppHomePage(),
-                routes: [
+                builder: (_, state) => BlocProvider(
+                  create: (_) =>
+                      AppUpdateBlocprovider.get().appversionCubit()..request(),
+                  child: const AppHomePage(),
+                ),                routes: [
                   GoRoute(
                     path: _getPath(AppRoute.notifications),
                     builder: (ctxt, state) => NotificationListScreen(),

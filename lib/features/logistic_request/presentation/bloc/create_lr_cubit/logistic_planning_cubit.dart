@@ -251,6 +251,15 @@ class CreateLogisticCubit extends AppBaseCubit<CreateLogisticState> {
   } else if (form.requestedDeliveryTime.isNull || 
              (form.requestedDeliveryTime?.trim().isEmpty ?? true)) {
     return optionOf(const Pair('Missing Request Delivery Time', 0));
+  }else if (form.transporterType.isNull || 
+             (form.transporterType?.trim().isEmpty ?? true)) {
+    return optionOf(const Pair('Missing Transporter Type', 0));
+  }else if (form.dispatchType.isNull || 
+             (form.dispatchType?.trim().isEmpty ?? true)) {
+    return optionOf(const Pair('Missing Dispatch Type', 0));
+  }else if (form.preferredVehicleType.isNull || 
+             (form.preferredVehicleType?.trim().isEmpty ?? true)) {
+    return optionOf(const Pair('Missing Preferred Vehicle Type', 0));
   }
     return none();
   }
