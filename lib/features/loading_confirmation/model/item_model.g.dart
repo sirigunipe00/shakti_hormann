@@ -16,6 +16,8 @@ _$ItemModelImpl _$$ItemModelImplFromJson(
   modifiedBy: json['modified_by'] as String?,
   docstatus: (json['docstatus'] as num?)?.toInt(),
   idx: (json['idx'] as num?)?.toInt(),
+  uomValue: json['uom'] as String?,
+  qty: (json['qty'] as num?)?.toInt(),
   namingSeries: json['naming_series'] as String?,
   itemCode: json['item_code'] as String?,
   itemName: json['item_name'] as String?,
@@ -93,7 +95,7 @@ _$ItemModelImpl _$$ItemModelImplFromJson(
   defaultManufacturerPartNo: json['default_manufacturer_part_no'] as String?,
   totalProjectedQty: (json['total_projected_qty'] as num?)?.toDouble(),
   qtyLoaded: (json['qty_loaded'] as num?)?.toDouble(),
-  uom: json['uom'] as String?,
+  uoms: json['uoms'] as String?,
   imageFile: toNull(json['imageFile']),
 );
 
@@ -106,6 +108,8 @@ Map<String, dynamic> _$$ItemModelImplToJson(_$ItemModelImpl instance) =>
       'modified_by': instance.modifiedBy,
       'docstatus': instance.docstatus,
       'idx': instance.idx,
+      'uom': instance.uomValue,
+      'qty': instance.qty,
       'naming_series': instance.namingSeries,
       'item_code': instance.itemCode,
       'item_name': instance.itemName,
@@ -181,5 +185,5 @@ Map<String, dynamic> _$$ItemModelImplToJson(_$ItemModelImpl instance) =>
       'default_manufacturer_part_no': instance.defaultManufacturerPartNo,
       'total_projected_qty': instance.totalProjectedQty,
       'qty_loaded': instance.qtyLoaded,
-      'uom': instance.uom,
+      'uoms': instance.uoms,
     };

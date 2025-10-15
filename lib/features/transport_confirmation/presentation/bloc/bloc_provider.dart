@@ -1,7 +1,9 @@
 import 'package:injectable/injectable.dart';
 import 'package:shakti_hormann/core/cubit/infinite_list/infinite_list_cubit.dart';
+import 'package:shakti_hormann/core/cubit/network_request/network_request_cubit.dart';
 import 'package:shakti_hormann/core/di/injector.dart';
 import 'package:shakti_hormann/core/model/pair.dart';
+import 'package:shakti_hormann/features/logistic_request/model/sales_order.dart';
 import 'package:shakti_hormann/features/transport_confirmation/data/transport_confrimation_repo.dart';
 import 'package:shakti_hormann/features/transport_confirmation/model/transport_confirmation_form.dart';
 
@@ -9,6 +11,8 @@ typedef TransportCubit =
     InfiniteListCubit<TransportConfirmationForm, Pair<String?, String?>, Pair<String?, String?>>;
 typedef TtransportState = InfiniteListState<TransportConfirmationForm>;
 
+typedef SalesOrders = NetworkRequestCubit<List<SalesOrder>, String>;
+typedef SalesState = NetworkRequestState<List<SalesOrder>>;
 
 
 @lazySingleton
@@ -26,4 +30,7 @@ class TransportCnfmBlocProvider {
         (params, state) =>
             repo.fetchTransports(state.curLength, params!.first, params.second),
   );
+
+  SalesOrders salesList() =>
+      SalesOrders(onRequest: (params, state) => repo.fetchSales(params ?? ''));
 }

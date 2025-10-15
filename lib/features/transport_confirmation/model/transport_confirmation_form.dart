@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:shakti_hormann/features/logistic_request/model/sales_order.dart';
 
 part 'transport_confirmation_form.freezed.dart';
 part 'transport_confirmation_form.g.dart';
@@ -15,10 +16,11 @@ class TransportConfirmationForm with _$TransportConfirmationForm {
     @JsonKey(name: 'idx') int? idx,
     @JsonKey(name: 'amended_from') String? amendedFrom,
     @JsonKey(name: 'plant_name') String? plantName,
-    @JsonKey(name: 'sales_order') String? salesOrder,
+    @JsonKey(name: 'sales_orders') List<SalesOrder>? salesOrder,
     @JsonKey(name: 'transport_type') String? transporterType,
     @JsonKey(name: 'dispatch_type') String? dispatchType,
     @JsonKey(name: 'transporter_name') String? transporterName,
+    @JsonKey(name: 'transporter_name2') String? transporterName2,
     @JsonKey(name: 'preferred_vehicle_type') String? preferredVehicleType,
     @JsonKey(name: 'delivery_address') String? deliveryAddress,
     @JsonKey(name:'delivery_address_1') String? shippingAddress1,
@@ -34,7 +36,8 @@ class TransportConfirmationForm with _$TransportConfirmationForm {
     @JsonKey(name: 'any_special_instructions') String? anySpecialInstructions,
     @JsonKey(name: 'transporter_confirmation_date') String? transporterConfirmationDate,
     @JsonKey(name: 'driver_name') String? driverName,
-    @JsonKey(name: 'estimated_arrival') String? estimatedArrival,
+    @JsonKey(name: 'estimated_arrival_date') String? estimatedArrivalDate,
+    @JsonKey(name: 'estimated_arrival_time') String? estimatedArrivalTime,
     @JsonKey(name: 'transporter_remarks') String? transporterRemarks,
     @JsonKey(name: 'vehicle_number') String? vehicleNumber,
     @JsonKey(name: 'driver_contact') String? driverContact,

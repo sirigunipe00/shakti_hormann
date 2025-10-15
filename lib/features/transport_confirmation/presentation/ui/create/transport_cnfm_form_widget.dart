@@ -4,6 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/features/logistic_request/model/transporter_form.dart';
+import 'package:shakti_hormann/features/logistic_request/presentation/bloc/bloc_provider.dart';
+import 'package:shakti_hormann/features/logistic_request/presentation/ui/create/salesorder.dart';
 import 'package:shakti_hormann/features/transport_confirmation/presentation/bloc/create_transport_cubit.dart/create_transport_cubit.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/widgets/input_filed.dart';
@@ -86,12 +88,11 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
                           top: 15,
                           left: 16,
                           right: 16,
-                          bottom: 6
+                          bottom: 6,
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                         
                             InputField(
                               title: 'Plant Name',
                               hintText: 'Enter Plant Name',
@@ -149,7 +150,7 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
                               ),
                             ),
                             const SizedBox(height: 12),
-                              InputField(
+                            InputField(
                               title: 'Transport Type',
 
                               readOnly: true,
@@ -162,8 +163,8 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
                                       .cubit<CreateTransportCubit>()
                                       .onValueChanged(preferredVehicleType: p0),
                             ),
-                            const SizedBox(height: 12.0,),
-                              InputField(
+                            const SizedBox(height: 12.0),
+                            InputField(
                               title: 'Dispatch Type',
 
                               readOnly: true,
@@ -221,21 +222,34 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
                   assetIcon: 'assets/images/vehicleinvoicicon.svg',
                 ),
               ),
-              // Card(
-//   color: Colors.white,
-//   shape: RoundedRectangleBorder(
-//     borderRadius: BorderRadius.circular(20),
-//     side: const BorderSide(color: Color(0xFFE8ECF4), width: 1),
-//   ),
-//   child: Padding(
-//     padding: const EdgeInsets.all(8.0),
-//     child: SalesOrderTable(
-//       salesOrders: context.read<CreateLogisticCubit>().state.form.salesOrder ?? [],
-//       widthFactor: 1.2, // adjust if needed
-//     ),
-//   ),
-// ),
+              Card(
+                color: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  side: const BorderSide(color: Color(0xFFE8ECF4), width: 1),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: BlocBuilder<SalesOrders, SalesState>(
+                    builder: (context, state) {
+                      return state.maybeWhen(
+                        success: (data) {
+                          context.read<CreateTransportCubit>().addsaleseorders(
+                            salesorder: data,
+                          );
 
+                          return SalesOrderTable(
+                            salesOrders: data,
+
+                            widthFactor: 1.2,
+                          );
+                        },
+                        orElse: () => const SizedBox(),
+                      );
+                    },
+                  ),
+                ),
+              ),
 
               Card(
                 color: Colors.white,
@@ -244,7 +258,12 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
                   side: const BorderSide(color: Color(0xFFE8ECF4), width: 1),
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.only(top: 16, left: 16, right: 16,bottom: 4),
+                  padding: const EdgeInsets.only(
+                    top: 16,
+                    left: 16,
+                    right: 16,
+                    bottom: 4,
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -283,7 +302,9 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
                               hintText: 'Select Time',
                               readOnly: true,
 
-                              initialTime:formatTime (newform.requestedDeliveryTime),
+                              initialTime: formatTime(
+                                newform.requestedDeliveryTime,
+                              ),
                               onTimeChanged: (selectedTime) {
                                 context
                                     .cubit<CreateTransportCubit>()
@@ -294,79 +315,6 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
                             ),
                           ),
                         ],
-                      ),
-                      const SizedBox(height: 12),
-                      InputField(
-                        title: 'Shipping Address-1',
-                        readOnly: true,
-                        hintText: 'Enter Address',
-                        borderColor: AppColors.grey,
-                        initialValue: newform.shippingAddress1,
-                        onChanged:
-                            (value) => context
-                                .cubit<CreateTransportCubit>()
-                                .onValueChanged(shippingAddress1: value),
-                      ),
-                      const SizedBox(height: 12),
-                      InputField(
-                        title: 'Shipping Address-2',
-                        readOnly: true,
-                        hintText: 'Enter Address',
-                        borderColor: AppColors.grey,
-                        initialValue: newform.shippingAddress2,
-                        onChanged:
-                            (value) => context
-                                .cubit<CreateTransportCubit>()
-                                .onValueChanged(shippingAddress2: value),
-                      ),
-
-                      const SizedBox(height: 12),
-                      InputField(
-                        title: 'Shipping Country',
-                        readOnly: true,
-                        hintText: 'Enter Country',
-                        borderColor: AppColors.grey,
-                        initialValue: newform.country,
-                        onChanged:
-                            (value) => context
-                                .cubit<CreateTransportCubit>()
-                                .onValueChanged(country: value),
-                      ),
-                      const SizedBox(height: 12),
-                      InputField(
-                        title: 'Shipping State',
-                        readOnly: true,
-                        hintText: 'Enter State',
-                        borderColor: AppColors.grey,
-                        initialValue: newform.states,
-                        onChanged:
-                            (value) => context
-                                .cubit<CreateTransportCubit>()
-                                .onValueChanged(states: value),
-                      ),
-                      const SizedBox(height: 12),
-                      InputField(
-                        title: 'Shipping City',
-                        readOnly: true,
-                        hintText: 'Enter City',
-                        borderColor: AppColors.grey,
-                        initialValue: newform.city,
-                        onChanged:
-                            (value) => context
-                                .cubit<CreateTransportCubit>()
-                                .onValueChanged(city: value),
-                      ),
-                      const SizedBox(height: 12),
-                      InputField(
-                        title: 'Shipping Pin Code',
-                        readOnly: true,
-                        hintText: 'Enter Pincode',
-                        borderColor: AppColors.grey,
-                        initialValue: newform.pincode,
-                        onChanged:
-                            (value) => context
-                                .cubit<CreateTransportCubit>()
-                                .onValueChanged(pinCode: value),
                       ),
                     ],
                   ),
@@ -443,7 +391,7 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
                           top: 20,
                           left: 16,
                           right: 16,
-                          bottom: 6
+                          bottom: 6,
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -524,84 +472,61 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
                                       .cubit<CreateTransportCubit>()
                                       .onValueChanged(driverContact: p0),
                             ),
-                          AppDateField(
-                              title: 'Estimated Arrival Date and Time',
-                              hintText: 'Select Date',
-                              isRequired: true,
-                              readOnly: isCompleted,
-                              startDate: DateTime.now(),
-                              endDate: DateTime(2030),
-                              initialDate: DFU.ddMMyyyyHHmmssFromStr(
-                                newform.estimatedArrival ?? '',
-                              ),
-                              onSelected: (DateTime date) {
-                                setState(() {
-                                  selectedDate = date;
-                                  context
-                                      .cubit<CreateTransportCubit>()
-                                      .onValueChanged(
-                                        estimatedArrival: DateFormat(
-                                          'dd-MM-yyyy',
-                                        ).format(date),
-                                      );
-                                });
-                              },
-                              fillColor: Colors.grey[200],
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  child: AppDateField(
+                                    title: 'Estimated Arrival Date',
+                                    hintText: 'Select Date',
+                                    isRequired: true,
+                                    readOnly: isCompleted,
+                                    startDate: DateTime.now(),
+                                    endDate: DateTime(2030),
+                                    initialDate: DFU.ddMMyyyyFromStr(
+                                      newform.estimatedArrivalDate ?? '',
+                                    ),
+                                    onSelected: (DateTime date) {
+                                      setState(() {
+                                        selectedDate = date;
+                                        context
+                                            .cubit<CreateTransportCubit>()
+                                            .onValueChanged(
+                                              estimatesdArrivalDate: DateFormat(
+                                                'dd-MM-yyyy',
+                                              ).format(date),
+                                            );
+                                      });
+                                    },
+                                    fillColor: Colors.grey[200],
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                   Expanded(
+                                     child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                       children: [
+                                         TimePickerField(
+                                            title: 'Estimated Arrival Time',
+                                            readOnly: isCompleted,
+                                            isRequired: true,
+                                            hintText: 'Select Time',
+                                            initialTime: formatTime(
+                                              newform.estimatedArrivalTime
+                                            ),
+                                            onTimeChanged: (selectedTime) {
+                                              context
+                                                  .cubit<CreateTransportCubit>()
+                                                  .onValueChanged(
+                                                    estimatedArrivalTime: selectedTime,
+                                                  );
+                                            },
+                                          ),
+                                       ],
+                                     ),
+                                   ),
+                              ],
                             ),
-                            // Row(
-                            //   crossAxisAlignment: CrossAxisAlignment.start,
-                            //   children: [
-                            //     Expanded(
-                            //       child: AppDateField(
-                            //         title: 'Estimated Arrival Date',
-                            //         hintText: 'Select Date',
-                            //         isRequired: true,
-                            //         readOnly: isCompleted,
-                            //         startDate: DateTime.now(),
-                            //         endDate: DateTime(2030),
-                            //         initialDate: DFU.ddMMyyyyFromStr(
-                            //           newform.requestedDeliveryDate ?? '',
-                            //         ),
-                            //         onSelected: (DateTime date) {
-                            //           setState(() {
-                            //             selectedDate = date;
-                            //             context
-                            //                 .cubit<CreateTransportCubit>()
-                            //                 .onValueChanged(
-                            //                   estimatedArrival: DateFormat(
-                            //                     'dd-MM-yyyy',
-                            //                   ).format(date),
-                            //                 );
-                            //           });
-                            //         },
-                            //         fillColor: Colors.grey[200],
-                            //       ),
-                            //     ),
-                            //     const SizedBox(width: 13),
-                            //     Expanded(
-                            //       child: Column(
-                            //         mainAxisSize: MainAxisSize.min,
-                            //         children: [
-                            //           TimePickerField(
-                            //             title: 'Estimated Arrival Time',
-                            //             readOnly: isCompleted,
-                            //             isRequired: true,
-                            //             hintText: 'Select Time',
-                            //             initialTime:
-                            //                 newform.requestedDeliveryTime,
-                            //             onTimeChanged: (selectedTime) {
-                            //               context
-                            //                   .cubit<CreateTransportCubit>()
-                            //                   .onValueChanged(
-                            //                     estimatedArrival: selectedTime,
-                            //                   );
-                            //             },
-                            //           ),
-                            //         ],
-                            //       ),
-                            //     ),
-                            //   ],
-                            // ),
                           ],
                         ),
                       ),
@@ -653,6 +578,7 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
     );
   }
 }
+
 String? formatTime(String? backendTime) {
   if (backendTime == null || backendTime.isEmpty) return null;
 

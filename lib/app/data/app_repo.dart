@@ -27,10 +27,26 @@ class AppRepository extends BaseApiRepository {
       final appVersionStr = await appVersion.getAppVersion();
       $logger..devLog('APPVERSION:$appVersionStr')
       ..devLog('SERVER VERSION:$serverVersion');
-      if (appVersionStr.compareTo(serverVersion) < 0) {
+     bool updateRequired = isUpdateRequired(appVersionStr, serverVersion);
+
+      if (updateRequired) {
         return right(true);
+      } else {
+        return right(false);
       }
-      return right(false);
     });
   }
+}
+bool isUpdateRequired(String appVersion, String serverVersion) {
+  List<int> appParts = appVersion.split('.').map(int.parse).toList();
+  List<int> serverParts = serverVersion.split('.').map(int.parse).toList();
+
+  for (int i = 0; i < serverParts.length; i++) {
+    int app = (i < appParts.length) ? appParts[i] : 0;
+    int server = serverParts[i];
+
+    if (app < server) return true; 
+    if (app > server) return false; 
+  }
+  return false; 
 }

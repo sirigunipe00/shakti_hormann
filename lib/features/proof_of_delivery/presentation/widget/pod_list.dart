@@ -44,6 +44,7 @@ class _PodListScrnState extends State<PodListScrn>
       backgroundColor: AppColors.white,
       onNew: () async {
         final refresh = await AppRoute.newproofOfDelivery.push<bool?>(context);
+        if(!context.mounted) return;
         if (refresh == true && mounted) {
           _fetchInitial(context);
         }
@@ -66,6 +67,7 @@ class _PodListScrnState extends State<PodListScrn>
               onTap: () async {
                 final refresh = await AppRoute.newproofOfDelivery
                     .push<bool?>(context, extra: entry);
+                    if(!context.mounted) return;
                 if (refresh == true && mounted) {
                   _fetchInitial(context);
                 }

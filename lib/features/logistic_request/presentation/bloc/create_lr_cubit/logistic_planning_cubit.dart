@@ -105,9 +105,13 @@ class CreateLogisticCubit extends AppBaseCubit<CreateLogisticState> {
   }
 
   void initDetails(Object? entry) {
+    
+
+
     shouldAskForConfirmation.value = false;
     if (entry is LogisticPlanningForm) {
       final form = state.form;
+      print('requestedDeliveryDate ${entry.requestedDeliveryDate}');
       final updatedForm = form.copyWith(
         docstatus: entry.docstatus,
         name: entry.name,
@@ -168,11 +172,12 @@ class CreateLogisticCubit extends AppBaseCubit<CreateLogisticState> {
         LogisticPlanningView.completed => LogisticPlanningView.completed,
       };
 
-      final status = switch (state.view) {
-        LogisticPlanningView.create => 'Draft',
-        LogisticPlanningView.edit ||
-        LogisticPlanningView.completed => 'Send For Approval',
-      };
+      // final status = switch (state.view) {
+      //   LogisticPlanningView.create => 'Draft',
+      //   LogisticPlanningView.edit ||
+      //   LogisticPlanningView.completed => 'Send For Approval',
+      // };
+      
 
       if (state.view == LogisticPlanningView.create) {
         final response = await repo.createLogisticPlanning(state.form);
@@ -182,6 +187,7 @@ class CreateLogisticCubit extends AppBaseCubit<CreateLogisticState> {
           (r) {
             shouldAskForConfirmation.value = false;
             final docstatus = r.second;
+            final status = 'Draft';
             emitSafeState(
               state.copyWith(
                 isLoading: false,
@@ -199,12 +205,13 @@ class CreateLogisticCubit extends AppBaseCubit<CreateLogisticState> {
         return response.fold(
           (l) => emitSafeState(state.copyWith(isLoading: false, error: l)),
           (r) {
+            final status = 'Pending From Transporter';
             shouldAskForConfirmation.value = false;
             emitSafeState(
               state.copyWith(
                 isLoading: false,
                 isSuccess: true,
-                form: state.form.copyWith(docstatus: 1),
+                form: state.form.copyWith(name: status),
                 successMsg: r,
                 view: LogisticPlanningView.completed,
               ),

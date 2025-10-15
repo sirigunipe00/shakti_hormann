@@ -6,14 +6,17 @@ import 'package:image_picker/image_picker.dart';
 import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/features/loading_confirmation/model/item_model.dart';
 import 'package:shakti_hormann/features/loading_confirmation/model/loading_cnfm.dart';
+import 'package:shakti_hormann/features/loading_confirmation/model/logistic.dart';
 import 'package:shakti_hormann/features/loading_confirmation/presentation/bloc/bloc_provider.dart';
 import 'package:shakti_hormann/features/loading_confirmation/presentation/bloc/create_loading_cubit/create_loading_cnfm_cubit.dart';
+import 'package:shakti_hormann/features/loading_confirmation/presentation/ui/create/sales_order_table.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/widgets/dailogs/app_snack_bar_widget.dart';
 import 'package:shakti_hormann/widgets/input_filed.dart';
 import 'package:shakti_hormann/widgets/inputs/date_picker_field.dart';
 import 'package:shakti_hormann/widgets/inputs/new_upload_photo_widget.dart';
 import 'package:shakti_hormann/widgets/inputs/search_dropdown_widget.dart';
+import 'package:shakti_hormann/widgets/inputs/time_picker.dart';
 import 'package:shakti_hormann/widgets/loading_indicator.dart';
 import 'package:shakti_hormann/widgets/sectionheader.dart';
 import 'package:shakti_hormann/widgets/spaced_column.dart';
@@ -109,16 +112,16 @@ class _LoadingCnfmFormWidget extends State<LoadingCnfmFormWidget> {
                               onChanged: (p0) {},
                             ),
                             const SizedBox(height: 12),
-                             InputField(
+                            InputField(
                               title: 'Linked Transporter No',
                               hintText: 'Linked Transporter No',
                               readOnly: true,
                               isRequired: true,
                               borderColor: AppColors.grey,
-                              initialValue: newform.linkedTransporterConfirmation,
-        
-                              onChanged:
-                                  (p0) {}
+                              initialValue:
+                                  newform.linkedTransporterConfirmation,
+
+                              onChanged: (p0) {},
                             ),
                             AppDateField(
                               title: 'Vehicle Reporting Date',
@@ -148,6 +151,46 @@ class _LoadingCnfmFormWidget extends State<LoadingCnfmFormWidget> {
                   ],
                 ),
               ),
+              const SizedBox(height: 15),
+              const Padding(
+                padding: EdgeInsets.only(left: 16.0),
+                child: SectionHeader(
+                  title: 'Sales Orders',
+                  assetIcon: 'assets/images/vehicleinvoicicon.svg',
+                ),
+              ),
+              Card(
+                color: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  side: const BorderSide(color: Color(0xFFE8ECF4), width: 1),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: BlocBuilder<Logistic, LogisticState>(
+                    builder: (context, state) {
+                      return state.maybeWhen(
+                        loading:
+                            () => const Center(
+                              child: CircularProgressIndicator(),
+                            ),
+                        failure: (msg) => Center(child: Text('Error: $msg')),
+                        success: (salesOrders) {
+                          if (salesOrders.isNotEmpty) {
+                            context.cubit<ItemList>().request(salesOrders);
+                          }
+
+                          return SalesOrderTables(
+                            salesOrders: salesOrders,
+                            widthFactor: 1.2,
+                          );
+                        },
+                        orElse: () => const SizedBox(),
+                      );
+                    },
+                  ),
+                ),
+              ),
 
               const SizedBox(height: 15),
               const Padding(
@@ -168,17 +211,43 @@ class _LoadingCnfmFormWidget extends State<LoadingCnfmFormWidget> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      AppDateField(
-                        title: 'Arrival Date and Time',
-                        hintText: 'Select Date',
-                        readOnly: true,
-                        startDate: DateTime(2020),
-                        endDate: DateTime(2030),
-                        initialDate: DFU.ddMMyyyyFromStr(
-                          newform.arrivalDateAndTime ?? '',
-                        ),
-                        onSelected: (DateTime date) {},
-                        fillColor: Colors.grey[200],
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: AppDateField(
+                              title: 'Arrival Date',
+                              hintText: 'Select Date',
+                              isRequired: true,
+                              readOnly: true,
+                              key: ValueKey(newform.arrivalDate ?? ''),
+                              startDate: DateTime.now(),
+                              endDate: DateTime(2030),
+                              initialDate: DFU.ddMMyyyyFromStr(
+                                newform.arrivalDate ?? '',
+                              ),
+                              onSelected: (DateTime date) {},
+                              fillColor: Colors.white,
+                            ),
+                          ),
+                          const SizedBox(width: 13),
+                          Expanded(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                TimePickerField(
+                                  title: 'Arrival Time',
+                                  readOnly: true,
+                                  isRequired: true,
+                                  key: UniqueKey(),
+                                  hintText: 'Select Time',
+                                  initialTime: formatTime(newform.arrivalTime),
+                                  onTimeChanged: (selectedTime) {},
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
 
                       const SizedBox(height: 12),
@@ -272,6 +341,15 @@ class _LoadingCnfmFormWidget extends State<LoadingCnfmFormWidget> {
   }
 }
 
+String? formatTime(String? backendTime) {
+  if (backendTime == null || backendTime.isEmpty) return null;
+
+  final parts = backendTime.split(':');
+  if (parts.length < 2) return backendTime;
+
+  return '${parts[0]}:${parts[1]}';
+}
+
 class ItemLoadedTable extends StatefulWidget {
   const ItemLoadedTable({
     super.key,
@@ -294,15 +372,16 @@ class _ItemLoadedTableState extends State<ItemLoadedTable> {
     super.initState();
 
     // Map ItemModel list into rows
-   rows = widget.initialData.map((item) {
-  return {
-    'itemCode': item.itemCode,
-    'itemName': item.itemName,
-    'qty': item.qtyLoaded?.toString() ?? '',
-    'uom': item.uom,
-    'photo': item.loadedItemPhoto ?? '', // 👈 keep raw value
-  };
-}).toList();
+    rows =
+        widget.initialData.map((item) {
+          return {
+            'itemCode': item.itemCode,
+            'itemName': item.itemName,
+            'qty': item.qtyLoaded?.toString() ?? '',
+            'uom': item.uomValue,
+            'photo': item.loadedItemPhoto ?? '', // 👈 keep raw value
+          };
+        }).toList();
 
     // 🔹 Push API-loaded records to cubit as well
     Future.microtask(() {
@@ -318,20 +397,37 @@ class _ItemLoadedTableState extends State<ItemLoadedTable> {
       setState(() {
         rows[index]['photo'] = photo.path;
       });
+
+      final cubit = context.read<CreateLoadingCnfmCubit>();
+
+      if (index < cubit.state.listitems.length) {
+        final oldItem = cubit.state.listitems[index];
+
+        final newItem = oldItem.copyWith(
+          imageFile: File(photo.path),
+          loadedItemPhoto: null,
+        );
+        cubit.updateItem(index, newItem);
+      }
     }
   }
 
   Future<void> addRow({int? index}) async {
     final initial = index != null ? rows[index] : null;
+    final List<LogisticModel> salesorders = context.read<Logistic>().state.maybeWhen(
+      success: (orders) => orders,
+      orElse: () => <LogisticModel>[],
+    );
 
     final result = await showDialog(
       context: context,
       builder: (context) {
+        
         return MultiBlocProvider(
           providers: [
             BlocProvider(
               create:
-                  (_) => LoadingCnfmBlocProvider.get().itemList()..request(''),
+                  (_) => LoadingCnfmBlocProvider.get().itemList()..request(salesorders),
             ),
             BlocProvider(
               create: (context) => context.read<CreateLoadingCnfmCubit>(),
@@ -378,7 +474,7 @@ class _ItemLoadedTableState extends State<ItemLoadedTable> {
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
               ),
-              columns:  [
+              columns: [
                 const DataColumn(label: Text('Sl. No')),
                 const DataColumn(label: Text('Item Code')),
                 const DataColumn(label: Text('Item Name')),
@@ -386,8 +482,8 @@ class _ItemLoadedTableState extends State<ItemLoadedTable> {
                 const DataColumn(label: Text('UOM')),
                 const DataColumn(label: Text('Loaded Item Photo')),
                 // DataColumn(label: Text('Edit')),
-                if (widget.docstatus != 1) 
-     const DataColumn(label: Text('Edit')),
+                if (widget.docstatus != 1)
+                  const DataColumn(label: Text('Edit')),
               ],
               rows: List.generate(rows.length, (index) {
                 return DataRow(
@@ -416,15 +512,15 @@ class _ItemLoadedTableState extends State<ItemLoadedTable> {
                                 : _buildImage(rows[index]['photo']),
                       ),
                     ),
-                       if (widget.docstatus != 1)   // 👈 hide edit button when docstatus == 1
-        
-                    DataCell(
-                      TextButton.icon(
-                        onPressed: () => addRow(index: index),
-                        icon: const Icon(Icons.edit, color: Colors.blue),
-                        label: const Text('Edit'),
+                    if (widget.docstatus !=
+                        1) // 👈 hide edit button when docstatus == 1
+                      DataCell(
+                        TextButton.icon(
+                          onPressed: () => addRow(index: index),
+                          icon: const Icon(Icons.edit, color: Colors.blue),
+                          label: const Text('Edit'),
+                        ),
                       ),
-                    ),
                   ],
                 );
               }),
@@ -452,7 +548,8 @@ class _ItemLoadedTableState extends State<ItemLoadedTable> {
 }
 
 Widget _buildImage(String path) {
-  final baseUrl = 'http://65.21.243.18:8000/'; // replace with your domain
+  final baseUrl =
+      'https://shaktihormannuat.easycloud.co.in/'; // replace with your domain
 
   if (File(path).existsSync()) {
     return Image.file(File(path), width: 50, height: 50, fit: BoxFit.cover);
@@ -511,14 +608,16 @@ class _ItemDialogWidgetState extends State<ItemDialogWidget> {
       text: widget.initialRow?['qty'] ?? '',
     );
     photoPath = widget.initialRow?['photo'];
-  
-    if (selectedCode != null) {
-      itemFrom = ItemModel(
-        name: selectedCode,
-        itemName: widget.initialRow?['itemName'],
-        stockUom: widget.initialRow?['uom'],
-      );
-    }
+
+   if (selectedCode != null) {
+  itemFrom = ItemModel(
+    itemCode: selectedCode, 
+    itemName: widget.initialRow?['itemName'],
+    uomValue: widget.initialRow?['uom'],
+    qty: int.tryParse(widget.initialRow?['qty'] ?? '0'),
+  );
+}
+
   }
 
   @override
@@ -569,34 +668,36 @@ class _ItemDialogWidgetState extends State<ItemDialogWidget> {
                     return allData.where((item) {
                       final code = item.name?.toLowerCase() ?? '';
                       final name = item.itemName?.toLowerCase() ?? '';
-                      final uom = item.stockUom?.toLowerCase() ?? '';
+                      final uom = item.uomValue?.toLowerCase() ?? '';
 
                       return code.contains(lowerQuery) ||
                           name.contains(lowerQuery) ||
                           uom.contains(lowerQuery);
                     }).toList();
                   },
-                  headerBuilder: (_, item, __) => Text(item.name ?? ''),
+                  headerBuilder: (_, item, __) => Text(item.itemCode ?? ''),
                   listItemBuilder:
                       (_, item, __, ___) => Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Item Code: ${item.name ?? ''}',
+                            'Item Code: ${item.itemCode ?? ''}',
                             style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
                           if (item.itemName != null)
                             Text('Item Name : ${item.itemName}'),
-                          Text('Sales UOM: ${item.stockUom ?? ''}'),
+                          Text('Sales UOM: ${item.uomValue ?? ''}'),
+                          Text('Quantity: ${item.qty ?? ''}'),
                           const Divider(height: 8),
                         ],
                       ),
                   onSelected: (selected) {
                     setState(() {
                       itemFrom = selected;
-                      selectedCode = selected.name;
+                      selectedCode = selected.itemCode;
                       itemNameController.text = selected.itemName ?? '';
-                      uomController.text = selected.stockUom ?? '';
+                      uomController.text = selected.uomValue ?? '';
+                      qtyController.text = selected.qty.toString();
                     });
                   },
                   focusNode: FocusNode(),
@@ -631,14 +732,37 @@ class _ItemDialogWidgetState extends State<ItemDialogWidget> {
             TextFormField(
               readOnly: true,
               controller: uomController,
-              decoration: const InputDecoration(labelText: 'UOM',labelStyle: TextStyle(color:AppColors.black,fontWeight: FontWeight.bold,fontFamily: 'Urbanist')),
+              decoration: const InputDecoration(
+                labelText: 'UOM',
+                labelStyle: TextStyle(
+                  color: AppColors.black,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Urbanist',
+                ),
+              ),
             ),
 
             const SizedBox(height: 10),
             TextFormField(
+              readOnly: false,
               controller: qtyController,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(labelText: 'Quantity Loaded',labelStyle: TextStyle(color:AppColors.black,fontWeight: FontWeight.w500,fontFamily: 'Urbanist')),
+              decoration: InputDecoration(
+                label: RichText(
+                  text: const TextSpan(
+                    text: 'Quantity Loaded',
+                    style: TextStyle(color: Colors.black, fontSize: 18),
+                    children: [
+                      TextSpan(
+                        text: '*',
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ),
 
             const SizedBox(height: 10),
@@ -704,37 +828,40 @@ class _ItemDialogWidgetState extends State<ItemDialogWidget> {
             ),
             padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
           ),
-        onPressed: () {
-  final qtyText = qtyController.text.trim();
-  final qtyValue = double.tryParse(qtyText);
+          onPressed: () {
+            final qtyText = qtyController.text.trim();
+            final qtyValue = double.tryParse(qtyText);
 
-  if (qtyValue == null || qtyValue <= 0) {
-    context.showSnackbar(
-      'Quantity Loaded must be greater than 0',
-      AppSnackBarType.error,
-    );
-    return;
-  }
+            if (qtyValue == null || qtyValue <= 0) {
+              context.showSnackbar(
+                'Quantity Loaded must be greater than 0',
+                AppSnackBarType.error,
+              );
+              return;
+            }
 
-  final row = {
-    'itemCode': selectedCode,
-    'itemName': itemNameController.text,
-    'uom': uomController.text,
-    'qty': qtyValue.toString(),
-     'photo': photoFile != null ? photoFile!.path : photoPath,
-  };
+            final row = {
+              'itemCode': selectedCode,
+              'itemName': itemNameController.text,
+              'uom': uomController.text,
+              'qty': qtyValue.toString(),
+              'photo': photoFile != null ? photoFile!.path : photoPath,
+            };
 
-final lineItem = ItemModel(
-  itemCode: selectedCode,
-  itemName: itemNameController.text,
-  sampleQuantity: qtyValue.toInt(),
-  stockUom: uomController.text,
-  imageFile: photoFile,
-  loadedItemPhoto: photoFile != null ? null : photoPath, // 👈 stays raw /files/... if no new capture
-);
+            final lineItem = ItemModel(
+              itemCode: selectedCode,
+              itemName: itemNameController.text,
+              sampleQuantity: qtyValue.toInt(),
+              stockUom: uomController.text,
+              imageFile: photoFile,
+              loadedItemPhoto:
+                  photoFile != null
+                      ? null
+                      : photoPath, // 👈 stays raw /files/... if no new capture
+            );
 
-  Navigator.pop(context, {'row': row, 'model': lineItem});
-},
+            Navigator.pop(context, {'row': row, 'model': lineItem});
+          },
 
           child: const Text(
             'Save',

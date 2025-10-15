@@ -4,8 +4,10 @@ import 'package:shakti_hormann/app/presentation/widgets/app_page_view2.dart';
 import 'package:shakti_hormann/app/presentation/widgets/staticlist_tile.dart';
 import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/core/model/page_view_filters.dart';
+import 'package:shakti_hormann/features/logistic_request/presentation/bloc/bloc_provider.dart';
 import 'package:shakti_hormann/features/transport_confirmation/model/transport_confirmation_form.dart';
 import 'package:shakti_hormann/features/transport_confirmation/presentation/bloc/bloc_provider.dart';
+import 'package:shakti_hormann/features/transport_confirmation/presentation/bloc/create_transport_cubit.dart/create_transport_cubit.dart';
 import 'package:shakti_hormann/features/transport_confirmation/presentation/bloc/transport_filter_cubit.dart';
 import 'package:shakti_hormann/features/transport_confirmation/presentation/ui/widgets/transport_cnfrm_widget.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
@@ -39,6 +41,7 @@ class _TransportCnfmListState extends State<TransportCnfmList>
       backgroundColor: AppColors.white,
       onNew: () async {
         final refresh = await AppRoute.newTarnsportCnfrm.push<bool>(context);
+        if(!context.mounted) return;
         if (refresh == true) {
           _fetchInital(context);
         }
@@ -57,16 +60,24 @@ class _TransportCnfmListState extends State<TransportCnfmList>
           child:
               InfiniteListViewWidget<TransportCubit, TransportConfirmationForm>(
                 childBuilder:
-                    (context, entry) => TransportCnfrmWidget(
-                      transport: entry,
-                      
-                        onTap: () async {
-                    final refresh = await AppRoute.newTarnsportCnfrm
-                        .push<bool?>(context, extra: entry ,);
-                    if (refresh == true) {
-                      _fetchInital(context);
-                    }
-                  },
+                    (context, entry) => MultiBlocProvider(
+                      providers: [
+                  // BlocProvider(create: (_)=> $sl.get<CreateLoadingCnfmCubit>()),
+                  BlocProvider(create: (context)=> LogisticPlanningBlocProvider.get().salesList()..request(entry.name),),
+                  BlocProvider(create: (_) => $sl.get<CreateTransportCubit>()),
+                      ],
+                      child: TransportCnfrmWidget(
+                        transport: entry,
+                        
+                          onTap: () async {
+                      final refresh = await AppRoute.newTarnsportCnfrm
+                          .push<bool?>(context, extra: entry ,);
+                          if(!context.mounted) return;
+                      if (refresh == true) {
+                        _fetchInital(context);
+                      }
+                                        },
+                      ),
                     ),
                 fetchInitial: () => _fetchInital(context),
                 fetchMore: () => fetchMore(context),

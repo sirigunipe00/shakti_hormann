@@ -8,6 +8,7 @@ import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/features/loading_confirmation/data/loading_cnfm_repo.dart';
 import 'package:shakti_hormann/features/loading_confirmation/model/item_model.dart';
 import 'package:shakti_hormann/features/loading_confirmation/model/loading_cnfm.dart';
+import 'package:shakti_hormann/features/loading_confirmation/model/logistic.dart';
 
 @LazySingleton(as: LoadingCnfmRepo)
 class LoadingCnfmRepoimpl extends BaseApiRepository implements LoadingCnfmRepo {
@@ -21,22 +22,19 @@ class LoadingCnfmRepoimpl extends BaseApiRepository implements LoadingCnfmRepo {
   ) async {
     final filters = <List<dynamic>>[];
 
-
     if (docStatus.isNotNull && docStatus != '4' && docStatus != '1') {
       filters
         ..add(['status', '=', docStatus])
-        ..add(['docstatus', '!=',  1]);
-    } else if( docStatus == '1') {
-      filters
-        .add(['docstatus', '=',  1]);
-
+        ..add(['docstatus', '!=', 1]);
+    } else if (docStatus == '1') {
+      filters.add(['docstatus', '=', 1]);
     }
 
     if (serach != null && serach.isNotEmpty) {
       filters.add(['name', 'like', '%$serach%']);
     }
-         final plantName = user().plantName;
-     if (plantName != null && plantName.isNotEmpty) {
+    final plantName = user().plantName;
+    if (plantName != null && plantName.isNotEmpty) {
       filters.add(['plant_name', '=', plantName]);
     }
     final requestConfig = RequestConfig(
@@ -62,33 +60,52 @@ class LoadingCnfmRepoimpl extends BaseApiRepository implements LoadingCnfmRepo {
   }
 
   @override
-  AsyncValueOf<List<ItemModel>> fetchItemList(String name) async {
+  AsyncValueOf<List<ItemModel>> fetchItemList(
+    List<LogisticModel> salesOrders,
+  ) async {
     return await executeSafely(() async {
+      final salesOrderIds =
+          salesOrders
+              .where((e) => e.name != null && e.name!.isNotEmpty)
+              .map((e) => e.name!)
+              .toList();
+
       final config = RequestConfig(
         url: Urls.getList,
-
         parser: (json) {
           final data = json['message'];
           final listdata = data as List<dynamic>;
-          return listdata.map((e) => ItemModel.fromJson(e)).toList();
+          final items = listdata.map((e) => ItemModel.fromJson(e)).toList();
+          $logger.devLog(
+            'Fetched ${items.length} items for ${salesOrderIds.length} sales orders: $salesOrderIds',
+          );
+          return items;
         },
-        reqParams: {
-          'limit': 20,
+
+        body: jsonEncode({
+          'filters': [
+            ['parent', 'in', salesOrderIds],
+          ],
+          'limit_start': 0,
+          'limit_page_length': 'None',
           'order_by': 'creation desc',
-          'doctype': 'Item',
+          'doctype': 'SAP Sales Order Items',
+          'parent': 'SAP Sales Order',
           'fields': ['*'],
-        },
+        }),
+
+        // reqParams:
         headers: {HttpHeaders.contentTypeHeader: 'application/json'},
       );
-      $logger.devLog('Itemlist.....$config');
-      final response = await get(config);
-      return response.processAsync((r) async {
-        return right((r.data!));
-      });
-    });
 
+      $logger.devLog('Fetching items for: $salesOrderIds');
+
+      final response = await post(config);
+      return response.processAsync((r) async => right(r.data!));
+    });
   }
-@override
+
+  @override
   AsyncValueOf<Pair<String, String>> createLoadingCnfm(
     List<ItemModel> items,
     String name,
@@ -123,7 +140,7 @@ class LoadingCnfmRepoimpl extends BaseApiRepository implements LoadingCnfmRepo {
               final bytes = response.bodyBytes;
               map['loaded_item_photo'] = base64Encode(bytes);
             } else {
-              map['loaded_item_photo'] = null; 
+              map['loaded_item_photo'] = null;
             }
           } catch (err) {
             map['loaded_item_photo'] = null;
@@ -156,10 +173,41 @@ class LoadingCnfmRepoimpl extends BaseApiRepository implements LoadingCnfmRepo {
     });
   }
 
-    @override
-  AsyncValueOf<Pair<String, String>> submitLoading(
-    String name,
-  ) async {
+  @override
+  AsyncValueOf<List<LogisticModel>> fetchLogisticList(String name) async {
+    return await executeSafely(() async {
+      final config = RequestConfig(
+        url: Urls.getList,
+
+        parser: (json) {
+          final data = json['message'];
+          final listdata = data as List<dynamic>;
+          return listdata.map((e) => LogisticModel.fromJson(e)).toList();
+        },
+        reqParams: {
+          'filters': [
+            ['parent', '=', name],
+          ],
+          'limit': 20,
+          'oreder_by': 'creat desc',
+          'doctype': 'Logistic Planning and Confirmation Lines',
+          'parent': 'Vehicle Reporting and Dispatch Loading',
+          'fields': ['*'],
+        },
+
+        headers: {HttpHeaders.contentTypeHeader: 'application/json'},
+      );
+
+      final response = await get(config);
+      $logger.devLog('response.....$response');
+      return response.processAsync((r) async {
+        return right((r.data!));
+      });
+    });
+  }
+
+  @override
+  AsyncValueOf<Pair<String, String>> submitLoading(String name) async {
     return await executeSafely(() async {
       final config = RequestConfig(
         url: Urls.submitLoadingConfirmation,
@@ -167,9 +215,7 @@ class LoadingCnfmRepoimpl extends BaseApiRepository implements LoadingCnfmRepo {
           final data = json['message']['message'] as String;
           return Pair(data, '');
         },
-        body: jsonEncode({
-          'name': name
-        }),
+        body: jsonEncode({'name': name}),
         headers: {HttpHeaders.contentTypeHeader: 'application/json'},
       );
 
@@ -182,6 +228,7 @@ class LoadingCnfmRepoimpl extends BaseApiRepository implements LoadingCnfmRepo {
       });
     });
   }
+
   @override
   AsyncValueOf<List<ItemModel>> getItems(String name) async {
     return await executeSafely(() async {

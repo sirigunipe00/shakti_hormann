@@ -39,7 +39,8 @@ class CreateVehicleCubit extends AppBaseCubit<CreateVehicleState> {
     String? amendedFrom,
     String? vehicleReportingEntryVreDate,
     String? transporterName,
-    String? arrivalDateAndTime,
+    String? arrivalDate,
+    String? arrivalTime,
     File? driverIdPhoto,
     String? loadedByUser,
     String? status,
@@ -68,7 +69,8 @@ class CreateVehicleCubit extends AppBaseCubit<CreateVehicleState> {
       vehicleReportingEntryVreDate:
           vehicleReportingEntryVreDate ?? form.vehicleReportingEntryVreDate,
       transporterName: transporterName ?? form.transporterName,
-      arrivalDateAndTime: arrivalDateAndTime ?? form.arrivalDateAndTime,
+      arrivalDate: arrivalDate ?? form.arrivalDate,
+      arrivalTime: arrivalTime ?? form.arrivalTime,
       loadedByUser: loadedByUser ?? form.loadedByUser,
       status: status ?? form.status,
       linkedTransporterConfirmation:
@@ -104,8 +106,8 @@ class CreateVehicleCubit extends AppBaseCubit<CreateVehicleState> {
         plantName: entry.plantName,
         loadedByUser: entry.loadedByUser,
         vehicleNumber: entry.vehicleNumber,
-        arrivalDateAndTime: entry.arrivalDateAndTime,
-        driverContact: entry.driverContact,
+        arrivalDate: entry.arrivalDate,
+        arrivalTime: entry.arrivalTime,
         driverIdPhoto: entry.driverIdPhoto,
         vehicleReportingEntryVreDate: entry.vehicleReportingEntryVreDate,
         linkedTransporterConfirmation: entry.linkedTransporterConfirmation,
@@ -270,7 +272,13 @@ class CreateVehicleCubit extends AppBaseCubit<CreateVehicleState> {
     } else if (form.driverIdPhoto.doesNotHaveValue &&
         form.driverIdPhotoImg.isNull) {
       return optionOf(const Pair('Capture DriverID Photo.', 0));
-    }
+    }else if (form.arrivalDate.isNull || 
+             (form.arrivalDate?.trim().isEmpty ?? true)) {
+    return optionOf(const Pair('Missing Arrival Date', 0));
+  } else if (form.arrivalTime.isNull || 
+             (form.arrivalTime?.trim().isEmpty ?? true)) {
+    return optionOf(const Pair('Missing Arrival Time', 0));
+  }
 
     return const None();
   }

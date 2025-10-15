@@ -3,14 +3,18 @@ import 'package:shakti_hormann/core/di/injector.dart';
 final _reqisteredUrl = $sl.get<Urls>(instanceName: 'baseUrl');
 
 class Urls {
-  // factory Urls.shaktiHormannUAT() =>
-  //     const Urls('https://aparnagmuat.easycloud.co.in/api');
-  // factory Urls.prod() => const Urls('https://rucoprd.sunpure.in/api');
-  factory Urls.local() => const Urls('http://65.21.243.18:8000/api');
+  factory Urls.uat() =>
+      const Urls('http://65.21.243.18:8000/api');
+  factory Urls.shaktiHormannUAT() =>
+   const Urls('https://shaktihormannuat.easycloud.co.in/api');
 
   const Urls(this.url);
-  static String filepath(String path) =>
-      '${baseUrl.replaceAll('api', '')}/$path';
+
+
+  static String filepath(String path) {
+    return '${baseUrl.replaceAll('api', '')}/${path.replaceAll('/private', '').replaceAll("///", '/')}';
+  }
+
 
   final String url;
 

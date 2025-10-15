@@ -5,6 +5,7 @@ import 'package:dartz/dartz.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:http/http.dart' as http;
 import 'package:injectable/injectable.dart';
+import 'package:intl/intl.dart';
 import 'package:path/path.dart' as p;
 import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/features/transport_confirmation/model/transport_confirmation_form.dart';
@@ -24,23 +25,20 @@ class VehicleReportingRepoimpl extends BaseApiRepository
   ) async {
     final filters = <List<dynamic>>[];
 
-
     if (docStatus != null && docStatus != '4') {
       filters
         ..add(['status', '=', docStatus])
         ..add(['docstatus', '!=', 2])
         ..add(['docstatus', '!=', 1]);
-      
     }
 
     if (serach != null && serach.isNotEmpty) {
       filters.add(['name', 'like', '%$serach%']);
     }
-         final plantName = user().plantName;
-  if (plantName != null && plantName.isNotEmpty) {
-    filters.add(['plant_name', '=', plantName]); 
-   
-  }
+    final plantName = user().plantName;
+    if (plantName != null && plantName.isNotEmpty) {
+      filters.add(['plant_name', '=', plantName]);
+    }
     final requestConfig = RequestConfig(
       url: Urls.getList,
       parser: (json) {
@@ -67,7 +65,16 @@ class VehicleReportingRepoimpl extends BaseApiRepository
   AsyncValueOf<Pair<String, String>> createVehicleReporting(
     VehicleReportingForm form,
   ) async {
-    $logger.devLog('arrtival date repo......${form.arrivalDateAndTime}');
+
+    final formattedTime =
+          form.arrivalTime != null
+              ? DateFormat('HH:mm').format(
+                DateFormat('HH:mm:ss').tryParse(form.arrivalTime!) ??
+                    DateFormat('HH:mm').parse(form.arrivalTime!),
+              )
+              : null;
+
+    $logger.devLog('arrtival date repo......${form.arrivalDate}');
     return await executeSafely(() async {
       Uint8List? driverIdfrontcompressedBytes;
 
@@ -91,7 +98,8 @@ class VehicleReportingRepoimpl extends BaseApiRepository
         body: jsonEncode({
           'plant_name': form.plantName,
           'linked_transporter_confirmation': form.linkedTransporterConfirmation,
-          'arrival_date_and__time': form.arrivalDateAndTime,
+          'arrival_date': form.arrivalDate,
+          'arrival_time': formattedTime,
           'driver_id_proof':
               driverIdfrontcompressedBytes == null
                   ? null
@@ -99,7 +107,6 @@ class VehicleReportingRepoimpl extends BaseApiRepository
           'vehicle_number': form.vehicleNumber,
           'vehicle_reporting_entry_vre_date': form.vehicleReportingEntryVreDate,
           'driver_contact': form.driverContact,
-
           'remarks': form.remarks,
         }),
         headers: {HttpHeaders.contentTypeHeader: 'application/json'},
@@ -119,11 +126,10 @@ class VehicleReportingRepoimpl extends BaseApiRepository
   AsyncValueOf<Pair<String, String>> submitVehicleReporting(
     VehicleReportingForm form,
   ) async {
-    $logger.devLog('arrtival date repo......${form.arrivalDateAndTime}');
+    $logger.devLog('arrtival date repo......${form.arrivalDate}');
 
     return await executeSafely(() async {
-      $logger.devLog('repodate........${form.arrivalDateAndTime}');
-    
+      $logger.devLog('repodate........${form.arrivalDate}');
 
       Uint8List? driverIdfrontcompressedBytes;
 
@@ -146,7 +152,8 @@ class VehicleReportingRepoimpl extends BaseApiRepository
           'plant_name': form.plantName,
           'name': form.name,
           'linked_transporter_confirmation': form.linkedTransporterConfirmation,
-          'arrival_date_and__time': form.arrivalDateAndTime,
+          'arrival_date': form.arrivalDate,
+          'arrival_time': form.arrivalTime,
 
           'driver_id_proof':
               driverIdfrontcompressedBytes == null
@@ -209,14 +216,15 @@ class VehicleReportingRepoimpl extends BaseApiRepository
   ) async {
     return await executeSafely(() async {
       final plantName = user().plantName;
-       final filters = <List<dynamic>>[];
+      final filters = <List<dynamic>>[];
 
-    if (plantName != null && plantName.isNotEmpty) {
-      filters.add(['plant_name', '=', plantName]);
-    }
-        filters..add(['docstatus', '=', 1])
-    ..add(['status', '=', 'Transporter Confirmed'])
-    ..add(['vehicle_reported_loaded', '=', 0]);
+      if (plantName != null && plantName.isNotEmpty) {
+        filters.add(['plant_name', '=', plantName]);
+      }
+      filters
+        ..add(['docstatus', '=', 1])
+        ..add(['status', '=', 'Transporter Confirmed'])
+        ..add(['vehicle_reported_loaded', '=', 0]);
       final config = RequestConfig(
         url: Urls.getList,
 
@@ -250,7 +258,7 @@ Future<Uint8List?> fetchAndConvertToBase64(String relativePath) async {
     return null;
   }
 
-  final String url = 'http://65.21.243.18:8000$relativePath';
+  final String url = 'https://shaktihormannuat.easycloud.co.in$relativePath';
 
   final response = await http.get(Uri.parse(url));
 

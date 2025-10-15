@@ -210,7 +210,7 @@ class _GateEntryFormWidgetState extends State<GateEntryFormWidget> {
                       title: 'Vendor Invoice Date',
                       fillColor: Colors.white,
                       isRequired: true,
-                      startDate: DateTime(2025),
+                      startDate: DateTime(2020),
                       endDate: DateTime.now(),
                       initialDate: DFU.ddMMyyyyFromStr(
                         newform.vendorInvoiceDate ?? '',
@@ -466,7 +466,7 @@ class _GateEntryFormWidgetState extends State<GateEntryFormWidget> {
                       NewUploadPhotoWidget(
                         fileName: 'vehicleinvoice',
                         imageUrl: newform.invoicePhoto,
-                        title: 'Vehicle Invoice',
+                        title: 'Vendor Invoice',
                         isRequired: true,
                         isReadOnly: isCompleted,
                         onFileCapture: (file) {

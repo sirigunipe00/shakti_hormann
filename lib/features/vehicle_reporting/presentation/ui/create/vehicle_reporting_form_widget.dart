@@ -9,6 +9,7 @@ import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/widgets/input_filed.dart';
 import 'package:shakti_hormann/widgets/inputs/date_picker_field.dart';
 import 'package:shakti_hormann/widgets/inputs/new_upload_photo_widget.dart';
+import 'package:shakti_hormann/widgets/inputs/time_picker.dart';
 import 'package:shakti_hormann/widgets/sectionheader.dart';
 import 'package:shakti_hormann/widgets/spaced_column.dart';
 
@@ -176,38 +177,73 @@ class _VehicleReportingFormWidget extends State<VehicleReportingFormWidget> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      AppDateField(
-                        title: 'Arrival Date and Time',
-                        hintText: 'Select Date',
-                        readOnly: isCompleted,
-                        key: ValueKey(newform.arrivalDateAndTime),
-                        startDate: DateTime(2000), 
-                        endDate: DateTime(2030),
-                        initialDate: DFU.ddMMyyyyHHmmssFromStr(
-                          newform.arrivalDateAndTime ?? '',
-                        ),
-                        onSelected: (DateTime date) {
-                          final now = DateTime.now();
-        
-                          final finalDateTime = DateTime(
-                            date.year,
-                            date.month,
-                            date.day,
-                            now.hour,
-                            now.minute,
-                            now.second,
-                          );
-        
-                          final formattedDate = DateFormat(
-                            'dd-MM-yyyy HH:mm:ss',
-                          ).format(finalDateTime);
-        
-                          context.cubit<CreateVehicleCubit>().onValueChanged(
-                            arrivalDateAndTime: formattedDate,
-                          );
-                           },
-                        fillColor: Colors.white,
-                      
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: AppDateField(
+                              title: 'Arrival Date',
+                              hintText: 'Select Date',
+                              isRequired: true,
+                              readOnly: isCompleted,
+                              // key: ValueKey(newform.arrivalDate ?? ''),
+                              key: UniqueKey(),
+                              startDate: DateTime(2020), 
+                              endDate: DateTime(2030),
+                              initialDate: DFU.ddMMyyyyFromStr(
+                                newform.arrivalDate ?? '',
+                              ),
+                              onSelected: (DateTime date) {
+                        setState(() {
+                          if (formState.form.status == '') {
+                            context
+                                .cubit<CreateVehicleCubit>()
+                                .onValueChanged(
+                                  arrivalDate: DateFormat(
+                                    'yyyy-MM-dd',
+                                  ).format(date),
+                                );
+                          } else {
+                            context
+                                .cubit<CreateVehicleCubit>()
+                                .onValueChanged(
+                                  arrivalDate: DateFormat(
+                                    'dd-MM-yyyy',
+                                  ).format(date),
+                                );
+                          }
+                        });
+                      },
+                              fillColor: Colors.white,
+                            
+                            ),
+                          ),
+                          const SizedBox(width: 13,),
+                          Expanded(child: 
+                             Column(
+                              mainAxisSize: MainAxisSize.min,
+                               children: [
+                                 TimePickerField(
+                                      title: 'Arrival Time',
+                                      readOnly: isCompleted,
+                                      isRequired: true,
+                                      key: UniqueKey(),
+                                      hintText: 'Select Time',
+                                      initialTime: formatTime(
+                                        newform.arrivalTime
+                                      ),
+                                      onTimeChanged: (selectedTime) {
+                                        context
+                                            .cubit<CreateVehicleCubit>()
+                                            .onValueChanged(
+                                              arrivalTime: selectedTime,
+                                            );
+                                      },
+                                    ),
+                               ],
+                             ),
+                          )
+                        ],
                       ),
         
                       const SizedBox(height: 12),
@@ -323,4 +359,13 @@ class _VehicleReportingFormWidget extends State<VehicleReportingFormWidget> {
       ),
     );
   }
+}
+
+String? formatTime(String? backendTime) {
+  if (backendTime == null || backendTime.isEmpty) return null;
+
+  final parts = backendTime.split(':');
+  if (parts.length < 2) return backendTime;
+
+  return '${parts[0]}:${parts[1]}';
 }

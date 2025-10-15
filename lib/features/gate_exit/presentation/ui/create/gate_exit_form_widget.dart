@@ -1,4 +1,3 @@
-import 'package:intl/intl.dart';
 import 'package:shakti_hormann/core/core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -95,9 +94,7 @@ class _GateExitFormWidgetState extends State<GateExitFormWidget> {
                       initialValue: DFU.ddMMyyyyFromStr(newform.gateEntryDate?? ''),
                       fillColor: Colors.grey[200],
                       onSelected: (date) {
-                        context.cubit<CreateGateExitCubit>().onValueChanged(
-                          gateEntryDate: DateFormat('dd-MM-yyyy').format(date),
-                        );
+
                       },
                     ),
 

@@ -342,7 +342,7 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
       return null;
     }
 
-    final String url = 'http://65.21.243.18:8000$relativePath';
+    final String url = 'https://shaktihormannuat.easycloud.co.in$relativePath';
 
     final response = await http.get(Uri.parse(url));
 

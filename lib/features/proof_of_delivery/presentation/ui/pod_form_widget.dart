@@ -5,9 +5,11 @@ import 'package:shakti_hormann/features/proof_of_delivery/presentation/bloc/crea
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/widgets/input_filed.dart';
 import 'package:shakti_hormann/widgets/inputs/date_picker_field.dart';
+import 'package:shakti_hormann/widgets/inputs/geolocator.dart';
 import 'package:shakti_hormann/widgets/inputs/new_upload_photo_widget.dart';
 import 'package:shakti_hormann/widgets/sectionheader.dart';
 import 'package:shakti_hormann/widgets/spaced_column.dart';
+
 
 class PodFormWidget extends StatefulWidget {
   const PodFormWidget({super.key});
@@ -19,6 +21,44 @@ class PodFormWidget extends StatefulWidget {
 class _PodFormWidgetState extends State<PodFormWidget> {
   final ScrollController _scrollController = ScrollController();
   DateTime? selectedDate;
+
+  double? latitude;
+  double? longitude;
+
+  @override
+  void initState() {
+    super.initState();
+    _fillCurrentLocation();
+  }
+
+ void _fillCurrentLocation() async {
+    final position = await determinePosition();
+
+    if (position != null) {
+      // Update local state
+      setState(() {
+        latitude = position.latitude;
+        longitude = position.longitude;
+      });
+
+      // Debug log
+      $logger.devLog('Current Position: Lat=$latitude, Lng=$longitude');
+
+      // Update Cubit state
+      context.read<CreatePodCubit>().onValueChanged(
+            geoLatitude: latitude,
+            geoLongitude: longitude,
+          );
+
+      // Log after updating Cubit state
+      final newForm = context.read<CreatePodCubit>().state.form;
+      $logger.devLog(
+          'Cubit Updated: geoLatitude=${newForm.geoLatitude}, geoLongitude=${newForm.geoLongitude}');
+    } else {
+      $logger.devLog('Could not fetch user location.');
+    }
+  }
+
 
   final focusNodes = List.generate(40, (index) => FocusNode());
   @override
@@ -130,6 +170,40 @@ class _PodFormWidgetState extends State<PodFormWidget> {
                         // context.cubit<CreatePodCubit>().onValueChanged(
                         //   podDate: DateFormat('dd-MM-yyyy').format(date),
                         // );
+                      },
+                    ),
+                    BlocBuilder<CreatePodCubit, CreatePodState>(
+                      builder: (context, state) {
+                        return InputField(
+                                          title: 'Latitude',
+                                          hintText: 'Latitude',
+                                          readOnly: true,
+                                          isRequired: true,
+                                          borderColor: AppColors.grey,
+                                          initialValue: latitude?.toString() ?? newform.geoLatitude?.toString() ?? '',
+                                          onChanged:
+                                              (p0) => context
+                                                  .cubit<CreatePodCubit>()
+                                                  .onValueChanged(geoLatitude: double.tryParse(p0)),
+                                        );
+                      },
+                    ),
+                    BlocBuilder<CreatePodCubit, CreatePodState>(
+                      builder: (context, state) {
+                        return InputField(
+                          title: 'Longitude',
+                          hintText: 'Longitude',
+                          readOnly: true,
+                          isRequired: true,
+                          borderColor: AppColors.grey,
+                          initialValue:  longitude?.toString() ??  newform.geoLongitude?.toString() ?? '',
+                          onChanged:
+                              (p0) => context
+                                  .cubit<CreatePodCubit>()
+                                  .onValueChanged(
+                                    geoLongitude: double.tryParse(p0),
+                                  ),
+                        );
                       },
                     ),
                   ],

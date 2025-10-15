@@ -196,7 +196,7 @@ class GateExitRepoimpl extends BaseApiRepository implements GateExitRepo {
 
       final reqParams = {
         'limit': 20,
-          'oreder_by': 'create desc',
+          'order_by': 'creation desc',
           'doctype': 'SAP Sales Invoice',
           'fields': ['*'],
       };
@@ -231,7 +231,7 @@ class GateExitRepoimpl extends BaseApiRepository implements GateExitRepo {
       return null;
     }
 
-    final String url = 'http://65.21.243.18:8000$relativePath';
+    final String url = 'https://shaktihormannuat.easycloud.co.in$relativePath';
 
     final response = await http.get(Uri.parse(url));
 

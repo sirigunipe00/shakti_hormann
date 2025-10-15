@@ -33,11 +33,10 @@ class LogisticPlanningRepoimpl extends BaseApiRepository
     if (serach != null && serach.isNotEmpty) {
       filters.add(['name', 'like', '%$serach%']);
     }
-       final plantName = user().plantName;
-  if (plantName != null && plantName.isNotEmpty) {
-    filters.add(['plant_name', '=', plantName]); 
-   
-  }
+    final plantName = user().plantName;
+    if (plantName != null && plantName.isNotEmpty) {
+      filters.add(['plant_name', '=', plantName]);
+    }
     final requestConfig = RequestConfig(
       url: Urls.getList,
       parser: (json) {
@@ -63,19 +62,16 @@ class LogisticPlanningRepoimpl extends BaseApiRepository
   @override
   AsyncValueOf<String> updateLogisticPlanning(LogisticPlanningForm form) async {
     return await executeSafely(() async {
+      String? formattedRequestedDeliveryDate;
       final formData = removeNullValues(form.toJson());
       const keysToRemove = ['name', 'creation', 'modified', 'modified_by'];
       for (String key in keysToRemove) {
         formData.remove(key);
       }
+      $logger.devLog(
+        'requestedDeliveryDatecreate......${form.requestedDeliveryDate}',
+      );
 
-
-       final formattedDate =
-          form.requestedDeliveryDate != null
-              ? DateFormat('dd-MM-yyyy').format(
-                DateFormat('dd-MM-yyyy').parse(form.requestedDeliveryDate!),
-              )
-              : null;
       final formattedTime =
           form.requestedDeliveryTime != null
               ? DateFormat('HH:mm').format(
@@ -91,6 +87,17 @@ class LogisticPlanningRepoimpl extends BaseApiRepository
               ).format(DateTime.parse(form.logisticsRequestDate!))
               : null;
 
+      final ddMMyyyyRegex = RegExp(r'^\d{2}-\d{2}-\d{4}$');
+
+      if (ddMMyyyyRegex.hasMatch(form.requestedDeliveryDate!)) {
+        formattedRequestedDeliveryDate = form.requestedDeliveryDate!;
+      } else {
+        final inputFormat = DateFormat('yyyy-MM-dd');
+        final outputFormat = DateFormat('dd-MM-yyyy');
+        final date = inputFormat.parse(form.requestedDeliveryDate!);
+        formattedRequestedDeliveryDate = outputFormat.format(date);
+      }
+
       final requestConfig = RequestConfig(
         url: Urls.updateLogisticPlanning,
 
@@ -100,16 +107,16 @@ class LogisticPlanningRepoimpl extends BaseApiRepository
         },
         body: jsonEncode({
           'logistic_request_id': form.name,
-          'sales_orders':form.salesOrder,
+          'sales_orders': form.salesOrder,
           'plant_name': form.plantName,
           'transporter_name': form.transporterName,
           'preferred_vehicle_type': form.preferredVehicleType,
-          'requested_delivery_date': formattedDate,
+          'requested_delivery_date': formattedRequestedDeliveryDate,
           'requested_delivery_time': formattedTime,
           'any_special_instructions': form.anySpecialInstructions,
           'delivery_address': form.deliveryAddress,
           'transport_type': form.transporterType,
-          'dispatch_type' : form.dispatchType,
+          'dispatch_type': form.dispatchType,
           'status': form.status,
           'logistics_request_date': formattedLogisticsRequestDate,
           'delivery_address_1': form.shippingAddress1,
@@ -133,12 +140,14 @@ class LogisticPlanningRepoimpl extends BaseApiRepository
     LogisticPlanningForm form,
   ) async {
     return await executeSafely(() async {
-      final formattedDate =
-          form.requestedDeliveryDate != null
-              ? DateFormat('dd-MM-yyyy').format(
-                DateFormat('dd-MM-yyyy').parse(form.requestedDeliveryDate!),
-              )
-              : null;
+      $logger.devLog('updatedate......${form.requestedDeliveryDate}');
+
+      // final formattedDate =
+      //     form.requestedDeliveryDate != null
+      //         ? DateFormat('dd-MM-yyyy').format(
+      //           DateFormat('dd-MM-yyyy').parse(form.requestedDeliveryDate!),
+      //         )
+      //         : null;
       final formattedTime =
           form.requestedDeliveryTime != null
               ? DateFormat('HH:mm').format(
@@ -154,6 +163,11 @@ class LogisticPlanningRepoimpl extends BaseApiRepository
               ).format(DateTime.parse(form.logisticsRequestDate!))
               : null;
 
+      // final formattedRequestedDeliveryDate =
+      //     form.requestedDeliveryDate != null
+      //         ? form.requestedDeliveryDate
+      //         : null;
+
       final config = RequestConfig(
         url: Urls.createLogisticPlanning,
         parser: (json) {
@@ -165,12 +179,12 @@ class LogisticPlanningRepoimpl extends BaseApiRepository
           'sales_orders': form.salesOrder,
           'transporter_name': form.transporterName,
           'preferred_vehicle_type': form.preferredVehicleType,
-          'requested_delivery_date': formattedDate,
+          'requested_delivery_date': form.requestedDeliveryDate,
           'requested_delivery_time': formattedTime,
           'any_special_instructions': form.anySpecialInstructions,
           'delivery_address': form.deliveryAddress,
           'transport_type': form.transporterType,
-          'dispatch_type' : form.dispatchType,
+          'dispatch_type': form.dispatchType,
           'status': form.status,
           'logistics_request_date': formattedLogisticsRequestDate,
           'delivery_address_1': form.shippingAddress1,
@@ -219,34 +233,24 @@ class LogisticPlanningRepoimpl extends BaseApiRepository
       });
     });
   }
-@override
+
+  @override
   AsyncValueOf<List<SalesOrder>> fetchSales(String name) async {
     return await executeSafely(() async {
-       
       final config = RequestConfig(
         url: Urls.getList,
 
         parser: (json) {
-
-
           $logger.devLog('repojson...----$json');
-
-
 
           final data = json['message'];
           final listdata = data as List<dynamic>;
           return listdata.map((e) => SalesOrder.fromJson(e)).toList();
         },
         reqParams: {
-         'filters': 
-         [
-        [
-            'parent',
-            '=',
-            name
-        ],
-        
-         ],
+          'filters': [
+            ['parent', '=', name],
+          ],
           'limit': 20,
           'order_by': 'creation desc',
           'doctype': 'Logistic Planning and Confirmation Lines',
@@ -256,29 +260,30 @@ class LogisticPlanningRepoimpl extends BaseApiRepository
         headers: {HttpHeaders.contentTypeHeader: 'application/json'},
       );
       final response = await get(config);
-      $logger.devLog('reposales........$response');
+      $logger.devLog('reposales config........$response');
       return response.processAsync((r) async {
         return right((r.data!));
       });
     });
   }
+
   @override
   AsyncValueOf<List<SalesOrderForm>> fetchSalesOrder(String name) async {
     return await executeSafely(() async {
       final filters = <List<dynamic>>[];
-       final plantName = user().plantName;
-       if (plantName != null && plantName.isNotEmpty) {
-      filters.add(['company', '=', plantName]);
-    }
+      final plantName = user().plantName;
+      if (plantName != null && plantName.isNotEmpty) {
+        filters.add(['company', '=', plantName]);
+      }
 
       final reqParams = {
-          'limit': 20,
-          'order_by': 'creation desc',
-          'doctype': 'SAP Sales Order',
-          'fields': ['*'],
-          'filters': jsonEncode(filters),
+        'limit': 20,
+        'order_by': 'creation desc',
+        'doctype': 'SAP Sales Order',
+        'fields': ['*'],
+        'filters': jsonEncode(filters),
       };
-      
+
       final config = RequestConfig(
         url: Urls.getList,
 
@@ -313,7 +318,7 @@ class LogisticPlanningRepoimpl extends BaseApiRepository
           'order_by': 'creation desc',
           'doctype': 'Supplier',
           'filters': jsonEncode({'is_transporter': 1}),
-          'fields': jsonEncode(['name']),
+          'fields': jsonEncode(['name','supplier_name']),
         },
         headers: {HttpHeaders.contentTypeHeader: 'application/json'},
       );

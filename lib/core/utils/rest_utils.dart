@@ -1,6 +1,6 @@
 class RestUtils {
   static Uri constructUri(String baseUrl, [Map<String, dynamic>? params]) {
-    final url = baseUrl.replaceAll('http://', '').replaceAll('http://', '');
+    final url = baseUrl.replaceAll('https://', '').replaceAll('https://', '');
 
     final Map<String, dynamic> urlParams = {};
     params?.forEach((key, value) {
@@ -17,7 +17,7 @@ class RestUtils {
       }
     });
     final encodedParams = encodeParams(urlParams);
-    final fullUrl = 'http://$url$encodedParams';
+    final fullUrl = 'https://$url$encodedParams';
     return Uri.parse(fullUrl);
   }
 

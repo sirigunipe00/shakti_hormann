@@ -7,7 +7,6 @@ import 'package:shakti_hormann/features/gate_entry/model/gate_entry_form.dart';
 import 'package:shakti_hormann/features/gate_entry/model/purchase_order_form.dart';
 import 'package:shakti_hormann/features/gate_entry/presentation/bloc/bloc_provider.dart';
 import 'package:shakti_hormann/features/gate_entry/presentation/bloc/create_gate_cubit/gate_entry_cubit.dart';
-import 'package:shakti_hormann/features/gate_entry/presentation/ui/widgets/card_details.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/styles/app_text_styles.dart';
 import 'package:shakti_hormann/widgets/spaced_column.dart';
@@ -27,7 +26,7 @@ class GateEntryWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onLongPress: () => showGateEntryDialog(context, gateEntry),
+      
       onTap: onTap,
       child: Card(
         color: Colors.white,

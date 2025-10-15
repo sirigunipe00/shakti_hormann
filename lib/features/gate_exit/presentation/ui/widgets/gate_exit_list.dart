@@ -42,6 +42,7 @@ class _GateExitListScrnState extends State<GateExitListScrn>
       backgroundColor: AppColors.white,
       onNew: () async {
         final refresh = await AppRoute.newGateExit.push<bool?>(context);
+        if(!context.mounted) return;
         if (refresh == true) {
           _fetchInital(context);
         }
@@ -65,6 +66,7 @@ class _GateExitListScrnState extends State<GateExitListScrn>
                     onTap: () async {
                     final refresh = await AppRoute.newGateExit
                         .push<bool?>(context, extra: entry);
+                        if(!context.mounted) return;
                     if (refresh == true) {
                       _fetchInital(context);
                     }

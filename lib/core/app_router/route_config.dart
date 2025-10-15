@@ -22,6 +22,7 @@ import 'package:shakti_hormann/features/gate_exit/presentation/bloc/create_gate_
 import 'package:shakti_hormann/features/gate_exit/presentation/ui/create/new_gate_exit.dart';
 import 'package:shakti_hormann/features/gate_exit/presentation/ui/widgets/gate_exit_list.dart';
 import 'package:shakti_hormann/features/loading_confirmation/model/loading_cnfm.dart';
+import 'package:shakti_hormann/features/loading_confirmation/model/logistic.dart';
 import 'package:shakti_hormann/features/loading_confirmation/presentation/bloc/bloc_provider.dart';
 import 'package:shakti_hormann/features/loading_confirmation/presentation/bloc/create_loading_cubit/create_loading_cnfm_cubit.dart';
 import 'package:shakti_hormann/features/loading_confirmation/presentation/ui/create/new_loading_confirmation.dart';
@@ -136,6 +137,7 @@ class AppRouterConfig {
 
                                   BlocProvider(
                                 create:
+
                                     (_) =>
                                         GateEntryBlocProvider.get()
                                             .getPurchase()
@@ -257,12 +259,14 @@ class AppRouterConfig {
                           final bloc = LogisticPlanningBlocProvider.get();
 
                           final form = state.extra;
-                          // final logisticform =state.extra as LogisticPlanningForm?;
+                          final logisticform =state.extra as TransportConfirmationForm?;
 
                           return MultiBlocProvider(
                             providers: [
                               BlocProvider(create:(_) => bloc.transportersList()..request(''),),
-                              // BlocProvider(create: (_) => $sl.get<CreateLogisticCubit>()..initDetails(logisticform)),
+                              BlocProvider(create:(_) => bloc.salesList()..request(logisticform?.name ?? ''),),
+
+                              BlocProvider(create: (_) => $sl.get<CreateLogisticCubit>()..initDetails(logisticform)),
                               BlocProvider(create:(_) =>$sl.get<CreateTransportCubit>()..initDetails(form),),
                             ],
                             child: const NewTransportCnfm(),
@@ -337,11 +341,13 @@ class AppRouterConfig {
                             builder: (_, state) {
                               final blocprovider = LoadingCnfmBlocProvider.get();
                               final form = state.extra as LoadingCnfmForm;
+                              // final forms = state.extra as LogisticModel;
                               return MultiBlocProvider(
                                 providers: [
                                   BlocProvider(create: (_) => blocprovider.fetchLoadingCnfmList()),
-                                  BlocProvider(create: (_)=> blocprovider.itemList()..request('')),
+                                  BlocProvider(create: (_)=> blocprovider.itemList()),
                                   BlocProvider(create: (_)=> blocprovider.getItems()..request(form.name ?? '')),
+                                  BlocProvider(create: (_)=> blocprovider.getLogisticList()..request(form.name ?? '')),
                                   BlocProvider(
                                     create: (_) => $sl.get<CreateLoadingCnfmCubit>()..initDetails(form),
                                   ),
@@ -425,7 +431,7 @@ class AppRouterConfig {
     }) async {
     final promptConf = shouldAskForConfirmation.value;
     if (!promptConf) return true;
-    if (formStatus == 'Submitted') {
+    if (formStatus == 'Submitted' || formStatus == 'Pending From Transporter') {
       return true;
     }
     final result = await AppDialog.askForConfirmation<bool?>(

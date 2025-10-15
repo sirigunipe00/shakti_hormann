@@ -23,7 +23,7 @@ class _AppSplashScrnState extends State<AppSplashScrn> {
   void initState() {
     super.initState();
 
-    Timer(const Duration(minutes: 15), () {
+    Timer(const Duration(), () {
       if(!mounted) return;
       final loggedInUser = $sl.isRegistered<LoggedInUser>()
           ? $sl<LoggedInUser>()

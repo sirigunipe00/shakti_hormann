@@ -19,61 +19,63 @@ class _AppDashboardPageState extends State<AppDashboardPage> {
   void initState() {
     super.initState();
     dashboardCubit = DashBoardBlocProvider.get().getDash();
-    dashboardCubit.request(null); 
+    dashboardCubit.request(null);
   }
 
-@override
-Widget build(BuildContext context) {
-  return Scaffold(
-    backgroundColor:const Color(0xFFF5FBFF),
-   appBar: AppBar(
-  centerTitle: true,
-  // elevation: 4,
-  // backgroundColor: AppColors.darkBlue, // your brand color
-  shadowColor: Colors.black45,
-  shape: const RoundedRectangleBorder(
-    borderRadius: BorderRadius.vertical(
-      bottom: Radius.circular(16), 
-    ),
-  ),
-  title: const  Row(
-    mainAxisAlignment: MainAxisAlignment.center,
-    children:  [
-      Icon(Icons.dashboard, color: AppColors.darkBlue),
-      SizedBox(width: 8),
-      Text(
-        'Dashboard',
-        style: TextStyle(
-          fontWeight: FontWeight.bold,
-          fontSize: 22,
-          color: AppColors.darkBlue,
-          fontFamily: 'Urbanist',
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF5FBFF),
+      appBar: AppBar(
+        centerTitle: true,
+        // elevation: 4,
+        // backgroundColor: AppColors.darkBlue, // your brand color
+        shadowColor: Colors.black45,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(bottom: Radius.circular(16)),
+        ),
+        title: const Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.dashboard, color: AppColors.darkBlue),
+            SizedBox(width: 8),
+            Text(
+              'Dashboard',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 22,
+                color: AppColors.darkBlue,
+                fontFamily: 'Urbanist',
+              ),
+            ),
+          ],
         ),
       ),
-    ],
-  ),
-),
 
+      body: BlocBuilder<DashBoardList, DashBoardState>(
+        bloc: dashboardCubit,
+        builder: (context, state) {
+          return state.when(
+            loading: () => const Center(child: CircularProgressIndicator()),
+            failure: (err) => Center(child: Text('Error: $err')),
+            success: (data) {
+              final jaipur =
+                  data.message.data['Shakti Hormann Private Limited Jaipur'] ??
+                  PlantDashboardExtension.empty();
+              final medchal =
+                  data.message.data['Shakti Hormann Private Limited Medchal'] ??
+                  PlantDashboardExtension.empty();
 
-    body: BlocBuilder<DashBoardList, DashBoardState>(
-      bloc: dashboardCubit,
-      builder: (context, state) {
-        return state.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
-          failure: (err) => Center(child: Text('Error: $err')),
-          success: (data) {
-            final jaipur = data.message.data['Shakti Hormann Private Limited Jaipur']!;
-            final medchal = data.message.data['Shakti Hormann Private Limited Medchal']!;
-            return _buildDashboardUI(jaipur, medchal);
-          },
-          initial: () => const SizedBox.shrink(),
-        );
-      },
-    ),
-  );
+              return _buildDashboardUI(jaipur, medchal);
+            },
+
+            initial: () => const SizedBox.shrink(),
+          );
+        },
+      ),
+    );
+  }
 }
-}
-
 
 Widget _buildDashboardUI(PlantDashboard jaipur, PlantDashboard medchal) {
   return SingleChildScrollView(
@@ -179,8 +181,8 @@ Widget _buildChartCard({
         child: SfCartesianChart(
           primaryXAxis: const CategoryAxis(title: AxisTitle(text: 'Day')),
           primaryYAxis: const NumericAxis(
-            majorGridLines:  MajorGridLines(width: 0.3),
-            axisLine:  AxisLine(width: 0),
+            majorGridLines: MajorGridLines(width: 0.3),
+            axisLine: AxisLine(width: 0),
           ),
           legend: const Legend(isVisible: true),
           series: <CartesianSeries>[
@@ -189,7 +191,8 @@ Widget _buildChartCard({
               color: entriesColor,
               borderRadius: const BorderRadius.all(Radius.circular(6)),
               dataSource: data,
-              xValueMapper: (d, _) => d.day.substring(8),
+              xValueMapper:
+                  (d, _) => d.day.length >= 8 ? d.day.substring(8) : d.day,
               yValueMapper: (d, _) => d.entries,
             ),
             ColumnSeries<Daywise, String>(
@@ -197,7 +200,8 @@ Widget _buildChartCard({
               color: exitsColor,
               borderRadius: const BorderRadius.all(Radius.circular(6)),
               dataSource: data,
-              xValueMapper: (d, _) => d.day.substring(8),
+              xValueMapper:
+                  (d, _) => d.day.length >= 8 ? d.day.substring(8) : d.day,
               yValueMapper: (d, _) => d.exits,
             ),
           ],

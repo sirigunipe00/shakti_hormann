@@ -35,6 +35,10 @@ mixin _$ItemModel {
   int? get docstatus => throw _privateConstructorUsedError;
   @JsonKey(name: 'idx')
   int? get idx => throw _privateConstructorUsedError;
+  @JsonKey(name: 'uom')
+  String? get uomValue => throw _privateConstructorUsedError;
+  @JsonKey(name: 'qty')
+  int? get qty => throw _privateConstructorUsedError;
   @JsonKey(name: 'naming_series')
   String? get namingSeries => throw _privateConstructorUsedError;
   @JsonKey(name: 'item_code')
@@ -184,7 +188,7 @@ mixin _$ItemModel {
   double? get totalProjectedQty => throw _privateConstructorUsedError;
   @JsonKey(name: 'qty_loaded')
   double? get qtyLoaded => throw _privateConstructorUsedError;
-  String? get uom => throw _privateConstructorUsedError;
+  String? get uoms => throw _privateConstructorUsedError;
   @JsonKey(
     includeFromJson: true,
     includeToJson: false,
@@ -216,6 +220,8 @@ abstract class $ItemModelCopyWith<$Res> {
     @JsonKey(name: 'modified_by') String? modifiedBy,
     @JsonKey(name: 'docstatus') int? docstatus,
     @JsonKey(name: 'idx') int? idx,
+    @JsonKey(name: 'uom') String? uomValue,
+    @JsonKey(name: 'qty') int? qty,
     @JsonKey(name: 'naming_series') String? namingSeries,
     @JsonKey(name: 'item_code') String? itemCode,
     @JsonKey(name: 'item_name') String? itemName,
@@ -296,7 +302,7 @@ abstract class $ItemModelCopyWith<$Res> {
     String? defaultManufacturerPartNo,
     @JsonKey(name: 'total_projected_qty') double? totalProjectedQty,
     @JsonKey(name: 'qty_loaded') double? qtyLoaded,
-    String? uom,
+    String? uoms,
     @JsonKey(
       includeFromJson: true,
       includeToJson: false,
@@ -329,6 +335,8 @@ class _$ItemModelCopyWithImpl<$Res, $Val extends ItemModel>
     Object? modifiedBy = freezed,
     Object? docstatus = freezed,
     Object? idx = freezed,
+    Object? uomValue = freezed,
+    Object? qty = freezed,
     Object? namingSeries = freezed,
     Object? itemCode = freezed,
     Object? itemName = freezed,
@@ -402,7 +410,7 @@ class _$ItemModelCopyWithImpl<$Res, $Val extends ItemModel>
     Object? defaultManufacturerPartNo = freezed,
     Object? totalProjectedQty = freezed,
     Object? qtyLoaded = freezed,
-    Object? uom = freezed,
+    Object? uoms = freezed,
     Object? imageFile = freezed,
   }) {
     return _then(
@@ -441,6 +449,16 @@ class _$ItemModelCopyWithImpl<$Res, $Val extends ItemModel>
                 freezed == idx
                     ? _value.idx
                     : idx // ignore: cast_nullable_to_non_nullable
+                        as int?,
+            uomValue:
+                freezed == uomValue
+                    ? _value.uomValue
+                    : uomValue // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            qty:
+                freezed == qty
+                    ? _value.qty
+                    : qty // ignore: cast_nullable_to_non_nullable
                         as int?,
             namingSeries:
                 freezed == namingSeries
@@ -807,10 +825,10 @@ class _$ItemModelCopyWithImpl<$Res, $Val extends ItemModel>
                     ? _value.qtyLoaded
                     : qtyLoaded // ignore: cast_nullable_to_non_nullable
                         as double?,
-            uom:
-                freezed == uom
-                    ? _value.uom
-                    : uom // ignore: cast_nullable_to_non_nullable
+            uoms:
+                freezed == uoms
+                    ? _value.uoms
+                    : uoms // ignore: cast_nullable_to_non_nullable
                         as String?,
             imageFile:
                 freezed == imageFile
@@ -840,6 +858,8 @@ abstract class _$$ItemModelImplCopyWith<$Res>
     @JsonKey(name: 'modified_by') String? modifiedBy,
     @JsonKey(name: 'docstatus') int? docstatus,
     @JsonKey(name: 'idx') int? idx,
+    @JsonKey(name: 'uom') String? uomValue,
+    @JsonKey(name: 'qty') int? qty,
     @JsonKey(name: 'naming_series') String? namingSeries,
     @JsonKey(name: 'item_code') String? itemCode,
     @JsonKey(name: 'item_name') String? itemName,
@@ -920,7 +940,7 @@ abstract class _$$ItemModelImplCopyWith<$Res>
     String? defaultManufacturerPartNo,
     @JsonKey(name: 'total_projected_qty') double? totalProjectedQty,
     @JsonKey(name: 'qty_loaded') double? qtyLoaded,
-    String? uom,
+    String? uoms,
     @JsonKey(
       includeFromJson: true,
       includeToJson: false,
@@ -952,6 +972,8 @@ class __$$ItemModelImplCopyWithImpl<$Res>
     Object? modifiedBy = freezed,
     Object? docstatus = freezed,
     Object? idx = freezed,
+    Object? uomValue = freezed,
+    Object? qty = freezed,
     Object? namingSeries = freezed,
     Object? itemCode = freezed,
     Object? itemName = freezed,
@@ -1025,7 +1047,7 @@ class __$$ItemModelImplCopyWithImpl<$Res>
     Object? defaultManufacturerPartNo = freezed,
     Object? totalProjectedQty = freezed,
     Object? qtyLoaded = freezed,
-    Object? uom = freezed,
+    Object? uoms = freezed,
     Object? imageFile = freezed,
   }) {
     return _then(
@@ -1064,6 +1086,16 @@ class __$$ItemModelImplCopyWithImpl<$Res>
             freezed == idx
                 ? _value.idx
                 : idx // ignore: cast_nullable_to_non_nullable
+                    as int?,
+        uomValue:
+            freezed == uomValue
+                ? _value.uomValue
+                : uomValue // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        qty:
+            freezed == qty
+                ? _value.qty
+                : qty // ignore: cast_nullable_to_non_nullable
                     as int?,
         namingSeries:
             freezed == namingSeries
@@ -1430,10 +1462,10 @@ class __$$ItemModelImplCopyWithImpl<$Res>
                 ? _value.qtyLoaded
                 : qtyLoaded // ignore: cast_nullable_to_non_nullable
                     as double?,
-        uom:
-            freezed == uom
-                ? _value.uom
-                : uom // ignore: cast_nullable_to_non_nullable
+        uoms:
+            freezed == uoms
+                ? _value.uoms
+                : uoms // ignore: cast_nullable_to_non_nullable
                     as String?,
         imageFile:
             freezed == imageFile
@@ -1456,6 +1488,8 @@ class _$ItemModelImpl implements _ItemModel {
     @JsonKey(name: 'modified_by') this.modifiedBy,
     @JsonKey(name: 'docstatus') this.docstatus,
     @JsonKey(name: 'idx') this.idx,
+    @JsonKey(name: 'uom') this.uomValue,
+    @JsonKey(name: 'qty') this.qty,
     @JsonKey(name: 'naming_series') this.namingSeries,
     @JsonKey(name: 'item_code') this.itemCode,
     @JsonKey(name: 'item_name') this.itemName,
@@ -1536,7 +1570,7 @@ class _$ItemModelImpl implements _ItemModel {
     this.defaultManufacturerPartNo,
     @JsonKey(name: 'total_projected_qty') this.totalProjectedQty,
     @JsonKey(name: 'qty_loaded') this.qtyLoaded,
-    this.uom,
+    this.uoms,
     @JsonKey(
       includeFromJson: true,
       includeToJson: false,
@@ -1570,6 +1604,12 @@ class _$ItemModelImpl implements _ItemModel {
   @override
   @JsonKey(name: 'idx')
   final int? idx;
+  @override
+  @JsonKey(name: 'uom')
+  final String? uomValue;
+  @override
+  @JsonKey(name: 'qty')
+  final int? qty;
   @override
   @JsonKey(name: 'naming_series')
   final String? namingSeries;
@@ -1790,7 +1830,7 @@ class _$ItemModelImpl implements _ItemModel {
   @JsonKey(name: 'qty_loaded')
   final double? qtyLoaded;
   @override
-  final String? uom;
+  final String? uoms;
   @override
   @JsonKey(
     includeFromJson: true,
@@ -1802,7 +1842,7 @@ class _$ItemModelImpl implements _ItemModel {
 
   @override
   String toString() {
-    return 'ItemModel(name: $name, owner: $owner, creation: $creation, modified: $modified, modifiedBy: $modifiedBy, docstatus: $docstatus, idx: $idx, namingSeries: $namingSeries, itemCode: $itemCode, itemName: $itemName, itemGroup: $itemGroup, gstHsnCode: $gstHsnCode, stockUom: $stockUom, customGateNumber: $customGateNumber, disabled: $disabled, allowAlternativeItem: $allowAlternativeItem, isStockItem: $isStockItem, hasVariants: $hasVariants, openingStock: $openingStock, valuationRate: $valuationRate, standardRate: $standardRate, isFixedAsset: $isFixedAsset, autoCreateAssets: $autoCreateAssets, isGroupedAsset: $isGroupedAsset, assetCategory: $assetCategory, assetNamingSeries: $assetNamingSeries, overDeliveryReceiptAllowance: $overDeliveryReceiptAllowance, overBillingAllowance: $overBillingAllowance, loadedItemPhoto: $loadedItemPhoto, description: $description, brand: $brand, shelfLifeInDays: $shelfLifeInDays, endOfLife: $endOfLife, defaultMaterialRequestType: $defaultMaterialRequestType, valuationMethod: $valuationMethod, warrantyPeriod: $warrantyPeriod, weightPerUnit: $weightPerUnit, weightUom: $weightUom, allowNegativeStock: $allowNegativeStock, hasBatchNo: $hasBatchNo, createNewBatch: $createNewBatch, batchNumberSeries: $batchNumberSeries, hasExpiryDate: $hasExpiryDate, retainSample: $retainSample, sampleQuantity: $sampleQuantity, hasSerialNo: $hasSerialNo, serialNoSeries: $serialNoSeries, variantOf: $variantOf, variantBasedOn: $variantBasedOn, enableDeferredExpense: $enableDeferredExpense, noOfMonthsExp: $noOfMonthsExp, enableDeferredRevenue: $enableDeferredRevenue, noOfMonths: $noOfMonths, purchaseUom: $purchaseUom, minOrderQty: $minOrderQty, safetyStock: $safetyStock, isPurchaseItem: $isPurchaseItem, leadTimeDays: $leadTimeDays, lastPurchaseRate: $lastPurchaseRate, isCustomerProvidedItem: $isCustomerProvidedItem, customer: $customer, deliveredBySupplier: $deliveredBySupplier, countryOfOrigin: $countryOfOrigin, customsTariffNumber: $customsTariffNumber, salesUom: $salesUom, grantCommission: $grantCommission, isSalesItem: $isSalesItem, maxDiscount: $maxDiscount, isIneligibleForItc: $isIneligibleForItc, inspectionRequiredBeforePurchase: $inspectionRequiredBeforePurchase, qualityInspectionTemplate: $qualityInspectionTemplate, inspectionRequiredBeforeDelivery: $inspectionRequiredBeforeDelivery, includeItemInManufacturing: $includeItemInManufacturing, isSubContractedItem: $isSubContractedItem, defaultBom: $defaultBom, customerCode: $customerCode, defaultItemManufacturer: $defaultItemManufacturer, defaultManufacturerPartNo: $defaultManufacturerPartNo, totalProjectedQty: $totalProjectedQty, qtyLoaded: $qtyLoaded, uom: $uom, imageFile: $imageFile)';
+    return 'ItemModel(name: $name, owner: $owner, creation: $creation, modified: $modified, modifiedBy: $modifiedBy, docstatus: $docstatus, idx: $idx, uomValue: $uomValue, qty: $qty, namingSeries: $namingSeries, itemCode: $itemCode, itemName: $itemName, itemGroup: $itemGroup, gstHsnCode: $gstHsnCode, stockUom: $stockUom, customGateNumber: $customGateNumber, disabled: $disabled, allowAlternativeItem: $allowAlternativeItem, isStockItem: $isStockItem, hasVariants: $hasVariants, openingStock: $openingStock, valuationRate: $valuationRate, standardRate: $standardRate, isFixedAsset: $isFixedAsset, autoCreateAssets: $autoCreateAssets, isGroupedAsset: $isGroupedAsset, assetCategory: $assetCategory, assetNamingSeries: $assetNamingSeries, overDeliveryReceiptAllowance: $overDeliveryReceiptAllowance, overBillingAllowance: $overBillingAllowance, loadedItemPhoto: $loadedItemPhoto, description: $description, brand: $brand, shelfLifeInDays: $shelfLifeInDays, endOfLife: $endOfLife, defaultMaterialRequestType: $defaultMaterialRequestType, valuationMethod: $valuationMethod, warrantyPeriod: $warrantyPeriod, weightPerUnit: $weightPerUnit, weightUom: $weightUom, allowNegativeStock: $allowNegativeStock, hasBatchNo: $hasBatchNo, createNewBatch: $createNewBatch, batchNumberSeries: $batchNumberSeries, hasExpiryDate: $hasExpiryDate, retainSample: $retainSample, sampleQuantity: $sampleQuantity, hasSerialNo: $hasSerialNo, serialNoSeries: $serialNoSeries, variantOf: $variantOf, variantBasedOn: $variantBasedOn, enableDeferredExpense: $enableDeferredExpense, noOfMonthsExp: $noOfMonthsExp, enableDeferredRevenue: $enableDeferredRevenue, noOfMonths: $noOfMonths, purchaseUom: $purchaseUom, minOrderQty: $minOrderQty, safetyStock: $safetyStock, isPurchaseItem: $isPurchaseItem, leadTimeDays: $leadTimeDays, lastPurchaseRate: $lastPurchaseRate, isCustomerProvidedItem: $isCustomerProvidedItem, customer: $customer, deliveredBySupplier: $deliveredBySupplier, countryOfOrigin: $countryOfOrigin, customsTariffNumber: $customsTariffNumber, salesUom: $salesUom, grantCommission: $grantCommission, isSalesItem: $isSalesItem, maxDiscount: $maxDiscount, isIneligibleForItc: $isIneligibleForItc, inspectionRequiredBeforePurchase: $inspectionRequiredBeforePurchase, qualityInspectionTemplate: $qualityInspectionTemplate, inspectionRequiredBeforeDelivery: $inspectionRequiredBeforeDelivery, includeItemInManufacturing: $includeItemInManufacturing, isSubContractedItem: $isSubContractedItem, defaultBom: $defaultBom, customerCode: $customerCode, defaultItemManufacturer: $defaultItemManufacturer, defaultManufacturerPartNo: $defaultManufacturerPartNo, totalProjectedQty: $totalProjectedQty, qtyLoaded: $qtyLoaded, uoms: $uoms, imageFile: $imageFile)';
   }
 
   @override
@@ -1821,6 +1861,9 @@ class _$ItemModelImpl implements _ItemModel {
             (identical(other.docstatus, docstatus) ||
                 other.docstatus == docstatus) &&
             (identical(other.idx, idx) || other.idx == idx) &&
+            (identical(other.uomValue, uomValue) ||
+                other.uomValue == uomValue) &&
+            (identical(other.qty, qty) || other.qty == qty) &&
             (identical(other.namingSeries, namingSeries) ||
                 other.namingSeries == namingSeries) &&
             (identical(other.itemCode, itemCode) ||
@@ -1995,7 +2038,7 @@ class _$ItemModelImpl implements _ItemModel {
                 other.totalProjectedQty == totalProjectedQty) &&
             (identical(other.qtyLoaded, qtyLoaded) ||
                 other.qtyLoaded == qtyLoaded) &&
-            (identical(other.uom, uom) || other.uom == uom) &&
+            (identical(other.uoms, uoms) || other.uoms == uoms) &&
             (identical(other.imageFile, imageFile) ||
                 other.imageFile == imageFile));
   }
@@ -2011,6 +2054,8 @@ class _$ItemModelImpl implements _ItemModel {
     modifiedBy,
     docstatus,
     idx,
+    uomValue,
+    qty,
     namingSeries,
     itemCode,
     itemName,
@@ -2084,7 +2129,7 @@ class _$ItemModelImpl implements _ItemModel {
     defaultManufacturerPartNo,
     totalProjectedQty,
     qtyLoaded,
-    uom,
+    uoms,
     imageFile,
   ]);
 
@@ -2111,6 +2156,8 @@ abstract class _ItemModel implements ItemModel {
     @JsonKey(name: 'modified_by') final String? modifiedBy,
     @JsonKey(name: 'docstatus') final int? docstatus,
     @JsonKey(name: 'idx') final int? idx,
+    @JsonKey(name: 'uom') final String? uomValue,
+    @JsonKey(name: 'qty') final int? qty,
     @JsonKey(name: 'naming_series') final String? namingSeries,
     @JsonKey(name: 'item_code') final String? itemCode,
     @JsonKey(name: 'item_name') final String? itemName,
@@ -2193,7 +2240,7 @@ abstract class _ItemModel implements ItemModel {
     final String? defaultManufacturerPartNo,
     @JsonKey(name: 'total_projected_qty') final double? totalProjectedQty,
     @JsonKey(name: 'qty_loaded') final double? qtyLoaded,
-    final String? uom,
+    final String? uoms,
     @JsonKey(
       includeFromJson: true,
       includeToJson: false,
@@ -2227,6 +2274,12 @@ abstract class _ItemModel implements ItemModel {
   @override
   @JsonKey(name: 'idx')
   int? get idx;
+  @override
+  @JsonKey(name: 'uom')
+  String? get uomValue;
+  @override
+  @JsonKey(name: 'qty')
+  int? get qty;
   @override
   @JsonKey(name: 'naming_series')
   String? get namingSeries;
@@ -2447,7 +2500,7 @@ abstract class _ItemModel implements ItemModel {
   @JsonKey(name: 'qty_loaded')
   double? get qtyLoaded;
   @override
-  String? get uom;
+  String? get uoms;
   @override
   @JsonKey(
     includeFromJson: true,

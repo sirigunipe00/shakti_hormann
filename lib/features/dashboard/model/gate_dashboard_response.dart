@@ -47,3 +47,15 @@ class Daywise with _$Daywise {
   factory Daywise.fromJson(Map<String, dynamic> json) =>
       _$DaywiseFromJson(json);
 }
+extension PlantDashboardExtension on PlantDashboard {
+  static PlantDashboard empty() {
+    return PlantDashboard(
+      gateEntries: 0,
+      gateExits: 0,
+      daywise: List.generate(
+        7,
+        (index) => Daywise(day: '0${index + 1}', entries: 0, exits: 0),
+      ),
+    );
+  }
+}

@@ -156,12 +156,13 @@ class CreatePodCubit extends AppBaseCubit<CreatePodState> {
         return response.fold(
           (l) => emitSafeState(state.copyWith(isLoading: false, error: l)),
           (r) {
+            final docstatus = r.second;
             shouldAskForConfirmation.value = false;
             emitSafeState(
               state.copyWith(
                 isLoading: false,
                 isSuccess: true,
-                form: state.form.copyWith(docStatus: 1),
+                form: state.form.copyWith(name: docstatus),
                 successMsg: r.first,
                 view: PodView.completed,
               ),

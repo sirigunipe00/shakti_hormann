@@ -1,7 +1,10 @@
 import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shakti_hormann/core/utils/date_format_util.dart';
 import 'package:shakti_hormann/features/transport_confirmation/model/transport_confirmation_form.dart';
+import 'package:shakti_hormann/features/transport_confirmation/presentation/bloc/bloc_provider.dart';
+import 'package:shakti_hormann/features/transport_confirmation/presentation/bloc/create_transport_cubit.dart/create_transport_cubit.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/styles/app_text_styles.dart';
 import 'package:shakti_hormann/widgets/spaced_column.dart';
@@ -18,8 +21,6 @@ class TransportCnfrmWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-   
- 
     return GestureDetector(
       onTap: onTap,
       child: Card(
@@ -31,7 +32,7 @@ class TransportCnfrmWidget extends StatelessWidget {
         ),
         child: SpacedColumn(
           defaultHeight: 4,
-          margin: const EdgeInsets.symmetric(vertical: 4,horizontal: 4),
+          margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
           children: [
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -40,7 +41,7 @@ class TransportCnfrmWidget extends StatelessWidget {
                   width: 70,
                   height: 70,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFAB94FF).withValues(alpha:0.30),
+                    color: const Color(0xFFAB94FF).withValues(alpha: 0.30),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   alignment: Alignment.center,
@@ -79,7 +80,7 @@ class TransportCnfrmWidget extends StatelessWidget {
                               const SizedBox(height: 5),
                               Text(
                                 transport.transporterName ?? '',
-                                style:const TextStyle(
+                                style: const TextStyle(
                                   color: AppColors.grey,
                                   fontWeight: FontWeight.normal,
                                   letterSpacing: 0,
@@ -98,7 +99,7 @@ class TransportCnfrmWidget extends StatelessWidget {
                         ],
                       ),
 
-                           const SizedBox(height: 5),
+                      const SizedBox(height: 5),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -124,12 +125,10 @@ class TransportCnfrmWidget extends StatelessWidget {
                           ),
                           Row(
                             children: [
-                             Image.asset(
-                            'assets/images/timeicon.png'
-                   ,
-                           ),
+                              Image.asset('assets/images/timeicon.png'),
                               Text(
-                                formatTime(transport.requestedDeliveryTime) ?? '',
+                                formatTime(transport.requestedDeliveryTime) ??
+                                    '',
                                 style: AppTextStyles.titleMedium(
                                   context,
                                   AppColors.darkBlue,
@@ -155,33 +154,61 @@ class TransportCnfrmWidget extends StatelessWidget {
                 dashGapLength: 4.0,
               ),
             ),
-           
 
             Row(
-              // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                const Spacer(),
+                // Move BlocBuilder to start of Row
+                BlocBuilder<SalesOrders, SalesState>(
+                  builder: (context, state) {
+                    return state.maybeWhen(
+                      success: (data) {
+                        context.read<CreateTransportCubit>().addsaleseorders(
+                          salesorder: data,
+                        );
 
-                // Text(
-                //   transport.name ?? '',
-                //   style:const TextStyle(
-                //     color: Color(0xFF2957A4),
-                //     fontWeight: FontWeight.bold,
-                //     fontSize: 15,
-                //   ),
-                // ),
-                   Text(
-                    transport.docstatus == 2 ? 'Cancelled' :
-                  transport.status ?? '',
+                        return Wrap(
+                          spacing: 2,
+                          children:
+                              data.map((po) {
+                                return Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 0,
+                                    vertical: 2,
+                                  ),
+                                  child: Text(
+                                    '${po.name}, ',
+                                    style: const TextStyle(
+                                      color: Color(0xFF2957A4),
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
+                        );
+                      },
+                      orElse: () => const SizedBox(),
+                    );
+                  },
+                ),
+
+                // Keep status text at the right end
+                Text(
+                  transport.docstatus == 2
+                      ? 'Cancelled'
+                      : transport.status ?? '',
                   style: AppTextStyles.titleLarge(context).copyWith(
-                    color: _getStatusColor( transport.docstatus == 2 ? 'Cancelled' :
-                  transport.status ?? '',),
+                    color: _getStatusColor(
+                      transport.docstatus == 2
+                          ? 'Cancelled'
+                          : transport.status ?? '',
+                    ),
                     fontWeight: FontWeight.bold,
                     fontSize: 12,
                   ),
                 ),
-                
               ],
             ),
           ],
@@ -190,20 +217,22 @@ class TransportCnfrmWidget extends StatelessWidget {
     );
   }
 }
+
 Color _getStatusColor(String? status) {
   switch (status?.toLowerCase()) {
     case 'transporter confirmed':
       return Colors.green;
     case 'transporter rejected':
       return Colors.red;
-      case 'cancelled':
+    case 'cancelled':
       return Colors.red;
     case 'pending from transporter':
-      return Colors.orange; 
+      return Colors.orange;
     default:
-      return Colors.black; 
+      return Colors.black;
   }
 }
+
 String? formatTime(String? backendTime) {
   if (backendTime == null || backendTime.isEmpty) return null;
 

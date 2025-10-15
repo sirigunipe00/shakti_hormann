@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:shakti_hormann/core/utils/date_format_util.dart';
 import 'package:shakti_hormann/core/utils/string_utils.dart';
-import 'package:shakti_hormann/features/gate_exit/presentation/ui/widgets/card_details.dart';
 import 'package:shakti_hormann/widgets/doc_status_widget.dart';
 import 'package:shakti_hormann/features/gate_exit/model/gate_exit_form.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
@@ -15,14 +14,12 @@ class GateExitWidget extends StatelessWidget {
     super.key,
     required this.gateExit,
     required this.onTap,
-    
   });
-   final GateExitForm gateExit;
+  final GateExitForm gateExit;
   final VoidCallback onTap;
   @override
   Widget build(BuildContext context) {
-  return GestureDetector(
-    onLongPress: ()=> showGateExitDialog(context,gateExit),
+    return GestureDetector(
       onTap: onTap,
       child: Card(
         color: Colors.white,
@@ -33,8 +30,7 @@ class GateExitWidget extends StatelessWidget {
         ),
         child: SpacedColumn(
           defaultHeight: 2,
-          margin: const EdgeInsets.symmetric(vertical: 4,horizontal: 4
-          ),
+          margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
           children: [
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -43,13 +39,13 @@ class GateExitWidget extends StatelessWidget {
                   width: 70,
                   height: 70,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF2957A4).withValues(alpha:0.10),
+                    color: const Color(0xFF2957A4).withValues(alpha: 0.10),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Center(
                     child: SvgPicture.asset(
                       'assets/images/gateexiticon.svg',
-                     
+
                       fit: BoxFit.fill,
                       height: 50,
                     ),
@@ -77,10 +73,10 @@ class GateExitWidget extends StatelessWidget {
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                             const SizedBox(height: 5),
+                              const SizedBox(height: 5),
                               Text(
                                 gateExit.vehicleNo ?? '',
-                                style:const TextStyle(
+                                style: const TextStyle(
                                   color: AppColors.grey,
                                   fontWeight: FontWeight.normal,
                                   letterSpacing: 0,
@@ -99,7 +95,6 @@ class GateExitWidget extends StatelessWidget {
                         ],
                       ),
 
-                      
                       const SizedBox(height: 5),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -124,21 +119,21 @@ class GateExitWidget extends StatelessWidget {
                               ),
                             ],
                           ),
-                  //         Row(
-                  //           children: [
-                  //            Image.asset(
-                  //           'assets/images/timeicon.png'
-                  //  ,
-                  //          ),
-                  //             Text(
-                  //               DFU.timeFromStr(gateExit.creationDate ?? ''),
-                  //               style: AppTextStyles.titleMedium(
-                  //                 context,
-                  //                 AppColors.darkBlue,
-                  //               ).copyWith(color: AppColors.litecyan),
-                  //             ),
-                  //           ],
-                  //         ),
+                          //         Row(
+                          //           children: [
+                          //            Image.asset(
+                          //           'assets/images/timeicon.png'
+                          //  ,
+                          //          ),
+                          //             Text(
+                          //               DFU.timeFromStr(gateExit.creationDate ?? ''),
+                          //               style: AppTextStyles.titleMedium(
+                          //                 context,
+                          //                 AppColors.darkBlue,
+                          //               ).copyWith(color: AppColors.litecyan),
+                          //             ),
+                          //           ],
+                          //         ),
                         ],
                       ),
                     ],
@@ -157,7 +152,6 @@ class GateExitWidget extends StatelessWidget {
                 dashGapLength: 4.0,
               ),
             ),
-            
 
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,

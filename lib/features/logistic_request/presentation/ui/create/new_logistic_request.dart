@@ -31,7 +31,7 @@ class _NewLogisticRequestState extends State<NewLogisticRequest> {
     final newform = logisticState.form;
     final status = newform.docstatus;
     final name = newform.name;
-      final isCompleted =
+    final isCompleted =
         logisticState.view == LogisticPlanningView.completed ||
         (logisticState.form.docstatus == 1 ||
             logisticState.form.status == 'Pending From Transporter');
@@ -61,7 +61,10 @@ class _NewLogisticRequestState extends State<NewLogisticRequest> {
                           borderColor: Colors.grey,
                           label: state.view.toName(),
                           onPressed: () {
-                            context.cubit<CreateLogisticCubit>().save();
+                            final cubit = context.read<CreateLogisticCubit>();
+                            if (!cubit.state.isLoading) {
+                              cubit.save();
+                            }
                           },
                         );
                       },
@@ -139,10 +142,13 @@ class _NewLogisticRequestState extends State<NewLogisticRequest> {
                             final List<SalesOrder> salesOrders =
                                 selectedList
                                     .where((e) => e.name != null)
-                                    .map((e) => SalesOrder(name: e.name,
-                                    city: e.city,
-                                    state: e.states,
-                                    ))
+                                    .map(
+                                      (e) => SalesOrder(
+                                        name: e.name,
+                                        city: e.city,
+                                        state: e.states,
+                                      ),
+                                    )
                                     .toList();
 
                             context.cubit<CreateLogisticCubit>().onValueChanged(
@@ -321,7 +327,7 @@ class _NewLogisticRequestState extends State<NewLogisticRequest> {
                           readOnly: isCompleted,
 
                           isloading: state.isLoading,
-                          
+
                           defaultSelection:
                               names
                                   .where(
@@ -352,7 +358,10 @@ class _NewLogisticRequestState extends State<NewLogisticRequest> {
                                     item.name ?? '',
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
-                                      color: isCompleted ? AppColors.white : AppColors.black
+                                      color:
+                                          isCompleted
+                                              ? AppColors.white
+                                              : AppColors.black,
                                     ),
                                   ),
                                 ],
@@ -387,11 +396,13 @@ class _NewLogisticRequestState extends State<NewLogisticRequest> {
                                 final List<SalesOrder> salesOrders =
                                     selectedList
                                         .where((e) => e.name != null)
-                                        .map((e) => SalesOrder(name: e.name,
-                                        state: e.states,
-                                        city: e.city,
-
-                                        ))
+                                        .map(
+                                          (e) => SalesOrder(
+                                            name: e.name,
+                                            state: e.states,
+                                            city: e.city,
+                                          ),
+                                        )
                                         .toList();
 
                                 context
@@ -465,7 +476,10 @@ class _NewLogisticRequestState extends State<NewLogisticRequest> {
             context.cubit<CreateLogisticCubit>().errorHandled();
           }
         },
-        child: LogisticPlanningFormWidget(key: ValueKey(status), orderForm: orderForm,),
+        child: LogisticPlanningFormWidget(
+          key: ValueKey(status),
+          orderForm: orderForm,
+        ),
       ),
     );
   }

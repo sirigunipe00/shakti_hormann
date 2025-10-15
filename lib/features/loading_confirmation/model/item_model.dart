@@ -16,6 +16,8 @@ class ItemModel with _$ItemModel {
     @JsonKey(name: 'modified_by') String? modifiedBy,
     @JsonKey(name: 'docstatus') int? docstatus,
     @JsonKey(name: 'idx') int? idx,
+    @JsonKey(name: 'uom') String? uomValue,
+    @JsonKey(name: 'qty') int? qty,
     @JsonKey(name: 'naming_series') String? namingSeries,
     @JsonKey(name: 'item_code') String? itemCode,
     @JsonKey(name: 'item_name') String? itemName,
@@ -89,7 +91,7 @@ class ItemModel with _$ItemModel {
     @JsonKey(name: 'default_manufacturer_part_no') String? defaultManufacturerPartNo,
     @JsonKey(name: 'total_projected_qty') double? totalProjectedQty,
     @JsonKey(name: 'qty_loaded') double? qtyLoaded,
-    String? uom,
+    String? uoms,
     @JsonKey(
       includeFromJson: true,
       includeToJson: false,

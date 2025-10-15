@@ -160,6 +160,7 @@ class _NewGateExitState extends State<NewGateExit> {
                   if (scanResult != null) {
                     final scannedValue =
                         extractIrnFromQr(scanResult).trim().toUpperCase();
+                        if(!context.mounted) return;
 
                     final allPOs =
                         context
@@ -345,6 +346,7 @@ class _NewGateExitState extends State<NewGateExit> {
                     if (scanResult != null) {
                       final scannedValue =
                           extractIrnFromQr(scanResult).trim().toUpperCase();
+                          if(!context.mounted) return;
 
                       final allPOs =
                           context

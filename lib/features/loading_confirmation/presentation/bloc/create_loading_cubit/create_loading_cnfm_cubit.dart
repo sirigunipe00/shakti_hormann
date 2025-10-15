@@ -6,6 +6,7 @@ import 'package:shakti_hormann/features/loading_confirmation/data/loading_cnfm_r
 import 'package:shakti_hormann/features/loading_confirmation/model/item_model.dart';
 import 'package:shakti_hormann/features/loading_confirmation/model/loading_cnfm.dart';
 
+
 part 'create_loading_cnfm_cubit.freezed.dart';
 
 enum LoadingView { create, edit, completed, sumitted }
@@ -33,6 +34,7 @@ class CreateLoadingCnfmCubit extends AppBaseCubit<CreateLaodingCnfmState> {
     String? itemCode,
     String? images,
     String? name,
+    String? uomValue,
     int? quantityLoaded,
   }) {
     shouldAskForConfirmation.value = true;
@@ -42,8 +44,8 @@ class CreateLoadingCnfmCubit extends AppBaseCubit<CreateLaodingCnfmState> {
       name: name ?? form.name,
       itemCode: itemCode ?? form.itemCode,
       itemName: itemName ?? form.itemName,
-      salesUom: salesUom ?? form.salesUom,
-      sampleQuantity: quantityLoaded ?? form.sampleQuantity,
+      uomValue: salesUom ?? form.uomValue,
+      qty: quantityLoaded ?? form.qty,
     );
     emitSafeState(state.copyWith(items: newForm));
   }
@@ -65,6 +67,8 @@ class CreateLoadingCnfmCubit extends AppBaseCubit<CreateLaodingCnfmState> {
         arrivalDateAndTime: entry.arrivalDateAndTime,
         driverContact: entry.driverContact,
         driverIdPhoto: entry.driverIdPhoto,
+        arrivalDate: entry.arrivalDate,
+        arrivalTime: entry.arrivalTime,
         vehicleReportingEntryVreDate: entry.vehicleReportingEntryVreDate,
         linkedTransporterConfirmation: entry.linkedTransporterConfirmation,
         transporterName: entry.transporterName,

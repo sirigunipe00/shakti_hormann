@@ -6,15 +6,23 @@ import 'package:shakti_hormann/core/model/pair.dart';
 import 'package:shakti_hormann/features/loading_confirmation/data/loading_cnfm_repo.dart';
 import 'package:shakti_hormann/features/loading_confirmation/model/item_model.dart';
 import 'package:shakti_hormann/features/loading_confirmation/model/loading_cnfm.dart';
+import 'package:shakti_hormann/features/loading_confirmation/model/logistic.dart';
 
 typedef LoadingCnfmCubit =InfiniteListCubit<LoadingCnfmForm, Pair<String?, String?>, Pair<String?, String?>>;
 typedef LoadingCnfmState = InfiniteListState<LoadingCnfmForm>;
 
-typedef ItemList = NetworkRequestCubit<List<ItemModel>, String>;
-typedef ItemState= NetworkRequestState<List<ItemModel>>;
+typedef ItemList = NetworkRequestCubit<List<ItemModel>, List<LogisticModel>>;
+typedef ItemState = NetworkRequestState<List<ItemModel>>;
+
 
 typedef GetLoadedList = NetworkRequestCubit<List<ItemModel>, String>;
 typedef GetLoadedState= NetworkRequestState<List<ItemModel>>;
+
+
+typedef Logistic
+    = NetworkRequestCubit<List<LogisticModel>, String>;
+typedef LogisticState
+    = NetworkRequestState<List<LogisticModel>>;
 
 @lazySingleton
 class LoadingCnfmBlocProvider {
@@ -32,12 +40,22 @@ class LoadingCnfmBlocProvider {
             repo.fetchLoadingList(state.curLength, params!.first, params.second),
   );
 
-  ItemList itemList() => ItemList(
-    onRequest: (params, state) => repo.fetchItemList(params ?? ''),
-  );
+ ItemList itemList() => ItemList(
+  onRequest: (params, state) => repo.fetchItemList(params ?? []),
+  // {
+  //   // final name = params?['name'] as String? ?? '';
+  //   final logistic = params?['logistic'] as List<LogisticModel>? ?? [];
+  //   return repo.fetchItemList(logistic);
+  // },
+);
+
 
   GetLoadedList  getItems() => GetLoadedList(
     onRequest: (params, state) => repo.getItems(params ?? ''),
+  );
+
+   Logistic getLogisticList() => Logistic(
+    onRequest: (params, state) => repo.fetchLogisticList(params ?? ''),
   );
   
 }

@@ -44,7 +44,10 @@ mixin _$LoadingCnfmForm {
       throw _privateConstructorUsedError;
   @JsonKey(name: 'transporter_name')
   String? get transporterName => throw _privateConstructorUsedError;
-  @JsonKey(name: 'arrival_date_and__time', defaultValue: '')
+  @JsonKey(name: 'arrival_date', defaultValue: '')
+  String? get arrivalDate => throw _privateConstructorUsedError;
+  @JsonKey(name: 'arrival_time', defaultValue: '')
+  String? get arrivalTime => throw _privateConstructorUsedError;
   String? get arrivalDateAndTime => throw _privateConstructorUsedError;
   @JsonKey(name: 'driver_id_proof')
   String? get driverIdPhoto => throw _privateConstructorUsedError;
@@ -92,7 +95,8 @@ abstract class $LoadingCnfmFormCopyWith<$Res> {
     @JsonKey(name: 'vehicle_reporting_entry_vre_date')
     String? vehicleReportingEntryVreDate,
     @JsonKey(name: 'transporter_name') String? transporterName,
-    @JsonKey(name: 'arrival_date_and__time', defaultValue: '')
+    @JsonKey(name: 'arrival_date', defaultValue: '') String? arrivalDate,
+    @JsonKey(name: 'arrival_time', defaultValue: '') String? arrivalTime,
     String? arrivalDateAndTime,
     @JsonKey(name: 'driver_id_proof') String? driverIdPhoto,
     @JsonKey(name: 'loaded_by_user') String? loadedByUser,
@@ -131,6 +135,8 @@ class _$LoadingCnfmFormCopyWithImpl<$Res, $Val extends LoadingCnfmForm>
     Object? plantName = freezed,
     Object? vehicleReportingEntryVreDate = freezed,
     Object? transporterName = freezed,
+    Object? arrivalDate = freezed,
+    Object? arrivalTime = freezed,
     Object? arrivalDateAndTime = freezed,
     Object? driverIdPhoto = freezed,
     Object? loadedByUser = freezed,
@@ -196,6 +202,16 @@ class _$LoadingCnfmFormCopyWithImpl<$Res, $Val extends LoadingCnfmForm>
                 freezed == transporterName
                     ? _value.transporterName
                     : transporterName // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            arrivalDate:
+                freezed == arrivalDate
+                    ? _value.arrivalDate
+                    : arrivalDate // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            arrivalTime:
+                freezed == arrivalTime
+                    ? _value.arrivalTime
+                    : arrivalTime // ignore: cast_nullable_to_non_nullable
                         as String?,
             arrivalDateAndTime:
                 freezed == arrivalDateAndTime
@@ -265,7 +281,8 @@ abstract class _$$LoadingCnfmFormImplCopyWith<$Res>
     @JsonKey(name: 'vehicle_reporting_entry_vre_date')
     String? vehicleReportingEntryVreDate,
     @JsonKey(name: 'transporter_name') String? transporterName,
-    @JsonKey(name: 'arrival_date_and__time', defaultValue: '')
+    @JsonKey(name: 'arrival_date', defaultValue: '') String? arrivalDate,
+    @JsonKey(name: 'arrival_time', defaultValue: '') String? arrivalTime,
     String? arrivalDateAndTime,
     @JsonKey(name: 'driver_id_proof') String? driverIdPhoto,
     @JsonKey(name: 'loaded_by_user') String? loadedByUser,
@@ -303,6 +320,8 @@ class __$$LoadingCnfmFormImplCopyWithImpl<$Res>
     Object? plantName = freezed,
     Object? vehicleReportingEntryVreDate = freezed,
     Object? transporterName = freezed,
+    Object? arrivalDate = freezed,
+    Object? arrivalTime = freezed,
     Object? arrivalDateAndTime = freezed,
     Object? driverIdPhoto = freezed,
     Object? loadedByUser = freezed,
@@ -369,6 +388,16 @@ class __$$LoadingCnfmFormImplCopyWithImpl<$Res>
                 ? _value.transporterName
                 : transporterName // ignore: cast_nullable_to_non_nullable
                     as String?,
+        arrivalDate:
+            freezed == arrivalDate
+                ? _value.arrivalDate
+                : arrivalDate // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        arrivalTime:
+            freezed == arrivalTime
+                ? _value.arrivalTime
+                : arrivalTime // ignore: cast_nullable_to_non_nullable
+                    as String?,
         arrivalDateAndTime:
             freezed == arrivalDateAndTime
                 ? _value.arrivalDateAndTime
@@ -430,7 +459,8 @@ class _$LoadingCnfmFormImpl implements _LoadingCnfmForm {
     @JsonKey(name: 'vehicle_reporting_entry_vre_date')
     this.vehicleReportingEntryVreDate,
     @JsonKey(name: 'transporter_name') this.transporterName,
-    @JsonKey(name: 'arrival_date_and__time', defaultValue: '')
+    @JsonKey(name: 'arrival_date', defaultValue: '') this.arrivalDate,
+    @JsonKey(name: 'arrival_time', defaultValue: '') this.arrivalTime,
     this.arrivalDateAndTime,
     @JsonKey(name: 'driver_id_proof') this.driverIdPhoto,
     @JsonKey(name: 'loaded_by_user') this.loadedByUser,
@@ -479,7 +509,12 @@ class _$LoadingCnfmFormImpl implements _LoadingCnfmForm {
   @JsonKey(name: 'transporter_name')
   final String? transporterName;
   @override
-  @JsonKey(name: 'arrival_date_and__time', defaultValue: '')
+  @JsonKey(name: 'arrival_date', defaultValue: '')
+  final String? arrivalDate;
+  @override
+  @JsonKey(name: 'arrival_time', defaultValue: '')
+  final String? arrivalTime;
+  @override
   final String? arrivalDateAndTime;
   @override
   @JsonKey(name: 'driver_id_proof')
@@ -505,7 +540,7 @@ class _$LoadingCnfmFormImpl implements _LoadingCnfmForm {
 
   @override
   String toString() {
-    return 'LoadingCnfmForm(name: $name, owner: $owner, creation: $creation, modified: $modified, modifiedBy: $modifiedBy, docstatus: $docstatus, idx: $idx, amendedFrom: $amendedFrom, plantName: $plantName, vehicleReportingEntryVreDate: $vehicleReportingEntryVreDate, transporterName: $transporterName, arrivalDateAndTime: $arrivalDateAndTime, driverIdPhoto: $driverIdPhoto, loadedByUser: $loadedByUser, status: $status, linkedTransporterConfirmation: $linkedTransporterConfirmation, vehicleNumber: $vehicleNumber, driverContact: $driverContact, remarks: $remarks)';
+    return 'LoadingCnfmForm(name: $name, owner: $owner, creation: $creation, modified: $modified, modifiedBy: $modifiedBy, docstatus: $docstatus, idx: $idx, amendedFrom: $amendedFrom, plantName: $plantName, vehicleReportingEntryVreDate: $vehicleReportingEntryVreDate, transporterName: $transporterName, arrivalDate: $arrivalDate, arrivalTime: $arrivalTime, arrivalDateAndTime: $arrivalDateAndTime, driverIdPhoto: $driverIdPhoto, loadedByUser: $loadedByUser, status: $status, linkedTransporterConfirmation: $linkedTransporterConfirmation, vehicleNumber: $vehicleNumber, driverContact: $driverContact, remarks: $remarks)';
   }
 
   @override
@@ -536,6 +571,10 @@ class _$LoadingCnfmFormImpl implements _LoadingCnfmForm {
                     vehicleReportingEntryVreDate) &&
             (identical(other.transporterName, transporterName) ||
                 other.transporterName == transporterName) &&
+            (identical(other.arrivalDate, arrivalDate) ||
+                other.arrivalDate == arrivalDate) &&
+            (identical(other.arrivalTime, arrivalTime) ||
+                other.arrivalTime == arrivalTime) &&
             (identical(other.arrivalDateAndTime, arrivalDateAndTime) ||
                 other.arrivalDateAndTime == arrivalDateAndTime) &&
             (identical(other.driverIdPhoto, driverIdPhoto) ||
@@ -571,6 +610,8 @@ class _$LoadingCnfmFormImpl implements _LoadingCnfmForm {
     plantName,
     vehicleReportingEntryVreDate,
     transporterName,
+    arrivalDate,
+    arrivalTime,
     arrivalDateAndTime,
     driverIdPhoto,
     loadedByUser,
@@ -612,7 +653,8 @@ abstract class _LoadingCnfmForm implements LoadingCnfmForm {
     @JsonKey(name: 'vehicle_reporting_entry_vre_date')
     final String? vehicleReportingEntryVreDate,
     @JsonKey(name: 'transporter_name') final String? transporterName,
-    @JsonKey(name: 'arrival_date_and__time', defaultValue: '')
+    @JsonKey(name: 'arrival_date', defaultValue: '') final String? arrivalDate,
+    @JsonKey(name: 'arrival_time', defaultValue: '') final String? arrivalTime,
     final String? arrivalDateAndTime,
     @JsonKey(name: 'driver_id_proof') final String? driverIdPhoto,
     @JsonKey(name: 'loaded_by_user') final String? loadedByUser,
@@ -661,7 +703,12 @@ abstract class _LoadingCnfmForm implements LoadingCnfmForm {
   @JsonKey(name: 'transporter_name')
   String? get transporterName;
   @override
-  @JsonKey(name: 'arrival_date_and__time', defaultValue: '')
+  @JsonKey(name: 'arrival_date', defaultValue: '')
+  String? get arrivalDate;
+  @override
+  @JsonKey(name: 'arrival_time', defaultValue: '')
+  String? get arrivalTime;
+  @override
   String? get arrivalDateAndTime;
   @override
   @JsonKey(name: 'driver_id_proof')

@@ -2,6 +2,7 @@ import 'package:shakti_hormann/core/core.dart';
 import 'package:dartz/dartz.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
+import 'package:shakti_hormann/features/logistic_request/model/sales_order.dart';
 import 'package:shakti_hormann/features/transport_confirmation/data/transport_confrimation_repo.dart';
 import 'package:shakti_hormann/features/transport_confirmation/model/transport_confirmation_form.dart';
 
@@ -33,7 +34,7 @@ class CreateTransportCubit extends AppBaseCubit<CreateTransportState> {
     int? idx,
     String? modifiedBy,
     String? modifiedDate,
-    String? salesOrder,
+    List<SalesOrder>? salesOrder,
     String? vehicleNumber,
     String? transporterName,
     String? preferredVehicleType,
@@ -54,7 +55,8 @@ class CreateTransportCubit extends AppBaseCubit<CreateTransportState> {
     String? anySpecialInstructions,
     String? transporterConfirmationDate,
     String? driverName,
-    String? estimatedArrival,
+    String? estimatesdArrivalDate,
+    String? estimatedArrivalTime,
     String? transporterRemarks,
     String? driverContact,
   }) {
@@ -89,7 +91,8 @@ class CreateTransportCubit extends AppBaseCubit<CreateTransportState> {
       transporterConfirmationDate:
           transporterConfirmationDate ?? form.transporterConfirmationDate,
       driverName: driverName ?? form.driverName,
-      estimatedArrival: estimatedArrival ?? form.estimatedArrival,
+      estimatedArrivalDate: estimatesdArrivalDate ?? form.estimatedArrivalDate,
+      estimatedArrivalTime: estimatedArrivalTime ?? form.estimatedArrivalTime,
       transporterRemarks: transporterRemarks ?? form.transporterRemarks,
       driverContact: driverContact ?? form.driverContact,
       shippingAddress1: shippingAddress1 ?? form.shippingAddress1,
@@ -120,7 +123,8 @@ class CreateTransportCubit extends AppBaseCubit<CreateTransportState> {
         dispatchType : entry.dispatchType,
         transporterType: entry.transporterType,
         driverName: entry.driverName,
-        estimatedArrival: entry.estimatedArrival,
+        estimatedArrivalDate: entry.estimatedArrivalDate,
+        estimatedArrivalTime: entry.estimatedArrivalTime,
         anySpecialInstructions: entry.anySpecialInstructions,
         preferredVehicleType: entry.preferredVehicleType,
         rejectReason: entry.rejectReason,
@@ -187,6 +191,12 @@ class CreateTransportCubit extends AppBaseCubit<CreateTransportState> {
     }, _emitError);
   }
 
+
+ void addsaleseorders({List<SalesOrder>? salesorder}) {
+    final form = state.form.copyWith(salesOrder: salesorder);
+
+    emitSafeState(state.copyWith(form: form));
+  }
   void reject(String reason) async {
     emitSafeState(state.copyWith(isRejecting: true, isSuccess: false));
 
@@ -251,9 +261,14 @@ class CreateTransportCubit extends AppBaseCubit<CreateTransportState> {
     } else if (form.vehicleNumber.isNull ||
         (form.vehicleNumber?.trim().isEmpty ?? true)) {
       return optionOf(const Pair('Missing Vehicle Number', 0));
-    } else if (form.estimatedArrival.isNull ||
-        (form.estimatedArrival?.trim().isEmpty ?? true)) {
-      return optionOf(const Pair('Missing Estimated Arrival Date', 0));
+    }
+    //  else if (form.estimatedArrivalDate.isNull ||
+    //     (form.estimatedArrivalDate?.trim().isEmpty ?? true)) {
+    //   return optionOf(const Pair('Missing Estimated Arrival Date', 0));
+    // }
+    else if (form.estimatedArrivalTime.isNull ||
+        (form.estimatedArrivalTime?.trim().isEmpty ?? true)) {
+      return optionOf(const Pair('Missing Estimated Arrival Time', 0));
     }
 
     return const None();

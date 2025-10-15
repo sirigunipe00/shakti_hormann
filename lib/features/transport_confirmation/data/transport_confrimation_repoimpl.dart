@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:dartz/dartz.dart';
 import 'package:injectable/injectable.dart';
-import 'package:intl/intl.dart';
 import 'package:shakti_hormann/core/core.dart';
+import 'package:shakti_hormann/features/logistic_request/model/sales_order.dart';
 import 'package:shakti_hormann/features/transport_confirmation/data/transport_confrimation_repo.dart';
 import 'package:shakti_hormann/features/transport_confirmation/model/transport_confirmation_form.dart';
 
@@ -56,37 +56,80 @@ class TransportCnfrmRepoimpl extends BaseApiRepository
     final response = await get(requestConfig);
     return response.process((r) => right(r.data!));
   }
+  @override
+  AsyncValueOf<List<SalesOrder>> fetchSales(String name) async {
+    return await executeSafely(() async {
+       
+      final config = RequestConfig(
+        url: Urls.getList,
+
+        parser: (json) {
+
+
+          $logger.devLog('repojson...----$json');
+
+
+
+          final data = json['message'];
+          final listdata = data as List<dynamic>;
+          return listdata.map((e) => SalesOrder.fromJson(e)).toList();
+        },
+        reqParams: {
+         'filters': 
+         [
+        [
+            'parent',
+            '=',
+            name
+        ],
+        
+         ],
+          'limit': 20,
+          'order_by': 'creation desc',
+          'doctype': 'Logistic Planning and Confirmation Lines',
+          'parent': 'Logistic Planning and Confirmation',
+          'fields': ['*'],
+        },
+        headers: {HttpHeaders.contentTypeHeader: 'application/json'},
+      );
+      final response = await get(config);
+      $logger.devLog('reposales........$response');
+      return response.processAsync((r) async {
+        return right((r.data!));
+      });
+    });
+  }
 
   @override
   AsyncValueOf<Pair<String, String>> submitTransport(
     TransportConfirmationForm form,
   ) async {
     return await executeSafely(() async {
-      String? estimatedArrival;
-      if (form.estimatedArrival != null && form.estimatedArrival!.isNotEmpty) {
-        try {
-          final parsedDate = DateFormat(
-            'dd-MM-yyyy',
-          ).parse(form.estimatedArrival!);
+      // String? estimatedArrival;
+      // if (form.estimatedArrival != null && form.!.isNotEmpty) {
+      //   try {
+      //     final parsedDate = DateFormat(
+      //       'dd-MM-yyyy',
+      //     ).parse(form.estimatedArrival!);
 
-          final now = DateTime.now();
+      //     final now = DateTime.now();
 
-          final combinedDateTime = DateTime(
-            parsedDate.year,
-            parsedDate.month,
-            parsedDate.day,
-            now.hour,
-            now.minute,
-            now.second,
-          );
+      //     final combinedDateTime = DateTime(
+      //       parsedDate.year,
+      //       parsedDate.month,
+      //       parsedDate.day,
+      //       now.hour,
+      //       now.minute,
+      //       now.second,
+      //     );
 
-          estimatedArrival = DateFormat(
-            'dd-MM-yyyy HH:mm:ss',
-          ).format(combinedDateTime);
-        } catch (e) {
-          $logger.devLog('Date parsing error: $e');
-        }
-      }
+      //     estimatedArrival = DateFormat(
+      //       'dd-MM-yyyy HH:mm:ss',
+      //     ).format(combinedDateTime);
+      //   } catch (e) {
+      //     $logger.devLog('Date parsing error: $e');
+      //   }
+      // }
 
       final config = RequestConfig(
         url: Urls.updateTransport,
@@ -101,7 +144,8 @@ class TransportCnfrmRepoimpl extends BaseApiRepository
           'transporter_confirmation_date': form.transporterConfirmationDate,
           'driver_name': form.driverName,
           'vehicle_number': form.vehicleNumber,
-          'estimated_arrival': estimatedArrival,
+          'estimated_arrival_date': form.estimatedArrivalDate,
+          'estimated_arrival_time': form.estimatedArrivalTime,
           'driver_contact': form.driverContact,
           'transporter_remarks': form.transporterRemarks,
         }),

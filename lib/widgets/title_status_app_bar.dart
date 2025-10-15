@@ -35,8 +35,8 @@ class TitleStatusAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.isRejecting = false,
     required this.onSubmit,
     required this.onReject,
-    this.dropdown, // ✅ Added dropdown
-    this.showScanner = false, // ✅ Optional QR scanner
+    this.dropdown, 
+    this.showScanner = false, 
     this.onScan,
   });
 
@@ -47,7 +47,7 @@ class TitleStatusAppBar extends StatelessWidget implements PreferredSizeWidget {
   final PageMode2 pageMode;
   final dynamic showRejectButton;
   final Widget? actionButton;
-  final Widget? dropdown; // ✅ Dropdown widget
+  final Widget? dropdown;
   final bool showScanner;
   final VoidCallback? onScan;
 
@@ -114,7 +114,7 @@ class TitleStatusAppBar extends StatelessWidget implements PreferredSizeWidget {
               const SizedBox(height: 12),
               Row(
                 children: [
-                  Expanded(child: dropdown!), // ✅ Injected dropdown
+                  Expanded(child: dropdown!), 
                   if (showScanner) ...[
                     const SizedBox(width: 8),
                     GestureDetector(

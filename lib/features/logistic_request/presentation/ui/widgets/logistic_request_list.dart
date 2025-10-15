@@ -38,6 +38,7 @@ class _LogisticRequestListState extends State<LogisticRequestList>
       backgroundColor: const Color.fromARGB(255, 255, 255, 255),
       onNew: () async {
         final refresh = await AppRoute.newLogisticRequest.push<bool?>(context);
+        if(!context.mounted) return;
         if (refresh == true) {
           _fetchInital(context);
         }
@@ -70,6 +71,7 @@ class _LogisticRequestListState extends State<LogisticRequestList>
                     onTap: () async {
                       final refresh = await AppRoute.newLogisticRequest
                           .push<bool?>(context, extra: entry);
+                          if(!context.mounted) return;
                       if (refresh == true) {
                         _fetchInital(context);
                       }

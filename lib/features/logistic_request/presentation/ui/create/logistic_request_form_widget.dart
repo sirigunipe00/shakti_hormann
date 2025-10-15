@@ -40,6 +40,7 @@ class __LogisticPlanningFormWidgetState
   final focusNodes = List.generate(40, (index) => FocusNode());
   @override
   Widget build(BuildContext context) {
+    $logger.devLog('selected date.....$selectedDate');
     final formState = context.read<CreateLogisticCubit>().state;
     final isCompleted =
         formState.view == LogisticPlanningView.completed ||
@@ -244,18 +245,39 @@ class __LogisticPlanningFormWidgetState
                                         searchText.trim().toLowerCase();
                                     final filtered =
                                         names.where((item) {
-                                          final value =
+                                          final name =
                                               item.name?.toLowerCase() ?? '';
-                                          return value.contains(query);
+                                          final supplier =
+                                              item.suppliername
+                                                  ?.toLowerCase() ??
+                                              '';
+                                          return name.contains(query) ||
+                                              supplier.contains(query);
                                         }).toList();
+
                                     return filtered;
                                   },
                                   headerBuilder:
                                       (_, item, __) =>
                                           Text(item.name.toString()),
                                   listItemBuilder:
-                                      (_, item, __, ___) => CompactListTile(
-                                        title: item.name ?? '',
+                                      (_, item, __, ___) => Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            'Transporter ID: ${item.name ?? ''}',
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          if (item.suppliername != null)
+                                            Text(
+                                              'Transporter Name : ${item.suppliername ?? ''}',
+                                            ),
+
+                                          const Divider(height: 8),
+                                        ],
                                       ),
                                   onSelected: (selected) {
                                     setState(() {
@@ -354,116 +376,18 @@ class __LogisticPlanningFormWidgetState
                   assetIcon: 'assets/images/vehicleinvoicicon.svg',
                 ),
               ),
-              // Card(
-              //   color: Colors.white,
-              //   shape: RoundedRectangleBorder(
-              //     borderRadius: BorderRadius.circular(20),
-              //     side: const BorderSide(color: Color(0xFFE8ECF4), width: 1),
-              //   ),
-              //   child: Padding(
-              //     padding: const EdgeInsets.all(8.0),
-              //     child:
-              //         salesOrders.isEmpty
-              //             ? const Center(
-              //               child: Text(
-              //                 'No Sales Orders Selected',
-              //                 style: TextStyle(color: Colors.grey),
-              //               ),
-              //             )
-              //             : SizedBox(
-              //               width:
-              //                   MediaQuery.of(context).size.width *
-              //                   1.5, // <-- increase width
-              //               child: DataTable(
-              //                 headingRowColor: WidgetStateProperty.all(
-              //                   Colors.grey.shade200,
-              //                 ),
-              //                 border: TableBorder.all(
-              //                   color: Colors.grey.shade300,
-              //                 ),
-              //                 columnSpacing: 20,
-              //                 horizontalMargin: 10,
-              //                 columns: const [
-              //                   DataColumn(
-              //                     label: Text(
-              //                       'Sales Order No',
-              //                       style: TextStyle(
-              //                         fontWeight: FontWeight.bold,
-              //                       ),
-              //                     ),
-              //                   ),
-              //                   DataColumn(
-              //                     label: Text(
-              //                       'State',
-              //                       style: TextStyle(
-              //                         fontWeight: FontWeight.bold,
-              //                       ),
-              //                     ),
-              //                   ),
-              //                   DataColumn(
-              //                     label: Text(
-              //                       'City',
-              //                       style: TextStyle(
-              //                         fontWeight: FontWeight.bold,
-              //                       ),
-              //                     ),
-              //                   ),
-              //                 ],
-              //                 rows:
-              //                     salesOrders.map((order) {
-              //                       return DataRow(
-              //                         cells: [
-              //                           DataCell(
-              //                             Text(
-              //                               order.name?.isNotEmpty == true
-              //                                   ? order.name!
-              //                                   : '-',
-              //                             ),
-              //                           ),
-              //                           DataCell(
-              //                             ConstrainedBox(
-              //                               constraints: const BoxConstraints(
-              //                                 minWidth: 100,
-              //                               ),
-              //                               child: Text(
-              //                                 order.state?.isNotEmpty == true
-              //                                     ? order.state!
-              //                                     : '-',
-              //                               ),
-              //                             ),
-              //                           ),
-              //                           DataCell(
-              //                             ConstrainedBox(
-              //                               constraints: const BoxConstraints(
-              //                                 minWidth: 100,
-              //                               ),
-              //                               child: Text(
-              //                                 order.city?.isNotEmpty == true
-              //                                     ? order.city!
-              //                                     : '-',
-              //                               ),
-              //                             ),
-              //                           ),
-              //                         ],
-              //                       );
-              //                     }).toList(),
-              //               ),
-              //             ),
-              //   ),
-              // ),
 
               Card(
-  color: Colors.white,
-  shape: RoundedRectangleBorder(
-    borderRadius: BorderRadius.circular(20),
-    side: const BorderSide(color: Color(0xFFE8ECF4), width: 1),
-  ),
-  child: Padding(
-    padding: const EdgeInsets.all(8.0),
-    child: SalesOrderTable(salesOrders: salesOrders),
-  ),
-),
-
+                color: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  side: const BorderSide(color: Color(0xFFE8ECF4), width: 1),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: SalesOrderTable(salesOrders: salesOrders),
+                ),
+              ),
 
               Card(
                 color: Colors.white,
@@ -498,13 +422,23 @@ class __LogisticPlanningFormWidgetState
                               onSelected: (DateTime date) {
                                 setState(() {
                                   selectedDate = date;
-                                  context
-                                      .cubit<CreateLogisticCubit>()
-                                      .onValueChanged(
-                                        requestedDeliveryDate: DateFormat(
-                                          'dd-MM-yyyy',
-                                        ).format(date),
-                                      );
+                                  if (formState.form.status == 'Draft') {
+                                    context
+                                        .cubit<CreateLogisticCubit>()
+                                        .onValueChanged(
+                                          requestedDeliveryDate: DateFormat(
+                                            'dd-MM-yyyy',
+                                          ).format(date),
+                                        );
+                                  } else {
+                                    context
+                                        .cubit<CreateLogisticCubit>()
+                                        .onValueChanged(
+                                          requestedDeliveryDate: DateFormat(
+                                            'dd-MM-yyyy',
+                                          ).format(date),
+                                        );
+                                  }
                                 });
                               },
                               fillColor: Colors.grey[200],

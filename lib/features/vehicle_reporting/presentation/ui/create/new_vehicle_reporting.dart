@@ -32,7 +32,7 @@ class _NewVehicleReportingState extends State<NewVehicleReporting> {
     final newform = vehicleState.form;
     final status = newform.status;
     final name = newform.name;
-
+$logger.devLog('status:.....${newform.status}');
     final isNew = vehicleState.view == VehicleView.create;
     return Scaffold(
       resizeToAvoidBottomInset: true,
@@ -77,6 +77,7 @@ class _NewVehicleReportingState extends State<NewVehicleReporting> {
                       key: UniqueKey(),
                       defaultSelection: transporterForm,
                       items: names,
+                      readOnly: newform.status == 'Reported',
                       isloading: state.isLoading,
                       futureRequest: (query) async {
                         if (query.isEmpty) return names;
@@ -112,7 +113,11 @@ class _NewVehicleReportingState extends State<NewVehicleReporting> {
                               ),
                               if (item.transporterName != null)
                                 Text(
-                                  'Transporter Name : ${item.transporterName}',
+                                  'Transporter ID : ${item.transporterName}',
+                                ),
+                                if(item.transporterName2 != null )
+                                Text(
+                                  'Transporter Name : ${item.transporterName2}',
                                 ),
                               Text('Vehicle No: ${item.vehicleNumber ?? ''}'),
                               const Divider(height: 8),
@@ -129,6 +134,8 @@ class _NewVehicleReportingState extends State<NewVehicleReporting> {
                           vehicleNo: selected.vehicleNumber,
                           linkedTransporterConfirmation: selected.name,
                           driverContact: selected.driverContact,
+                          arrivalDate: selected.estimatedArrivalDate,
+                          arrivalTime: selected.estimatedArrivalTime
                         );
                       },
                       focusNode: FocusNode(),
@@ -179,6 +186,7 @@ class _NewVehicleReportingState extends State<NewVehicleReporting> {
                             hint: 'Search Logistic No',
                             color: AppColors.white,
                             key: UniqueKey(),
+                            readOnly: status == 'Reported',
                             defaultSelection: () {
                               if (names.isEmpty || selectedOrders.isEmpty) {
                                 return null;
@@ -216,7 +224,10 @@ class _NewVehicleReportingState extends State<NewVehicleReporting> {
                             headerBuilder:
                                 (_, item, __) => Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [Text(item.name ?? '')],
+                                  children: [Text(item.name ?? '',style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: status == 'Reported' ? Colors.white : AppColors.black,
+                                  ),)],
                                 ),
                             listItemBuilder:
                                 (_, item, __, ___) => Column(
