@@ -47,7 +47,7 @@ class LoadingCnfmRepoimpl extends BaseApiRepository implements LoadingCnfmRepo {
       reqParams: {
         'filters': jsonEncode(filters),
         'limit_start': start,
-        'limit': 20,
+        'limit_page_length': 'None',
         'order_by': 'creation desc',
         'doctype': 'Vehicle Reporting and Dispatch Loading',
         'fields': jsonEncode(['*']),
@@ -188,7 +188,8 @@ class LoadingCnfmRepoimpl extends BaseApiRepository implements LoadingCnfmRepo {
           'filters': [
             ['parent', '=', name],
           ],
-          'limit': 20,
+          'limit_start': 0,
+          'limit_page_length': 'None',
           'oreder_by': 'creat desc',
           'doctype': 'Logistic Planning and Confirmation Lines',
           'parent': 'Vehicle Reporting and Dispatch Loading',

@@ -67,6 +67,7 @@ class _TimePickerFieldState extends State<TimePickerField> {
       final hour = pickedTime.hour.toString().padLeft(2, '0');
       final minute = pickedTime.minute.toString().padLeft(2, '0');
       final time24h = '$hour:$minute';
+      
 
       _controller.text = time24h;
       widget.onTimeChanged(time24h);

@@ -44,8 +44,7 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
       reqParams: {
         'filters': jsonEncode(filters),
         'limit_start': start,
-        'limit': 20,
-
+        'limit_page_length': 'None',
         'order_by': 'creation desc',
         'doctype': 'Gate Entry',
         'fields': jsonEncode(['*']),
@@ -74,7 +73,8 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
           'filters': [
             ['parent', '=', name],
           ],
-          'limit': 20,
+          'limit_start': 0,
+          'limit_page_length': 'None',
           'oreder_by': 'creat desc',
           'doctype': 'Gate Entry Lines',
           'parent': 'Gate Entry',
@@ -103,7 +103,8 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
       }
 
       final reqParams = {
-        'limit': 20,
+        'limit_start': 0,
+        'limit_page_length': 'None',
         'order_by': 'creation desc',
         'doctype': 'SAP Purchase Order',
         'fields': jsonEncode(['*']),
@@ -144,7 +145,8 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
           return listdata.map((e) => GateNumberForm.fromJson(e)).toList();
         },
         reqParams: {
-          'limit': 20,
+          'limit_start': 0,
+          'limit_page_length': 'None',
           'order_by': 'creation desc',
           'doctype': 'Gate Unloading Points',
           'fields': ['*'],

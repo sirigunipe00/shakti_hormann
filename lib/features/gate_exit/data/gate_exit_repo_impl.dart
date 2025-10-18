@@ -46,7 +46,7 @@ class GateExitRepoimpl extends BaseApiRepository implements GateExitRepo {
       reqParams: {
         'filters': jsonEncode(filters),
         'limit_start': start,
-        'limit': 20,
+        'limit_page_length': 'None',
         'order_by': 'creation desc',
         'doctype': 'Gate Exit',
         'fields': jsonEncode(['*']),
@@ -195,7 +195,8 @@ class GateExitRepoimpl extends BaseApiRepository implements GateExitRepo {
           final plantName = user().plantName;
 
       final reqParams = {
-        'limit': 20,
+        'limit_start': 0,
+          'limit_page_length': 'None',
           'order_by': 'creation desc',
           'doctype': 'SAP Sales Invoice',
           'fields': ['*'],

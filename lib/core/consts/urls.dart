@@ -7,6 +7,7 @@ class Urls {
       const Urls('http://65.21.243.18:8000/api');
   factory Urls.shaktiHormannUAT() =>
    const Urls('https://shaktihormannuat.easycloud.co.in/api');
+   factory Urls.live() =>  const Urls('https://shaktihormannlive.easycloud.co.in/api');
 
   const Urls(this.url);
 

@@ -48,8 +48,8 @@ class AppProfilePage extends StatelessWidget {
                     ),
                   ),
                   SizedBox(height: height * 0.01),
-                  Image.asset(
-                    'assets/logo/hormann-logo-new-1 1-Picsart-AiImageEnhancer.jpg',
+                  SvgPicture.asset(
+                    'assets/images/hormann_logo.svg',
                     height: height * 0.05,
                   
                   ),

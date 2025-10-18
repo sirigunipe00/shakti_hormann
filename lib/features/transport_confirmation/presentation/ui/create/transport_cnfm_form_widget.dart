@@ -480,6 +480,7 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
                                     title: 'Estimated Arrival Date',
                                     hintText: 'Select Date',
                                     isRequired: true,
+                                    // key: UniqueKey(),
                                     readOnly: isCompleted,
                                     startDate: DateTime.now(),
                                     endDate: DateTime(2030),
@@ -509,6 +510,7 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
                                          TimePickerField(
                                             title: 'Estimated Arrival Time',
                                             readOnly: isCompleted,
+                                            // key: UniqueKey(),
                                             isRequired: true,
                                             hintText: 'Select Time',
                                             initialTime: formatTime(

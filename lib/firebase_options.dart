@@ -17,20 +17,17 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for linux - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+      return web;
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
         return android;
       case TargetPlatform.iOS:
-      //   return ios;
-      // case TargetPlatform.macOS:
-      //   return macos;
-      // case TargetPlatform.windows:
-      //   return windows;
+        return ios;
+      case TargetPlatform.macOS:
+        return macos;
+      case TargetPlatform.windows:
+        return windows;
       case TargetPlatform.linux:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for linux - '
@@ -43,49 +40,49 @@ class DefaultFirebaseOptions {
     }
   }
 
-  // static const FirebaseOptions web = FirebaseOptions(
-  //   apiKey: 'AIzaSyCgzlH6jkXUudsqyvZtFq2CUJvsOb26kRE',
-  //   appId: '1:697946700598:web:512cafe9d81f6350479197',
-  //   messagingSenderId: '697946700598',
-  //   projectId: 'shakti-hormann',
-  //   authDomain: 'shakti-hormann.firebaseapp.com',
-  //   storageBucket: 'shakti-hormann.firebasestorage.app',
-  //   measurementId: 'G-41DKVF3B9X',
-  // );
-
-  static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyDfNG07YhCuiM-EIVY91RxhwYRzJxSTJ9I',
-    appId: '1:697946700598:android:68f089e86097bb39479197',
-    messagingSenderId: '697946700598',
-    projectId: 'shakti-hormann',
-    storageBucket: 'shakti-hormann.firebasestorage.app',
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'AIzaSyDH7Aw4cc4P94uFYU1xFdSQ5dyxVm_AyM4',
+    appId: '1:397179080765:web:432159cebc6e895e4a1a54',
+    messagingSenderId: '397179080765',
+    projectId: 'shakti-hormann-16fa4',
+    authDomain: 'shakti-hormann-16fa4.firebaseapp.com',
+    storageBucket: 'shakti-hormann-16fa4.firebasestorage.app',
+    measurementId: 'G-C02FP40PWR',
   );
 
-  // static const FirebaseOptions ios = FirebaseOptions(
-  //   apiKey: 'AIzaSyBAbu2B-QIBCsUZkgIpRnw1hJy-dgRPxOU',
-  //   appId: '1:697946700598:ios:ea04f9fb01274854479197',
-  //   messagingSenderId: '697946700598',
-  //   projectId: 'shakti-hormann',
-  //   storageBucket: 'shakti-hormann.firebasestorage.app',
-  //   iosBundleId: 'com.example.shaktiHormann',
-  // );
+  static const FirebaseOptions android = FirebaseOptions(
+    apiKey: 'AIzaSyDZLl_PPxtB6_oE8aanFSSE_L1UYsGJJPA',
+    appId: '1:397179080765:android:82ec2ed9cd85e64a4a1a54',
+    messagingSenderId: '397179080765',
+    projectId: 'shakti-hormann-16fa4',
+    storageBucket: 'shakti-hormann-16fa4.firebasestorage.app',
+  );
 
-  // static const FirebaseOptions macos = FirebaseOptions(
-  //   apiKey: 'AIzaSyBAbu2B-QIBCsUZkgIpRnw1hJy-dgRPxOU',
-  //   appId: '1:697946700598:ios:ea04f9fb01274854479197',
-  //   messagingSenderId: '697946700598',
-  //   projectId: 'shakti-hormann',
-  //   storageBucket: 'shakti-hormann.firebasestorage.app',
-  //   iosBundleId: 'com.example.shaktiHormann',
-  // );
+  static const FirebaseOptions ios = FirebaseOptions(
+    apiKey: 'AIzaSyC1BzcV0KNP9VUT0WlHE8F9yNRcQBkB0LM',
+    appId: '1:397179080765:ios:011c9f649a226a584a1a54',
+    messagingSenderId: '397179080765',
+    projectId: 'shakti-hormann-16fa4',
+    storageBucket: 'shakti-hormann-16fa4.firebasestorage.app',
+    iosBundleId: 'com.example.shaktiHormann',
+  );
 
-  // static const FirebaseOptions windows = FirebaseOptions(
-  //   apiKey: 'AIzaSyCgzlH6jkXUudsqyvZtFq2CUJvsOb26kRE',
-  //   appId: '1:697946700598:web:e2da833f8ff75e37479197',
-  //   messagingSenderId: '697946700598',
-  //   projectId: 'shakti-hormann',
-  //   authDomain: 'shakti-hormann.firebaseapp.com',
-  //   storageBucket: 'shakti-hormann.firebasestorage.app',
-  //   measurementId: 'G-RWVDQWNHT8',
-  // );
+  static const FirebaseOptions macos = FirebaseOptions(
+    apiKey: 'AIzaSyC1BzcV0KNP9VUT0WlHE8F9yNRcQBkB0LM',
+    appId: '1:397179080765:ios:011c9f649a226a584a1a54',
+    messagingSenderId: '397179080765',
+    projectId: 'shakti-hormann-16fa4',
+    storageBucket: 'shakti-hormann-16fa4.firebasestorage.app',
+    iosBundleId: 'com.example.shaktiHormann',
+  );
+
+  static const FirebaseOptions windows = FirebaseOptions(
+    apiKey: 'AIzaSyDH7Aw4cc4P94uFYU1xFdSQ5dyxVm_AyM4',
+    appId: '1:397179080765:web:bb2337ff8fe1685c4a1a54',
+    messagingSenderId: '397179080765',
+    projectId: 'shakti-hormann-16fa4',
+    authDomain: 'shakti-hormann-16fa4.firebaseapp.com',
+    storageBucket: 'shakti-hormann-16fa4.firebasestorage.app',
+    measurementId: 'G-LK1KV9X75J',
+  );
 }

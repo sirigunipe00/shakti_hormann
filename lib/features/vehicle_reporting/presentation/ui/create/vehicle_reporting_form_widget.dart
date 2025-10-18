@@ -194,7 +194,7 @@ class _VehicleReportingFormWidget extends State<VehicleReportingFormWidget> {
                                 newform.arrivalDate ?? '',
                               ),
                               onSelected: (DateTime date) {
-                        setState(() {
+                        // setState(() {
                           if (formState.form.status == '') {
                             context
                                 .cubit<CreateVehicleCubit>()
@@ -212,7 +212,7 @@ class _VehicleReportingFormWidget extends State<VehicleReportingFormWidget> {
                                   ).format(date),
                                 );
                           }
-                        });
+                        // });
                       },
                               fillColor: Colors.white,
                             

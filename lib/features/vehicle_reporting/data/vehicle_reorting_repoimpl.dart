@@ -49,7 +49,7 @@ class VehicleReportingRepoimpl extends BaseApiRepository
       reqParams: {
         'filters': jsonEncode(filters),
         'limit_start': start,
-        'limit': 20,
+        'limit_page_length': 'None',
         'order_by': 'creation desc',
         'doctype': 'Vehicle Reporting and Dispatch Loading',
         'fields': jsonEncode(['*']),
@@ -65,10 +65,23 @@ class VehicleReportingRepoimpl extends BaseApiRepository
   AsyncValueOf<Pair<String, String>> createVehicleReporting(
     VehicleReportingForm form,
   ) async {
+    final date = form.arrivalDate;
+    String? arrivaldate;
+
+    if (date.isNotNull) {
+      final yyyyMmDd = RegExp(r'^\d{4}-\d{2}-\d{2}$');
+      if (yyyyMmDd.hasMatch(date!)) {
+        // Split the date and rearrange to dd-mm-yyyy
+        final parts = date.split('-');
+        arrivaldate = '${parts[2]}-${parts[1]}-${parts[0]}';
+      } else {
+        arrivaldate = date;
+      }
+    }
 
     final formattedTime =
           form.arrivalTime != null
-              ? DateFormat('HH:mm').format(
+              ? DateFormat('HH:mm:ss').format(
                 DateFormat('HH:mm:ss').tryParse(form.arrivalTime!) ??
                     DateFormat('HH:mm').parse(form.arrivalTime!),
               )
@@ -98,7 +111,7 @@ class VehicleReportingRepoimpl extends BaseApiRepository
         body: jsonEncode({
           'plant_name': form.plantName,
           'linked_transporter_confirmation': form.linkedTransporterConfirmation,
-          'arrival_date': form.arrivalDate,
+          'arrival_date': arrivaldate,
           'arrival_time': formattedTime,
           'driver_id_proof':
               driverIdfrontcompressedBytes == null
@@ -126,6 +139,13 @@ class VehicleReportingRepoimpl extends BaseApiRepository
   AsyncValueOf<Pair<String, String>> submitVehicleReporting(
     VehicleReportingForm form,
   ) async {
+     final formattedTime =
+          form.arrivalTime != null
+              ? DateFormat('HH:mm').format(
+                DateFormat('HH:mm:ss').tryParse(form.arrivalTime!) ??
+                    DateFormat('HH:mm').parse(form.arrivalTime!),
+              )
+              : null;
     $logger.devLog('arrtival date repo......${form.arrivalDate}');
 
     return await executeSafely(() async {
@@ -153,7 +173,7 @@ class VehicleReportingRepoimpl extends BaseApiRepository
           'name': form.name,
           'linked_transporter_confirmation': form.linkedTransporterConfirmation,
           'arrival_date': form.arrivalDate,
-          'arrival_time': form.arrivalTime,
+          'arrival_time': formattedTime,
 
           'driver_id_proof':
               driverIdfrontcompressedBytes == null
@@ -237,7 +257,8 @@ class VehicleReportingRepoimpl extends BaseApiRepository
         },
         reqParams: {
           'filters': jsonEncode(filters),
-          'limit': 20,
+          'limit_start': 0,
+          'limit_page_length': 'None',
           'order_by': 'creation desc',
           'doctype': 'Logistic Planning and Confirmation',
           'fields': ['*'],

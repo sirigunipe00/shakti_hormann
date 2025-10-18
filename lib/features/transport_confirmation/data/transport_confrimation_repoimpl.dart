@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:dartz/dartz.dart';
 import 'package:injectable/injectable.dart';
+import 'package:intl/intl.dart';
 import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/features/logistic_request/model/sales_order.dart';
 import 'package:shakti_hormann/features/transport_confirmation/data/transport_confrimation_repo.dart';
@@ -45,7 +46,7 @@ class TransportCnfrmRepoimpl extends BaseApiRepository
       reqParams: {
         'filters': jsonEncode(filters),
         'limit_start': start,
-        'limit': 20,
+        'limit_page_length': 'None',
         'order_by': 'creation desc',
         'doctype': 'Logistic Planning and Confirmation',
         'fields': ['*'],
@@ -84,7 +85,8 @@ class TransportCnfrmRepoimpl extends BaseApiRepository
         ],
         
          ],
-          'limit': 20,
+          'limit_start': 0,
+          'limit_page_length': 'None',
           'order_by': 'creation desc',
           'doctype': 'Logistic Planning and Confirmation Lines',
           'parent': 'Logistic Planning and Confirmation',
@@ -130,6 +132,13 @@ class TransportCnfrmRepoimpl extends BaseApiRepository
       //     $logger.devLog('Date parsing error: $e');
       //   }
       // }
+       final formattedTime =
+          form.estimatedArrivalTime != null
+              ? DateFormat('HH:mm:ss').format(
+                DateFormat('HH:mm:ss').tryParse(form.estimatedArrivalTime!) ??
+                    DateFormat('HH:mm').parse(form.estimatedArrivalTime!),
+              )
+              : null;
 
       final config = RequestConfig(
         url: Urls.updateTransport,
@@ -145,7 +154,7 @@ class TransportCnfrmRepoimpl extends BaseApiRepository
           'driver_name': form.driverName,
           'vehicle_number': form.vehicleNumber,
           'estimated_arrival_date': form.estimatedArrivalDate,
-          'estimated_arrival_time': form.estimatedArrivalTime,
+          'estimated_arrival_time': formattedTime,
           'driver_contact': form.driverContact,
           'transporter_remarks': form.transporterRemarks,
         }),

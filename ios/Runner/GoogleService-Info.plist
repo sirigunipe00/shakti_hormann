@@ -3,17 +3,17 @@
 <plist version="1.0">
 <dict>
 	<key>API_KEY</key>
-	<string>AIzaSyBAbu2B-QIBCsUZkgIpRnw1hJy-dgRPxOU</string>
+	<string>AIzaSyC1BzcV0KNP9VUT0WlHE8F9yNRcQBkB0LM</string>
 	<key>GCM_SENDER_ID</key>
-	<string>697946700598</string>
+	<string>397179080765</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
 	<string>com.example.shaktiHormann</string>
 	<key>PROJECT_ID</key>
-	<string>shakti-hormann</string>
+	<string>shakti-hormann-16fa4</string>
 	<key>STORAGE_BUCKET</key>
-	<string>shakti-hormann.firebasestorage.app</string>
+	<string>shakti-hormann-16fa4.firebasestorage.app</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -25,6 +25,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:697946700598:ios:ea04f9fb01274854479197</string>
+	<string>1:397179080765:ios:011c9f649a226a584a1a54</string>
 </dict>
 </plist>

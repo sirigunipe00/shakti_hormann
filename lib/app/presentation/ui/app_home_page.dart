@@ -157,7 +157,7 @@ class _AppHomePageState extends State<AppHomePage> {
                     context: context,
                     builder: (ctx) => const AppUpdateDialog(
                         appName: 'ShaktiHormann',
-                        packageName: 'com.example.shakti_hormann'),
+                        packageName: 'in.easycloud.shakti_hormann'),
                     barrierDismissible: false);
               }
             },

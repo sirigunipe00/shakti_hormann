@@ -161,9 +161,9 @@ void _showDatePicker() async {
 
   if (selectedDate != null) {
     final formattedDate = DFU.ddMMyyyy(selectedDate);
-    setState(() {
+    // setState(() {
       controller.text = formattedDate;
-    });
+    // });
     widget.onSelected(selectedDate);
   }
 }

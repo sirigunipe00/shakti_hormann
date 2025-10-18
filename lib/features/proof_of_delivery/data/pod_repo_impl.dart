@@ -43,8 +43,7 @@ class PodRepoImpl extends BaseApiRepository implements ProofOfDeliveryRepo {
       reqParams: {
         'filters': jsonEncode(filters),
         'limit_start': start,
-        'limit': 20,
-
+        'limit_page_length': 'None',
         'order_by': 'creation desc',
         'doctype': 'Proof of Delivery',
         'fields': jsonEncode(['*']),
@@ -239,7 +238,8 @@ class PodRepoImpl extends BaseApiRepository implements ProofOfDeliveryRepo {
     }  
 
       final reqParams = {
-        'limit': 20,
+        'limit_start': 0,
+        'limit_page_length': 'None',
         'oreder_by': 'create desc',
         'doctype': 'SAP Sales Invoice',
        'fields': jsonEncode(['*']),   

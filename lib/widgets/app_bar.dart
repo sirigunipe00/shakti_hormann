@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
 
@@ -33,8 +34,8 @@ class CustomAppBar extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 60),
-          Image.asset(
-            'assets/logo/hormann-logo-new-1 1.jpg',
+          SvgPicture.asset(
+            'assets/images/hormann_logo.svg',
             width: 180,
             fit: BoxFit.contain,
              

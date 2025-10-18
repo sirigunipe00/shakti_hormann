@@ -47,7 +47,7 @@ class LogisticPlanningRepoimpl extends BaseApiRepository
       reqParams: {
         'filters': jsonEncode(filters),
         'limit_start': start,
-        'limit': 20,
+        'limit_page_length': 'None',
         'order_by': 'creation desc',
         'doctype': 'Logistic Planning and Confirmation',
         'fields': ['*'],
@@ -219,7 +219,8 @@ class LogisticPlanningRepoimpl extends BaseApiRepository
           return listdata.map((e) => VehicleTypeForm.fromJson(e)).toList();
         },
         reqParams: {
-          'limit': 20,
+          'limit_start': 0,
+          'limit_page_length': 'None',
           'order_by': 'creation desc',
           'doctype': 'Vehicle Type',
           'fields': ['*'],
@@ -251,7 +252,8 @@ class LogisticPlanningRepoimpl extends BaseApiRepository
           'filters': [
             ['parent', '=', name],
           ],
-          'limit': 20,
+          'limit_start': 0,
+          'limit_page_length': 'None',
           'order_by': 'creation desc',
           'doctype': 'Logistic Planning and Confirmation Lines',
           'parent': 'Logistic Planning and Confirmation',
@@ -277,7 +279,8 @@ class LogisticPlanningRepoimpl extends BaseApiRepository
       }
 
       final reqParams = {
-        'limit': 20,
+        'limit_start': 0,
+        'limit_page_length': 'None',
         'order_by': 'creation desc',
         'doctype': 'SAP Sales Order',
         'fields': ['*'],
@@ -315,6 +318,8 @@ class LogisticPlanningRepoimpl extends BaseApiRepository
           return listdata.map((e) => TransportersForm.fromJson(e)).toList();
         },
         reqParams: {
+          'limit_start': 0,
+          'limit_page_length': 'None',
           'order_by': 'creation desc',
           'doctype': 'Supplier',
           'filters': jsonEncode({'is_transporter': 1}),
