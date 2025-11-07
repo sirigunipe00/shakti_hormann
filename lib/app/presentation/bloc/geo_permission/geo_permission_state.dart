@@ -1,7 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:geocoding/geocoding.dart';
-import 'package:permission_handler_platform_interface/permission_handler_platform_interface.dart';
-
+import 'package:permission_handler/permission_handler.dart';
 
 abstract class GeoPermissionState extends Equatable {
   const GeoPermissionState();

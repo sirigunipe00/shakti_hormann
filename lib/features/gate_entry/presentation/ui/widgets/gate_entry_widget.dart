@@ -26,7 +26,6 @@ class GateEntryWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      
       onTap: onTap,
       child: Card(
         color: Colors.white,
@@ -186,29 +185,23 @@ class GateEntryWidget extends StatelessWidget {
                         context.read<CreateGateEntryCubit>().addpurchseorders(
                           purchaseorder: data,
                         );
-
                         return Expanded(
                           child: Wrap(
+                            runSpacing: 2,
                             spacing: 2,
-
-                            children:
-                                data.map((po) {
-                                  return Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 0,
-                                      vertical: 2,
-                                    ),
-
-                                    child: Text(
-                                      '${po.name}, ',
-                                      style: const TextStyle(
-                                        color: Color(0xFF2957A4),
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                                  );
-                                }).toList(),
+                            children: [
+                              Text(
+                                data
+                                    .map((po) => po.name ?? '')
+                                    .where((e) => e.isNotEmpty)
+                                    .join(', '),
+                                style: const TextStyle(
+                                  color: Color(0xFF2957A4),
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
                           ),
                         );
                       },

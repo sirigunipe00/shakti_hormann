@@ -36,6 +36,7 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
     final isCompleted = formState.view == TransportView.completed;
 
     final newform = formState.form;
+    $logger.devLog('............$newform');
     return MultiBlocListener(
       listeners: [
         BlocListener<CreateTransportCubit, CreateTransportState>(
@@ -180,17 +181,20 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
 
                             InputField(
                               title: 'Transporter Name',
-
                               readOnly: true,
-
                               borderColor: AppColors.grey,
-                              initialValue: newform.transporterName,
-
+                              initialValue: [
+                                    newform.transporterName,
+                                    newform.transporterName2,
+                                  ]
+                                  .where((e) => e != null && e.isNotEmpty)
+                                  .join(' - '),
                               onChanged:
                                   (p0) => context
                                       .cubit<CreateTransportCubit>()
                                       .onValueChanged(transporterName: p0),
                             ),
+
                             const SizedBox(height: 12),
 
                             InputField(
@@ -503,30 +507,31 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
                                   ),
                                 ),
                                 const SizedBox(width: 12),
-                                   Expanded(
-                                     child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                       children: [
-                                         TimePickerField(
-                                            title: 'Estimated Arrival Time',
-                                            readOnly: isCompleted,
-                                            // key: UniqueKey(),
-                                            isRequired: true,
-                                            hintText: 'Select Time',
-                                            initialTime: formatTime(
-                                              newform.estimatedArrivalTime
-                                            ),
-                                            onTimeChanged: (selectedTime) {
-                                              context
-                                                  .cubit<CreateTransportCubit>()
-                                                  .onValueChanged(
-                                                    estimatedArrivalTime: selectedTime,
-                                                  );
-                                            },
-                                          ),
-                                       ],
-                                     ),
-                                   ),
+                                Expanded(
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      TimePickerField(
+                                        title: 'Estimated Arrival Time',
+                                        readOnly: isCompleted,
+                                        // key: UniqueKey(),
+                                        isRequired: true,
+                                        hintText: 'Select Time',
+                                        initialTime: formatTime(
+                                          newform.estimatedArrivalTime,
+                                        ),
+                                        onTimeChanged: (selectedTime) {
+                                          context
+                                              .cubit<CreateTransportCubit>()
+                                              .onValueChanged(
+                                                estimatedArrivalTime:
+                                                    selectedTime,
+                                              );
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               ],
                             ),
                           ],

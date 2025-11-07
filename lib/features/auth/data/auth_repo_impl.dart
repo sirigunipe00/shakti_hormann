@@ -7,14 +7,12 @@ import 'package:injectable/injectable.dart';
 import 'package:shakti_hormann/features/auth/data/auth_repo.dart';
 import 'package:shakti_hormann/features/auth/model/logged_in_user.dart';
 
-
-
 @LazySingleton(as: AuthRepo)
 class AuthRepoImpl extends BaseApiRepository implements AuthRepo {
   const AuthRepoImpl(super.client, this.storage);
 
   final KeyValueStorage storage;
-  
+
   @override
   Future<bool> isLoggedIn() async {
     try {
@@ -29,15 +27,29 @@ class AuthRepoImpl extends BaseApiRepository implements AuthRepo {
   @override
   AsyncValueOf<LoggedInUser> logIn(String username, String pswd) async {
     return await executeSafely(() async {
-
-      
       final requestConfig = RequestConfig(
         url: Urls.getUsers,
         parser: (res) {
-          final data = res['message']['data'] as List<dynamic>;
-          return LoggedInUser.fromJson(data.first);
+          // final data = res['message']['data'] as List<dynamic>;
+          final message = res['message'];
+
+          if (message == null) {
+            throw Exception('Missing message in response');
+          }
+
+          final data = message['data'];
+
+          if (data is List && data.isNotEmpty) {
+            return LoggedInUser.fromJson(data.first);
+          } else if (data is Map<String, dynamic>) {
+            return LoggedInUser.fromJson(data);
+          } else {
+            throw Exception('Unexpected data format in login response: $data');
+          }
+
+          // return LoggedInUser.fromJson(data.first);
         },
-        body: jsonEncode({'usr' : username, 'pwd' : pswd}),
+        body: jsonEncode({'usr': username, 'pwd': pswd}),
       );
 
       final response = await post(requestConfig, includeAuthHeader: false);
@@ -94,5 +106,4 @@ class AuthRepoImpl extends BaseApiRepository implements AuthRepo {
       return left(const Failure(error: 'Could not sign out'));
     }
   }
-
 }

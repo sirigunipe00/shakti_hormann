@@ -18,6 +18,8 @@ class LoadingCnfmForm with _$LoadingCnfmForm {
     @JsonKey(name: 'vehicle_reporting_entry_vre_date')
     String? vehicleReportingEntryVreDate,
     @JsonKey(name: 'transporter_name') String? transporterName,
+    @JsonKey(name: 'transporter_name2') String? transporterName2,
+
     @JsonKey(name: 'arrival_date',defaultValue: '')  String? arrivalDate,
     @JsonKey(name: 'arrival_time',defaultValue: '')  String? arrivalTime,    String? arrivalDateAndTime,
     @JsonKey(name: 'driver_id_proof') String? driverIdPhoto,

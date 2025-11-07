@@ -80,6 +80,7 @@ class CreateVehicleCubit extends AppBaseCubit<CreateVehicleState> {
       remarks: remarks ?? form.remarks,
       driverIdPhotoImg: driverIdPhotos,
       rejectReason: rejectReason ?? form.rejectReason,
+      
     );
     emitSafeState(state.copyWith(form: newForm));
   }
@@ -113,6 +114,8 @@ class CreateVehicleCubit extends AppBaseCubit<CreateVehicleState> {
         linkedTransporterConfirmation: entry.linkedTransporterConfirmation,
         transporterName: entry.transporterName,
         rejectReason:  entry.rejectReason,
+        driverContact: entry.driverContact,
+        transporterName2: entry.transporterName2,
       );
       final mode =
           (isSubmitted || isCancelled)

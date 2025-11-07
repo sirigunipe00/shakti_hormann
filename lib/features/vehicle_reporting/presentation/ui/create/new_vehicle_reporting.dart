@@ -88,10 +88,15 @@ $logger.devLog('status:.....${newform.status}');
                               item.vehicleNumber?.toLowerCase() ?? '';
                           final transporter =
                               item.transporterName?.toLowerCase() ?? '';
+                          final transporterName = 
+                             item.transporterName2?.toLowerCase() ?? '';
                           final search = query.toLowerCase();
+                          
+
 
                           return orderNo.contains(search) ||
                               customer.contains(search) ||
+                              transporterName.contains(search) ||
                               transporter.contains(search);
                         }).toList();
                       },
@@ -128,9 +133,13 @@ $logger.devLog('status:.....${newform.status}');
                         setState(() {
                           transporterForm = selected;
                         });
+                        final combinedTransporterName =
+                      [selected.transporterName, selected.transporterName2]
+                      .where((e) => e != null && e.isNotEmpty)
+                         .join(' - ');
                         context.cubit<CreateVehicleCubit>().onValueChanged(
                           plantName: selected.plantName,
-                          transporterName: selected.transporterName,
+                          transporterName: combinedTransporterName,
                           vehicleNo: selected.vehicleNumber,
                           linkedTransporterConfirmation: selected.name,
                           driverContact: selected.driverContact,
@@ -213,10 +222,13 @@ $logger.devLog('status:.....${newform.status}');
                                     item.vehicleNumber?.toLowerCase() ?? '';
                                 final transporter =
                                     item.transporterName?.toLowerCase() ?? '';
+                                    final transporterName = 
+                             item.transporterName2?.toLowerCase() ?? '';
                                 final search = query.toLowerCase();
 
                                 return orderNo.contains(search) ||
                                     customer.contains(search) ||
+                                    transporterName.contains(search) || 
                                     transporter.contains(search);
                               }).toList();
                             },
@@ -245,6 +257,10 @@ $logger.devLog('status:.....${newform.status}');
                                       Text(
                                         'Transporter Name : ${item.transporterName}',
                                       ),
+                                      if(item.transporterName2 != null )
+                                Text(
+                                  'Transporter Name : ${item.transporterName2}',
+                                ),
                                     Text(
                                       'Vehicle No: ${item.vehicleNumber ?? ''}',
                                     ),
@@ -255,12 +271,16 @@ $logger.devLog('status:.....${newform.status}');
                             onSelected: (selected) {
                               setState(() {
                                 transporterForm = selected;
-                              });
+                              });     
+                          final combinedTransporterName =
+                            [selected.transporterName, selected.transporterName2]
+                             .where((e) => e != null && e.isNotEmpty)
+                             .join(' - ');
                               context
                                   .cubit<CreateVehicleCubit>()
                                   .onValueChanged(
                                     plantName: selected.plantName,
-                                    transporterName: selected.transporterName,
+                                    transporterName: combinedTransporterName,
                                     vehicleNo: selected.vehicleNumber,
                                     linkedTransporterConfirmation:
                                         selected.name,

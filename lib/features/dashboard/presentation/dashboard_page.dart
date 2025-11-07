@@ -28,8 +28,6 @@ class _AppDashboardPageState extends State<AppDashboardPage> {
       backgroundColor: const Color(0xFFF5FBFF),
       appBar: AppBar(
         centerTitle: true,
-        // elevation: 4,
-        // backgroundColor: AppColors.darkBlue, // your brand color
         shadowColor: Colors.black45,
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(bottom: Radius.circular(16)),
@@ -68,7 +66,6 @@ class _AppDashboardPageState extends State<AppDashboardPage> {
 
               return _buildDashboardUI(jaipur, medchal);
             },
-
             initial: () => const SizedBox.shrink(),
           );
         },
@@ -94,7 +91,6 @@ Widget _buildDashboardUI(PlantDashboard jaipur, PlantDashboard medchal) {
         ),
         const SizedBox(height: 16),
 
-        // --- Stats Cards ---
         Wrap(
           spacing: 12,
           runSpacing: 12,
@@ -128,7 +124,6 @@ Widget _buildDashboardUI(PlantDashboard jaipur, PlantDashboard medchal) {
 
         const SizedBox(height: 24),
 
-        // --- Jaipur Chart ---
         _buildSectionTitle('Jaipur - Gate Analysis'),
         _buildChartCard(
           data: jaipur.daywise,
@@ -138,7 +133,6 @@ Widget _buildDashboardUI(PlantDashboard jaipur, PlantDashboard medchal) {
 
         const SizedBox(height: 24),
 
-        // --- Medchal Chart ---
         _buildSectionTitle('Medchal - Gate Analysis'),
         _buildChartCard(
           data: medchal.daywise,
@@ -170,6 +164,23 @@ Widget _buildChartCard({
   required Color entriesColor,
   required Color exitsColor,
 }) {
+  double getMaxY() {
+    if (data.isEmpty) return 5;
+    final maxEntry = data.map((e) => e.entries).reduce((a, b) => a > b ? a : b);
+    final maxExit = data.map((e) => e.exits).reduce((a, b) => a > b ? a : b);
+    final maxValue = maxEntry > maxExit ? maxEntry : maxExit;
+    if (maxValue == 0) return 5;
+    return maxValue + (maxValue * 0.2);
+  }
+
+  double getInterval(double maxY) {
+    if (maxY <= 5) return 1;
+    return (maxY / 5).ceilToDouble();
+  }
+
+  final maxY = getMaxY();
+  final interval = getInterval(maxY);
+
   return SizedBox(
     height: 260,
     child: Card(
@@ -180,9 +191,12 @@ Widget _buildChartCard({
         padding: const EdgeInsets.all(12),
         child: SfCartesianChart(
           primaryXAxis: const CategoryAxis(title: AxisTitle(text: 'Day')),
-          primaryYAxis: const NumericAxis(
-            majorGridLines: MajorGridLines(width: 0.3),
-            axisLine: AxisLine(width: 0),
+          primaryYAxis: NumericAxis(
+            majorGridLines: const MajorGridLines(width: 0.3),
+            axisLine: const AxisLine(width: 0),
+            minimum: 0,
+            maximum: maxY,
+            interval: interval,
           ),
           legend: const Legend(isVisible: true),
           series: <CartesianSeries>[
@@ -190,18 +204,22 @@ Widget _buildChartCard({
               name: 'Entries',
               color: entriesColor,
               borderRadius: const BorderRadius.all(Radius.circular(6)),
+              width: 0.35,
+              spacing: 0.2,
               dataSource: data,
-              xValueMapper:
-                  (d, _) => d.day.length >= 8 ? d.day.substring(8) : d.day,
+              xValueMapper: (d, _) =>
+                  d.day.length >= 8 ? d.day.substring(8) : d.day,
               yValueMapper: (d, _) => d.entries,
             ),
             ColumnSeries<Daywise, String>(
               name: 'Exits',
               color: exitsColor,
               borderRadius: const BorderRadius.all(Radius.circular(6)),
+              width: 0.35,
+              spacing: 0.2,
               dataSource: data,
-              xValueMapper:
-                  (d, _) => d.day.length >= 8 ? d.day.substring(8) : d.day,
+              xValueMapper: (d, _) =>
+                  d.day.length >= 8 ? d.day.substring(8) : d.day,
               yValueMapper: (d, _) => d.exits,
             ),
           ],
@@ -228,7 +246,7 @@ class StatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: MediaQuery.of(context).size.width / 2 - 24, // Responsive width
+      width: MediaQuery.of(context).size.width / 2 - 24,
       child: Card(
         elevation: 2,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),

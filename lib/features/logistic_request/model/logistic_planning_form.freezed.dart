@@ -47,6 +47,8 @@ mixin _$LogisticPlanningForm {
   List<SalesOrder>? get salesOrder => throw _privateConstructorUsedError;
   @JsonKey(name: 'transporter_name')
   String? get transporterName => throw _privateConstructorUsedError;
+  @JsonKey(name: 'transporter_name2')
+  String? get transporterNAme2 => throw _privateConstructorUsedError;
   @JsonKey(name: 'preferred_vehicle_type')
   String? get preferredVehicleType => throw _privateConstructorUsedError;
   @JsonKey(name: 'delivery_address')
@@ -119,6 +121,7 @@ abstract class $LogisticPlanningFormCopyWith<$Res> {
     @JsonKey(name: 'dispatch_type') String? dispatchType,
     @JsonKey(name: 'sales_orders') List<SalesOrder>? salesOrder,
     @JsonKey(name: 'transporter_name') String? transporterName,
+    @JsonKey(name: 'transporter_name2') String? transporterNAme2,
     @JsonKey(name: 'preferred_vehicle_type') String? preferredVehicleType,
     @JsonKey(name: 'delivery_address') String? deliveryAddress,
     @JsonKey(name: 'status') String? status,
@@ -176,6 +179,7 @@ class _$LogisticPlanningFormCopyWithImpl<
     Object? dispatchType = freezed,
     Object? salesOrder = freezed,
     Object? transporterName = freezed,
+    Object? transporterNAme2 = freezed,
     Object? preferredVehicleType = freezed,
     Object? deliveryAddress = freezed,
     Object? status = freezed,
@@ -263,6 +267,11 @@ class _$LogisticPlanningFormCopyWithImpl<
                 freezed == transporterName
                     ? _value.transporterName
                     : transporterName // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            transporterNAme2:
+                freezed == transporterNAme2
+                    ? _value.transporterNAme2
+                    : transporterNAme2 // ignore: cast_nullable_to_non_nullable
                         as String?,
             preferredVehicleType:
                 freezed == preferredVehicleType
@@ -393,6 +402,7 @@ abstract class _$$LogisticPlanningFormImplCopyWith<$Res>
     @JsonKey(name: 'dispatch_type') String? dispatchType,
     @JsonKey(name: 'sales_orders') List<SalesOrder>? salesOrder,
     @JsonKey(name: 'transporter_name') String? transporterName,
+    @JsonKey(name: 'transporter_name2') String? transporterNAme2,
     @JsonKey(name: 'preferred_vehicle_type') String? preferredVehicleType,
     @JsonKey(name: 'delivery_address') String? deliveryAddress,
     @JsonKey(name: 'status') String? status,
@@ -446,6 +456,7 @@ class __$$LogisticPlanningFormImplCopyWithImpl<$Res>
     Object? dispatchType = freezed,
     Object? salesOrder = freezed,
     Object? transporterName = freezed,
+    Object? transporterNAme2 = freezed,
     Object? preferredVehicleType = freezed,
     Object? deliveryAddress = freezed,
     Object? status = freezed,
@@ -533,6 +544,11 @@ class __$$LogisticPlanningFormImplCopyWithImpl<$Res>
             freezed == transporterName
                 ? _value.transporterName
                 : transporterName // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        transporterNAme2:
+            freezed == transporterNAme2
+                ? _value.transporterNAme2
+                : transporterNAme2 // ignore: cast_nullable_to_non_nullable
                     as String?,
         preferredVehicleType:
             freezed == preferredVehicleType
@@ -656,6 +672,7 @@ class _$LogisticPlanningFormImpl implements _LogisticPlanningForm {
     @JsonKey(name: 'dispatch_type') this.dispatchType,
     @JsonKey(name: 'sales_orders') final List<SalesOrder>? salesOrder,
     @JsonKey(name: 'transporter_name') this.transporterName,
+    @JsonKey(name: 'transporter_name2') this.transporterNAme2,
     @JsonKey(name: 'preferred_vehicle_type') this.preferredVehicleType,
     @JsonKey(name: 'delivery_address') this.deliveryAddress,
     @JsonKey(name: 'status') this.status,
@@ -732,6 +749,9 @@ class _$LogisticPlanningFormImpl implements _LogisticPlanningForm {
   @JsonKey(name: 'transporter_name')
   final String? transporterName;
   @override
+  @JsonKey(name: 'transporter_name2')
+  final String? transporterNAme2;
+  @override
   @JsonKey(name: 'preferred_vehicle_type')
   final String? preferredVehicleType;
   @override
@@ -794,7 +814,7 @@ class _$LogisticPlanningFormImpl implements _LogisticPlanningForm {
 
   @override
   String toString() {
-    return 'LogisticPlanningForm(name: $name, owner: $owner, creation: $creation, modified: $modified, modifiedBy: $modifiedBy, docstatus: $docstatus, idx: $idx, amendedFrom: $amendedFrom, plantName: $plantName, transporterType: $transporterType, dispatchType: $dispatchType, salesOrder: $salesOrder, transporterName: $transporterName, preferredVehicleType: $preferredVehicleType, deliveryAddress: $deliveryAddress, status: $status, logisticsRequestDate: $logisticsRequestDate, requestedDeliveryDate: $requestedDeliveryDate, shippingAddress1: $shippingAddress1, shippingAddress2: $shippingAddress2, city: $city, states: $states, country: $country, pincode: $pincode, requestedDeliveryTime: $requestedDeliveryTime, anySpecialInstructions: $anySpecialInstructions, transporterConfirmationDate: $transporterConfirmationDate, driverName: $driverName, estimatedArrival: $estimatedArrival, transporterRemarks: $transporterRemarks, vehicleNumber: $vehicleNumber, driverContact: $driverContact, rejectReason: $rejectReason)';
+    return 'LogisticPlanningForm(name: $name, owner: $owner, creation: $creation, modified: $modified, modifiedBy: $modifiedBy, docstatus: $docstatus, idx: $idx, amendedFrom: $amendedFrom, plantName: $plantName, transporterType: $transporterType, dispatchType: $dispatchType, salesOrder: $salesOrder, transporterName: $transporterName, transporterNAme2: $transporterNAme2, preferredVehicleType: $preferredVehicleType, deliveryAddress: $deliveryAddress, status: $status, logisticsRequestDate: $logisticsRequestDate, requestedDeliveryDate: $requestedDeliveryDate, shippingAddress1: $shippingAddress1, shippingAddress2: $shippingAddress2, city: $city, states: $states, country: $country, pincode: $pincode, requestedDeliveryTime: $requestedDeliveryTime, anySpecialInstructions: $anySpecialInstructions, transporterConfirmationDate: $transporterConfirmationDate, driverName: $driverName, estimatedArrival: $estimatedArrival, transporterRemarks: $transporterRemarks, vehicleNumber: $vehicleNumber, driverContact: $driverContact, rejectReason: $rejectReason)';
   }
 
   @override
@@ -827,6 +847,8 @@ class _$LogisticPlanningFormImpl implements _LogisticPlanningForm {
             ) &&
             (identical(other.transporterName, transporterName) ||
                 other.transporterName == transporterName) &&
+            (identical(other.transporterNAme2, transporterNAme2) ||
+                other.transporterNAme2 == transporterNAme2) &&
             (identical(other.preferredVehicleType, preferredVehicleType) ||
                 other.preferredVehicleType == preferredVehicleType) &&
             (identical(other.deliveryAddress, deliveryAddress) ||
@@ -885,6 +907,7 @@ class _$LogisticPlanningFormImpl implements _LogisticPlanningForm {
     dispatchType,
     const DeepCollectionEquality().hash(_salesOrder),
     transporterName,
+    transporterNAme2,
     preferredVehicleType,
     deliveryAddress,
     status,
@@ -940,6 +963,7 @@ abstract class _LogisticPlanningForm implements LogisticPlanningForm {
     @JsonKey(name: 'dispatch_type') final String? dispatchType,
     @JsonKey(name: 'sales_orders') final List<SalesOrder>? salesOrder,
     @JsonKey(name: 'transporter_name') final String? transporterName,
+    @JsonKey(name: 'transporter_name2') final String? transporterNAme2,
     @JsonKey(name: 'preferred_vehicle_type') final String? preferredVehicleType,
     @JsonKey(name: 'delivery_address') final String? deliveryAddress,
     @JsonKey(name: 'status') final String? status,
@@ -1009,6 +1033,9 @@ abstract class _LogisticPlanningForm implements LogisticPlanningForm {
   @override
   @JsonKey(name: 'transporter_name')
   String? get transporterName;
+  @override
+  @JsonKey(name: 'transporter_name2')
+  String? get transporterNAme2;
   @override
   @JsonKey(name: 'preferred_vehicle_type')
   String? get preferredVehicleType;

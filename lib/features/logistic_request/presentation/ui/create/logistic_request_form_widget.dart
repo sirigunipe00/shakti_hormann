@@ -234,7 +234,7 @@ class __LogisticPlanningFormWidgetState
                                                 newform.transporterName,
                                           )
                                           .firstOrNull,
-                                  title: 'Transporters',
+                                  title: 'Transporter',
                                   hint: 'Select Transporter',
                                   isloading: state.isLoading,
                                   futureRequest: (searchText) async {
@@ -258,8 +258,13 @@ class __LogisticPlanningFormWidgetState
                                     return filtered;
                                   },
                                   headerBuilder:
-                                      (_, item, __) =>
-                                          Text(item.name.toString()),
+                                      (_, item, __) => Text(
+                                        '${item.name ?? ''} - ${item.suppliername ?? ''}',
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+
                                   listItemBuilder:
                                       (_, item, __, ___) => Column(
                                         crossAxisAlignment:

@@ -39,6 +39,7 @@ class _LoadingCnfmFormWidget extends State<LoadingCnfmFormWidget> {
   Widget build(BuildContext context) {
     final formState = context.read<CreateLoadingCnfmCubit>().state;
     final newform = formState.form;
+    $logger.devLog('.......$newform');
 
     return MultiBlocListener(
       listeners: [
@@ -136,13 +137,19 @@ class _LoadingCnfmFormWidget extends State<LoadingCnfmFormWidget> {
                               fillColor: Colors.grey[200],
                             ),
                             const SizedBox(height: 12),
-                            InputField(
-                              title: 'Transporter',
-                              hintText: 'Transporter Name',
+                              InputField(
+                              title: 'Transporter Name',
                               readOnly: true,
                               borderColor: AppColors.grey,
-                              initialValue: newform.transporterName,
-                              onChanged: (p0) {},
+                              initialValue: [
+                                    newform.transporterName,
+                                    newform.transporterName2,
+                                  ]
+                                  .where((e) => e != null && e.isNotEmpty)
+                                  .join(' - '),
+                              onChanged:
+                                  (p0) => context
+                                      
                             ),
                           ],
                         ),
@@ -414,20 +421,24 @@ class _ItemLoadedTableState extends State<ItemLoadedTable> {
 
   Future<void> addRow({int? index}) async {
     final initial = index != null ? rows[index] : null;
-    final List<LogisticModel> salesorders = context.read<Logistic>().state.maybeWhen(
-      success: (orders) => orders,
-      orElse: () => <LogisticModel>[],
-    );
+    final List<LogisticModel> salesorders = context
+        .read<Logistic>()
+        .state
+        .maybeWhen(
+          success: (orders) => orders,
+          orElse: () => <LogisticModel>[],
+        );
 
     final result = await showDialog(
       context: context,
       builder: (context) {
-        
         return MultiBlocProvider(
           providers: [
             BlocProvider(
               create:
-                  (_) => LoadingCnfmBlocProvider.get().itemList()..request(salesorders),
+                  (_) =>
+                      LoadingCnfmBlocProvider.get().itemList()
+                        ..request(salesorders),
             ),
             BlocProvider(
               create: (context) => context.read<CreateLoadingCnfmCubit>(),
@@ -509,7 +520,10 @@ class _ItemLoadedTableState extends State<ItemLoadedTable> {
                                   ),
                                   onPressed: () => _openCamera(index),
                                 )
-                                : _buildImage(rows[index]['photo']),
+                                : _buildImage(
+                                  rows[index]['photo'],
+                                  context: context,
+                                ),
                       ),
                     ),
                     if (widget.docstatus !=
@@ -547,28 +561,56 @@ class _ItemLoadedTableState extends State<ItemLoadedTable> {
   }
 }
 
-Widget _buildImage(String path) {
-  final baseUrl =
-      'https://shaktihormannuat.easycloud.co.in/'; // replace with your domain
+Widget _buildImage(String path, {BuildContext? context}) {
+  final baseUrl = Urls.baseUrl.replaceAll('/api', '');
+
+  Widget imageWidget;
 
   if (File(path).existsSync()) {
-    return Image.file(File(path), width: 50, height: 50, fit: BoxFit.cover);
-  }
-
-  if (path.startsWith('/files/')) {
-    return Image.network(
-      '$baseUrl$path',
+    imageWidget = Image.file(
+      File(path),
       width: 50,
       height: 50,
       fit: BoxFit.cover,
     );
+  } else if (path.startsWith('/files/')) {
+    imageWidget = Image.network(
+      '$baseUrl$path',
+      width: 50,
+      height: 50,
+      fit: BoxFit.cover,
+      errorBuilder: (_, __, ___) => const Icon(Icons.broken_image),
+    );
+  } else if (path.startsWith('http')) {
+    imageWidget = Image.network(
+      path,
+      width: 50,
+      height: 50,
+      fit: BoxFit.cover,
+      errorBuilder: (_, __, ___) => const Icon(Icons.broken_image),
+    );
+  } else {
+    imageWidget = const Icon(Icons.broken_image);
   }
 
-  if (path.startsWith('http')) {
-    return Image.network(path, width: 50, height: 50, fit: BoxFit.cover);
-  }
-
-  return const Icon(Icons.broken_image);
+  // 🔹 Wrap the image in GestureDetector for navigation
+  return GestureDetector(
+    onTap:
+        context == null
+            ? null
+            : () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => ImageViewScreen(imagePath: path),
+                ),
+              );
+            },
+    child: ClipRRect(
+      borderRadius: BorderRadius.circular(8),
+      child: imageWidget,
+    ),
+  );
 }
 
 class ItemDialogWidget extends StatefulWidget {
@@ -609,15 +651,14 @@ class _ItemDialogWidgetState extends State<ItemDialogWidget> {
     );
     photoPath = widget.initialRow?['photo'];
 
-   if (selectedCode != null) {
-  itemFrom = ItemModel(
-    itemCode: selectedCode, 
-    itemName: widget.initialRow?['itemName'],
-    uomValue: widget.initialRow?['uom'],
-    qty: int.tryParse(widget.initialRow?['qty'] ?? '0'),
-  );
-}
-
+    if (selectedCode != null) {
+      itemFrom = ItemModel(
+        itemCode: selectedCode,
+        itemName: widget.initialRow?['itemName'],
+        uomValue: widget.initialRow?['uom'],
+        qty: int.tryParse(widget.initialRow?['qty'] ?? '0'),
+      );
+    }
   }
 
   @override
@@ -771,8 +812,7 @@ class _ItemDialogWidgetState extends State<ItemDialogWidget> {
                 if (photoPath != null)
                   Stack(
                     children: [
-                      // 👇 Instead of Image.file, use _buildImage helper
-                      _buildImage(photoPath!),
+                      _buildImage(photoPath!, context: context),
                       Positioned(
                         right: 0,
                         bottom: 0,
@@ -783,7 +823,7 @@ class _ItemDialogWidgetState extends State<ItemDialogWidget> {
                               AppColors.darkBlue,
                             ),
                           ),
-                          onPressed: _pickPhoto, // Retake image
+                          onPressed: _pickPhoto,
                         ),
                       ),
                     ],
@@ -822,7 +862,7 @@ class _ItemDialogWidgetState extends State<ItemDialogWidget> {
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.green,
             foregroundColor: Colors.white,
-            elevation: 0, // remove shadow glow
+            elevation: 0,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
@@ -854,10 +894,7 @@ class _ItemDialogWidgetState extends State<ItemDialogWidget> {
               sampleQuantity: qtyValue.toInt(),
               stockUom: uomController.text,
               imageFile: photoFile,
-              loadedItemPhoto:
-                  photoFile != null
-                      ? null
-                      : photoPath, // 👈 stays raw /files/... if no new capture
+              loadedItemPhoto: photoFile != null ? null : photoPath,
             );
 
             Navigator.pop(context, {'row': row, 'model': lineItem});
@@ -869,6 +906,94 @@ class _ItemDialogWidgetState extends State<ItemDialogWidget> {
           ),
         ),
       ],
+    );
+  }
+}
+
+class ImageViewScreen extends StatefulWidget {
+  const ImageViewScreen({super.key, required this.imagePath});
+  final String imagePath;
+
+  @override
+  State<ImageViewScreen> createState() => _ImageViewScreenState();
+}
+
+class _ImageViewScreenState extends State<ImageViewScreen> {
+  double rotationAngle = 0.0;
+
+  void _rotateImage() {
+    setState(() {
+      rotationAngle += 90 * 3.1415926535 / 180;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final baseUrl = Urls.baseUrl.replaceAll('/api', '');
+
+    Widget imageWidget;
+
+    if (File(widget.imagePath).existsSync()) {
+      imageWidget = Image.file(File(widget.imagePath), fit: BoxFit.contain);
+    } else if (widget.imagePath.startsWith('/files/')) {
+      imageWidget = Image.network(
+        '$baseUrl${widget.imagePath}',
+        fit: BoxFit.contain,
+      );
+    } else if (widget.imagePath.startsWith('http')) {
+      imageWidget = Image.network(widget.imagePath, fit: BoxFit.contain);
+    } else {
+      imageWidget = const Icon(Icons.broken_image, size: 100);
+    }
+
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        iconTheme: const IconThemeData(color: Colors.white),
+        title: const Text(
+          'Image Preview',
+          style: TextStyle(color: Colors.white),
+        ),
+      ),
+      body: Stack(
+        children: [
+          Center(
+            child: InteractiveViewer(
+              panEnabled: true,
+              minScale: 0.1,
+              maxScale: 5.0,
+              clipBehavior: Clip.none,
+              boundaryMargin: const EdgeInsets.all(100),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  return SizedBox(
+                    width: constraints.maxWidth,
+                    height: constraints.maxHeight,
+                    child: FittedBox(
+                      fit: BoxFit.contain,
+                      child: Transform.rotate(
+                        angle: rotationAngle,
+                        child: imageWidget,
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+
+          Positioned(
+            bottom: 16,
+            right: 16,
+            child: FloatingActionButton(
+              backgroundColor: Colors.white,
+              onPressed: _rotateImage,
+              child: const Icon(Icons.rotate_right, color: Colors.black),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

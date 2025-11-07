@@ -21,8 +21,16 @@ class LogisticRequestWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+//     final statusText = logistic.docstatus == 2
+//     ? 'Cancelled'
+//     : logistic.status ?? '';
+
+// final formattedDateTime = formatDateTime(
+//   logistic.requestedDeliveryDate,
+//   logistic.requestedDeliveryTime,
+// );
     return GestureDetector(
-      onTap:  onTap,
+      onTap: onTap,
       child: Card(
         color: Colors.white,
         surfaceTintColor: AppColors.white,
@@ -89,13 +97,7 @@ class LogisticRequestWidget extends StatelessWidget {
                             ],
                           ),
 
-                          // Text(
-                          //   '(SHM)',
-                          //   style: AppTextStyles.titleLarge(context).copyWith(
-                          //     color: const Color(0xFF2957A4),
-                          //     fontWeight: FontWeight.bold,
-                          //   ),
-                          // ),
+                      
                         ],
                       ),
 
@@ -112,7 +114,9 @@ class LogisticRequestWidget extends StatelessWidget {
                               ),
                               const SizedBox(width: 4),
                               Text(
-                                DFU.ddMMyyyyFromStr(logistic.requestedDeliveryDate ?? ''),
+                                DFU.ddMMyyyyFromStr(
+                                  logistic.requestedDeliveryDate ?? '',
+                                ),
                                 style: const TextStyle(
                                   color: Color(0xFF163A6B),
                                   fontSize: 11,
@@ -123,12 +127,10 @@ class LogisticRequestWidget extends StatelessWidget {
                           ),
                           Row(
                             children: [
-                              Image.asset(
-                            'assets/images/timeicon.png'
-                   ,
-                           ),
+                              Image.asset('assets/images/timeicon.png'),
                               Text(
-                                formatTime(logistic.requestedDeliveryTime) ?? '',
+                                formatTime(logistic.requestedDeliveryTime) ??
+                                    '',
                                 style: AppTextStyles.titleMedium(
                                   context,
                                   AppColors.darkBlue,
@@ -166,29 +168,23 @@ class LogisticRequestWidget extends StatelessWidget {
                         context.read<CreateLogisticCubit>().addsaleseorders(
                           salesorder: data,
                         );
-
                         return Expanded(
                           child: Wrap(
+                            runSpacing: 2,
                             spacing: 2,
-
-                            children:
-                                data.map((po) {
-                                  return Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 0,
-                                      vertical: 2,
-                                    ),
-
-                                    child: Text(
-                                      '${po.name} ,',
-                                      style: const TextStyle(
-                                        color: Color(0xFF2957A4),
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                                  );
-                                }).toList(),
+                            children: [
+                              Text(
+                                data
+                                    .map((po) => po.name ?? '')
+                                    .where((e) => e.isNotEmpty)
+                                    .join(', '),
+                                style: const TextStyle(
+                                  color: Color(0xFF2957A4),
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
                           ),
                         );
                       },
@@ -196,10 +192,22 @@ class LogisticRequestWidget extends StatelessWidget {
                     );
                   },
                 ),
+//                 Text(
+//   "$statusText – $formattedDateTime",
+//   style: AppTextStyles.titleLarge(context).copyWith(
+//     color: _getStatusColor(statusText),
+//     fontWeight: FontWeight.bold,
+//     fontSize: 12,
+//   ),
+// ),
                 Text(
                   logistic.docstatus == 2 ? 'Cancelled' : logistic.status ?? '',
                   style: AppTextStyles.titleLarge(context).copyWith(
-                    color: _getStatusColor(logistic.docstatus == 2 ? 'Cancelled' : logistic.status ?? '',),
+                    color: _getStatusColor(
+                      logistic.docstatus == 2
+                          ? 'Cancelled'
+                          : logistic.status ?? '',
+                    ),
                     fontWeight: FontWeight.bold,
                     fontSize: 12,
                   ),
@@ -219,7 +227,7 @@ Color _getStatusColor(String? status) {
       return Colors.green;
     case 'transporter rejected':
       return Colors.red;
-     case 'cancelled':
+    case 'cancelled':
       return Colors.red;
     case 'pending from transporter':
       return Colors.orange;
@@ -227,12 +235,29 @@ Color _getStatusColor(String? status) {
       return Colors.black;
   }
 }
+
 String? formatTime(String? backendTime) {
   if (backendTime == null || backendTime.isEmpty) return null;
 
-  // Parse backend string "HH:MM:SS"
   final parts = backendTime.split(':');
   if (parts.length < 2) return backendTime;
 
-  return '${parts[0]}:${parts[1]}'; // HH:MM only
+  return '${parts[0]}:${parts[1]}';
+}
+String formatDateTime(String? date, String? time) {
+  if (date == null || date.isEmpty) return '';
+  final formattedDate = DFU.ddMMyyyyFromStr(date);
+
+  if (time == null || time.isEmpty) return formattedDate;
+
+  final parts = time.split(':');
+  if (parts.length < 2) return formattedDate;
+
+  // Convert 24hr → 12hr
+  int hour = int.tryParse(parts[0]) ?? 0;
+  final minute = parts[1];
+  final suffix = hour >= 12 ? 'PM' : 'AM';
+  hour = hour > 12 ? hour - 12 : (hour == 0 ? 12 : hour);
+
+  return "$formattedDate ${hour.toString().padLeft(2, '0')}:$minute $suffix";
 }

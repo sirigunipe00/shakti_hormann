@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:shakti_hormann/core/core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -20,15 +22,40 @@ class _GateExitFormWidgetState extends State<GateExitFormWidget> {
   final ScrollController _scrollController = ScrollController();
   final TextEditingController remarks = TextEditingController();
   final TextEditingController vehicleNo = TextEditingController();
+  // late TextEditingController vehicleNoController;
 
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   final form = context.read<CreateGateExitCubit>().state.form;
+  //   vehicleNoController = TextEditingController(text: form.vehicleNo ?? '');
+  // }
+
+  // @override
+  // void didUpdateWidget(covariant GateExitFormWidget oldWidget) {
+  //   super.didUpdateWidget(oldWidget);
+  //   final form = context.read<CreateGateExitCubit>().state.form;
+  //   vehicleNoController.text = form.vehicleNo ?? '';
+  // }
+
+  // @override
+  // void dispose() {
+  //   vehicleNoController.dispose();
+  //   super.dispose();
+  // }
 
   final focusNodes = List.generate(40, (index) => FocusNode());
+
   @override
   Widget build(BuildContext context) {
     final formState = context.read<CreateGateExitCubit>().state;
 
     final isCompleted = formState.view == GateExitView.completed;
     final newform = formState.form;
+
+    log('newform.vehicleNo...:${newform.vehicleNo}');
+
+    vehicleNo.text = newform.vehicleNo ?? '';
 
     return MultiBlocListener(
       listeners: [
@@ -38,9 +65,7 @@ class _GateExitFormWidgetState extends State<GateExitFormWidget> {
             final currStatus = current.error?.status;
             return prevStatus != currStatus;
           },
-          listener: (_, state) async {
-      
-          },
+          listener: (_, state) async {},
         ),
       ],
       child: Container(
@@ -52,7 +77,7 @@ class _GateExitFormWidgetState extends State<GateExitFormWidget> {
             margin: const EdgeInsets.symmetric(vertical: 20),
             defaultHeight: 0,
             children: [
-               const Padding(
+              const Padding(
                 padding: EdgeInsets.only(left: 16.0),
                 child: SectionHeader(
                   title: 'Gate Exit Details',
@@ -61,7 +86,7 @@ class _GateExitFormWidgetState extends State<GateExitFormWidget> {
               ),
 
               Container(
-                padding: const EdgeInsets.only(top: 12,left: 12,right: 12,),
+                padding: const EdgeInsets.only(top: 12, left: 12, right: 12),
                 width: MediaQuery.of(context).size.width,
                 margin: const EdgeInsets.symmetric(horizontal: 18),
                 decoration: BoxDecoration(
@@ -73,7 +98,7 @@ class _GateExitFormWidgetState extends State<GateExitFormWidget> {
                   defaultHeight: 6,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                   InputField(
+                    InputField(
                       title: 'Plant Name',
                       hintText: 'Enter Plant Name',
                       readOnly: true,
@@ -91,21 +116,21 @@ class _GateExitFormWidgetState extends State<GateExitFormWidget> {
                       startDate: DateTime(2020),
                       endDate: DateTime(2030),
                       readOnly: true,
-                      initialValue: DFU.ddMMyyyyFromStr(newform.gateEntryDate?? ''),
+                      initialValue: DFU.ddMMyyyyFromStr(
+                        newform.gateEntryDate ?? '',
+                      ),
                       fillColor: Colors.grey[200],
-                      onSelected: (date) {
-
-                      },
+                      onSelected: (date) {},
                     ),
 
                     InputField(
+                      // key: UniqueKey(),
                       title: 'Vehicle Number',
                       hintText: 'Enter Vehicle No',
                       controller: vehicleNo,
                       readOnly: isCompleted,
                       isRequired: true,
                       borderColor: AppColors.grey,
-                      initialValue: newform.vehicleNo,
                       onChanged:
                           (p0) => context
                               .cubit<CreateGateExitCubit>()
@@ -125,7 +150,7 @@ class _GateExitFormWidgetState extends State<GateExitFormWidget> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.only( left: 16, right: 16),
+                padding: const EdgeInsets.only(left: 16, right: 16),
                 child: Card(
                   color: Colors.white,
                   shape: RoundedRectangleBorder(

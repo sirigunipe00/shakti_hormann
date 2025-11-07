@@ -37,12 +37,11 @@ Future<void> _initFirebase() async {
   if (kDebugMode) {
     await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(false);
   }
-   // Enable verbose logging for debugging (remove in production)
-  OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
-  // Initialize with your OneSignal App ID
+
+  OneSignal.Debug.setLogLevel(OSLogLevel.none);
+
   OneSignal.initialize(onesignalid);
-  // Use this method to prompt for push notifications.
-  // We recommend removing this method after testing and instead use In-App Messages to prompt for notification permission.
+
   OneSignal.Notifications.requestPermission(false);
 }
 

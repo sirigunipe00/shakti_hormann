@@ -33,10 +33,12 @@ class _VehicleReportingFormWidget extends State<VehicleReportingFormWidget> {
     final formState = context.read<CreateVehicleCubit>().state;
     final isCompleted =
         formState.view == VehicleView.completed ||
-        (formState.form.docstatus == 1 || formState.form.status == 'Reported' || formState.form.status == 'Rejected');
+        (formState.form.docstatus == 1 ||
+            formState.form.status == 'Reported' ||
+            formState.form.status == 'Rejected');
     final hasVehicleNo = (vehicleForm?.vehicleNumber?.isNotEmpty ?? false);
     final newform = formState.form;
-   
+    $logger.devLog('.........$newform');
 
     return MultiBlocListener(
       listeners: [
@@ -52,9 +54,8 @@ class _VehicleReportingFormWidget extends State<VehicleReportingFormWidget> {
       child: Container(
         color: Colors.purple.shade100.withValues(alpha: 0.15),
         child: SingleChildScrollView(
-          
           controller: _scrollController,
-        
+
           child: SpacedColumn(
             crossAxisAlignment: CrossAxisAlignment.start,
             margin: const EdgeInsets.all(12.0),
@@ -69,7 +70,7 @@ class _VehicleReportingFormWidget extends State<VehicleReportingFormWidget> {
               ),
               Container(
                 width: MediaQuery.of(context).size.width,
-        
+
                 margin: const EdgeInsets.all(2),
                 child: Stack(
                   children: [
@@ -82,7 +83,7 @@ class _VehicleReportingFormWidget extends State<VehicleReportingFormWidget> {
                           width: 1,
                         ),
                       ),
-        
+
                       elevation: 0,
                       child: Container(
                         decoration: BoxDecoration(
@@ -92,7 +93,7 @@ class _VehicleReportingFormWidget extends State<VehicleReportingFormWidget> {
                           top: 15,
                           left: 16,
                           right: 16,
-                          bottom: 6
+                          bottom: 6,
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -104,14 +105,14 @@ class _VehicleReportingFormWidget extends State<VehicleReportingFormWidget> {
                               isRequired: true,
                               borderColor: AppColors.grey,
                               initialValue: newform.plantName,
-        
+
                               onChanged:
                                   (p0) => context
                                       .cubit<CreateVehicleCubit>()
                                       .onValueChanged(plantName: p0),
                             ),
                             const SizedBox(height: 12),
-                           
+
                             AppDateField(
                               title: 'Vehicle Reporting Entry Date',
                               hintText: 'Select Date',
@@ -138,12 +139,15 @@ class _VehicleReportingFormWidget extends State<VehicleReportingFormWidget> {
                             ),
                             const SizedBox(height: 12),
                             InputField(
-                              title: 'Transporter',
-                              hintText: 'Transporter Name',
+                              title: 'Transporter Name',
                               readOnly: true,
                               borderColor: AppColors.grey,
-                              initialValue: newform.transporterName,
-        
+                              initialValue: [
+                                    newform.transporterName,
+                                    newform.transporterName2,
+                                  ]
+                                  .where((e) => e != null && e.isNotEmpty)
+                                  .join(' - '),
                               onChanged:
                                   (p0) => context
                                       .cubit<CreateVehicleCubit>()
@@ -156,7 +160,7 @@ class _VehicleReportingFormWidget extends State<VehicleReportingFormWidget> {
                   ],
                 ),
               ),
-        
+
               const SizedBox(height: 15),
               const Padding(
                 padding: EdgeInsets.only(left: 16.0),
@@ -165,7 +169,7 @@ class _VehicleReportingFormWidget extends State<VehicleReportingFormWidget> {
                   assetIcon: 'assets/images/vehicleinvoicicon.svg',
                 ),
               ),
-        
+
               Card(
                 color: Colors.white,
                 shape: RoundedRectangleBorder(
@@ -173,7 +177,12 @@ class _VehicleReportingFormWidget extends State<VehicleReportingFormWidget> {
                   side: const BorderSide(color: Color(0xFFE8ECF4), width: 1),
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.only(top: 16, left: 16, right: 16,bottom: 6),
+                  padding: const EdgeInsets.only(
+                    top: 16,
+                    left: 16,
+                    right: 16,
+                    bottom: 6,
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -188,71 +197,68 @@ class _VehicleReportingFormWidget extends State<VehicleReportingFormWidget> {
                               readOnly: isCompleted,
                               // key: ValueKey(newform.arrivalDate ?? ''),
                               key: UniqueKey(),
-                              startDate: DateTime(2020), 
+                              startDate: DateTime(2020),
                               endDate: DateTime(2030),
                               initialDate: DFU.ddMMyyyyFromStr(
                                 newform.arrivalDate ?? '',
                               ),
                               onSelected: (DateTime date) {
-                        // setState(() {
-                          if (formState.form.status == '') {
-                            context
-                                .cubit<CreateVehicleCubit>()
-                                .onValueChanged(
-                                  arrivalDate: DateFormat(
-                                    'yyyy-MM-dd',
-                                  ).format(date),
-                                );
-                          } else {
-                            context
-                                .cubit<CreateVehicleCubit>()
-                                .onValueChanged(
-                                  arrivalDate: DateFormat(
-                                    'dd-MM-yyyy',
-                                  ).format(date),
-                                );
-                          }
-                        // });
-                      },
+                                // setState(() {
+                                if (formState.form.status == '') {
+                                  context
+                                      .cubit<CreateVehicleCubit>()
+                                      .onValueChanged(
+                                        arrivalDate: DateFormat(
+                                          'yyyy-MM-dd',
+                                        ).format(date),
+                                      );
+                                } else {
+                                  context
+                                      .cubit<CreateVehicleCubit>()
+                                      .onValueChanged(
+                                        arrivalDate: DateFormat(
+                                          'dd-MM-yyyy',
+                                        ).format(date),
+                                      );
+                                }
+                                // });
+                              },
                               fillColor: Colors.white,
-                            
                             ),
                           ),
-                          const SizedBox(width: 13,),
-                          Expanded(child: 
-                             Column(
+                          const SizedBox(width: 13),
+                          Expanded(
+                            child: Column(
                               mainAxisSize: MainAxisSize.min,
-                               children: [
-                                 TimePickerField(
-                                      title: 'Arrival Time',
-                                      readOnly: isCompleted,
-                                      isRequired: true,
-                                      key: UniqueKey(),
-                                      hintText: 'Select Time',
-                                      initialTime: formatTime(
-                                        newform.arrivalTime
-                                      ),
-                                      onTimeChanged: (selectedTime) {
-                                        context
-                                            .cubit<CreateVehicleCubit>()
-                                            .onValueChanged(
-                                              arrivalTime: selectedTime,
-                                            );
-                                      },
-                                    ),
-                               ],
-                             ),
-                          )
+                              children: [
+                                TimePickerField(
+                                  title: 'Arrival Time',
+                                  readOnly: isCompleted,
+                                  isRequired: true,
+                                  key: UniqueKey(),
+                                  hintText: 'Select Time',
+                                  initialTime: formatTime(newform.arrivalTime),
+                                  onTimeChanged: (selectedTime) {
+                                    context
+                                        .cubit<CreateVehicleCubit>()
+                                        .onValueChanged(
+                                          arrivalTime: selectedTime,
+                                        );
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
                         ],
                       ),
-        
+
                       const SizedBox(height: 12),
                       InputField(
                         title: 'Vehicle Number',
                         hintText: 'Vehicle No',
-                        readOnly: hasVehicleNo  || isCompleted,
+                        readOnly: hasVehicleNo || isCompleted,
                         borderColor: AppColors.grey,
-        
+
                         initialValue: newform.vehicleNumber,
                         onChanged:
                             (value) => context
@@ -282,7 +288,7 @@ class _VehicleReportingFormWidget extends State<VehicleReportingFormWidget> {
                   ),
                 ),
               ),
-        
+
               const SizedBox(height: 12),
               const Padding(
                 padding: EdgeInsets.only(left: 16.0),
@@ -292,7 +298,7 @@ class _VehicleReportingFormWidget extends State<VehicleReportingFormWidget> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.only( left: 16, right: 16),
+                padding: const EdgeInsets.only(left: 16, right: 16),
                 child: Card(
                   color: Colors.white,
                   shape: RoundedRectangleBorder(
@@ -316,7 +322,7 @@ class _VehicleReportingFormWidget extends State<VehicleReportingFormWidget> {
                   ),
                 ),
               ),
-        
+
               const SizedBox(height: 15),
               const Padding(
                 padding: EdgeInsets.only(left: 16.0),
@@ -343,7 +349,7 @@ class _VehicleReportingFormWidget extends State<VehicleReportingFormWidget> {
                       borderColor: AppColors.grey,
                       maxLines: 3,
                       minLines: 3,
-        
+
                       initialValue: newform.remarks,
                       onChanged:
                           (value) => context

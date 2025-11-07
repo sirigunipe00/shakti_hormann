@@ -88,14 +88,6 @@ class TransportCnfrmWidget extends StatelessWidget {
                               ),
                             ],
                           ),
-
-                          // Text(
-                          //   '(SHM)',
-                          //   style: AppTextStyles.titleLarge(context).copyWith(
-                          //     color: const Color.fromARGB(255, 12, 3, 120),
-                          //     fontWeight: FontWeight.bold,
-                          //   ),
-                          // ),
                         ],
                       ),
 
@@ -159,7 +151,6 @@ class TransportCnfrmWidget extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                // Move BlocBuilder to start of Row
                 BlocBuilder<SalesOrders, SalesState>(
                   builder: (context, state) {
                     return state.maybeWhen(
@@ -168,25 +159,24 @@ class TransportCnfrmWidget extends StatelessWidget {
                           salesorder: data,
                         );
 
-                        return Wrap(
-                          spacing: 2,
-                          children:
-                              data.map((po) {
-                                return Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 0,
-                                    vertical: 2,
-                                  ),
-                                  child: Text(
-                                    '${po.name}, ',
-                                    style: const TextStyle(
-                                      color: Color(0xFF2957A4),
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                );
-                              }).toList(),
+                        return Expanded(
+                          child: Wrap(
+                            runSpacing: 2,
+                            spacing: 2,
+                            children: [
+                              Text(
+                                data
+                                    .map((po) => po.name ?? '')
+                                    .where((e) => e.isNotEmpty)
+                                    .join(', '),
+                                style: const TextStyle(
+                                  color: Color(0xFF2957A4),
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
+                          ),
                         );
                       },
                       orElse: () => const SizedBox(),
@@ -194,7 +184,6 @@ class TransportCnfrmWidget extends StatelessWidget {
                   },
                 ),
 
-                // Keep status text at the right end
                 Text(
                   transport.docstatus == 2
                       ? 'Cancelled'
@@ -236,9 +225,8 @@ Color _getStatusColor(String? status) {
 String? formatTime(String? backendTime) {
   if (backendTime == null || backendTime.isEmpty) return null;
 
-  // Parse backend string "HH:MM:SS"
   final parts = backendTime.split(':');
   if (parts.length < 2) return backendTime;
 
-  return '${parts[0]}:${parts[1]}'; // HH:MM only
+  return '${parts[0]}:${parts[1]}'; 
 }

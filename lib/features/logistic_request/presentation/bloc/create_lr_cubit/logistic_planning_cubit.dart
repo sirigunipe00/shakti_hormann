@@ -140,6 +140,9 @@ class CreateLogisticCubit extends AppBaseCubit<CreateLogisticState> {
         states: entry.states,
         city: entry.city,
         pincode: entry.pincode,
+        transporterNAme2: entry.transporterNAme2,
+
+       
 
       );
 

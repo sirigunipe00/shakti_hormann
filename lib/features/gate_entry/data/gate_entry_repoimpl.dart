@@ -32,6 +32,7 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
       filters.add(['name', 'like', '%$search%']);
     }
     final plantName = user().plantName;
+
     if (plantName != null && plantName.isNotEmpty) {
       filters.add(['plant_name', '=', plantName]);
     }
@@ -339,21 +340,20 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
     });
   }
 
-  Future<Uint8List?> fetchAndConvertToBase64(String relativePath) async {
-    if (p.extension(relativePath).isEmpty) {
-      return null;
-    }
-
-    final String url = 'https://shaktihormannuat.easycloud.co.in$relativePath';
-
-    final response = await http.get(Uri.parse(url));
-
-    if (response.statusCode == 200) {
-      Uint8List bytes = response.bodyBytes;
-
-      return bytes;
-    } else {
-      throw Exception('Failed to load file: ${response.statusCode}');
-    }
+Future<Uint8List?> fetchAndConvertToBase64(String relativePath) async {
+  if (p.extension(relativePath).isEmpty) {
+    return null;
   }
+
+  final String url = Urls.filepath(relativePath);
+
+  final response = await http.get(Uri.parse(url));
+
+  if (response.statusCode == 200) {
+    return response.bodyBytes;
+  } else {
+    throw Exception('Failed to load file: ${response.statusCode}');
+  }
+}
+
 }

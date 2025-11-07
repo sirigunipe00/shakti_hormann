@@ -140,6 +140,7 @@ class CreateTransportCubit extends AppBaseCubit<CreateTransportState> {
         states: entry.states,
         city: entry.city,
         pincode: entry.pincode,
+        transporterName2: entry.transporterName2
       );
 
       // final formattedStr = DFU.friendlyFormat(parsedDate);

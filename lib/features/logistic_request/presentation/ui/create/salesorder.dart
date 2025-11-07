@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:shakti_hormann/features/logistic_request/model/sales_order.dart';
 
 class SalesOrderTable extends StatelessWidget {
-
   const SalesOrderTable({
     super.key,
     required this.salesOrders,
-    this.widthFactor = 1.5, // default width expansion
+    this.widthFactor = 1.5,
   });
+
   final List<SalesOrder> salesOrders;
   final double widthFactor;
 
@@ -32,7 +32,7 @@ class SalesOrderTable extends StatelessWidget {
         columns: const [
           DataColumn(
             label: Text(
-              'Sales Order No',
+              'Sales Order',
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
           ),
@@ -53,18 +53,42 @@ class SalesOrderTable extends StatelessWidget {
           return DataRow(
             cells: [
               DataCell(
-                Text(order.name?.isNotEmpty == true ? order.name! : '-'),
-              ),
-              DataCell(
-                ConstrainedBox(
-                  constraints: const BoxConstraints(minWidth: 100),
-                  child: Text(order.state?.isNotEmpty == true ? order.state! : '-'),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        order.name?.isNotEmpty == true ? order.name! : '-',
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 2,
+                      ),
+                    ),
+                  ],
                 ),
               ),
               DataCell(
-                ConstrainedBox(
-                  constraints: const BoxConstraints(minWidth: 100),
-                  child: Text(order.city?.isNotEmpty == true ? order.city! : '-'),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        order.state?.isNotEmpty == true ? order.state! : '-',
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 2,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              DataCell(
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        order.city?.isNotEmpty == true ? order.city! : '-',
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 2,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],

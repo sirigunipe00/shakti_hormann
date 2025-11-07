@@ -1,15 +1,22 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:shakti_hormann/app/presentation/bloc/app_update_bloc_provider.dart';
+import 'package:shakti_hormann/app/presentation/bloc/geo_permission/geo_permission_handler.dart';
+import 'package:shakti_hormann/app/presentation/bloc/geo_permission/geo_permission_state.dart';
 import 'package:shakti_hormann/app/presentation/widgets/dashboard_item.dart';
 import 'package:shakti_hormann/app/presentation/widgets/greeting_widget.dart';
 import 'package:shakti_hormann/core/app_router/app_route.dart';
+import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/core/di/injector.dart';
 import 'package:shakti_hormann/features/auth/model/logged_in_user.dart';
 import 'package:shakti_hormann/styles/app_icons.dart';
 import 'package:shakti_hormann/widgets/app_update_dailog.dart';
+import 'package:shakti_hormann/widgets/dailogs/app_dialogs.dart';
 
 class AppHomePage extends StatefulWidget {
   const AppHomePage({super.key});
@@ -131,6 +138,7 @@ class _AppHomePageState extends State<AppHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    bool _shouldRequestPermission = false;
     LoggedInUser? user;
     try {
       user = $sl<LoggedInUser>();
@@ -147,22 +155,85 @@ class _AppHomePageState extends State<AppHomePage> {
     return Scaffold(
       backgroundColor: const Color(0xFFF7F8FA),
       body: SafeArea(
-        child: BlocListener<AppVersionCubit, AppVersionCubitState>(
-          listener: (context, state) {
-           state.maybeWhen(
-            orElse: () {},
-            success: (data) {
-              if (data) {
-                showDialog(
-                    context: context,
-                    builder: (ctx) => const AppUpdateDialog(
-                        appName: 'ShaktiHormann',
-                        packageName: 'in.easycloud.shakti_hormann'),
-                    barrierDismissible: false);
-              }
-            },
-          );
-          },
+        child: MultiBlocListener(
+          listeners: [
+            BlocListener<AppVersionCubit, AppVersionCubitState>(
+              listener: (context, state) {
+                state.maybeWhen(
+                  orElse: () {},
+                  success: (data) {
+                    if (data) {
+                      showDialog(
+                        context: context,
+                        builder:
+                            (ctx) => const AppUpdateDialog(
+                              appName: 'ShaktiHormann',
+                              packageName: 'in.easycloud.shakti_hormann',
+                            ),
+                        barrierDismissible: false,
+                      );
+                    }
+                  },
+                );
+              },
+            ),
+            // BlocListener<GeoPermissionHandler, GeoPermissionState>(
+            //   listenWhen: (previous, current) => previous != current,
+            //   listener: (_, state) async {
+            //     final routerCtxt = AppRouterConfig.context;
+
+            //     log('state..:$state');
+            //     if (state is GeoLocationServiceDisabled) {
+            //       print('true...:');
+            //       showDialog(
+            //         context: context,
+            //         barrierDismissible: false,
+            //         builder:
+            //             (_) => AlertDialog(
+            //               title: const Text('Location Disabled'),
+            //               content: const Text(
+            //                 'Please enable location to continue.',
+            //               ),
+            //               actions: [
+            //                 TextButton(
+            //                   onPressed: () async {
+            //                     await Geolocator.openLocationSettings();
+            //                     context
+            //                         .read<GeoPermissionHandler>()
+            //                         .checkPermission();
+            //                   },
+            //                   child: const Text('Enable'),
+            //                 ),
+            //               ],
+            //             ),
+            //       );
+            //     }
+            //     if (state is GeoLocationDenied) {
+            //       Geolocator.requestPermission().then((_) {
+            //         routerCtxt.cubit<GeoPermissionHandler>().checkPermission();
+            //       });
+            //       return;
+            //     }
+            //     if (state is GeoLocationDeniedForever ||
+            //         state is LocationPermissionPermDenied) {
+            //       AppDialog.showErrorDialog<bool?>(
+            //         routerCtxt,
+            //         barrierDismissible: false,
+            //         title: 'Grant Location Permission',
+            //         content: 'Shakti Hormann needs your location permission',
+            //         buttonText: 'Allow',
+            //         onTapDismiss: () => routerCtxt.exit(true),
+            //       ).then((value) async {
+            //         if (value!.isTrue) {
+            //           _shouldRequestPermission = true;
+            //           await Geolocator.openAppSettings();
+            //         }
+            //       });
+            //     }
+            //   },
+            // ),
+          ],
+
           child: Column(
             children: [
               Padding(
@@ -174,7 +245,7 @@ class _AppHomePageState extends State<AppHomePage> {
                     Padding(
                       padding: const EdgeInsets.only(right: 20),
                       child: GestureDetector(
-                        onTap: () => AppRoute.notifications.push(context),
+                        // onTap: () => AppRoute.notifications.push(context),
                         child: Container(
                           width: 50,
                           height: 50,

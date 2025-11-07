@@ -20,6 +20,7 @@ class VehicleReportingForm with _$VehicleReportingForm {
     @JsonKey(name: 'plant_name')  String? plantName,
     @JsonKey(name: 'vehicle_reporting_entry_vre_date')  String? vehicleReportingEntryVreDate,
     @JsonKey(name: 'transporter_name')  String? transporterName,
+    @JsonKey(name: 'transporter_name2') String? transporterName2,
     @JsonKey(name: 'arrival_date',defaultValue: '')  String? arrivalDate,
     @JsonKey(name: 'arrival_time',defaultValue: '')  String? arrivalTime,
     @JsonKey(name: 'driver_id_proof') String? driverIdPhoto,

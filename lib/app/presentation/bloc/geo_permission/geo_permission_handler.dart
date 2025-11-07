@@ -1,29 +1,35 @@
+import 'dart:developer';
+
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
-
-import 'package:shakti_hormann/core/core.dart';
-
 import 'package:shakti_hormann/app/presentation/bloc/geo_permission/geo_permission_state.dart';
+import 'package:shakti_hormann/core/cubit/base/base_cubit.dart';
+import 'package:shakti_hormann/core/logger/app_logger.dart';
 
 class GeoPermissionHandler extends AppBaseCubit<GeoPermissionState> {
   GeoPermissionHandler() : super(const Initial());
 
   int count = 0;
   void checkPermission() async {
+    print('check permission');
     await Future.delayed(const Duration(milliseconds: 300));
     try {
       emitSafeState(const Initial());
       final isServEnabled = await Geolocator.isLocationServiceEnabled();
+
+      log('isServEnabled...:$isServEnabled');
       if (!isServEnabled) await Geolocator.requestPermission();
 
       final permissionStatus = await Geolocator.checkPermission();
+      log('permissionStatus..:$permissionStatus');
       if(permissionStatus != LocationPermission.whileInUse) {
         if (permissionStatus == LocationPermission.denied) {
           count++;
           if(count > 2) {
             return emitSafeState(const GeoLocationDeniedForever());
           }
+          print('GeoLocationDenied');
           return emitSafeState(const GeoLocationDenied());
         }
         if (permissionStatus == LocationPermission.deniedForever) {

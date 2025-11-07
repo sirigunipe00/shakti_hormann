@@ -44,6 +44,8 @@ mixin _$VehicleReportingForm {
       throw _privateConstructorUsedError;
   @JsonKey(name: 'transporter_name')
   String? get transporterName => throw _privateConstructorUsedError;
+  @JsonKey(name: 'transporter_name2')
+  String? get transporterName2 => throw _privateConstructorUsedError;
   @JsonKey(name: 'arrival_date', defaultValue: '')
   String? get arrivalDate => throw _privateConstructorUsedError;
   @JsonKey(name: 'arrival_time', defaultValue: '')
@@ -103,6 +105,7 @@ abstract class $VehicleReportingFormCopyWith<$Res> {
     @JsonKey(name: 'vehicle_reporting_entry_vre_date')
     String? vehicleReportingEntryVreDate,
     @JsonKey(name: 'transporter_name') String? transporterName,
+    @JsonKey(name: 'transporter_name2') String? transporterName2,
     @JsonKey(name: 'arrival_date', defaultValue: '') String? arrivalDate,
     @JsonKey(name: 'arrival_time', defaultValue: '') String? arrivalTime,
     @JsonKey(name: 'driver_id_proof') String? driverIdPhoto,
@@ -153,6 +156,7 @@ class _$VehicleReportingFormCopyWithImpl<
     Object? plantName = freezed,
     Object? vehicleReportingEntryVreDate = freezed,
     Object? transporterName = freezed,
+    Object? transporterName2 = freezed,
     Object? arrivalDate = freezed,
     Object? arrivalTime = freezed,
     Object? driverIdPhoto = freezed,
@@ -221,6 +225,11 @@ class _$VehicleReportingFormCopyWithImpl<
                 freezed == transporterName
                     ? _value.transporterName
                     : transporterName // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            transporterName2:
+                freezed == transporterName2
+                    ? _value.transporterName2
+                    : transporterName2 // ignore: cast_nullable_to_non_nullable
                         as String?,
             arrivalDate:
                 freezed == arrivalDate
@@ -305,6 +314,7 @@ abstract class _$$VehicleReportingFormImplCopyWith<$Res>
     @JsonKey(name: 'vehicle_reporting_entry_vre_date')
     String? vehicleReportingEntryVreDate,
     @JsonKey(name: 'transporter_name') String? transporterName,
+    @JsonKey(name: 'transporter_name2') String? transporterName2,
     @JsonKey(name: 'arrival_date', defaultValue: '') String? arrivalDate,
     @JsonKey(name: 'arrival_time', defaultValue: '') String? arrivalTime,
     @JsonKey(name: 'driver_id_proof') String? driverIdPhoto,
@@ -351,6 +361,7 @@ class __$$VehicleReportingFormImplCopyWithImpl<$Res>
     Object? plantName = freezed,
     Object? vehicleReportingEntryVreDate = freezed,
     Object? transporterName = freezed,
+    Object? transporterName2 = freezed,
     Object? arrivalDate = freezed,
     Object? arrivalTime = freezed,
     Object? driverIdPhoto = freezed,
@@ -419,6 +430,11 @@ class __$$VehicleReportingFormImplCopyWithImpl<$Res>
             freezed == transporterName
                 ? _value.transporterName
                 : transporterName // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        transporterName2:
+            freezed == transporterName2
+                ? _value.transporterName2
+                : transporterName2 // ignore: cast_nullable_to_non_nullable
                     as String?,
         arrivalDate:
             freezed == arrivalDate
@@ -496,6 +512,7 @@ class _$VehicleReportingFormImpl implements _VehicleReportingForm {
     @JsonKey(name: 'vehicle_reporting_entry_vre_date')
     this.vehicleReportingEntryVreDate,
     @JsonKey(name: 'transporter_name') this.transporterName,
+    @JsonKey(name: 'transporter_name2') this.transporterName2,
     @JsonKey(name: 'arrival_date', defaultValue: '') this.arrivalDate,
     @JsonKey(name: 'arrival_time', defaultValue: '') this.arrivalTime,
     @JsonKey(name: 'driver_id_proof') this.driverIdPhoto,
@@ -553,6 +570,9 @@ class _$VehicleReportingFormImpl implements _VehicleReportingForm {
   @JsonKey(name: 'transporter_name')
   final String? transporterName;
   @override
+  @JsonKey(name: 'transporter_name2')
+  final String? transporterName2;
+  @override
   @JsonKey(name: 'arrival_date', defaultValue: '')
   final String? arrivalDate;
   @override
@@ -593,7 +613,7 @@ class _$VehicleReportingFormImpl implements _VehicleReportingForm {
 
   @override
   String toString() {
-    return 'VehicleReportingForm(name: $name, owner: $owner, creation: $creation, modified: $modified, modifiedBy: $modifiedBy, docstatus: $docstatus, idx: $idx, amendedFrom: $amendedFrom, plantName: $plantName, vehicleReportingEntryVreDate: $vehicleReportingEntryVreDate, transporterName: $transporterName, arrivalDate: $arrivalDate, arrivalTime: $arrivalTime, driverIdPhoto: $driverIdPhoto, loadedByUser: $loadedByUser, status: $status, linkedTransporterConfirmation: $linkedTransporterConfirmation, vehicleNumber: $vehicleNumber, driverContact: $driverContact, remarks: $remarks, rejectReason: $rejectReason, driverIdPhotoImg: $driverIdPhotoImg)';
+    return 'VehicleReportingForm(name: $name, owner: $owner, creation: $creation, modified: $modified, modifiedBy: $modifiedBy, docstatus: $docstatus, idx: $idx, amendedFrom: $amendedFrom, plantName: $plantName, vehicleReportingEntryVreDate: $vehicleReportingEntryVreDate, transporterName: $transporterName, transporterName2: $transporterName2, arrivalDate: $arrivalDate, arrivalTime: $arrivalTime, driverIdPhoto: $driverIdPhoto, loadedByUser: $loadedByUser, status: $status, linkedTransporterConfirmation: $linkedTransporterConfirmation, vehicleNumber: $vehicleNumber, driverContact: $driverContact, remarks: $remarks, rejectReason: $rejectReason, driverIdPhotoImg: $driverIdPhotoImg)';
   }
 
   @override
@@ -624,6 +644,8 @@ class _$VehicleReportingFormImpl implements _VehicleReportingForm {
                     vehicleReportingEntryVreDate) &&
             (identical(other.transporterName, transporterName) ||
                 other.transporterName == transporterName) &&
+            (identical(other.transporterName2, transporterName2) ||
+                other.transporterName2 == transporterName2) &&
             (identical(other.arrivalDate, arrivalDate) ||
                 other.arrivalDate == arrivalDate) &&
             (identical(other.arrivalTime, arrivalTime) ||
@@ -665,6 +687,7 @@ class _$VehicleReportingFormImpl implements _VehicleReportingForm {
     plantName,
     vehicleReportingEntryVreDate,
     transporterName,
+    transporterName2,
     arrivalDate,
     arrivalTime,
     driverIdPhoto,
@@ -710,6 +733,7 @@ abstract class _VehicleReportingForm implements VehicleReportingForm {
     @JsonKey(name: 'vehicle_reporting_entry_vre_date')
     final String? vehicleReportingEntryVreDate,
     @JsonKey(name: 'transporter_name') final String? transporterName,
+    @JsonKey(name: 'transporter_name2') final String? transporterName2,
     @JsonKey(name: 'arrival_date', defaultValue: '') final String? arrivalDate,
     @JsonKey(name: 'arrival_time', defaultValue: '') final String? arrivalTime,
     @JsonKey(name: 'driver_id_proof') final String? driverIdPhoto,
@@ -766,6 +790,9 @@ abstract class _VehicleReportingForm implements VehicleReportingForm {
   @override
   @JsonKey(name: 'transporter_name')
   String? get transporterName;
+  @override
+  @JsonKey(name: 'transporter_name2')
+  String? get transporterName2;
   @override
   @JsonKey(name: 'arrival_date', defaultValue: '')
   String? get arrivalDate;

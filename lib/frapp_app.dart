@@ -1,5 +1,10 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:shakti_hormann/app/presentation/bloc/geo_permission/geo_permission_handler.dart';
+import 'package:shakti_hormann/app/presentation/bloc/geo_permission/geo_permission_state.dart';
 import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/features/auth/presentation/bloc/auth/auth_cubit.dart';
 import 'package:shakti_hormann/features/auth/presentation/ui/sign_in/sign_in_cubit.dart';
@@ -18,9 +23,45 @@ import 'package:shakti_hormann/features/transport_confirmation/presentation/bloc
 import 'package:shakti_hormann/features/vehicle_reporting/presentation/bloc/bloc_provider.dart';
 import 'package:shakti_hormann/features/vehicle_reporting/presentation/bloc/vehicle_reporting_filtercubit.dart';
 import 'package:shakti_hormann/styles/material_theme.dart';
+import 'package:shakti_hormann/widgets/dailogs/app_dialogs.dart';
 
-class ShaktiHormann extends StatelessWidget {
+class ShaktiHormann extends StatefulWidget {
   const ShaktiHormann({super.key});
+
+  @override
+  State<ShaktiHormann> createState() => _ShaktiHormannState();
+}
+
+class _ShaktiHormannState extends State<ShaktiHormann>
+    with WidgetsBindingObserver {
+  bool _shouldRequestPermission = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
+    if (state == AppLifecycleState.resumed) {
+      if (_shouldRequestPermission) {
+        _shouldRequestPermission = false;
+        handleCallBack();
+      }
+    }
+  }
+
+  void handleCallBack() {
+    final context = AppRouterConfig.context;
+    context.cubit<GeoPermissionHandler>().checkPermission();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,77 +70,136 @@ class ShaktiHormann extends StatelessWidget {
         BlocProvider(create: (_) => $sl.get<AuthCubit>()..authCheckRequested()),
         BlocProvider(create: (_) => $sl.get<SignInCubit>()),
         BlocProvider(create: (_) => GateEntryFilterCubit()),
-        BlocProvider(create: (_)=> GateExitFilterCubit()),
-        BlocProvider(create: (_)=> LogisticPlanningFilterCubit()),
-        BlocProvider(create: (_)=> TransportFilterCubit()),
-        BlocProvider(create: (_)=> VehicleReportingFilterCubit()),
-        BlocProvider(create: (_)=> LoadingCnfmFiltersCubit()),
-        BlocProvider(create: (_)=> PodFiltersCubit()),
+        BlocProvider(create: (_) => GateExitFilterCubit()),
+        BlocProvider(create: (_) => LogisticPlanningFilterCubit()),
+        BlocProvider(create: (_) => TransportFilterCubit()),
+        BlocProvider(create: (_) => VehicleReportingFilterCubit()),
+        BlocProvider(create: (_) => LoadingCnfmFiltersCubit()),
+        BlocProvider(create: (_) => PodFiltersCubit()),
 
+        BlocProvider<GeoPermissionHandler>(
+          create: (_) => GeoPermissionHandler(),
+        ),
 
         BlocProvider(
           create: (_) => GateEntryBlocProvider.get().fetchGateEntries(),
         ),
-         BlocProvider(
-          create: (_) => GateExitBlocProvider.get().fetchGateExit(),
-        ),
+        BlocProvider(create: (_) => GateExitBlocProvider.get().fetchGateExit()),
         BlocProvider(
           create: (_) => LogisticPlanningBlocProvider.get().fetchLogistics(),
         ),
-         BlocProvider(
+        BlocProvider(
           create: (_) => TransportCnfmBlocProvider.get().fetchTransport(),
         ),
-         BlocProvider(
-          create: (_) => VehicleBlocProvider.get().fetchVehicle(),
-        ),
-         BlocProvider(
+        BlocProvider(create: (_) => VehicleBlocProvider.get().fetchVehicle()),
+        BlocProvider(
           create: (_) => LoadingCnfmBlocProvider.get().fetchLoadingCnfmList(),
         ),
         BlocProvider(
-          create: (_) => ProofOfDeliveryBlocProvider.get().fetchProofOfDelivery(),
+          create:
+              (_) => ProofOfDeliveryBlocProvider.get().fetchProofOfDelivery(),
         ),
       ],
-      child: BlocConsumer<AuthCubit, AuthState>(
-        listener: (_, state) {
-          final routerCtxt = AppRouterConfig.parentNavigatorKey.currentContext;
-          if (routerCtxt == null) return;
-          state.maybeWhen(
-            authenticated: () {
-              final filters = Pair(StringUtils.docStatusInt('Draft'), null);
-              final filter =Pair(StringUtils.docStatuslogistic('Draft'), null);
-              final filterss =Pair(StringUtils.docStatusVehicle('Reported'), null);
+      child: MultiBlocListener(
+        listeners: [
 
-              
-              routerCtxt.cubit<GateEntriesCubit>().fetchInitial(filters);
-              routerCtxt.cubit<GateExitCubit>().fetchInitial(filters);
-              routerCtxt.cubit<LogisticPlanningCubit>().fetchInitial(filter);
-              routerCtxt.cubit<TransportCubit>().fetchInitial(filter);
-              routerCtxt.cubit<VehicleReportingCubit>().fetchInitial(filterss);
-              routerCtxt.cubit<LoadingCnfmCubit>().fetchInitial(filterss);
-              routerCtxt.cubit<ProofOfDeliveryCubit>().fetchInitial(filters);
+          BlocListener<AuthCubit, AuthState>(
+            listener: (_, state) {
+              final routerCtxt =
+                  AppRouterConfig.parentNavigatorKey.currentContext;
+              if (routerCtxt == null) return;
+              state.maybeWhen(
+                authenticated: () {
+                  print('authenticated..');
+                  final filters = Pair(StringUtils.docStatusInt('Draft'), null);
+                  final filter = Pair(
+                    StringUtils.docStatuslogistic('Draft'),
+                    null,
+                  );
+                  final filterss = Pair(
+                    StringUtils.docStatusVehicle('Reported'),
+                    null,
+                  );
+                  routerCtxt.cubit<GateEntriesCubit>().fetchInitial(filters);
+                  routerCtxt.cubit<GateExitCubit>().fetchInitial(filters);
+                  routerCtxt.cubit<LogisticPlanningCubit>().fetchInitial(
+                    filter,
+                  );
+                  routerCtxt.cubit<TransportCubit>().fetchInitial(filter);
+                  routerCtxt.cubit<VehicleReportingCubit>().fetchInitial(
+                    filterss,
+                  );
+                  routerCtxt.cubit<LoadingCnfmCubit>().fetchInitial(filterss);
+                  routerCtxt.cubit<ProofOfDeliveryCubit>().fetchInitial(
+                    filters,
+                  );
 
 
 
-              AppRoute.home.go(routerCtxt);
+                  print('authenticated..last lknflsgljf');
+
+
+
+                  routerCtxt.cubit<GeoPermissionHandler>().checkPermission();
+
+                  AppRoute.home.go(routerCtxt);
+                },
+                unAuthenticated: () {
+                  AppRoute.login.go(routerCtxt);
+                },
+                orElse: () {
+                  AppRoute.login.go(routerCtxt);
+                },
+              );
             },
-            unAuthenticated: () {
-              AppRoute.login.go(routerCtxt);
+          ),
+
+          BlocListener<GeoPermissionHandler, GeoPermissionState>(
+            listenWhen: (previous, current) => previous != current,
+            listener: (_, state) async {
+              final routerCtxt = AppRouterConfig.context;
+              log('state...:$state');
+              if (state is GeoLocationDenied) {
+                print('truee...');
+                Geolocator.requestPermission().then((_) {
+                  routerCtxt.cubit<GeoPermissionHandler>().checkPermission();
+                });
+                return;
+              } 
+              // if (state is GeoLocationServiceDisabled()) {
+              //   print('truee...');
+              //   Geolocator.requestPermission().then((_) {
+              //     routerCtxt.cubit<GeoPermissionHandler>().checkPermission();
+              //   });
+              //   return;
+              // }
+              if (state is GeoLocationDeniedForever ||
+                  state is LocationPermissionPermDenied) {
+                AppDialog.showErrorDialog<bool?>(
+                  routerCtxt,
+                  barrierDismissible: false,
+                  title: 'Grant Location Permission',
+                  content: 'M11 needs your location permission',
+                  buttonText: 'Allow',
+                  onTapDismiss: () => routerCtxt.exit(true),
+                ).then((value) async {
+                  if (value.isTrue) {
+                    _shouldRequestPermission = true;
+                    await Geolocator.openAppSettings();
+                  }
+                });
+              }
             },
-            orElse: () {
-              AppRoute.login.go(routerCtxt);
-            },
-          );
-        },
-        builder: (_, state) {
-           return MaterialApp.router(
-            title: 'Shakti Hormann',
-            theme: AppMaterialTheme.lightTheme,
-            darkTheme: AppMaterialTheme.lightTheme,
-            routerConfig: AppRouterConfig.router,
-            debugShowCheckedModeBanner: false,
-          );
+          ),
           
-        },
+        ],
+        child: MaterialApp.router(
+          title: 'Shakti Hormann',
+          theme: AppMaterialTheme.lightTheme,
+          darkTheme: AppMaterialTheme.lightTheme,
+          routerConfig: AppRouterConfig.router,
+          debugShowCheckedModeBanner: false,
+        ),
       ),
     );
   }

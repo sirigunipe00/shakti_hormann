@@ -105,73 +105,69 @@ class LoadingCnfmRepoimpl extends BaseApiRepository implements LoadingCnfmRepo {
     });
   }
 
-  @override
-  AsyncValueOf<Pair<String, String>> createLoadingCnfm(
-    List<ItemModel> items,
-    String name,
-  ) async {
-    final cleanedItems = await Future.wait(
-      items.map((e) async {
-        final map = removeNullValues(e.toJson());
+@override
+AsyncValueOf<Pair<String, String>> createLoadingCnfm(
+  List<ItemModel> items,
+  String name,
+) async {
+  final cleanedItems = await Future.wait(
+    items.map((e) async {
+      final map = removeNullValues(e.toJson());
 
-        if (map.containsKey('sample_quantity')) {
-          map['qty_loaded'] = map['sample_quantity'];
-          map.remove('sample_quantity');
-        }
+      if (map.containsKey('sample_quantity')) {
+        map['qty_loaded'] = map['sample_quantity'];
+        map.remove('sample_quantity');
+      }
 
-        if (e.imageFile != null) {
-          final vehiclefrontcompressedBytes =
-              await FlutterImageCompress.compressWithFile(
-                e.imageFile!.path,
-                quality: 50,
-              );
+     
+      if (e.imageFile != null) {
+        final compressed = await FlutterImageCompress.compressWithFile(
+          e.imageFile!.path,
+          quality: 50,
+        );
 
-          map['loaded_item_photo'] =
-              vehiclefrontcompressedBytes == null
-                  ? null
-                  : base64Encode(vehiclefrontcompressedBytes);
-        } else if (e.loadedItemPhoto != null && e.loadedItemPhoto!.isNotEmpty) {
-          try {
-            final baseUrl = 'http://65.21.243.18:8000';
-            final uri = Uri.parse('$baseUrl${e.loadedItemPhoto}');
+        map['loaded_item_photo'] =
+            compressed == null ? null : base64Encode(compressed);
+      }
 
-            final response = await http.get(uri);
-            if (response.statusCode == 200) {
-              final bytes = response.bodyBytes;
-              map['loaded_item_photo'] = base64Encode(bytes);
-            } else {
-              map['loaded_item_photo'] = null;
-            }
-          } catch (err) {
+      else if (e.loadedItemPhoto != null && e.loadedItemPhoto!.isNotEmpty) {
+        try {
+          final base = Urls.baseUrl.replaceAll('/api', '');
+          final uri = Uri.parse('$base${e.loadedItemPhoto}');
+
+          final response = await http.get(uri);
+          if (response.statusCode == 200) {
+            map['loaded_item_photo'] = base64Encode(response.bodyBytes);
+          } else {
             map['loaded_item_photo'] = null;
           }
+        } catch (err) {
+          map['loaded_item_photo'] = null;
         }
+      }
 
-        return map;
-      }),
+      return map;
+    }),
+  );
+
+  final cleanedJson = {'name': name, 'items': cleanedItems};
+
+  return await executeSafely(() async {
+    final config = RequestConfig(
+      url: Urls.createLoadingConfirmation,
+      parser: (json) {
+        final message = json['message']['message'] as String;
+        return Pair(message, '');
+      },
+      body: jsonEncode(cleanedJson),
+      headers: {HttpHeaders.contentTypeHeader: 'application/json'},
     );
 
-    final cleanedJson = removeNullValues({'name': name, 'items': cleanedItems});
-    return await executeSafely(() async {
-      final config = RequestConfig(
-        url: Urls.createLoadingConfirmation,
-        parser: (json) {
-          final data = json['message']['message'] as String;
-          return Pair(data, '');
-        },
-        body: jsonEncode(cleanedJson),
-        headers: {HttpHeaders.contentTypeHeader: 'application/json'},
-      );
+    final response = await post(config);
+    return response.processAsync((r) async => right(r.data!));
+  });
+}
 
-      $logger.devLog('requestConfig.....$config');
-
-      final response = await post(config);
-
-      return response.processAsync((r) async {
-        return right(r.data!);
-      });
-    });
-  }
 
   @override
   AsyncValueOf<List<LogisticModel>> fetchLogisticList(String name) async {

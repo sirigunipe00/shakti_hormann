@@ -30,11 +30,10 @@ class GateExitRepoimpl extends BaseApiRepository implements GateExitRepo {
       filters.add(['name', 'like', '%$search%']);
     }
 
-        final plantName = user().plantName;
-  if (plantName != null && plantName.isNotEmpty) {
-    filters.add(['plant_name', '=', plantName]); 
-   
-  }
+    final plantName = user().plantName;
+    if (plantName != null && plantName.isNotEmpty) {
+      filters.add(['plant_name', '=', plantName]);
+    }
 
     final requestConfig = RequestConfig(
       url: Urls.getList,
@@ -192,22 +191,20 @@ class GateExitRepoimpl extends BaseApiRepository implements GateExitRepo {
   @override
   AsyncValueOf<List<SalesInvoiceForm>> fetchSalesInvoice(String name) async {
     return await executeSafely(() async {
-          final plantName = user().plantName;
+      final plantName = user().plantName;
 
       final reqParams = {
-        'limit_start': 0,
-          'limit_page_length': 'None',
-          'order_by': 'creation desc',
-          'doctype': 'SAP Sales Invoice',
-          'fields': ['*'],
+        'filters': [
+          ['gate_exit_created', '=', '0'],
+          if (plantName != null && plantName.isNotEmpty)
+            ['company', '=', plantName],
+        ],
+        'limit_page_length': 'None',
+        'order_by': 'creation desc',
+        'doctype': 'SAP Sales Invoice',
+        'fields': ['*'],
       };
 
-      if (plantName != null && plantName.isNotEmpty) {
-        reqParams['filters'] = [
-          ['company', '=', plantName],
-        ];
-      }
-     
       final config = RequestConfig(
         url: Urls.getList,
 
@@ -216,11 +213,13 @@ class GateExitRepoimpl extends BaseApiRepository implements GateExitRepo {
           final listdata = data as List<dynamic>;
           return listdata.map((e) => SalesInvoiceForm.fromJson(e)).toList();
         },
-        reqParams:reqParams,
+        reqParams: reqParams,
+
         headers: {HttpHeaders.contentTypeHeader: 'application/json'},
       );
-      $logger.devLog('salesinvoice.....$config');
+      $logger.devLog('..............$config');
       final response = await get(config);
+  
       return response.processAsync((r) async {
         return right((r.data!));
       });
@@ -232,13 +231,12 @@ class GateExitRepoimpl extends BaseApiRepository implements GateExitRepo {
       return null;
     }
 
-    final String url = 'https://shaktihormannuat.easycloud.co.in$relativePath';
+    final String url = Urls.filepath(relativePath);
 
     final response = await http.get(Uri.parse(url));
 
     if (response.statusCode == 200) {
-      Uint8List bytes = response.bodyBytes;
-      return bytes;
+      return response.bodyBytes;
     } else {
       throw Exception('Failed to load file: ${response.statusCode}');
     }

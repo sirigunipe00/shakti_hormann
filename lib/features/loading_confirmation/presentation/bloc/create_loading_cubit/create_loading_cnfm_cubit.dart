@@ -72,6 +72,7 @@ class CreateLoadingCnfmCubit extends AppBaseCubit<CreateLaodingCnfmState> {
         vehicleReportingEntryVreDate: entry.vehicleReportingEntryVreDate,
         linkedTransporterConfirmation: entry.linkedTransporterConfirmation,
         transporterName: entry.transporterName,
+        transporterName2: entry.transporterName2,
       );
       final mode = LoadingView.completed;
       emitSafeState(state.copyWith(form: updatedForm, view: mode));

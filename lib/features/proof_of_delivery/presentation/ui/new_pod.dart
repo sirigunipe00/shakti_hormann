@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:shakti_hormann/app/presentation/bloc/geo_permission/geo_permission_handler.dart';
+import 'package:shakti_hormann/app/presentation/bloc/geo_permission/geo_permission_state.dart';
 import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/features/gate_exit/model/sales_invoice_form.dart';
 import 'package:shakti_hormann/features/proof_of_delivery/presentation/bloc/bloc_provider.dart';
@@ -22,6 +25,28 @@ class NewPod extends StatefulWidget {
 
 class _NewPodState extends State<NewPod> {
   SalesInvoiceForm? invoiceform;
+  @override
+  void initState() {
+    super.initState();
+
+    // WidgetsBinding.instance.addPostFrameCallback((_) async {
+    //   final position = await determinePositionWithAlert(context);
+
+    //   if (position != null && mounted) {
+
+    //     context.read<CreatePodCubit>().onValueChanged(
+    //       geoLatitude: position.latitude,
+    //       geoLongitude: position.longitude,
+    //     );
+
+    //     debugPrint('📍 Latitude: ${position.latitude}, Longitude: ${position.longitude}');
+    //   }
+    // });
+
+    // final currentPosition =  Geolocator.getCurrentPosition();
+    // print('currentPosition: ${currentPosition.latitude}');
+    // print('currentPosition: ${currentPosition.longitude}');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,9 +57,6 @@ class _NewPodState extends State<NewPod> {
     final name = newform.name;
     final isCompleted = podState.view == PodView.completed;
 
-            
-
-
     final isNew = podState.view == PodView.create;
     return Scaffold(
       resizeToAvoidBottomInset: true,
@@ -43,28 +65,27 @@ class _NewPodState extends State<NewPod> {
           isNew
               ? SimpleAppBar(
                 title: 'New Proof Of Delivery',
-                actionButton:
-                    BlocBuilder<CreatePodCubit, CreatePodState>(
-                      builder: (context, state) {
-                        return AppButton(
-                          isLoading: state.isLoading,
-                          bgColor:
-                              state.view == PodView.create
-                                  ? const Color.fromARGB(255, 250, 193, 47)
-                                  : AppColors.green,
-                          textStyle: const TextStyle(
-                            color: AppColors.darkBlue,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 15,
-                          ),
-                          label: state.view.toName(),
-                          borderColor: Colors.grey,
-                          onPressed: () {
-                            context.cubit<CreatePodCubit>().save();
-                          },
-                        );
+                actionButton: BlocBuilder<CreatePodCubit, CreatePodState>(
+                  builder: (context, state) {
+                    return AppButton(
+                      isLoading: state.isLoading,
+                      bgColor:
+                          state.view == PodView.create
+                              ? const Color.fromARGB(255, 250, 193, 47)
+                              : AppColors.green,
+                      textStyle: const TextStyle(
+                        color: AppColors.darkBlue,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                      ),
+                      label: state.view.toName(),
+                      borderColor: Colors.grey,
+                      onPressed: () {
+                        context.cubit<CreatePodCubit>().save();
                       },
-                    ),
+                    );
+                  },
+                ),
 
                 dropdown: BlocBuilder<SalesInvoiceList, SalesInvoiceState>(
                   builder: (_, state) {
@@ -121,9 +142,7 @@ class _NewPodState extends State<NewPod> {
                               ),
                               if (item.customerName != null)
                                 Text('Customer Name : ${item.customerName}'),
-                              Text(
-                                'Order Date: ${DFU.ddMMyyyyFromStr(item.orderDate ?? '')} ',
-                              ),
+                              Text('Order Date: ${(item.orderDate ?? '')} '),
 
                               const Divider(height: 8),
                             ],
@@ -144,7 +163,7 @@ class _NewPodState extends State<NewPod> {
                     );
                   },
                 ),
-                
+
                 showScanner: false,
               )
               : PreferredSize(
@@ -157,10 +176,7 @@ class _NewPodState extends State<NewPod> {
                   actionButton:
                       (status == 1)
                           ? null
-                          : BlocBuilder<
-                            CreatePodCubit,
-                            CreatePodState
-                          >(
+                          : BlocBuilder<CreatePodCubit, CreatePodState>(
                             builder: (context, state) {
                               return AppButton(
                                 isLoading: state.isLoading,
@@ -187,19 +203,29 @@ class _NewPodState extends State<NewPod> {
                               .form
                               .salesInvoice ??
                           '';
-
                       return SearchDropDownList<SalesInvoiceForm>(
                         title: 'Invoice No',
                         hint: 'Search Invoice No',
                         key: UniqueKey(),
+
                         color: AppColors.white,
                         items: names,
                         readOnly: status == 1,
-                        defaultSelection: 
-                        names.firstWhere(
-                          (item) => item.name == selectedOrders,
-                          orElse: () => const SalesInvoiceForm(),
-                        ),
+
+                        defaultSelection: () {
+                          if (names.isEmpty || selectedOrders.isNull) {
+                            return null;
+                          }
+
+                          final selected = names.firstWhere(
+                            (item) => item.name == selectedOrders,
+                            orElse:
+                                () => SalesInvoiceForm(name: selectedOrders),
+                          );
+
+                          return selected;
+                        }(),
+
                         isloading: state.isLoading,
                         futureRequest: (query) async {
                           if (query.isEmpty) return names;
@@ -220,9 +246,13 @@ class _NewPodState extends State<NewPod> {
                               children: [
                                 Text(
                                   item.name ?? '',
-                                  style:  TextStyle(
+                                  style: TextStyle(
                                     fontWeight: FontWeight.bold,
-                                    color: isCompleted ? AppColors.white : AppColors.black,
+                                    // color: AppColors.white
+                                    color:
+                                        isCompleted
+                                            ? AppColors.white
+                                            : AppColors.black,
                                   ),
                                 ),
                               ],
@@ -239,9 +269,7 @@ class _NewPodState extends State<NewPod> {
                                 ),
                                 if (item.customerName != null)
                                   Text('Customer Name : ${item.customerName}'),
-                                Text(
-                                  'Order Date: ${DFU.ddMMyyyyFromStr(item.orderDate ?? '')} ',
-                                ),
+                                Text('Order Date: ${(item.orderDate ?? '')} '),
 
                                 const Divider(height: 8),
                               ],
@@ -255,7 +283,6 @@ class _NewPodState extends State<NewPod> {
                             plantName: selected.plantName,
                             salesInvoiceDate: selected.orderDate,
                             customerName: selected.customerName,
-                            
                           );
                         },
 
@@ -263,7 +290,7 @@ class _NewPodState extends State<NewPod> {
                       );
                     },
                   ),
-                 
+
                   showScanner: false,
                   textColor: Colors.white,
                   pageMode: PageMode2.proofOfDelivery,
@@ -284,8 +311,7 @@ class _NewPodState extends State<NewPod> {
               if (!context.mounted) return;
               context.cubit<CreatePodCubit>().errorHandled();
 
-              final podFilters =
-                  context.read<PodFiltersCubit>().state;
+              final podFilters = context.read<PodFiltersCubit>().state;
               context.cubit<ProofOfDeliveryCubit>().fetchInitial(
                 Pair(
                   StringUtils.docStatusInt(podFilters.status),
@@ -311,5 +337,6 @@ class _NewPodState extends State<NewPod> {
         child: PodFormWidget(key: ValueKey(status)),
       ),
     );
+    // );
   }
 }

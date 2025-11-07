@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shakti_hormann/app/presentation/bloc/app_update_bloc_provider.dart';
+import 'package:shakti_hormann/app/presentation/bloc/geo_permission/geo_permission_handler.dart';
+import 'package:shakti_hormann/app/presentation/bloc/location_distance/location_distance_cubit.dart';
 import 'package:shakti_hormann/app/presentation/ui/app_profile_page.dart';
 import 'package:shakti_hormann/app/presentation/ui/app_home_page.dart';
 import 'package:shakti_hormann/app/presentation/ui/app_splash_scrn.dart';
@@ -50,6 +52,7 @@ import 'package:shakti_hormann/widgets/dailogs/app_dialogs.dart';
 
 class AppRouterConfig {
   static final parentNavigatorKey = GlobalKey<NavigatorState>();
+  static final context = parentNavigatorKey.currentState!.context;
 
   static int dashboardStatus = 0;
 
@@ -252,6 +255,7 @@ class AppRouterConfig {
                           final bloc = LogisticPlanningBlocProvider.get();
                           final logisticForm =
                               state.extra as LogisticPlanningForm?;
+
                           return MultiBlocProvider(
                             providers: [
                               BlocProvider(
@@ -469,16 +473,40 @@ class AppRouterConfig {
                   GoRoute(
                     path: _getPath(AppRoute.proofOfDelivery),
                     builder: (ctxt, state) {
+                      final form = state.extra as ProofOfDelivery?;
+
                       final filters = Pair(
                         StringUtils.docStatusInt('Draft'),
                         null,
                       );
-                      return BlocProvider(
-                        create:
-                            (context) =>
-                                ProofOfDeliveryBlocProvider.get()
-                                    .fetchProofOfDelivery()
-                                  ..fetchInitial(filters),
+                      return MultiBlocProvider(
+                        providers: [
+                          BlocProvider(
+                            create:
+                                (context) =>
+                                    ProofOfDeliveryBlocProvider.get()
+                                        .fetchProofOfDelivery()
+                                      ..fetchInitial(filters),
+                          ),
+
+                          BlocProvider(
+                            create:
+                                (_) =>
+                                    $sl.get<CreatePodCubit>()
+                                      ..initDetails(form),
+                          ),
+
+                          BlocProvider(
+                            create:
+                                (_) =>
+                                    $sl.get<CreatePodCubit>()
+                                      ..initDetails(form),
+                          ),
+
+                           BlocProvider(
+                      create: (_) => LocationDistanceCubit()..enableLocation()),
+                        ],
+
                         child: const PodListScrn(),
                       );
                     },
@@ -507,6 +535,7 @@ class AppRouterConfig {
                                         blocprovider.salesInvoiceList()
                                           ..request(''),
                               ),
+
                               // BlocProvider(create: (_)=> blocprovider.getItems()..request(form.name ?? '')),
                               BlocProvider(
                                 create:

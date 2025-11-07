@@ -5,7 +5,6 @@ import 'package:shakti_hormann/features/proof_of_delivery/presentation/bloc/crea
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/widgets/input_filed.dart';
 import 'package:shakti_hormann/widgets/inputs/date_picker_field.dart';
-import 'package:shakti_hormann/widgets/inputs/geolocator.dart';
 import 'package:shakti_hormann/widgets/inputs/new_upload_photo_widget.dart';
 import 'package:shakti_hormann/widgets/sectionheader.dart';
 import 'package:shakti_hormann/widgets/spaced_column.dart';
@@ -18,56 +17,70 @@ class PodFormWidget extends StatefulWidget {
   State<PodFormWidget> createState() => _PodFormWidgetState();
 }
 
-class _PodFormWidgetState extends State<PodFormWidget> {
+class _PodFormWidgetState extends State<PodFormWidget>  with WidgetsBindingObserver{
   final ScrollController _scrollController = ScrollController();
   DateTime? selectedDate;
 
   double? latitude;
   double? longitude;
 
-  @override
-  void initState() {
-    super.initState();
-    _fillCurrentLocation();
-  }
+//     @override
+//   void initState() {
+//     super.initState();
+//     WidgetsBinding.instance.addObserver(this); // ✅ listen app lifecycle
+//     _fillCurrentLocation();
+//   }
 
- void _fillCurrentLocation() async {
-    final position = await determinePosition();
+//   @override
+//   void dispose() {
+//     WidgetsBinding.instance.removeObserver(this);
+//     super.dispose();
+//   }
 
-    if (position != null) {
-      // Update local state
-      setState(() {
-        latitude = position.latitude;
-        longitude = position.longitude;
-      });
+//   // ✅ Called when app resumes from settings
+//   @override
+//   void didChangeAppLifecycleState(AppLifecycleState state) {
+//     if (state == AppLifecycleState.resumed) {
+//       _fillCurrentLocation();
+//     }
+//   }
 
-      // Debug log
-      $logger.devLog('Current Position: Lat=$latitude, Lng=$longitude');
+// void _fillCurrentLocation() async {
+//   final position = await determinePositionWithAlert(context);
 
-      // Update Cubit state
-      context.read<CreatePodCubit>().onValueChanged(
-            geoLatitude: latitude,
-            geoLongitude: longitude,
-          );
+//   if (!mounted) return; // ✅ widget already disposed
 
-      // Log after updating Cubit state
-      final newForm = context.read<CreatePodCubit>().state.form;
-      $logger.devLog(
-          'Cubit Updated: geoLatitude=${newForm.geoLatitude}, geoLongitude=${newForm.geoLongitude}');
-    } else {
-      $logger.devLog('Could not fetch user location.');
-    }
-  }
+//   if (position != null) {
+//     if (mounted) {
+//       setState(() {
+//         latitude = position.latitude;
+//         longitude = position.longitude;
+//       });
+//     }
 
+//     $logger.devLog('Current Position: Lat=$latitude, Lng=$longitude');
 
-  final focusNodes = List.generate(40, (index) => FocusNode());
+//     if (mounted) {
+//       context.read<CreatePodCubit>().onValueChanged(
+//             geoLatitude: latitude,
+//             geoLongitude: longitude,
+//           );
+//     }
+//   } else {
+//     $logger.devLog('Could not fetch user location.');
+//   }
+// }
+
+ final focusNodes = List.generate(40, (index) => FocusNode());
   @override
   Widget build(BuildContext context) {
     final formState = context.read<CreatePodCubit>().state;
 
     final isCompleted = formState.view == PodView.completed;
     final newform = formState.form;
-    $logger.devLog('date.........${newform.salesInvoiceDate}');
+    
+    $logger.devLog('Sending LAT: ${newform.geoLatitude}, LNG: ${newform.geoLongitude}');
+
 
     return MultiBlocListener(
       listeners: [
@@ -172,40 +185,40 @@ class _PodFormWidgetState extends State<PodFormWidget> {
                         // );
                       },
                     ),
-                    BlocBuilder<CreatePodCubit, CreatePodState>(
-                      builder: (context, state) {
-                        return InputField(
-                                          title: 'Latitude',
-                                          hintText: 'Latitude',
-                                          readOnly: true,
-                                          isRequired: true,
-                                          borderColor: AppColors.grey,
-                                          initialValue: latitude?.toString() ?? newform.geoLatitude?.toString() ?? '',
-                                          onChanged:
-                                              (p0) => context
-                                                  .cubit<CreatePodCubit>()
-                                                  .onValueChanged(geoLatitude: double.tryParse(p0)),
-                                        );
-                      },
-                    ),
-                    BlocBuilder<CreatePodCubit, CreatePodState>(
-                      builder: (context, state) {
-                        return InputField(
-                          title: 'Longitude',
-                          hintText: 'Longitude',
-                          readOnly: true,
-                          isRequired: true,
-                          borderColor: AppColors.grey,
-                          initialValue:  longitude?.toString() ??  newform.geoLongitude?.toString() ?? '',
-                          onChanged:
-                              (p0) => context
-                                  .cubit<CreatePodCubit>()
-                                  .onValueChanged(
-                                    geoLongitude: double.tryParse(p0),
-                                  ),
-                        );
-                      },
-                    ),
+                    // BlocBuilder<CreatePodCubit, CreatePodState>(
+                    //   builder: (context, state) {
+                    //     return InputField(
+                    //                       title: 'Latitude',
+                    //                       hintText: 'Latitude',
+                    //                       readOnly: true,
+                    //                       isRequired: true,
+                    //                       borderColor: AppColors.grey,
+                    //                       initialValue: latitude?.toString() ?? newform.geoLatitude?.toString() ?? '',
+                    //                       onChanged:
+                    //                           (p0) => context
+                    //                               .cubit<CreatePodCubit>()
+                    //                               .onValueChanged(geoLatitude: double.tryParse(p0)),
+                    //                     );
+                    //   },
+                    // ),
+                    // BlocBuilder<CreatePodCubit, CreatePodState>(
+                    //   builder: (context, state) {
+                    //     return InputField(
+                    //       title: 'Longitude',
+                    //       hintText: 'Longitude',
+                    //       readOnly: true,
+                    //       isRequired: true,
+                    //       borderColor: AppColors.grey,
+                    //       initialValue:  longitude?.toString() ??  newform.geoLongitude?.toString() ?? '',
+                    //       onChanged:
+                    //           (p0) => context
+                    //               .cubit<CreatePodCubit>()
+                    //               .onValueChanged(
+                    //                 geoLongitude: double.tryParse(p0),
+                    //               ),
+                    //     );
+                    //   },
+                    // ),
                   ],
                 ),
               ),

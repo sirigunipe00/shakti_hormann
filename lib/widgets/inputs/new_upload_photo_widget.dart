@@ -88,10 +88,13 @@ class _NewUploadPhotoWidgetState extends State<NewUploadPhotoWidget>
 
   String getFullImageUrl(String? url) {
     if (url == null || url.isEmpty) return '';
+
     if (url.startsWith('http://') || url.startsWith('https://')) {
       return url;
     }
-    return 'http://65.21.243.18:8000$url';
+
+    final base = Urls.baseUrl.replaceAll('/api', '');
+    return '$base$url';
   }
 
   @override
@@ -111,8 +114,8 @@ class _NewUploadPhotoWidgetState extends State<NewUploadPhotoWidget>
                     imageUrl: widget.imageUrl,
                     image: _selectedImage,
                     title: widget.title.valueOrEmpty,
-                    isReadOnly: true, 
-                    onRetake: () {},  
+                    isReadOnly: true,
+                    onRetake: () {},
                     onDone: () {
                       Navigator.pop(context);
                     },
@@ -122,7 +125,6 @@ class _NewUploadPhotoWidgetState extends State<NewUploadPhotoWidget>
               return;
             }
 
-            
             if (_photoState == PhotoState.view) {
               context.goToPage(
                 ImagePreviewPage(
@@ -153,37 +155,38 @@ class _NewUploadPhotoWidgetState extends State<NewUploadPhotoWidget>
                 color: _getBgColor(widget.fileName),
               ),
               child: ClipOval(
-                child: _photoState == PhotoState.capture
-                    ? Padding(
-                        padding: const EdgeInsets.all(12),
-                        child: SvgPicture.asset(
-                          'assets/images/${widget.fileName}.svg',
-                          fit: BoxFit.contain,
-                        ),
-                      )
-                    : (_selectedImage != null
-                        ? Image.file(_selectedImage!, fit: BoxFit.cover)
-                        : (widget.imageUrl != null
-                            ? Image.network(
-                                getFullImageUrl(widget.imageUrl),
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return Padding(
-                                    padding: const EdgeInsets.all(12),
-                                    child: SvgPicture.asset(
-                                      'assets/images/${widget.fileName}.svg',
-                                      fit: BoxFit.contain,
-                                    ),
-                                  );
-                                },
-                              )
-                            : Padding(
-                                padding: const EdgeInsets.all(12),
-                                child: SvgPicture.asset(
-                                  'assets/images/${widget.fileName}.svg',
-                                  fit: BoxFit.contain,
-                                ),
-                              ))),
+                child:
+                    _photoState == PhotoState.capture
+                        ? Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: SvgPicture.asset(
+                            'assets/images/${widget.fileName}.svg',
+                            fit: BoxFit.contain,
+                          ),
+                        )
+                        : (_selectedImage != null
+                            ? Image.file(_selectedImage!, fit: BoxFit.cover)
+                            : (widget.imageUrl != null
+                                ? Image.network(
+                                  getFullImageUrl(widget.imageUrl),
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Padding(
+                                      padding: const EdgeInsets.all(12),
+                                      child: SvgPicture.asset(
+                                        'assets/images/${widget.fileName}.svg',
+                                        fit: BoxFit.contain,
+                                      ),
+                                    );
+                                  },
+                                )
+                                : Padding(
+                                  padding: const EdgeInsets.all(12),
+                                  child: SvgPicture.asset(
+                                    'assets/images/${widget.fileName}.svg',
+                                    fit: BoxFit.contain,
+                                  ),
+                                ))),
               ),
             ),
           ),
@@ -195,7 +198,7 @@ class _NewUploadPhotoWidgetState extends State<NewUploadPhotoWidget>
   }
 }
 
-class ImagePreviewPage extends StatelessWidget {
+class ImagePreviewPage extends StatefulWidget {
   const ImagePreviewPage({
     super.key,
     required this.image,
@@ -213,58 +216,105 @@ class ImagePreviewPage extends StatelessWidget {
   final VoidCallback onDone;
   final bool isReadOnly;
 
+  @override
+  State<ImagePreviewPage> createState() => _ImagePreviewPageState();
+}
+
+class _ImagePreviewPageState extends State<ImagePreviewPage> {
+  double rotationAngle = 0.0;
+
+  void _rotateImage() {
+    setState(() {
+      rotationAngle += 90 * 3.1415926535 / 180;
+    });
+  }
+
   String getFullImageUrl(String? url) {
     if (url == null || url.isEmpty) return '';
-    if (url.startsWith('http://') || url.startsWith('https://')) {
-      return url;
-    }
-    return 'http://65.21.243.18:8000$url';
+    if (url.startsWith('http://') || url.startsWith('https://')) return url;
+    final base = Urls.baseUrl.replaceAll('/api', '');
+    return '$base$url';
   }
 
   @override
   Widget build(BuildContext context) {
+    Widget imageWidget;
+
+    if (widget.image != null) {
+      imageWidget = Image.file(widget.image!, fit: BoxFit.contain);
+    } else if (widget.imageUrl.containsValidValue) {
+      imageWidget = Image.network(
+        getFullImageUrl(widget.imageUrl),
+        fit: BoxFit.contain,
+      );
+    } else {
+      imageWidget = const Icon(Icons.broken_image, size: 100);
+    }
+
     return Scaffold(
-      backgroundColor: AppColors.white,
+      backgroundColor: Colors.black,
       appBar: AppBar(
-        backgroundColor: AppColors.white,
-        title: Text(
-          title,
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-            color: AppColors.black,
-          ),
-        ),
+        backgroundColor: Colors.black,
+        iconTheme: const IconThemeData(color: Colors.white),
+        title: Text(widget.title, style: const TextStyle(color: Colors.white)),
       ),
       body: SafeArea(
-  child: Column(
-    children: [
-      Expanded(
-        child: image != null
-            ? Card(
-                margin: const EdgeInsets.all(16),
-                shape: Border.all(color: AppColors.green),
-                child: Image.file(image!, fit: BoxFit.contain, width: double.infinity),
-              )
-            : (imageUrl.containsValidValue
-                ? Card(
-                    margin: const EdgeInsets.all(16),
-                    shape: Border.all(color: AppColors.green),
-                    child: Image.network(getFullImageUrl(imageUrl), fit: BoxFit.contain),
-                  )
-                : const SizedBox()),
+        child: Stack(
+          children: [
+            Center(
+              child: InteractiveViewer(
+                panEnabled: true,
+                minScale: 0.1,
+                maxScale: 5.0,
+                clipBehavior: Clip.none,
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    return SizedBox(
+                      width: constraints.maxWidth,
+                      height: constraints.maxHeight,
+                      child: FittedBox(
+                        fit: BoxFit.contain,
+                        child: Transform.rotate(
+                          angle: rotationAngle,
+                          child: imageWidget,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+
+            Positioned(
+              bottom: 16,
+              right: 16,
+              child: FloatingActionButton(
+                backgroundColor: Colors.white,
+                onPressed: _rotateImage,
+                child: const Icon(Icons.rotate_right, color: Colors.black),
+              ),
+            ),
+          ],
+        ),
       ),
-      Padding(
+      bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(16),
         child: Row(
           children: [
-            if (!isReadOnly) ...[
+            if (!widget.isReadOnly) ...[
               Expanded(
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.darkBlue,
                   ),
-                  onPressed: onRetake,
-                  child: const Text('RETAKE',style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),),
+                  onPressed: widget.onRetake,
+                  child: const Text(
+                    'RETAKE',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
               ),
               const SizedBox(width: 12),
@@ -274,17 +324,19 @@ class ImagePreviewPage extends StatelessWidget {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.green,
                 ),
-                onPressed: onDone,
-                child: const Text('DONE',style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),),
+                onPressed: widget.onDone,
+                child: const Text(
+                  'DONE',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
             ),
           ],
         ),
       ),
-    ],
-  ),
-),
-
     );
   }
 }
@@ -298,7 +350,7 @@ Color _getBgColor(String fileName) {
     case 'vehicleinvoice':
       return const Color(0xFFf2eeff);
     case 'driverid':
-       return const Color(0xFF3681F2).withValues(alpha: 0.15);
+      return const Color(0xFF3681F2).withValues(alpha: 0.15);
     default:
       return Colors.grey.shade200;
   }

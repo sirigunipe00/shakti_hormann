@@ -85,13 +85,7 @@ class GateExitWidget extends StatelessWidget {
                             ],
                           ),
 
-                          // Text(
-                          //   '(SHM)',
-                          //   style: AppTextStyles.titleLarge(context).copyWith(
-                          //     color: const Color(0xFF2957A4),
-                          //     fontWeight: FontWeight.bold,
-                          //   ),
-                          // ),
+                       
                         ],
                       ),
 
@@ -155,7 +149,7 @@ class GateExitWidget extends StatelessWidget {
 
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              // crossAxisAlignment: CrossAxisAlignment.start,
+      
               children: [
                 Text(
                   gateExit.salesInvoice ?? '',

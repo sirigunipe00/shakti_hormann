@@ -231,19 +231,22 @@ class PodRepoImpl extends BaseApiRepository implements ProofOfDeliveryRepo {
   AsyncValueOf<List<SalesInvoiceForm>> fetchSalesInvoice(String name) async {
     return await executeSafely(() async {
        final plantName = user().plantName;
-       final filters = <List<dynamic>>[];
+      //  final filters = <List<dynamic>>[];
 
-    if (plantName != null && plantName.isNotEmpty) {
-      filters.add(['company', '=', plantName]);
-    }  
+   
 
       final reqParams = {
+         'filters': [
+          ['pod', '=', '0'],
+          if (plantName != null && plantName.isNotEmpty)
+            ['company', '=', plantName],
+        ],
         'limit_start': 0,
         'limit_page_length': 'None',
-        'oreder_by': 'create desc',
+        'order_by': 'creation desc',
         'doctype': 'SAP Sales Invoice',
        'fields': jsonEncode(['*']),   
-      'filters': jsonEncode(filters), 
+     
       };
 
    
@@ -267,21 +270,20 @@ class PodRepoImpl extends BaseApiRepository implements ProofOfDeliveryRepo {
     });
   }
 
-  Future<Uint8List?> fetchAndConvertToBase64(String relativePath) async {
-    if (p.extension(relativePath).isEmpty) {
-      return null;
-    }
-
-    final String url = 'https://shaktihormannuat.easycloud.co.in$relativePath';
-
-    final response = await http.get(Uri.parse(url));
-
-    if (response.statusCode == 200) {
-      Uint8List bytes = response.bodyBytes;
-
-      return bytes;
-    } else {
-      throw Exception('Failed to load file: ${response.statusCode}');
-    }
+Future<Uint8List?> fetchAndConvertToBase64(String relativePath) async {
+  if (p.extension(relativePath).isEmpty) {
+    return null;
   }
+
+  final String url = Urls.filepath(relativePath);
+
+  final response = await http.get(Uri.parse(url));
+
+  if (response.statusCode == 200) {
+    return response.bodyBytes;
+  } else {
+    throw Exception('Failed to load file: ${response.statusCode}');
+  }
+}
+
 }
