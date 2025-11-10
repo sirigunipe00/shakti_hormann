@@ -436,6 +436,7 @@ class AppRouterConfig {
                           final blocprovider = LoadingCnfmBlocProvider.get();
                           final form = state.extra as LoadingCnfmForm;
                           // final forms = state.extra as LogisticModel;
+                          $logger.devLog('.....$form');
                           return MultiBlocProvider(
                             providers: [
                               BlocProvider(
@@ -495,6 +496,11 @@ class AppRouterConfig {
                                     $sl.get<CreatePodCubit>()
                                       ..initDetails(form),
                           ),
+                              BlocProvider<GeoPermissionHandler>(
+                            create:
+                                (_) =>
+                                    GeoPermissionHandler()..checkPermission(),
+                          ),
 
                           BlocProvider(
                             create:
@@ -502,9 +508,7 @@ class AppRouterConfig {
                                     $sl.get<CreatePodCubit>()
                                       ..initDetails(form),
                           ),
-
-                           BlocProvider(
-                      create: (_) => LocationDistanceCubit()..enableLocation()),
+                        
                         ],
 
                         child: const PodListScrn(),
@@ -536,7 +540,12 @@ class AppRouterConfig {
                                           ..request(''),
                               ),
 
-                              // BlocProvider(create: (_)=> blocprovider.getItems()..request(form.name ?? '')),
+                              BlocProvider(
+                                create:
+                                    (_) =>
+                                        $sl.get<LocationDistanceCubit>()
+                                          ..getCurrentLocation(),
+                              ),
                               BlocProvider(
                                 create:
                                     (_) =>

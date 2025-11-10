@@ -12,24 +12,20 @@ class GeoPermissionHandler extends AppBaseCubit<GeoPermissionState> {
 
   int count = 0;
   void checkPermission() async {
-    print('check permission');
+    log('checkPermission          ........');
     await Future.delayed(const Duration(milliseconds: 300));
     try {
       emitSafeState(const Initial());
       final isServEnabled = await Geolocator.isLocationServiceEnabled();
-
-      log('isServEnabled...:$isServEnabled');
       if (!isServEnabled) await Geolocator.requestPermission();
 
       final permissionStatus = await Geolocator.checkPermission();
-      log('permissionStatus..:$permissionStatus');
       if(permissionStatus != LocationPermission.whileInUse) {
         if (permissionStatus == LocationPermission.denied) {
           count++;
           if(count > 2) {
             return emitSafeState(const GeoLocationDeniedForever());
           }
-          print('GeoLocationDenied');
           return emitSafeState(const GeoLocationDenied());
         }
         if (permissionStatus == LocationPermission.deniedForever) {
@@ -57,5 +53,9 @@ class GeoPermissionHandler extends AppBaseCubit<GeoPermissionState> {
     } on Exception catch (e, st) {
       $logger.error('[GeoPermissionHandler]', e, st);
     }
+  }
+
+  void check() {
+    print('check...');
   }
 }

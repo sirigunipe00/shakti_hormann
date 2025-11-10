@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:shakti_hormann/app/presentation/bloc/geo_permission/geo_permission_handler.dart';
-import 'package:shakti_hormann/app/presentation/bloc/geo_permission/geo_permission_state.dart';
 import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/features/gate_exit/model/sales_invoice_form.dart';
 import 'package:shakti_hormann/features/proof_of_delivery/presentation/bloc/bloc_provider.dart';
@@ -23,30 +21,35 @@ class NewPod extends StatefulWidget {
   State<NewPod> createState() => _NewPodState();
 }
 
-class _NewPodState extends State<NewPod> {
+class _NewPodState extends State<NewPod> with WidgetsBindingObserver {
   SalesInvoiceForm? invoiceform;
-  @override
-  void initState() {
-    super.initState();
 
-    // WidgetsBinding.instance.addPostFrameCallback((_) async {
-    //   final position = await determinePositionWithAlert(context);
+  // bool _isCheckingPermission = false;
 
-    //   if (position != null && mounted) {
+  // @override
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   WidgetsBinding.instance.addObserver(this);
+  // }
 
-    //     context.read<CreatePodCubit>().onValueChanged(
-    //       geoLatitude: position.latitude,
-    //       geoLongitude: position.longitude,
-    //     );
+  // @override
+  // void dispose() {
+  //   WidgetsBinding.instance.removeObserver(this);
+  //   super.dispose();
+  // }
 
-    //     debugPrint('📍 Latitude: ${position.latitude}, Longitude: ${position.longitude}');
-    //   }
-    // });
+  // @override
+  // void didChangeAppLifecycleState(AppLifecycleState state) {
+  //   if (state == AppLifecycleState.resumed && !_isCheckingPermission) {
+  //     _isCheckingPermission = true;
+  //     context.cubit<GeoPermissionHandler>().checkPermission();
 
-    // final currentPosition =  Geolocator.getCurrentPosition();
-    // print('currentPosition: ${currentPosition.latitude}');
-    // print('currentPosition: ${currentPosition.longitude}');
-  }
+  //     Future.delayed(const Duration(milliseconds: 500), () {
+  //       _isCheckingPermission = false;
+  //     });
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -334,7 +337,10 @@ class _NewPodState extends State<NewPod> {
           }
         },
 
-        child: PodFormWidget(key: ValueKey(status)),
+        child: BlocProvider<GeoPermissionHandler>(
+          create: (context) => GeoPermissionHandler()..checkPermission(),
+          child: PodFormWidget(key: ValueKey(status)),
+        ),
       ),
     );
     // );

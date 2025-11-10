@@ -266,36 +266,49 @@ class _SearchMultiDropDownListState<T>
                   border: Border.all(color: borderColor, width: 1),
                   borderRadius: BorderRadius.circular(8.0),
                 ),
-                child:
-                    _selectedValues.isNotEmpty
-                        ? Text(
-                          _selectedValues
-                              .map((e) {
-                                if (e is PurchaseOrderForm) {
-                                  return e.name ?? '';
-                                } else if (e is SalesOrderForm) {
-                                  return e.name ?? '';
-                                }
-                                return e.toString();
-                              })
-                              .where((name) => name.isNotEmpty)
-                              .join(', '),
-                          style: context.textTheme.titleMedium?.copyWith(
-                            color: widget.readOnly ? AppColors.white : AppColors.black,
-                            fontWeight: FontWeight.w600,
-                            fontFamily: 'Urbanist',
-                          ),
-                          maxLines: 10,
-                          overflow: TextOverflow.ellipsis,
-                        )
-                        : Text(
-                          widget.hint ?? 'Select items',
-                          style: context.textTheme.titleMedium?.copyWith(
-                            color: AppColors.black.withValues(alpha: 0.6),
-                            fontWeight: FontWeight.w400,
-                            fontFamily: 'Urbanist',
-                          ),
-                        ),
+          child: widget.isloading
+    ? const Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children:  [
+          SizedBox(
+            height: 20,
+            width: 20,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ),
+          SizedBox(width: 10),
+          Text(
+            'Loading...',
+            style: TextStyle(fontSize: 14),
+          ),
+        ],
+      )
+    : _selectedValues.isNotEmpty
+        ? Text(
+            _selectedValues
+                .map((e) {
+                  if (e is PurchaseOrderForm) return e.name ?? '';
+                  if (e is SalesOrderForm) return e.name ?? '';
+                  return e.toString();
+                })
+                .where((name) => name.isNotEmpty)
+                .join(', '),
+            style: context.textTheme.titleMedium?.copyWith(
+              color: widget.readOnly ? AppColors.white : AppColors.black,
+              fontWeight: FontWeight.w600,
+              fontFamily: 'Urbanist',
+            ),
+            maxLines: 10,
+            overflow: TextOverflow.ellipsis,
+          )
+        : Text(
+            widget.hint ?? 'Select items',
+            style: context.textTheme.titleMedium?.copyWith(
+              color: AppColors.black.withValues(alpha: 0.6),
+              fontWeight: FontWeight.w400,
+              fontFamily: 'Urbanist',
+            ),
+          ),
+
 
                 // Wrap(
                 //   spacing: 8,

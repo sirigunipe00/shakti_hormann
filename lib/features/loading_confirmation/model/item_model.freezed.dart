@@ -116,6 +116,8 @@ mixin _$ItemModel {
   int? get retainSample => throw _privateConstructorUsedError;
   @JsonKey(name: 'sample_quantity')
   int? get sampleQuantity => throw _privateConstructorUsedError;
+  @JsonKey(name: 'item_row_name')
+  String? get itemrowName => throw _privateConstructorUsedError;
   @JsonKey(name: 'has_serial_no')
   int? get hasSerialNo => throw _privateConstructorUsedError;
   @JsonKey(name: 'serial_no_series')
@@ -262,6 +264,7 @@ abstract class $ItemModelCopyWith<$Res> {
     @JsonKey(name: 'has_expiry_date') int? hasExpiryDate,
     @JsonKey(name: 'retain_sample') int? retainSample,
     @JsonKey(name: 'sample_quantity') int? sampleQuantity,
+    @JsonKey(name: 'item_row_name') String? itemrowName,
     @JsonKey(name: 'has_serial_no') int? hasSerialNo,
     @JsonKey(name: 'serial_no_series') String? serialNoSeries,
     @JsonKey(name: 'variant_of') String? variantOf,
@@ -375,6 +378,7 @@ class _$ItemModelCopyWithImpl<$Res, $Val extends ItemModel>
     Object? hasExpiryDate = freezed,
     Object? retainSample = freezed,
     Object? sampleQuantity = freezed,
+    Object? itemrowName = freezed,
     Object? hasSerialNo = freezed,
     Object? serialNoSeries = freezed,
     Object? variantOf = freezed,
@@ -650,6 +654,11 @@ class _$ItemModelCopyWithImpl<$Res, $Val extends ItemModel>
                     ? _value.sampleQuantity
                     : sampleQuantity // ignore: cast_nullable_to_non_nullable
                         as int?,
+            itemrowName:
+                freezed == itemrowName
+                    ? _value.itemrowName
+                    : itemrowName // ignore: cast_nullable_to_non_nullable
+                        as String?,
             hasSerialNo:
                 freezed == hasSerialNo
                     ? _value.hasSerialNo
@@ -900,6 +909,7 @@ abstract class _$$ItemModelImplCopyWith<$Res>
     @JsonKey(name: 'has_expiry_date') int? hasExpiryDate,
     @JsonKey(name: 'retain_sample') int? retainSample,
     @JsonKey(name: 'sample_quantity') int? sampleQuantity,
+    @JsonKey(name: 'item_row_name') String? itemrowName,
     @JsonKey(name: 'has_serial_no') int? hasSerialNo,
     @JsonKey(name: 'serial_no_series') String? serialNoSeries,
     @JsonKey(name: 'variant_of') String? variantOf,
@@ -1012,6 +1022,7 @@ class __$$ItemModelImplCopyWithImpl<$Res>
     Object? hasExpiryDate = freezed,
     Object? retainSample = freezed,
     Object? sampleQuantity = freezed,
+    Object? itemrowName = freezed,
     Object? hasSerialNo = freezed,
     Object? serialNoSeries = freezed,
     Object? variantOf = freezed,
@@ -1287,6 +1298,11 @@ class __$$ItemModelImplCopyWithImpl<$Res>
                 ? _value.sampleQuantity
                 : sampleQuantity // ignore: cast_nullable_to_non_nullable
                     as int?,
+        itemrowName:
+            freezed == itemrowName
+                ? _value.itemrowName
+                : itemrowName // ignore: cast_nullable_to_non_nullable
+                    as String?,
         hasSerialNo:
             freezed == hasSerialNo
                 ? _value.hasSerialNo
@@ -1530,6 +1546,7 @@ class _$ItemModelImpl implements _ItemModel {
     @JsonKey(name: 'has_expiry_date') this.hasExpiryDate,
     @JsonKey(name: 'retain_sample') this.retainSample,
     @JsonKey(name: 'sample_quantity') this.sampleQuantity,
+    @JsonKey(name: 'item_row_name') this.itemrowName,
     @JsonKey(name: 'has_serial_no') this.hasSerialNo,
     @JsonKey(name: 'serial_no_series') this.serialNoSeries,
     @JsonKey(name: 'variant_of') this.variantOf,
@@ -1725,6 +1742,9 @@ class _$ItemModelImpl implements _ItemModel {
   @JsonKey(name: 'sample_quantity')
   final int? sampleQuantity;
   @override
+  @JsonKey(name: 'item_row_name')
+  final String? itemrowName;
+  @override
   @JsonKey(name: 'has_serial_no')
   final int? hasSerialNo;
   @override
@@ -1842,7 +1862,7 @@ class _$ItemModelImpl implements _ItemModel {
 
   @override
   String toString() {
-    return 'ItemModel(name: $name, owner: $owner, creation: $creation, modified: $modified, modifiedBy: $modifiedBy, docstatus: $docstatus, idx: $idx, uomValue: $uomValue, qty: $qty, namingSeries: $namingSeries, itemCode: $itemCode, itemName: $itemName, itemGroup: $itemGroup, gstHsnCode: $gstHsnCode, stockUom: $stockUom, customGateNumber: $customGateNumber, disabled: $disabled, allowAlternativeItem: $allowAlternativeItem, isStockItem: $isStockItem, hasVariants: $hasVariants, openingStock: $openingStock, valuationRate: $valuationRate, standardRate: $standardRate, isFixedAsset: $isFixedAsset, autoCreateAssets: $autoCreateAssets, isGroupedAsset: $isGroupedAsset, assetCategory: $assetCategory, assetNamingSeries: $assetNamingSeries, overDeliveryReceiptAllowance: $overDeliveryReceiptAllowance, overBillingAllowance: $overBillingAllowance, loadedItemPhoto: $loadedItemPhoto, description: $description, brand: $brand, shelfLifeInDays: $shelfLifeInDays, endOfLife: $endOfLife, defaultMaterialRequestType: $defaultMaterialRequestType, valuationMethod: $valuationMethod, warrantyPeriod: $warrantyPeriod, weightPerUnit: $weightPerUnit, weightUom: $weightUom, allowNegativeStock: $allowNegativeStock, hasBatchNo: $hasBatchNo, createNewBatch: $createNewBatch, batchNumberSeries: $batchNumberSeries, hasExpiryDate: $hasExpiryDate, retainSample: $retainSample, sampleQuantity: $sampleQuantity, hasSerialNo: $hasSerialNo, serialNoSeries: $serialNoSeries, variantOf: $variantOf, variantBasedOn: $variantBasedOn, enableDeferredExpense: $enableDeferredExpense, noOfMonthsExp: $noOfMonthsExp, enableDeferredRevenue: $enableDeferredRevenue, noOfMonths: $noOfMonths, purchaseUom: $purchaseUom, minOrderQty: $minOrderQty, safetyStock: $safetyStock, isPurchaseItem: $isPurchaseItem, leadTimeDays: $leadTimeDays, lastPurchaseRate: $lastPurchaseRate, isCustomerProvidedItem: $isCustomerProvidedItem, customer: $customer, deliveredBySupplier: $deliveredBySupplier, countryOfOrigin: $countryOfOrigin, customsTariffNumber: $customsTariffNumber, salesUom: $salesUom, grantCommission: $grantCommission, isSalesItem: $isSalesItem, maxDiscount: $maxDiscount, isIneligibleForItc: $isIneligibleForItc, inspectionRequiredBeforePurchase: $inspectionRequiredBeforePurchase, qualityInspectionTemplate: $qualityInspectionTemplate, inspectionRequiredBeforeDelivery: $inspectionRequiredBeforeDelivery, includeItemInManufacturing: $includeItemInManufacturing, isSubContractedItem: $isSubContractedItem, defaultBom: $defaultBom, customerCode: $customerCode, defaultItemManufacturer: $defaultItemManufacturer, defaultManufacturerPartNo: $defaultManufacturerPartNo, totalProjectedQty: $totalProjectedQty, qtyLoaded: $qtyLoaded, uoms: $uoms, imageFile: $imageFile)';
+    return 'ItemModel(name: $name, owner: $owner, creation: $creation, modified: $modified, modifiedBy: $modifiedBy, docstatus: $docstatus, idx: $idx, uomValue: $uomValue, qty: $qty, namingSeries: $namingSeries, itemCode: $itemCode, itemName: $itemName, itemGroup: $itemGroup, gstHsnCode: $gstHsnCode, stockUom: $stockUom, customGateNumber: $customGateNumber, disabled: $disabled, allowAlternativeItem: $allowAlternativeItem, isStockItem: $isStockItem, hasVariants: $hasVariants, openingStock: $openingStock, valuationRate: $valuationRate, standardRate: $standardRate, isFixedAsset: $isFixedAsset, autoCreateAssets: $autoCreateAssets, isGroupedAsset: $isGroupedAsset, assetCategory: $assetCategory, assetNamingSeries: $assetNamingSeries, overDeliveryReceiptAllowance: $overDeliveryReceiptAllowance, overBillingAllowance: $overBillingAllowance, loadedItemPhoto: $loadedItemPhoto, description: $description, brand: $brand, shelfLifeInDays: $shelfLifeInDays, endOfLife: $endOfLife, defaultMaterialRequestType: $defaultMaterialRequestType, valuationMethod: $valuationMethod, warrantyPeriod: $warrantyPeriod, weightPerUnit: $weightPerUnit, weightUom: $weightUom, allowNegativeStock: $allowNegativeStock, hasBatchNo: $hasBatchNo, createNewBatch: $createNewBatch, batchNumberSeries: $batchNumberSeries, hasExpiryDate: $hasExpiryDate, retainSample: $retainSample, sampleQuantity: $sampleQuantity, itemrowName: $itemrowName, hasSerialNo: $hasSerialNo, serialNoSeries: $serialNoSeries, variantOf: $variantOf, variantBasedOn: $variantBasedOn, enableDeferredExpense: $enableDeferredExpense, noOfMonthsExp: $noOfMonthsExp, enableDeferredRevenue: $enableDeferredRevenue, noOfMonths: $noOfMonths, purchaseUom: $purchaseUom, minOrderQty: $minOrderQty, safetyStock: $safetyStock, isPurchaseItem: $isPurchaseItem, leadTimeDays: $leadTimeDays, lastPurchaseRate: $lastPurchaseRate, isCustomerProvidedItem: $isCustomerProvidedItem, customer: $customer, deliveredBySupplier: $deliveredBySupplier, countryOfOrigin: $countryOfOrigin, customsTariffNumber: $customsTariffNumber, salesUom: $salesUom, grantCommission: $grantCommission, isSalesItem: $isSalesItem, maxDiscount: $maxDiscount, isIneligibleForItc: $isIneligibleForItc, inspectionRequiredBeforePurchase: $inspectionRequiredBeforePurchase, qualityInspectionTemplate: $qualityInspectionTemplate, inspectionRequiredBeforeDelivery: $inspectionRequiredBeforeDelivery, includeItemInManufacturing: $includeItemInManufacturing, isSubContractedItem: $isSubContractedItem, defaultBom: $defaultBom, customerCode: $customerCode, defaultItemManufacturer: $defaultItemManufacturer, defaultManufacturerPartNo: $defaultManufacturerPartNo, totalProjectedQty: $totalProjectedQty, qtyLoaded: $qtyLoaded, uoms: $uoms, imageFile: $imageFile)';
   }
 
   @override
@@ -1947,6 +1967,8 @@ class _$ItemModelImpl implements _ItemModel {
                 other.retainSample == retainSample) &&
             (identical(other.sampleQuantity, sampleQuantity) ||
                 other.sampleQuantity == sampleQuantity) &&
+            (identical(other.itemrowName, itemrowName) ||
+                other.itemrowName == itemrowName) &&
             (identical(other.hasSerialNo, hasSerialNo) ||
                 other.hasSerialNo == hasSerialNo) &&
             (identical(other.serialNoSeries, serialNoSeries) ||
@@ -2094,6 +2116,7 @@ class _$ItemModelImpl implements _ItemModel {
     hasExpiryDate,
     retainSample,
     sampleQuantity,
+    itemrowName,
     hasSerialNo,
     serialNoSeries,
     variantOf,
@@ -2198,6 +2221,7 @@ abstract class _ItemModel implements ItemModel {
     @JsonKey(name: 'has_expiry_date') final int? hasExpiryDate,
     @JsonKey(name: 'retain_sample') final int? retainSample,
     @JsonKey(name: 'sample_quantity') final int? sampleQuantity,
+    @JsonKey(name: 'item_row_name') final String? itemrowName,
     @JsonKey(name: 'has_serial_no') final int? hasSerialNo,
     @JsonKey(name: 'serial_no_series') final String? serialNoSeries,
     @JsonKey(name: 'variant_of') final String? variantOf,
@@ -2394,6 +2418,9 @@ abstract class _ItemModel implements ItemModel {
   @override
   @JsonKey(name: 'sample_quantity')
   int? get sampleQuantity;
+  @override
+  @JsonKey(name: 'item_row_name')
+  String? get itemrowName;
   @override
   @JsonKey(name: 'has_serial_no')
   int? get hasSerialNo;

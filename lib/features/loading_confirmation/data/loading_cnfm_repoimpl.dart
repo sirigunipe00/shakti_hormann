@@ -105,69 +105,146 @@ class LoadingCnfmRepoimpl extends BaseApiRepository implements LoadingCnfmRepo {
     });
   }
 
-@override
-AsyncValueOf<Pair<String, String>> createLoadingCnfm(
-  List<ItemModel> items,
-  String name,
-) async {
-  final cleanedItems = await Future.wait(
-    items.map((e) async {
-      final map = removeNullValues(e.toJson());
+  @override
+  AsyncValueOf<Pair<String, String>> createLoadingCnfm(
+    List<ItemModel> items,
+    String name,
+  ) async {
+    final cleanedItems = await Future.wait(
+      items.map((e) async {
+        final map = removeNullValues(e.toJson());
 
-      if (map.containsKey('sample_quantity')) {
-        map['qty_loaded'] = map['sample_quantity'];
-        map.remove('sample_quantity');
-      }
+        if (map.containsKey('sample_quantity')) {
+          map['qty_loaded'] = map['sample_quantity'];
+          map.remove('sample_quantity');
+        }
 
-     
-      if (e.imageFile != null) {
-        final compressed = await FlutterImageCompress.compressWithFile(
-          e.imageFile!.path,
-          quality: 50,
-        );
+        if (e.imageFile != null) {
+          final compressed = await FlutterImageCompress.compressWithFile(
+            e.imageFile!.path,
+            quality: 50,
+          );
 
-        map['loaded_item_photo'] =
-            compressed == null ? null : base64Encode(compressed);
-      }
+          map['loaded_item_photo'] =
+              compressed == null ? null : base64Encode(compressed);
+        } else if (e.loadedItemPhoto != null && e.loadedItemPhoto!.isNotEmpty) {
+          try {
+            final base = Urls.baseUrl.replaceAll('/api', '');
+            final uri = Uri.parse('$base${e.loadedItemPhoto}');
 
-      else if (e.loadedItemPhoto != null && e.loadedItemPhoto!.isNotEmpty) {
-        try {
-          final base = Urls.baseUrl.replaceAll('/api', '');
-          final uri = Uri.parse('$base${e.loadedItemPhoto}');
-
-          final response = await http.get(uri);
-          if (response.statusCode == 200) {
-            map['loaded_item_photo'] = base64Encode(response.bodyBytes);
-          } else {
+            final response = await http.get(uri);
+            if (response.statusCode == 200) {
+              map['loaded_item_photo'] = base64Encode(response.bodyBytes);
+            } else {
+              map['loaded_item_photo'] = null;
+            }
+          } catch (err) {
             map['loaded_item_photo'] = null;
           }
-        } catch (err) {
-          map['loaded_item_photo'] = null;
         }
-      }
 
-      return map;
-    }),
-  );
-
-  final cleanedJson = {'name': name, 'items': cleanedItems};
-
-  return await executeSafely(() async {
-    final config = RequestConfig(
-      url: Urls.createLoadingConfirmation,
-      parser: (json) {
-        final message = json['message']['message'] as String;
-        return Pair(message, '');
-      },
-      body: jsonEncode(cleanedJson),
-      headers: {HttpHeaders.contentTypeHeader: 'application/json'},
+        return map;
+      }),
     );
 
-    final response = await post(config);
-    return response.processAsync((r) async => right(r.data!));
-  });
-}
+    final cleanedJson = {'name': name, 'items': cleanedItems};
 
+    return await executeSafely(() async {
+      final config = RequestConfig(
+        url: Urls.createLoadingConfirmation,
+        parser: (json) {
+          final message = json['message']['message'] as String;
+          return Pair(message, '');
+        },
+        body: jsonEncode(cleanedJson),
+        headers: {HttpHeaders.contentTypeHeader: 'application/json'},
+      );
+
+      final response = await post(config);
+      $logger.devLog('createloading.......$config');
+      return response.processAsync((r) async => right(r.data!));
+    });
+  }
+
+  @override
+  AsyncValueOf<Pair<String, String>> updateLoadingCnfm(
+    List<ItemModel> items,
+    String name,
+  ) async {
+
+    $logger.devLog('items..........$items');
+    $logger.devLog('Updating loading confirmation for $name');
+
+    final cleanedItems = await Future.wait(
+      items.map((e) async {
+        final map = removeNullValues(e.toJson());
+
+        if (map.containsKey('sample_quantity')) {
+          map['qty_loaded'] = map['sample_quantity'];
+          map.remove('sample_quantity');
+        }
+
+        if (e.name != null && e.name!.isNotEmpty) {
+          map['name'] = e.name;
+          map['item_row_name'] = e.name;
+        } else {
+          map['name'] = '';
+          map['item_row_name'] = '';
+        }
+
+        if (e.imageFile != null) {
+          final compressed = await FlutterImageCompress.compressWithFile(
+            e.imageFile!.path,
+            quality: 50,
+          );
+          map['loaded_item_photo'] =
+              compressed == null ? null : base64Encode(compressed);
+        } else if (e.loadedItemPhoto != null && e.loadedItemPhoto!.isNotEmpty) {
+          try {
+            final base = Urls.baseUrl.replaceAll('/api', '');
+            final uri = Uri.parse('$base${e.loadedItemPhoto}');
+            final response = await http.get(uri);
+            if (response.statusCode == 200) {
+              map['loaded_item_photo'] = base64Encode(response.bodyBytes);
+            } else {
+              map['loaded_item_photo'] = null;
+            }
+          } catch (_) {
+            map['loaded_item_photo'] = null;
+          }
+        }
+
+        // Return cleaned map without null or empty fields
+        map.removeWhere(
+          (key, value) =>
+              value == null ||
+              (value is String && value.trim().isEmpty) ||
+              value == 'null',
+        );
+        return map;
+      }),
+    );
+
+    final cleanedJson = {'vr_name': name, 'items': cleanedItems};
+
+    $logger.devLog('updateLoadingCnfm payload: ${jsonEncode(cleanedJson)}');
+
+    return await executeSafely(() async {
+      final config = RequestConfig(
+        url: Urls.updateLoading,
+        parser: (json) {
+          final message = json['message']['message'] as String;
+          return Pair(message, '');
+        },
+        body: jsonEncode(cleanedJson),
+        headers: {HttpHeaders.contentTypeHeader: 'application/json'},
+      );
+
+      final response = await post(config);
+      $logger.devLog('updatelodaing.........$config');
+      return response.processAsync((r) async => right(r.data!));
+    });
+  }
 
   @override
   AsyncValueOf<List<LogisticModel>> fetchLogisticList(String name) async {
@@ -235,8 +312,16 @@ AsyncValueOf<Pair<String, String>> createLoadingCnfm(
         parser: (json) {
           final data = json['message']['data'];
           final listdata = data as List<dynamic>;
-          return listdata.map((e) => ItemModel.fromJson(e)).toList();
+
+          return listdata
+              .map(
+                (e) => ItemModel.fromJson(
+                  e,
+                ).copyWith(itemrowName: e['name'] ?? ''),
+              )
+              .toList();
         },
+
         reqParams: {'docname': name},
         headers: {HttpHeaders.contentTypeHeader: 'application/json'},
       );

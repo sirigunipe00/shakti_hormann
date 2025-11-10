@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:shakti_hormann/core/core.dart';
 import 'package:dartz/dartz.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -87,19 +89,21 @@ class CreateLoadingCnfmCubit extends AppBaseCubit<CreateLaodingCnfmState> {
     // log('updatedItems---:$updatedItems');
     // final filitems = updatedItems.where((e) => e.isActive && !e.isDeleting);
     // final invoice = _recalculateTotals(filitems.toList());
-    final stat = state.copyWith(listitems: updatedItems, view: LoadingView.edit);
+    final stat = state.copyWith(listitems: updatedItems, view: LoadingView.create);
     // log('lshjafdjshf:${stat.listitems}');
     emitSafeState(stat);
   }
   void addInitialItem(ItemModel newItem) {
     // $logger.devLog('state.listitems....: ${state.listitems}');
     final updatedItems = [...state.listitems, newItem];
+    print('updatedItems....:$updatedItems');
     // log('updatedItems---:$updatedItems');
     final stat = state.copyWith(listitems: updatedItems);
-    // log('lshjafdjshf:${stat.listitems}');
+    log('lshjafdjshf:${stat.listitems}');
     emitSafeState(stat);
   }
 void updateItem(int index, ItemModel updatedItem) {
+  print('updatedItem ...:$updatedItem');
   final currentItems = List<ItemModel>.from(state.listitems);
   final oldItem = currentItems[index];
 
@@ -122,7 +126,7 @@ void updateItem(int index, ItemModel updatedItem) {
 
 
   void save() async {
-    // log('state.listitems--:${state.listitems}');
+    log('state.listitems--:${state.listitems}');
     final validation = _validate();
     return validation.fold(() async {
       emitSafeState(state.copyWith(isLoading: true, isSuccess: false));
@@ -133,7 +137,7 @@ void updateItem(int index, ItemModel updatedItem) {
 
 
 
-      if (state.view == LoadingView.edit) {
+      if (state.view == LoadingView.create) {
         final response = await repo.createLoadingCnfm(
           state.listitems,
           state.form.name ?? '',
@@ -150,13 +154,37 @@ void updateItem(int index, ItemModel updatedItem) {
                 isSuccess: true,
                 form: state.form.copyWith(name: docstatus),
                 successMsg: r.first,
-                view: LoadingView.completed,
+                view: LoadingView.edit,
               ),
             );
           },
         );
       }
-      else {
+        else if (state.view == LoadingView.edit) {
+
+          log('state.listitems........:${state.listitems}');
+      
+      final response = await repo.updateLoadingCnfm(
+        state.listitems,
+        state.form.name ?? '',
+      );
+
+      return response.fold(
+        (l) => emitSafeState(state.copyWith(isLoading: false, error: l)),
+        (r) {
+          shouldAskForConfirmation.value = false;
+          emitSafeState(
+            state.copyWith(
+              isLoading: false,
+              isSuccess: true,
+              successMsg: r.first,
+              view: LoadingView.edit,
+            ),
+          );
+        },
+      );
+    }
+      else  if (state.view == LoadingView.completed || state.view == LoadingView.sumitted){
         final response = await repo.submitLoading(state.form.name ?? '');
         
 

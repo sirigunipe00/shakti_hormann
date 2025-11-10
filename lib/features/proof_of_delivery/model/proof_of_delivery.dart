@@ -17,11 +17,11 @@ class ProofOfDelivery with _$ProofOfDelivery {
     @JsonKey(name: 'sales_invoice_date') String? salesInvoiceDate,
     @JsonKey(name: 'customer_name') String? customerName,
     @JsonKey(name: 'plant_name') String? plantName,
-    @JsonKey(name: 'geo_longitude') double? geoLongitude,
+    @JsonKey(name: 'geo_longitude') String? geoLongitude,
     @JsonKey(name: 'pod_photo') String? podPhoto,
     @JsonKey(name: 'unloading_photo_1') String? unloadingPhoto1,
     @JsonKey(name: 'unloading_photo_2') String? unloadingPhoto2,
-    @JsonKey(name: 'geo_latitude') double? geoLatitude,
+    @JsonKey(name: 'geo_latitude') String? geoLatitude,
     @JsonKey(
       includeFromJson: true,
       includeToJson: false,

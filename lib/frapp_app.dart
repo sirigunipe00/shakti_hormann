@@ -38,8 +38,9 @@ class _ShaktiHormannState extends State<ShaktiHormann>
 
   @override
   void initState() {
-    super.initState();
+    // $sl.get<NotificationUsecase>().updateOSDetails();
     WidgetsBinding.instance.addObserver(this);
+    super.initState();
   }
 
   @override
@@ -58,11 +59,6 @@ class _ShaktiHormannState extends State<ShaktiHormann>
     }
   }
 
-  void handleCallBack() {
-    final context = AppRouterConfig.context;
-    context.cubit<GeoPermissionHandler>().checkPermission();
-  }
-
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
@@ -77,9 +73,9 @@ class _ShaktiHormannState extends State<ShaktiHormann>
         BlocProvider(create: (_) => LoadingCnfmFiltersCubit()),
         BlocProvider(create: (_) => PodFiltersCubit()),
 
-        BlocProvider<GeoPermissionHandler>(
-          create: (_) => GeoPermissionHandler(),
-        ),
+        // BlocProvider<GeoPermissionHandler>(
+        //   create: (_) => GeoPermissionHandler(),
+        // ),
 
         BlocProvider(
           create: (_) => GateEntryBlocProvider.get().fetchGateEntries(),
@@ -102,7 +98,6 @@ class _ShaktiHormannState extends State<ShaktiHormann>
       ],
       child: MultiBlocListener(
         listeners: [
-
           BlocListener<AuthCubit, AuthState>(
             listener: (_, state) {
               final routerCtxt =
@@ -110,6 +105,12 @@ class _ShaktiHormannState extends State<ShaktiHormann>
               if (routerCtxt == null) return;
               state.maybeWhen(
                 authenticated: () {
+                  print('authenticated initial.....');
+
+
+                    // routerCtxt.cubit<GeoPermissionHandler>().checkPermission();
+
+
                   print('authenticated..');
                   final filters = Pair(StringUtils.docStatusInt('Draft'), null);
                   final filter = Pair(
@@ -134,14 +135,6 @@ class _ShaktiHormannState extends State<ShaktiHormann>
                     filters,
                   );
 
-
-
-                  print('authenticated..last lknflsgljf');
-
-
-
-                  routerCtxt.cubit<GeoPermissionHandler>().checkPermission();
-
                   AppRoute.home.go(routerCtxt);
                 },
                 unAuthenticated: () {
@@ -154,44 +147,37 @@ class _ShaktiHormannState extends State<ShaktiHormann>
             },
           ),
 
-          BlocListener<GeoPermissionHandler, GeoPermissionState>(
-            listenWhen: (previous, current) => previous != current,
-            listener: (_, state) async {
-              final routerCtxt = AppRouterConfig.context;
-              log('state...:$state');
-              if (state is GeoLocationDenied) {
-                print('truee...');
-                Geolocator.requestPermission().then((_) {
-                  routerCtxt.cubit<GeoPermissionHandler>().checkPermission();
-                });
-                return;
-              } 
-              // if (state is GeoLocationServiceDisabled()) {
-              //   print('truee...');
-              //   Geolocator.requestPermission().then((_) {
-              //     routerCtxt.cubit<GeoPermissionHandler>().checkPermission();
-              //   });
-              //   return;
-              // }
-              if (state is GeoLocationDeniedForever ||
-                  state is LocationPermissionPermDenied) {
-                AppDialog.showErrorDialog<bool?>(
-                  routerCtxt,
-                  barrierDismissible: false,
-                  title: 'Grant Location Permission',
-                  content: 'M11 needs your location permission',
-                  buttonText: 'Allow',
-                  onTapDismiss: () => routerCtxt.exit(true),
-                ).then((value) async {
-                  if (value.isTrue) {
-                    _shouldRequestPermission = true;
-                    await Geolocator.openAppSettings();
-                  }
-                });
-              }
-            },
-          ),
-          
+          // BlocListener<GeoPermissionHandler, GeoPermissionState>(
+          //   listenWhen: (previous, current) => previous != current,
+          //   listener: (_, state) async {
+          //     final routerCtxt = AppRouterConfig.context;
+          //     if (state is GeoLocationDenied) {
+          //       log('GeoLocationDenied     ........');
+          //       Geolocator.requestPermission().then((_) {
+          //         routerCtxt.cubit<GeoPermissionHandler>().checkPermission();
+          //       });
+          //       return;
+          //     }
+          //     if (state is GeoLocationDeniedForever ||
+          //         state is LocationPermissionPermDenied) {
+
+          //       log('GeoLocationDeniedForever     ........');
+          //       AppDialog.showErrorDialog<bool?>(
+          //         routerCtxt,
+          //         barrierDismissible: false,
+          //         title: 'Grant Location Permission',
+          //         content: 'Shakti Hormann needs your location permission',
+          //         buttonText: 'Allow',
+          //         onTapDismiss: () => routerCtxt.exit(true),
+          //       ).then((value) async {
+          //         if (value.isTrue) {
+          //           _shouldRequestPermission = true;
+          //           await Geolocator.openAppSettings();
+          //         }
+          //       });
+          //     }
+          //   },
+          // ),
         ],
         child: MaterialApp.router(
           title: 'Shakti Hormann',
@@ -202,5 +188,10 @@ class _ShaktiHormannState extends State<ShaktiHormann>
         ),
       ),
     );
+  }
+
+  void handleCallBack() {
+    final context = AppRouterConfig.context;
+    context.cubit<GeoPermissionHandler>().checkPermission();
   }
 }

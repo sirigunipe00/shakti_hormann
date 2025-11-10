@@ -1,3 +1,9 @@
+import 'dart:developer';
+
+import 'package:geolocator/geolocator.dart';
+import 'package:go_router/go_router.dart';
+import 'package:shakti_hormann/app/presentation/bloc/geo_permission/geo_permission_handler.dart';
+import 'package:shakti_hormann/app/presentation/bloc/geo_permission/geo_permission_state.dart';
 import 'package:shakti_hormann/core/core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -9,7 +15,6 @@ import 'package:shakti_hormann/widgets/inputs/new_upload_photo_widget.dart';
 import 'package:shakti_hormann/widgets/sectionheader.dart';
 import 'package:shakti_hormann/widgets/spaced_column.dart';
 
-
 class PodFormWidget extends StatefulWidget {
   const PodFormWidget({super.key});
 
@@ -17,73 +22,151 @@ class PodFormWidget extends StatefulWidget {
   State<PodFormWidget> createState() => _PodFormWidgetState();
 }
 
-class _PodFormWidgetState extends State<PodFormWidget>  with WidgetsBindingObserver{
+class _PodFormWidgetState extends State<PodFormWidget>
+    with WidgetsBindingObserver {
   final ScrollController _scrollController = ScrollController();
   DateTime? selectedDate;
+  bool _shouldRequestPermission = false;
 
   double? latitude;
   double? longitude;
 
-//     @override
-//   void initState() {
-//     super.initState();
-//     WidgetsBinding.instance.addObserver(this); // ✅ listen app lifecycle
-//     _fillCurrentLocation();
-//   }
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _fillCurrentLocation();
+    didChangeAppLifecycleState(AppLifecycleState.resumed);
+  }
 
-//   @override
-//   void dispose() {
-//     WidgetsBinding.instance.removeObserver(this);
-//     super.dispose();
-//   }
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
 
-//   // ✅ Called when app resumes from settings
-//   @override
-//   void didChangeAppLifecycleState(AppLifecycleState state) {
-//     if (state == AppLifecycleState.resumed) {
-//       _fillCurrentLocation();
-//     }
-//   }
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _fillCurrentLocation();
+    }
+  }
 
-// void _fillCurrentLocation() async {
-//   final position = await determinePositionWithAlert(context);
+  void _fillCurrentLocation() async {
+    try {
+      final position = await Geolocator.getCurrentPosition();
+      if (!mounted) return;
 
-//   if (!mounted) return; // ✅ widget already disposed
+      setState(() {
+        latitude = position.latitude;
+        longitude = position.longitude;
+      });
 
-//   if (position != null) {
-//     if (mounted) {
-//       setState(() {
-//         latitude = position.latitude;
-//         longitude = position.longitude;
-//       });
-//     }
+      print('latitude ....:$latitude $longitude');
 
-//     $logger.devLog('Current Position: Lat=$latitude, Lng=$longitude');
+      context.read<CreatePodCubit>().onValueChanged(
+        geoLatitude: latitude.toString(),
+        geoLongitude: longitude.toString(),
+      );
+    } catch (e) {
+      print('Location error: $e');
+    }
+  }
 
-//     if (mounted) {
-//       context.read<CreatePodCubit>().onValueChanged(
-//             geoLatitude: latitude,
-//             geoLongitude: longitude,
-//           );
-//     }
-//   } else {
-//     $logger.devLog('Could not fetch user location.');
-//   }
-// }
-
- final focusNodes = List.generate(40, (index) => FocusNode());
+  final focusNodes = List.generate(40, (index) => FocusNode());
   @override
   Widget build(BuildContext context) {
     final formState = context.read<CreatePodCubit>().state;
 
     final isCompleted = formState.view == PodView.completed;
     final newform = formState.form;
-    
-    $logger.devLog('Sending LAT: ${newform.geoLatitude}, LNG: ${newform.geoLongitude}');
 
+    $logger.devLog(
+      'Sending LAT: ${newform.geoLatitude}, LNG: ${newform.geoLongitude}',
+    );
 
     return MultiBlocListener(
       listeners: [
+        BlocListener<GeoPermissionHandler, GeoPermissionState>(
+          listenWhen: (previous, current) => previous != current,
+          listener: (_, state) async {
+            log('state  in listener ......;$state');
+
+            if (state is GeoLocationDenied) {
+              Geolocator.requestPermission().then((_) {
+                log('requestPermission...');
+
+                context.cubit<GeoPermissionHandler>().checkPermission();
+              });
+              return;
+            }
+            if (state is GeoLocationDeniedForever ||
+                state is LocationPermissionPermDenied) {
+              showDialog<bool?>(
+                context: context,
+                barrierDismissible: false,
+                builder: (context) {
+                  return PopScope(
+                    canPop: false,
+                    child: AlertDialog(
+                      content: const Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.warning_amber_rounded,
+                            size: 50,
+                            color: Colors.orange,
+                          ),
+                          SizedBox(height: 10),
+                          Text(
+                            'Grant Location Permission',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.red, // heading in red
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          SizedBox(height: 10),
+                          Text(
+                            'Shakti Hormann needs your location permission.',
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                      actions: [
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            elevation: 3,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 22,
+                              vertical: 12,
+                            ),
+                          ),
+                          onPressed: () => Navigator.of(context).pop(true),
+                          child: const Text('Allow'),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ).then((value) async {
+                print('value...:$value');
+                if (value.isTrue) {
+                  _shouldRequestPermission = true;
+                  await Geolocator.openAppSettings();
+                  context.pop();
+
+                  // context.cubit<GeoPermissionHandler>().checkPermission();
+                }
+              });
+            }
+          },
+        ),
+
         BlocListener<CreatePodCubit, CreatePodState>(
           listenWhen: (previous, current) {
             final prevStatus = previous.error?.status;

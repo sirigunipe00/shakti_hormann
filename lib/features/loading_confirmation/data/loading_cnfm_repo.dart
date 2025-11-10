@@ -12,6 +12,7 @@ abstract interface class LoadingCnfmRepo {
   );
   AsyncValueOf<Pair<String,String>> submitLoading(String form);
   AsyncValueOf<Pair<String,String>> createLoadingCnfm(List<ItemModel> form,String name);
+  AsyncValueOf<Pair<String,String>> updateLoadingCnfm(List<ItemModel> form,String name);
   AsyncValueOf<List<ItemModel>> fetchItemList(List<LogisticModel> logistic);
   AsyncValueOf<List<ItemModel>> getItems(String name);
   AsyncValueOf<List<LogisticModel>> fetchLogisticList(String name);

@@ -56,6 +56,7 @@ class ItemModel with _$ItemModel {
     @JsonKey(name: 'has_expiry_date') int? hasExpiryDate,
     @JsonKey(name: 'retain_sample') int? retainSample,
     @JsonKey(name: 'sample_quantity') int? sampleQuantity,
+    @JsonKey(name: 'item_row_name') String? itemrowName,
     @JsonKey(name: 'has_serial_no') int? hasSerialNo,
     @JsonKey(name: 'serial_no_series') String? serialNoSeries,
     @JsonKey(name: 'variant_of') String? variantOf,

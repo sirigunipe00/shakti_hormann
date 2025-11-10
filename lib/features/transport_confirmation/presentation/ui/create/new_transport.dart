@@ -75,7 +75,6 @@ class _NewTransportCnfmState extends State<NewTransportCnfm> {
             final isReject = state.successMsg!.toLowerCase().contains('reject');
 
             if (isReject) {
-              $logger.devLog('rejected............$state');
               AppDialog.showErrorDialog(
                 context,
                 title: 'Transporter Rejected',

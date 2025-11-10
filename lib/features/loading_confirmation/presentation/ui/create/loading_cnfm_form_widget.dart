@@ -393,6 +393,7 @@ class _ItemLoadedTableState extends State<ItemLoadedTable> {
     // 🔹 Push API-loaded records to cubit as well
     Future.microtask(() {
       for (final item in widget.initialData) {
+        print('itemm   ..:$item');
         context.read<CreateLoadingCnfmCubit>().addInitialItem(item);
       }
     });
@@ -410,10 +411,12 @@ class _ItemLoadedTableState extends State<ItemLoadedTable> {
       if (index < cubit.state.listitems.length) {
         final oldItem = cubit.state.listitems[index];
 
-        final newItem = oldItem.copyWith(
-          imageFile: File(photo.path),
-          loadedItemPhoto: null,
-        );
+        print('oldItem ...:$oldItem');
+
+       final newItem = oldItem.copyWith(
+  imageFile: File(photo.path),
+  loadedItemPhoto: oldItem.loadedItemPhoto, // keep old if server record exists
+);
         cubit.updateItem(index, newItem);
       }
     }
@@ -450,17 +453,33 @@ class _ItemLoadedTableState extends State<ItemLoadedTable> {
       },
     );
 
+    print('result ...:$result');
+
     if (result != null) {
       final row = result['row'] as Map<String, dynamic>;
       final lineItem = result['model'] as ItemModel;
 
-      if (index != null) {
-        // 🔹 Editing existing row
-        setState(() {
-          rows[index] = row;
-        });
-        context.read<CreateLoadingCnfmCubit>().updateItem(index, lineItem);
-      } else {
+     if (index != null) {
+  final cubit = context.read<CreateLoadingCnfmCubit>();
+  final oldItem = cubit.state.listitems[index];
+
+  final updatedItem = oldItem.copyWith(
+    itemCode: lineItem.itemCode ?? oldItem.itemCode,
+    itemName: lineItem.itemName ?? oldItem.itemName,
+    uomValue: lineItem.uomValue ?? oldItem.uomValue,
+    qtyLoaded: lineItem.qtyLoaded ?? oldItem.qtyLoaded,
+    // if photo not changed keep existing
+    loadedItemPhoto: lineItem.loadedItemPhoto ?? oldItem.loadedItemPhoto,
+    imageFile: lineItem.imageFile, // only if new image captured
+  );
+
+  setState(() {
+    rows[index] = row;
+  });
+
+  cubit.updateItem(index, updatedItem);
+}
+ else {
         // 🔹 Adding new row
         setState(() {
           rows.add(row);

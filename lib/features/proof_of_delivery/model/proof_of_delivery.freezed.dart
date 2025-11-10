@@ -37,7 +37,7 @@ mixin _$ProofOfDelivery {
   @JsonKey(name: 'plant_name')
   String? get plantName => throw _privateConstructorUsedError;
   @JsonKey(name: 'geo_longitude')
-  double? get geoLongitude => throw _privateConstructorUsedError;
+  String? get geoLongitude => throw _privateConstructorUsedError;
   @JsonKey(name: 'pod_photo')
   String? get podPhoto => throw _privateConstructorUsedError;
   @JsonKey(name: 'unloading_photo_1')
@@ -45,7 +45,7 @@ mixin _$ProofOfDelivery {
   @JsonKey(name: 'unloading_photo_2')
   String? get unloadingPhoto2 => throw _privateConstructorUsedError;
   @JsonKey(name: 'geo_latitude')
-  double? get geoLatitude => throw _privateConstructorUsedError;
+  String? get geoLatitude => throw _privateConstructorUsedError;
   @JsonKey(
     includeFromJson: true,
     includeToJson: false,
@@ -94,11 +94,11 @@ abstract class $ProofOfDeliveryCopyWith<$Res> {
     @JsonKey(name: 'sales_invoice_date') String? salesInvoiceDate,
     @JsonKey(name: 'customer_name') String? customerName,
     @JsonKey(name: 'plant_name') String? plantName,
-    @JsonKey(name: 'geo_longitude') double? geoLongitude,
+    @JsonKey(name: 'geo_longitude') String? geoLongitude,
     @JsonKey(name: 'pod_photo') String? podPhoto,
     @JsonKey(name: 'unloading_photo_1') String? unloadingPhoto1,
     @JsonKey(name: 'unloading_photo_2') String? unloadingPhoto2,
-    @JsonKey(name: 'geo_latitude') double? geoLatitude,
+    @JsonKey(name: 'geo_latitude') String? geoLatitude,
     @JsonKey(
       includeFromJson: true,
       includeToJson: false,
@@ -201,7 +201,7 @@ class _$ProofOfDeliveryCopyWithImpl<$Res, $Val extends ProofOfDelivery>
                 freezed == geoLongitude
                     ? _value.geoLongitude
                     : geoLongitude // ignore: cast_nullable_to_non_nullable
-                        as double?,
+                        as String?,
             podPhoto:
                 freezed == podPhoto
                     ? _value.podPhoto
@@ -221,7 +221,7 @@ class _$ProofOfDeliveryCopyWithImpl<$Res, $Val extends ProofOfDelivery>
                 freezed == geoLatitude
                     ? _value.geoLatitude
                     : geoLatitude // ignore: cast_nullable_to_non_nullable
-                        as double?,
+                        as String?,
             podPhotoImg:
                 freezed == podPhotoImg
                     ? _value.podPhotoImg
@@ -261,11 +261,11 @@ abstract class _$$ProofOfDeliveryImplCopyWith<$Res>
     @JsonKey(name: 'sales_invoice_date') String? salesInvoiceDate,
     @JsonKey(name: 'customer_name') String? customerName,
     @JsonKey(name: 'plant_name') String? plantName,
-    @JsonKey(name: 'geo_longitude') double? geoLongitude,
+    @JsonKey(name: 'geo_longitude') String? geoLongitude,
     @JsonKey(name: 'pod_photo') String? podPhoto,
     @JsonKey(name: 'unloading_photo_1') String? unloadingPhoto1,
     @JsonKey(name: 'unloading_photo_2') String? unloadingPhoto2,
-    @JsonKey(name: 'geo_latitude') double? geoLatitude,
+    @JsonKey(name: 'geo_latitude') String? geoLatitude,
     @JsonKey(
       includeFromJson: true,
       includeToJson: false,
@@ -367,7 +367,7 @@ class __$$ProofOfDeliveryImplCopyWithImpl<$Res>
             freezed == geoLongitude
                 ? _value.geoLongitude
                 : geoLongitude // ignore: cast_nullable_to_non_nullable
-                    as double?,
+                    as String?,
         podPhoto:
             freezed == podPhoto
                 ? _value.podPhoto
@@ -387,7 +387,7 @@ class __$$ProofOfDeliveryImplCopyWithImpl<$Res>
             freezed == geoLatitude
                 ? _value.geoLatitude
                 : geoLatitude // ignore: cast_nullable_to_non_nullable
-                    as double?,
+                    as String?,
         podPhotoImg:
             freezed == podPhotoImg
                 ? _value.podPhotoImg
@@ -476,7 +476,7 @@ class _$ProofOfDeliveryImpl implements _ProofOfDelivery {
   final String? plantName;
   @override
   @JsonKey(name: 'geo_longitude')
-  final double? geoLongitude;
+  final String? geoLongitude;
   @override
   @JsonKey(name: 'pod_photo')
   final String? podPhoto;
@@ -488,7 +488,7 @@ class _$ProofOfDeliveryImpl implements _ProofOfDelivery {
   final String? unloadingPhoto2;
   @override
   @JsonKey(name: 'geo_latitude')
-  final double? geoLatitude;
+  final String? geoLatitude;
   @override
   @JsonKey(
     includeFromJson: true,
@@ -604,11 +604,11 @@ abstract class _ProofOfDelivery implements ProofOfDelivery {
     @JsonKey(name: 'sales_invoice_date') final String? salesInvoiceDate,
     @JsonKey(name: 'customer_name') final String? customerName,
     @JsonKey(name: 'plant_name') final String? plantName,
-    @JsonKey(name: 'geo_longitude') final double? geoLongitude,
+    @JsonKey(name: 'geo_longitude') final String? geoLongitude,
     @JsonKey(name: 'pod_photo') final String? podPhoto,
     @JsonKey(name: 'unloading_photo_1') final String? unloadingPhoto1,
     @JsonKey(name: 'unloading_photo_2') final String? unloadingPhoto2,
-    @JsonKey(name: 'geo_latitude') final double? geoLatitude,
+    @JsonKey(name: 'geo_latitude') final String? geoLatitude,
     @JsonKey(
       includeFromJson: true,
       includeToJson: false,
@@ -660,7 +660,7 @@ abstract class _ProofOfDelivery implements ProofOfDelivery {
   String? get plantName;
   @override
   @JsonKey(name: 'geo_longitude')
-  double? get geoLongitude;
+  String? get geoLongitude;
   @override
   @JsonKey(name: 'pod_photo')
   String? get podPhoto;
@@ -672,7 +672,7 @@ abstract class _ProofOfDelivery implements ProofOfDelivery {
   String? get unloadingPhoto2;
   @override
   @JsonKey(name: 'geo_latitude')
-  double? get geoLatitude;
+  String? get geoLatitude;
   @override
   @JsonKey(
     includeFromJson: true,
