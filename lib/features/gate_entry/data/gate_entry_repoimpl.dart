@@ -202,13 +202,7 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
         );
       }
 
-      final config = RequestConfig(
-        url: Urls.submitGateEntry,
-        parser: (json) {
-          final data = json['message']['message'] as String;
-          return Pair(data, '');
-        },
-        body: jsonEncode({
+      final Map<String, dynamic> requestBody = {
           'gate_entry_id': form.name,
           'plant_name': form.plantName,
           'purchase_orders': form.purchaseOrder,
@@ -239,7 +233,20 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
           'remarks': form.remarks,
           'scan_irn': form.scanIrn,
           'gate_number': form.gateNumber,
-        }),
+
+      };
+       if (form.plantName != null && form.plantName!.trim().isNotEmpty && form.plantName != '') {
+      print('form.plantName....:${form.plantName}');
+      requestBody['plant_name'] = form.plantName;
+    }
+
+      final config = RequestConfig(
+        url: Urls.submitGateEntry,
+        parser: (json) {
+          final data = json['message']['message'] as String;
+          return Pair(data, '');
+        },
+        body: jsonEncode(requestBody),
         headers: {HttpHeaders.contentTypeHeader: 'application/json'},
       );
 
@@ -260,6 +267,8 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
     Uint8List? vehiclefrontcompressedBytes;
     Uint8List? vehiclebackcompressedBytes;
     Uint8List? invocecompressedBytes;
+
+    $logger.info('form.....:$form');
 
     if (form.vehiclePhotoImg != null) {
       final filePath = form.vehiclePhotoImg!.path;
@@ -297,6 +306,41 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
       );
     }
 
+    final Map<String, dynamic> requestBody = {
+      'plant_name': form.plantName,
+      'purchase_orders': form.purchaseOrder,
+      'invoice_amount': form.invoiceAmount,
+      'vendor_invoice_date': form.vendorInvoiceDate,
+      'gate_entry_date': form.gateEntryDate,
+      'vendor_invoice_no': form.vendorInvoiceNo,
+      'vehicle_photo':
+          vehiclefrontcompressedBytes == null
+              ? null
+              : base64Encode(vehiclefrontcompressedBytes),
+      'vendor_invoice_photo':
+          invocecompressedBytes == null
+              ? null
+              : base64Encode(invocecompressedBytes),
+      'vehicle_back_photo':
+          vehiclebackcompressedBytes == null
+              ? null
+              : base64Encode(vehiclebackcompressedBytes),
+      'vehicle_no': form.vehicleNo,
+      'vendor_invoice_quantity': form.invoiceQuantity,
+      'remarks': form.remarks,
+      'scan_irn': form.scanIrn,
+      'gate_number': form.gateNumber,
+    };
+
+    if (form.plantName != null && form.plantName!.trim().isNotEmpty && form.plantName != '') {
+      print('form.plantName....:${form.plantName}');
+      requestBody['plant_name'] = form.plantName;
+    }
+
+    // if (form.plantName != null && form.plantName!.trim().isNotEmpty) {
+    //   requestBody['plant_name'] = form.plantName;
+    // }
+
     final config = RequestConfig(
       url: Urls.createGateEntry,
       parser: (json) {
@@ -304,31 +348,7 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
         return Pair(data, '');
       },
 
-      body: jsonEncode({
-        'plant_name': form.plantName,
-        'purchase_orders': form.purchaseOrder,
-        'invoice_amount': form.invoiceAmount,
-        'vendor_invoice_date': form.vendorInvoiceDate,
-        'gate_entry_date': form.gateEntryDate,
-        'vendor_invoice_no': form.vendorInvoiceNo,
-        'vehicle_photo':
-            vehiclefrontcompressedBytes == null
-                ? null
-                : base64Encode(vehiclefrontcompressedBytes),
-        'vendor_invoice_photo':
-            invocecompressedBytes == null
-                ? null
-                : base64Encode(invocecompressedBytes),
-        'vehicle_back_photo':
-            vehiclebackcompressedBytes == null
-                ? null
-                : base64Encode(vehiclebackcompressedBytes),
-        'vehicle_no': form.vehicleNo,
-        'vendor_invoice_quantity': form.invoiceQuantity,
-        'remarks': form.remarks,
-        'scan_irn': form.scanIrn,
-        'gate_number': form.gateNumber,
-      }),
+      body: jsonEncode(requestBody),
       headers: {HttpHeaders.contentTypeHeader: 'application/json'},
     );
 
@@ -340,20 +360,19 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
     });
   }
 
-Future<Uint8List?> fetchAndConvertToBase64(String relativePath) async {
-  if (p.extension(relativePath).isEmpty) {
-    return null;
+  Future<Uint8List?> fetchAndConvertToBase64(String relativePath) async {
+    if (p.extension(relativePath).isEmpty) {
+      return null;
+    }
+
+    final String url = Urls.filepath(relativePath);
+
+    final response = await http.get(Uri.parse(url));
+
+    if (response.statusCode == 200) {
+      return response.bodyBytes;
+    } else {
+      throw Exception('Failed to load file: ${response.statusCode}');
+    }
   }
-
-  final String url = Urls.filepath(relativePath);
-
-  final response = await http.get(Uri.parse(url));
-
-  if (response.statusCode == 200) {
-    return response.bodyBytes;
-  } else {
-    throw Exception('Failed to load file: ${response.statusCode}');
-  }
-}
-
 }

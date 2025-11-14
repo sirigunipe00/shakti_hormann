@@ -98,14 +98,7 @@ class LogisticPlanningRepoimpl extends BaseApiRepository
         formattedRequestedDeliveryDate = outputFormat.format(date);
       }
 
-      final requestConfig = RequestConfig(
-        url: Urls.updateLogisticPlanning,
-
-        parser: (json) {
-          final data = json['message']['message'] as String;
-          return data;
-        },
-        body: jsonEncode({
+        final Map<String, dynamic> requestBody = {
           'logistic_request_id': form.name,
           'sales_orders': form.salesOrder,
           'plant_name': form.plantName,
@@ -125,12 +118,28 @@ class LogisticPlanningRepoimpl extends BaseApiRepository
           'shipping_state': form.city,
           'shipping_city': form.city,
           'shipping_pin_code': form.pincode,
-        }),
+
+        };
+      if (form.plantName != null && form.plantName!.trim().isNotEmpty && form.plantName != '') {
+      print('form.plantName....:${form.plantName}');
+      requestBody['plant_name'] = form.plantName;
+    }
+
+      final requestConfig = RequestConfig(
+        url: Urls.updateLogisticPlanning,
+
+        parser: (json) {
+          final data = json['message']['message'] as String;
+          return data;
+        },
+        body: jsonEncode(requestBody),
         headers: {HttpHeaders.contentTypeHeader: 'application/json'},
       );
       $logger.devLog('UpdateConfig.....$requestConfig');
 
       final response = await post(requestConfig);
+      $logger.devLog('...............$response')
+;
       return response.process((r) => right(r.data!));
     });
   }
@@ -168,14 +177,8 @@ class LogisticPlanningRepoimpl extends BaseApiRepository
       //         ? form.requestedDeliveryDate
       //         : null;
 
-      final config = RequestConfig(
-        url: Urls.createLogisticPlanning,
-        parser: (json) {
-          final data = json['message']['data']['logistic_request_id'] as String;
-          return Pair(data, '');
-        },
-        body: jsonEncode({
-          'plant_name': form.plantName,
+        final Map<String, dynamic> requestBody = {
+           'plant_name': form.plantName,
           'sales_orders': form.salesOrder,
           'transporter_name': form.transporterName,
           'preferred_vehicle_type': form.preferredVehicleType,
@@ -193,7 +196,21 @@ class LogisticPlanningRepoimpl extends BaseApiRepository
           'shipping_state': form.city,
           'shipping_city': form.city,
           'shipping_pin_code': form.pincode,
-        }),
+
+        };
+
+      if (form.plantName != null && form.plantName!.trim().isNotEmpty && form.plantName != '') {
+      print('form.plantName....:${form.plantName}');
+      requestBody['plant_name'] = form.plantName;
+    }
+
+      final config = RequestConfig(
+        url: Urls.createLogisticPlanning,
+        parser: (json) {
+          final data = json['message']['data']['logistic_request_id'] as String;
+          return Pair(data, '');
+        },
+        body: jsonEncode(requestBody),
         headers: {HttpHeaders.contentTypeHeader: 'application/json'},
       );
 

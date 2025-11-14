@@ -1,6 +1,9 @@
+import 'dart:math';
+
 import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/core/utils/date_format_util.dart';
 import 'package:shakti_hormann/features/logistic_request/model/logistic_planning_form.dart';
 import 'package:shakti_hormann/features/logistic_request/presentation/bloc/bloc_provider.dart';
@@ -21,14 +24,14 @@ class LogisticRequestWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-//     final statusText = logistic.docstatus == 2
-//     ? 'Cancelled'
-//     : logistic.status ?? '';
+    //     final statusText = logistic.docstatus == 2
+    //     ? 'Cancelled'
+    //     : logistic.status ?? '';
 
-// final formattedDateTime = formatDateTime(
-//   logistic.requestedDeliveryDate,
-//   logistic.requestedDeliveryTime,
-// );
+    // final formattedDateTime = formatDateTime(
+    //   logistic.requestedDeliveryDate,
+    //   logistic.requestedDeliveryTime,
+    // );
     return GestureDetector(
       onTap: onTap,
       child: Card(
@@ -86,18 +89,23 @@ class LogisticRequestWidget extends StatelessWidget {
                                 ),
                               ),
                               const SizedBox(height: 5),
-                              Text(
-                                logistic.transporterName ?? '',
-                                style: const TextStyle(
-                                  color: AppColors.grey,
-                                  fontWeight: FontWeight.normal,
-                                  letterSpacing: 0,
+                              if ((logistic.transporterType ?? '') == 
+                                  'Hormann')
+                                Text(
+                                  [
+                                        logistic.transporterName,
+                                        logistic.transporterNAme2,
+                                      ]
+                                      .where((e) => e != null && e.isNotNull)
+                                      .join(' - '),
+                                  style: const TextStyle(
+                                    color: AppColors.grey,
+                                    fontWeight: FontWeight.normal,
+                                    letterSpacing: 0,
+                                  ),
                                 ),
-                              ),
                             ],
                           ),
-
-                      
                         ],
                       ),
 
@@ -192,14 +200,14 @@ class LogisticRequestWidget extends StatelessWidget {
                     );
                   },
                 ),
-//                 Text(
-//   "$statusText – $formattedDateTime",
-//   style: AppTextStyles.titleLarge(context).copyWith(
-//     color: _getStatusColor(statusText),
-//     fontWeight: FontWeight.bold,
-//     fontSize: 12,
-//   ),
-// ),
+                //                 Text(
+                //   "$statusText – $formattedDateTime",
+                //   style: AppTextStyles.titleLarge(context).copyWith(
+                //     color: _getStatusColor(statusText),
+                //     fontWeight: FontWeight.bold,
+                //     fontSize: 12,
+                //   ),
+                // ),
                 Text(
                   logistic.docstatus == 2 ? 'Cancelled' : logistic.status ?? '',
                   style: AppTextStyles.titleLarge(context).copyWith(
@@ -244,6 +252,7 @@ String? formatTime(String? backendTime) {
 
   return '${parts[0]}:${parts[1]}';
 }
+
 String formatDateTime(String? date, String? time) {
   if (date == null || date.isEmpty) return '';
   final formattedDate = DFU.ddMMyyyyFromStr(date);

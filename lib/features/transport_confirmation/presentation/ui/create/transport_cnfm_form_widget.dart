@@ -157,12 +157,12 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
                               readOnly: true,
 
                               borderColor: AppColors.grey,
-                              initialValue: newform.preferredVehicleType,
+                              initialValue: newform.transporterType,
 
                               onChanged:
                                   (p0) => context
                                       .cubit<CreateTransportCubit>()
-                                      .onValueChanged(preferredVehicleType: p0),
+                                      .onValueChanged(transportType: p0),
                             ),
                             const SizedBox(height: 12.0),
                             InputField(
@@ -171,29 +171,33 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
                               readOnly: true,
 
                               borderColor: AppColors.grey,
-                              initialValue: newform.preferredVehicleType,
+                              initialValue: newform.dispatchType,
 
                               onChanged:
                                   (p0) => context
                                       .cubit<CreateTransportCubit>()
-                                      .onValueChanged(preferredVehicleType: p0),
+                                      .onValueChanged(dispatchType: p0),
                             ),
 
-                            InputField(
-                              title: 'Transporter Name',
-                              readOnly: true,
-                              borderColor: AppColors.grey,
-                              initialValue: [
-                                    newform.transporterName,
-                                    newform.transporterName2,
-                                  ]
-                                  .where((e) => e != null && e.isNotEmpty)
-                                  .join(' - '),
-                              onChanged:
-                                  (p0) => context
-                                      .cubit<CreateTransportCubit>()
-                                      .onValueChanged(transporterName: p0),
-                            ),
+                            if (newform.transporterType == 'Hormann') ...[
+                              const SizedBox(height: 12),
+                              InputField(
+                                title: 'Transporter',
+                                isRequired: true,
+                                readOnly: true,
+                                borderColor: AppColors.grey,
+                                initialValue: [
+                                      newform.transporterName,
+                                      newform.transporterName2,
+                                    ]
+                                    .where((e) => e != null && e.isNotEmpty)
+                                    .join(' - '),
+                                onChanged:
+                                    (p0) => context
+                                        .cubit<CreateTransportCubit>()
+                                        .onValueChanged(transporterName: p0),
+                              ),
+                            ],
 
                             const SizedBox(height: 12),
 

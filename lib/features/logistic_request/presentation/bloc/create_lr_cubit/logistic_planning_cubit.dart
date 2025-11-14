@@ -36,6 +36,7 @@ class CreateLogisticCubit extends AppBaseCubit<CreateLogisticState> {
     List<SalesOrder>? salesOrder,
     String? vehicleNumber,
     String? transporterName,
+    String? transporterName2,
     String? preferredVehicleType,
     String? deliveryAddress,
     String? shippingAddress1,
@@ -61,7 +62,7 @@ class CreateLogisticCubit extends AppBaseCubit<CreateLogisticState> {
     shouldAskForConfirmation.value = true;
     final form = state.form;
 
-    final newForm = form.copyWith(
+    var newForm = form.copyWith(
       plantName: plantName ?? form.plantName,
       name: name ?? form.name,
       creation: creationDate ?? form.creation,
@@ -98,8 +99,16 @@ class CreateLogisticCubit extends AppBaseCubit<CreateLogisticState> {
       country : country ?? form.country,
       city : city ?? form.city,
       pincode : pinCode ?? form.pincode,
+      transporterNAme2: transporterName2 ?? form.transporterNAme2,
+      
 
     );
+    // if ((transporterType ?? form.transporterType) != 'Hormann') {
+    //      newForm = newForm.copyWith(
+    //         transporterName: '',
+    //      transporterNAme2: '',
+    //      );
+    //    }
 
     emitSafeState(state.copyWith(form: newForm));
   }
@@ -145,6 +154,8 @@ class CreateLogisticCubit extends AppBaseCubit<CreateLogisticState> {
        
 
       );
+
+
 
       final status = entry.docstatus;
 
@@ -249,31 +260,38 @@ class CreateLogisticCubit extends AppBaseCubit<CreateLogisticState> {
       ),
     );
   }
+Option<Pair<String, int?>> _validate() {
+  final form = state.form;
 
-  Option<Pair<String, int?>> _validate() {
-    final form = state.form;
-
-    if (form.salesOrder == null) {
-      return optionOf(const Pair('Select Sales Order No', 0));
-    } else if (form.requestedDeliveryDate.isNull || 
+  if (form.salesOrder == null || form.salesOrder!.isEmpty) {
+    return optionOf(const Pair('Select Sales Order No', 0));
+  }else if (form.transporterType.isNull || 
+             (form.transporterType?.trim().isEmpty ?? true)) {
+    return optionOf(const Pair('Missing Transporter Type', 0));
+  } 
+  
+  else if (form.transporterType?.trim() == 'Hormann' &&
+           (form.transporterName.isNull || form.transporterName!.trim().isEmpty)) {
+    return optionOf(const Pair('Please select Transporter', 0));
+  } 
+  else if (form.dispatchType.isNull || 
+             (form.dispatchType?.trim().isEmpty ?? true)) {
+    return optionOf(const Pair('Missing Dispatch Type', 0));
+  } else if (form.preferredVehicleType.isNull || 
+             (form.preferredVehicleType?.trim().isEmpty ?? true)) {
+    return optionOf(const Pair('Missing Preferred Vehicle Type', 0));
+  } else if (form.requestedDeliveryDate.isNull || 
              (form.requestedDeliveryDate?.trim().isEmpty ?? true)) {
     return optionOf(const Pair('Missing Request Delivery Date', 0));
   } else if (form.requestedDeliveryTime.isNull || 
              (form.requestedDeliveryTime?.trim().isEmpty ?? true)) {
     return optionOf(const Pair('Missing Request Delivery Time', 0));
-  }else if (form.transporterType.isNull || 
-             (form.transporterType?.trim().isEmpty ?? true)) {
-    return optionOf(const Pair('Missing Transporter Type', 0));
-  }else if (form.dispatchType.isNull || 
-             (form.dispatchType?.trim().isEmpty ?? true)) {
-    return optionOf(const Pair('Missing Dispatch Type', 0));
-  }else if (form.preferredVehicleType.isNull || 
-             (form.preferredVehicleType?.trim().isEmpty ?? true)) {
-    return optionOf(const Pair('Missing Preferred Vehicle Type', 0));
-  }
-    return none();
-  }
+  } 
+
+  return none();
 }
+}
+
 
 @freezed
 class CreateLogisticState with _$CreateLogisticState {

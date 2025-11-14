@@ -1,6 +1,7 @@
 import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/core/utils/date_format_util.dart';
 import 'package:shakti_hormann/features/transport_confirmation/model/transport_confirmation_form.dart';
 import 'package:shakti_hormann/features/transport_confirmation/presentation/bloc/bloc_provider.dart';
@@ -78,14 +79,21 @@ class TransportCnfrmWidget extends StatelessWidget {
                                 ),
                               ),
                               const SizedBox(height: 5),
-                              Text(
-                                transport.transporterName ?? '',
-                                style: const TextStyle(
-                                  color: AppColors.grey,
-                                  fontWeight: FontWeight.normal,
-                                  letterSpacing: 0,
+                               if ((transport.transporterType ?? '') ==
+                                  'Hormann')
+                                Text(
+                                  [
+                                        transport.transporterName,
+                                        transport.transporterName2,
+                                      ]
+                                      .where((e) => e != null && e.isNotNull)
+                                      .join(' - '),
+                                  style: const TextStyle(
+                                    color: AppColors.grey,
+                                    fontWeight: FontWeight.normal,
+                                    letterSpacing: 0,
+                                  ),
                                 ),
-                              ),
                             ],
                           ),
                         ],

@@ -251,18 +251,19 @@ class CreateTransportCubit extends AppBaseCubit<CreateTransportState> {
   Option<Pair<String, int?>> _validate() {
     final form = state.form;
 
-    if (form.driverContact.doesNotHaveValue ||
+   
+     if (form.driverName.isNull ||
+        (form.driverName?.trim().isEmpty ?? true)) {
+      return optionOf(const Pair('Missing Driver Name', 0));
+    }else if (form.vehicleNumber.isNull ||
+        (form.vehicleNumber?.trim().isEmpty ?? true)) {
+      return optionOf(const Pair('Missing Vehicle Number', 0));
+    }  else if (form.driverContact.doesNotHaveValue ||
         form.driverContact!.length != 10) {
       return optionOf(
         const Pair('Please re-enter a valid 10-digit driver contact number', 0),
       );
-    } else if (form.driverName.isNull ||
-        (form.driverName?.trim().isEmpty ?? true)) {
-      return optionOf(const Pair('Missing Driver Name', 0));
-    } else if (form.vehicleNumber.isNull ||
-        (form.vehicleNumber?.trim().isEmpty ?? true)) {
-      return optionOf(const Pair('Missing Vehicle Number', 0));
-    }
+      }
     //  else if (form.estimatedArrivalDate.isNull ||
     //     (form.estimatedArrivalDate?.trim().isEmpty ?? true)) {
     //   return optionOf(const Pair('Missing Estimated Arrival Date', 0));

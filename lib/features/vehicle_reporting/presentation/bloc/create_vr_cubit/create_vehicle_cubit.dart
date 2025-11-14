@@ -270,18 +270,21 @@ class CreateVehicleCubit extends AppBaseCubit<CreateVehicleState> {
 
   Option<Pair<String, int?>> _validate() {
     final form = state.form;
-    if (form.linkedTransporterConfirmation.doesNotHaveValue) {
+
+    if (form.linkedTransporterConfirmation == null || form.linkedTransporterConfirmation!.isEmpty) {
       return optionOf(const Pair('Select Logistic Request No', 0));
-    } else if (form.driverIdPhoto.doesNotHaveValue &&
-        form.driverIdPhotoImg.isNull) {
-      return optionOf(const Pair('Capture DriverID Photo.', 0));
-    }else if (form.arrivalDate.isNull || 
+    } else if (form.plantName == null || form.plantName!.isEmpty) {
+      return optionOf(const Pair('Plant Name is Required', 0));
+    } else if (form.arrivalDate.isNull || 
              (form.arrivalDate?.trim().isEmpty ?? true)) {
     return optionOf(const Pair('Missing Arrival Date', 0));
   } else if (form.arrivalTime.isNull || 
              (form.arrivalTime?.trim().isEmpty ?? true)) {
     return optionOf(const Pair('Missing Arrival Time', 0));
-  }
+  }else if (form.driverIdPhoto.doesNotHaveValue &&
+        form.driverIdPhotoImg.isNull) {
+      return optionOf(const Pair('Capture DriverID Photo.', 0));
+    }
 
     return const None();
   }

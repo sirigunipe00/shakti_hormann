@@ -469,6 +469,7 @@ class _ItemLoadedTableState extends State<ItemLoadedTable> {
     uomValue: lineItem.uomValue ?? oldItem.uomValue,
     qtyLoaded: lineItem.qtyLoaded ?? oldItem.qtyLoaded,
     // if photo not changed keep existing
+    sampleQuantity: lineItem.sampleQuantity ?? oldItem.sampleQuantity,
     loadedItemPhoto: lineItem.loadedItemPhoto ?? oldItem.loadedItemPhoto,
     imageFile: lineItem.imageFile, // only if new image captured
   );
@@ -582,6 +583,8 @@ class _ItemLoadedTableState extends State<ItemLoadedTable> {
 
 Widget _buildImage(String path, {BuildContext? context}) {
   final baseUrl = Urls.baseUrl.replaceAll('/api', '');
+ 
+
 
   Widget imageWidget;
 
@@ -598,7 +601,7 @@ Widget _buildImage(String path, {BuildContext? context}) {
       width: 50,
       height: 50,
       fit: BoxFit.cover,
-      errorBuilder: (_, __, ___) => const Icon(Icons.broken_image),
+      errorBuilder: (_, __, ___) => const SizedBox.shrink(),
     );
   } else if (path.startsWith('http')) {
     imageWidget = Image.network(
@@ -606,7 +609,7 @@ Widget _buildImage(String path, {BuildContext? context}) {
       width: 50,
       height: 50,
       fit: BoxFit.cover,
-      errorBuilder: (_, __, ___) => const Icon(Icons.broken_image),
+      errorBuilder: (_, __, ___) => const SizedBox.shrink(),
     );
   } else {
     imageWidget = const Icon(Icons.broken_image);
@@ -832,9 +835,7 @@ class _ItemDialogWidgetState extends State<ItemDialogWidget> {
                   Stack(
                     children: [
                       _buildImage(photoPath!, context: context),
-                      Positioned(
-                        right: 0,
-                        bottom: 0,
+                      Center(
                         child: IconButton(
                           icon: const Icon(Icons.refresh, color: Colors.white),
                           style: ButtonStyle(
@@ -848,9 +849,11 @@ class _ItemDialogWidgetState extends State<ItemDialogWidget> {
                     ],
                   )
                 else
-                  IconButton(
-                    icon: const Icon(Icons.camera_alt),
-                    onPressed: _pickPhoto,
+                  Center(
+                    child: IconButton(
+                      icon: const Icon(Icons.camera_alt),
+                      onPressed: _pickPhoto,
+                    ),
                   ),
               ],
             ),

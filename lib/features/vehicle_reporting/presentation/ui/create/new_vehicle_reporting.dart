@@ -255,7 +255,7 @@ $logger.devLog('status:.....${newform.status}');
                                     ),
                                     if (item.transporterName != null)
                                       Text(
-                                        'Transporter Name : ${item.transporterName}',
+                                        'Transporter ID : ${item.transporterName}',
                                       ),
                                       if(item.transporterName2 != null )
                                 Text(

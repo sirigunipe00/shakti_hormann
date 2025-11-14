@@ -66,33 +66,52 @@ void didUpdateWidget(covariant SearchDropDownList<T> oldWidget) {
   }
 }
 
-  @override
-  Widget build(BuildContext context) {
-    final isReadOnlyMode = widget.readOnly;
+@override
+Widget build(BuildContext context) {
+  final isReadOnlyMode = widget.readOnly;
 
-    final backgroundColor =
-        isReadOnlyMode ? AppColors.grey.withValues(alpha:0.20) : Colors.white;
+  final backgroundColor =
+      isReadOnlyMode ? AppColors.grey.withValues(alpha: 0.20) : Colors.white;
 
-    final borderColor =
-        isReadOnlyMode ? Colors.grey.withValues(alpha:0.3) : AppColors.grey.withValues(alpha:0.30);
+  final borderColor =
+      isReadOnlyMode ? Colors.grey.withValues(alpha: 0.3) : AppColors.grey.withValues(alpha: 0.30);
 
-    return Focus(
-      focusNode: widget.focusNode,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (widget.title?.isNotEmpty == true) ...[
-            CaptionText(
-              title: widget.title ?? '',
-              color: widget.color,
-              isRequired: widget.isRequired,
+  return Focus(
+    focusNode: widget.focusNode,
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (widget.title?.isNotEmpty == true) ...[
+          CaptionText(
+            title: widget.title ?? '',
+            color: widget.color,
+            isRequired: widget.isRequired,
+          ),
+          AppSpacer.p4(),
+        ],
+
+        // 🔹 Show loading indicator while fetching data
+        if (widget.isloading)
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: backgroundColor,
+              borderRadius: BorderRadius.circular(8.0),
+              border: Border.all(color: borderColor, width: 1),
             ),
-            AppSpacer.p4(),
-          ],
+            child: const Center(
+              child: SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+            ),
+          )
+        else
           AbsorbPointer(
-            absorbing: widget.readOnly || widget.isloading,
+            absorbing: widget.readOnly,
             child: CustomDropdown<T>.searchRequest(
-
               hideSelectedFieldWhenExpanded: true,
               excludeSelected: false,
               closedHeaderPadding: const EdgeInsets.all(16.0),
@@ -118,7 +137,6 @@ void didUpdateWidget(covariant SearchDropDownList<T> oldWidget) {
               headerBuilder: widget.headerBuilder,
               listItemBuilder: widget.listItemBuilder,
               onChanged: (value) {
-
                 if (value != null) {
                   widget.onSelected(value);
                 }
@@ -126,9 +144,11 @@ void didUpdateWidget(covariant SearchDropDownList<T> oldWidget) {
               initialItem: _selectedValue,
             ),
           ),
-          AppSpacer.p4(),
-        ],
-      ),
-    );
-  }
+
+        AppSpacer.p4(),
+      ],
+    ),
+  );
+}
+
 }

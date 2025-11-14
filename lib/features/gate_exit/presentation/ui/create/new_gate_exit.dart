@@ -277,7 +277,7 @@ class _NewGateExitState extends State<NewGateExit> {
                         builder:
                             (_) => AlertDialog(
                               title: const Text('Invalid QR Code'),
-                              content: Text(
+                              content:  Text(
                                 'Scanned data is not valid JSON or missing fields.\n\nError: $e',
                               ),
                               actions: [
@@ -547,7 +547,7 @@ class _NewGateExitState extends State<NewGateExit> {
                           builder:
                               (_) => AlertDialog(
                                 title: const Text('Invalid QR Code'),
-                                content: Text(
+                                content:  Text(
                                   'Scanned data is not valid JSON or missing fields.\n\nError: $e',
                                 ),
                                 actions: [

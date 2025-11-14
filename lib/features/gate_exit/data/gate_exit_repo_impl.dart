@@ -85,6 +85,32 @@ class GateExitRepoimpl extends BaseApiRepository implements GateExitRepo {
         );
       }
 
+         final cleanedJson = removeNullValues(form.toJson());
+    cleanedJson['status'] = 'Draft';
+     final Map<String, dynamic> requestBody = {
+         'gate_exit_id': form.name,
+         'plant_name': form.plantName,
+        
+        'sales_invoice': form.salesInvoice,
+        'vehicle_no': form.vehicleNo,
+        'vehicle_back_photo':
+            vehiclebackcompressedBytes == null
+                ? null
+                : base64Encode(vehiclebackcompressedBytes),
+        'vehicle_photo':
+            vehiclefrontcompressedBytes == null
+                ? null
+                : base64Encode(vehiclefrontcompressedBytes),
+        'gate_entry_date': form.gateEntryDate,
+        'remarks': form.remarks,
+        'by_mobile_app': 1,
+        
+      };
+        if (form.plantName != null && form.plantName!.trim().isNotEmpty && form.plantName != '') {
+      print('form.plantName....:${form.plantName}');
+      requestBody['plant_name'] = form.plantName;
+    }
+
       final config = RequestConfig(
         url: Urls.submitGateExit,
         parser: (json) {
@@ -92,24 +118,7 @@ class GateExitRepoimpl extends BaseApiRepository implements GateExitRepo {
           return Pair(data, '');
         },
 
-        body: jsonEncode({
-          'gate_exit_id': form.name,
-          'plant_name': form.plantName,
-          'sales_invoice': form.salesInvoice,
-          'vehicle_no': form.vehicleNo,
-          'vehicle_back_photo':
-              vehiclebackcompressedBytes == null
-                  ? null
-                  : base64Encode(vehiclebackcompressedBytes),
-          'vehicle_photo':
-              vehiclefrontcompressedBytes == null
-                  ? null
-                  : base64Encode(vehiclefrontcompressedBytes),
-          'gate_entry_date': form.gateEntryDate,
-
-          'remarks': form.remarks,
-          'by_mobile_app': 1,
-        }),
+        body: jsonEncode(requestBody),
         headers: {HttpHeaders.contentTypeHeader: 'application/json'},
       );
       $logger.devLog('submit .....$config');
@@ -147,23 +156,15 @@ class GateExitRepoimpl extends BaseApiRepository implements GateExitRepo {
         quality: 50,
       );
     } else if (form.vehicleBackPhoto != null) {
-      vehiclefrontcompressedBytes = await fetchAndConvertToBase64(
+      vehiclebackcompressedBytes = await fetchAndConvertToBase64(
         form.vehicleBackPhoto ?? '',
       );
     }
 
     final cleanedJson = removeNullValues(form.toJson());
     cleanedJson['status'] = 'Draft';
-
-    final config = RequestConfig(
-      url: Urls.createGateExit,
-      parser: (json) {
-        final data = json['message']['data']['name'] as String;
-        return Pair(data, '');
-      },
-
-      body: jsonEncode({
-        'plant_name': form.plantName,
+     final Map<String, dynamic> requestBody = {
+         'plant_name': form.plantName,
         'sales_invoice': form.salesInvoice,
         'vehicle_no': form.vehicleNo,
         'vehicle_back_photo':
@@ -177,7 +178,22 @@ class GateExitRepoimpl extends BaseApiRepository implements GateExitRepo {
         'gate_entry_date': form.gateEntryDate,
         'remarks': form.remarks,
         'by_mobile_app': 1,
-      }),
+        
+      };
+        if (form.plantName != null && form.plantName!.trim().isNotEmpty && form.plantName != '') {
+      print('form.plantName....:${form.plantName}');
+      requestBody['plant_name'] = form.plantName;
+    }
+
+    final config = RequestConfig(
+      url: Urls.createGateExit,
+      parser: (json) {
+        final data = json['message']['data']['name'] as String;
+        return Pair(data, '');
+      },
+     
+
+      body: jsonEncode(requestBody),
       headers: {HttpHeaders.contentTypeHeader: 'application/json'},
     );
 

@@ -242,10 +242,21 @@ class CreateGateEntryCubit extends AppBaseCubit<CreateGateEntryState> {
     final form = state.form;
 
 
-    if (form.purchaseOrder == null) {
+    print('form.purchaseOrder...:${form.purchaseOrder}');
+
+
+    if (form.purchaseOrder == null || form.purchaseOrder!.isEmpty) {
       return optionOf(const Pair('Select Purchase Order', 0));
-    } else 
-    if (form.vehiclePhotoImg.isNull &&
+    } else if (form.vendorInvoiceNo.isNull ||
+        (form.vendorInvoiceNo?.trim().isEmpty ?? true)) {
+      return optionOf(const Pair('Missing VendorInvoice No', 0));
+    }  else if (form.vendorInvoiceDate.isNull ||
+        (form.vendorInvoiceDate?.trim().isEmpty ?? true)) {
+      return optionOf(const Pair('Missing VendorInvoice Date', 0));
+    } else if (form.vehicleNo.isNull ||
+        (form.vehicleNo?.trim().isEmpty ?? true)) {
+      return optionOf(const Pair('Missing Vehicle Number', 0));
+    }else if (form.vehiclePhotoImg.isNull &&
         form.vehiclePhoto.doesNotHaveValue) {
       return optionOf(const Pair('Missing VehicleFront Photo', 0));
     } else if (form.vehicleBackPhotoImg.isNull &&
@@ -254,15 +265,6 @@ class CreateGateEntryCubit extends AppBaseCubit<CreateGateEntryState> {
     } else if (form.invoicePhotoImg.isNull &&
         form.invoicePhoto.doesNotHaveValue) {
       return optionOf(const Pair('Missing VendorInvoice Photo', 0));
-    } else if (form.vendorInvoiceDate.isNull ||
-        (form.vendorInvoiceDate?.trim().isEmpty ?? true)) {
-      return optionOf(const Pair('Missing VendorInvoice Date', 0));
-    } else if (form.vendorInvoiceNo.isNull ||
-        (form.vendorInvoiceNo?.trim().isEmpty ?? true)) {
-      return optionOf(const Pair('Missing VendorInvoice No', 0));
-    } else if (form.vehicleNo.isNull ||
-        (form.vehicleNo?.trim().isEmpty ?? true)) {
-      return optionOf(const Pair('Missing Vehicle Number', 0));
     }
 
     return const None();

@@ -102,16 +102,8 @@ class PodRepoImpl extends BaseApiRepository implements ProofOfDeliveryRepo {
         form.unloadingPhoto2 ?? '',
       );
     }
-
-    final config = RequestConfig(
-      url: Urls.createproofOfDelivery,
-      parser: (json) {
-        final data = json['message']['data']['name'] as String;
-        return Pair(data, '');
-      },
-
-      body: jsonEncode({
-        'plant_name': form.plantName,
+     final Map<String, dynamic> requestBody = {
+       'plant_name': form.plantName,
         'pod_date': form.podDate,
         'sales_invoice_no': form.salesInvoice,
         'sales_invoice_date': form.salesInvoiceDate,
@@ -129,7 +121,20 @@ class PodRepoImpl extends BaseApiRepository implements ProofOfDeliveryRepo {
             unloading2compressedBytes == null
                 ? null
                 : base64Encode(unloading2compressedBytes),
-      }),
+          };
+      if (form.plantName != null && form.plantName!.trim().isNotEmpty && form.plantName != '') {
+      print('form.plantName....:${form.plantName}');
+      requestBody['plant_name'] = form.plantName;
+    }
+
+    final config = RequestConfig(
+      url: Urls.createproofOfDelivery,
+      parser: (json) {
+        final data = json['message']['data']['name'] as String;
+        return Pair(data, '');
+      },
+
+      body: jsonEncode(requestBody),
       headers: {HttpHeaders.contentTypeHeader: 'application/json'},
     );
 
@@ -185,17 +190,7 @@ class PodRepoImpl extends BaseApiRepository implements ProofOfDeliveryRepo {
         form.unloadingPhoto2 ?? '',
       );
     }
-
-    final config = RequestConfig(
-      url: Urls.submitproofOfDelivery,
-      parser: (json) {
-        final message = json['message'] as Map<String, dynamic>;
-        final data = message['data'] as Map<String, dynamic>;
-        final docName = data['name'] as String;
-        final msg = message['message'] as String? ?? '';
-        return Pair(docName, msg);
-      },
-      body: jsonEncode({
+     final Map<String, dynamic> requestBody = {
         'docname': form.name,
         'plant_name': form.plantName,
         'pod_date': form.podDate,
@@ -215,7 +210,22 @@ class PodRepoImpl extends BaseApiRepository implements ProofOfDeliveryRepo {
             unloading2compressedBytes == null
                 ? null
                 : base64Encode(unloading2compressedBytes),
-      }),
+          };
+      if (form.plantName != null && form.plantName!.trim().isNotEmpty && form.plantName != '') {
+      print('form.plantName....:${form.plantName}');
+      requestBody['plant_name'] = form.plantName;
+    }
+
+    final config = RequestConfig(
+      url: Urls.submitproofOfDelivery,
+      parser: (json) {
+        final message = json['message'] as Map<String, dynamic>;
+        final data = message['data'] as Map<String, dynamic>;
+        final docName = data['name'] as String;
+        final msg = message['message'] as String? ?? '';
+        return Pair(docName, msg);
+      },
+      body: jsonEncode(requestBody),
       headers: {HttpHeaders.contentTypeHeader: 'application/json'},
     );
 

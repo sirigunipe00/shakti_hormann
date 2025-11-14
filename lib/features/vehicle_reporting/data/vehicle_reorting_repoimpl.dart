@@ -100,16 +100,9 @@ class VehicleReportingRepoimpl extends BaseApiRepository
           form.driverIdPhoto ?? '',
         );
       }
-      final config = RequestConfig(
-        url: Urls.createVehicleReporting,
-        parser: (json) {
-          final data =
-              json['message']['data']['linked_transporter_confirmation']
-                  as String;
-          return Pair(data, '');
-        },
-        body: jsonEncode({
-          'plant_name': form.plantName,
+
+      final Map<String, dynamic> requestBody = {
+           'plant_name': form.plantName,
           'linked_transporter_confirmation': form.linkedTransporterConfirmation,
           'arrival_date': arrivaldate,
           'arrival_time': formattedTime,
@@ -121,13 +114,27 @@ class VehicleReportingRepoimpl extends BaseApiRepository
           'vehicle_reporting_entry_vre_date': form.vehicleReportingEntryVreDate,
           'driver_contact': form.driverContact,
           'remarks': form.remarks,
-        }),
+      };
+       if (form.plantName != null && form.plantName!.trim().isNotEmpty && form.plantName != '') {
+      print('form.plantName....:${form.plantName}');
+      requestBody['plant_name'] = form.plantName;
+    }
+      final config = RequestConfig(
+        url: Urls.createVehicleReporting,
+        parser: (json) {
+          final data =
+              json['message']['data']['linked_transporter_confirmation']
+                  as String;
+          return Pair(data, '');
+        },
+        body: jsonEncode(requestBody),
         headers: {HttpHeaders.contentTypeHeader: 'application/json'},
       );
 
       $logger.devLog('requestConfig.....$config');
 
       final response = await post(config);
+      $logger.devLog('response.........$response');
 
       return response.processAsync((r) async {
         return right(r.data!);
@@ -162,36 +169,40 @@ class VehicleReportingRepoimpl extends BaseApiRepository
           form.driverIdPhoto ?? '',
         );
       }
+           final Map<String, dynamic> requestBody = {
+           'plant_name': form.plantName,
+           'name': form.name,
+          'linked_transporter_confirmation': form.linkedTransporterConfirmation,
+          'arrival_date': form.arrivalDate,
+          'arrival_time': formattedTime,
+          'driver_id_proof':
+              driverIdfrontcompressedBytes == null
+                  ? null
+                  : base64Encode(driverIdfrontcompressedBytes),
+          'vehicle_number': form.vehicleNumber,
+          'vehicle_reporting_entry_vre_date': form.vehicleReportingEntryVreDate,
+          'driver_contact': form.driverContact,
+          'remarks': form.remarks,
+          'status': 'Reported',
+      };
+       if (form.plantName != null && form.plantName!.trim().isNotEmpty && form.plantName != '') {
+      print('form.plantName....:${form.plantName}');
+      requestBody['plant_name'] = form.plantName;
+    }
       final config = RequestConfig(
         url: Urls.updateVehicleReporting,
         parser: (json) {
           final data = json['message']['data']['name'] as String;
           return Pair(data, '');
         },
-        body: jsonEncode({
-          'plant_name': form.plantName,
-          'name': form.name,
-          'linked_transporter_confirmation': form.linkedTransporterConfirmation,
-          'arrival_date': form.arrivalDate,
-          'arrival_time': formattedTime,
-
-          'driver_id_proof':
-              driverIdfrontcompressedBytes == null
-                  ? null
-                  : base64Encode(driverIdfrontcompressedBytes),
-          'status': 'Reported',
-          'vehicle_number': form.vehicleNumber,
-          'vehicle_reporting_entry_vre_date': form.vehicleReportingEntryVreDate,
-          'driver_contact': form.driverContact,
-
-          'remarks': form.remarks,
-        }),
+        body: jsonEncode(requestBody),
         headers: {HttpHeaders.contentTypeHeader: 'application/json'},
       );
 
       $logger.devLog('requestConfig.....$config');
 
       final response = await post(config);
+      $logger.devLog(response);
 
       return response.processAsync((r) async {
         return right(r.data!);
@@ -226,6 +237,7 @@ class VehicleReportingRepoimpl extends BaseApiRepository
       $logger.devLog(requestConfig);
 
       final response = await post(requestConfig);
+      $logger.devLog(response);
       return response.process((r) => right(r.data!));
     });
   }

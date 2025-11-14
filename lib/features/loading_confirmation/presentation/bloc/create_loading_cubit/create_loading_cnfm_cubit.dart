@@ -229,29 +229,33 @@ void updateItem(int index, ItemModel updatedItem) {
   }
 
 Option<Pair<String, int?>> _validate() {
-  // final items = state.listitems;
+  final items = state.listitems;
 
-//   if (items.isEmpty) {
-//     return optionOf(const Pair('At least one item is required', 0));
-//   }
+  // ✅ Check if the item list is empty
+  if (items.isEmpty ) {
+    return optionOf(const Pair('At least one item is required to submit', 0));
+  }
 
-//   for (var item in items) {
-//     if (item.itemCode == null || item.itemCode!.isEmpty) {
-//       return optionOf(const Pair('Item Code is required', 0));
-//     }
-//     if (item.itemName == null || item.itemName!.isEmpty) {
-//       return optionOf(const Pair('Item Name is required', 0));
-//     }
-//     if (item.sampleQuantity == null || item.sampleQuantity! <= 0) {
-//       return optionOf(const Pair('Quantity Loaded must be greater than 0', 0));
-//     }
-//     if (item.stockUom == null || item.stockUom!.isEmpty) {
-//       return optionOf(const Pair('UOM is required', 0));
-//     }
-//   }
+  // ✅ Check individual item details
+  for (var item in items) {
+    if (item.itemCode == null || item.itemCode!.trim().isEmpty) {
+      return optionOf(const Pair('Item Code is required', 0));
+    }
+    // You can uncomment these if you want deeper validation
+    // if (item.itemName == null || item.itemName!.trim().isEmpty) {
+    //   return optionOf(const Pair('Item Name is required', 0));
+    // }
+    // if (item.sampleQuantity == null || item.sampleQuantity! <= 0) {
+    //   return optionOf(const Pair('Quantity Loaded must be greater than 0', 0));
+    // }
+    // if (item.stockUom == null || item.stockUom!.trim().isEmpty) {
+    //   return optionOf(const Pair('UOM is required', 0));
+    // }
+  }
 
-  return const None(); 
+  return none(); // ✅ All validations passed
 }
+
 }
 
 @freezed

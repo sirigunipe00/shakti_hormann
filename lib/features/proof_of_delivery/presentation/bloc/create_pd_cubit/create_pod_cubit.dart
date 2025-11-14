@@ -196,7 +196,7 @@ class CreatePodCubit extends AppBaseCubit<CreatePodState> {
   Option<Pair<String, int?>> _validate() {
     final form = state.form;
 
-    if (form.salesInvoice.doesNotHaveValue) {
+    if (form.salesInvoice == null || form.salesInvoice!.isEmpty) {
       return optionOf(const Pair('Select Invoice No', 0));
     } else if (form.podPhoto.doesNotHaveValue && form.podPhotoImg.isNull) {
       return optionOf(const Pair('Capture Pod Photo.', 0));
