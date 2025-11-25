@@ -79,8 +79,8 @@ class TransportCnfrmWidget extends StatelessWidget {
                                 ),
                               ),
                               const SizedBox(height: 5),
-                               if ((transport.transporterType ?? '') ==
-                                  'Hormann')
+                              //  if ((transport.transporterType ?? '') ==
+                              //     'Hormann')
                                 Text(
                                   [
                                         transport.transporterName,

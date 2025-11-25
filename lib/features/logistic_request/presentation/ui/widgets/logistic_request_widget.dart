@@ -89,8 +89,8 @@ class LogisticRequestWidget extends StatelessWidget {
                                 ),
                               ),
                               const SizedBox(height: 5),
-                              if ((logistic.transporterType ?? '') == 
-                                  'Hormann')
+                              // if ((logistic.transporterType ?? '') == 
+                              //     'Hormann')
                                 Text(
                                   [
                                         logistic.transporterName,

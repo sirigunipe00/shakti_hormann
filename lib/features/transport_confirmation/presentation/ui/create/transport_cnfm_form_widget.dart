@@ -179,7 +179,7 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
                                       .onValueChanged(dispatchType: p0),
                             ),
 
-                            if (newform.transporterType == 'Hormann') ...[
+                            // if (newform.transporterType == 'Hormann') ...[
                               const SizedBox(height: 12),
                               InputField(
                                 title: 'Transporter',
@@ -197,7 +197,7 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
                                         .cubit<CreateTransportCubit>()
                                         .onValueChanged(transporterName: p0),
                               ),
-                            ],
+                            // ],
 
                             const SizedBox(height: 12),
 

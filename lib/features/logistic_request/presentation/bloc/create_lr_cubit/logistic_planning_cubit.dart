@@ -268,16 +268,13 @@ Option<Pair<String, int?>> _validate() {
   }else if (form.transporterType.isNull || 
              (form.transporterType?.trim().isEmpty ?? true)) {
     return optionOf(const Pair('Missing Transporter Type', 0));
-  } 
-  
-  else if (form.transporterType?.trim() == 'Hormann' &&
-           (form.transporterName.isNull || form.transporterName!.trim().isEmpty)) {
-    return optionOf(const Pair('Please select Transporter', 0));
-  } 
-  else if (form.dispatchType.isNull || 
+  }  else if (form.dispatchType.isNull || 
              (form.dispatchType?.trim().isEmpty ?? true)) {
     return optionOf(const Pair('Missing Dispatch Type', 0));
-  } else if (form.preferredVehicleType.isNull || 
+  } else if (form.transporterName.isNull || form.transporterName!.trim().isEmpty) {
+    return optionOf(const Pair('Please select Transporter', 0));
+  } 
+  else if (form.preferredVehicleType.isNull || 
              (form.preferredVehicleType?.trim().isEmpty ?? true)) {
     return optionOf(const Pair('Missing Preferred Vehicle Type', 0));
   } else if (form.requestedDeliveryDate.isNull || 

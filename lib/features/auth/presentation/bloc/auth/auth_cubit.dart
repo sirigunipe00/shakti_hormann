@@ -1,6 +1,7 @@
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:shakti_hormann/core/cubit/base/base_cubit.dart';
 import 'package:shakti_hormann/core/di/injector.dart';
 import 'package:shakti_hormann/core/logger/app_logger.dart';
@@ -30,7 +31,9 @@ class AuthCubit extends AppBaseCubit<AuthState> {
       user.fold(
         (l) => emitSafeState(const _UnAuthenticated()),
         (r) async {
+          await OneSignal.User.pushSubscription.optIn();
           await register<LoggedInUser>(r);
+
        
           emitSafeState(const _Authenticated());
         },

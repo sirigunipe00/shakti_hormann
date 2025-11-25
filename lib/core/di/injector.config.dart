@@ -61,6 +61,12 @@ import '../../features/proof_of_delivery/presentation/bloc/bloc_provider.dart'
     as _i110;
 import '../../features/proof_of_delivery/presentation/bloc/create_pd_cubit/create_pod_cubit.dart'
     as _i971;
+import '../../features/push_notifications.dart/data/notification_repo.dart'
+    as _i1001;
+import '../../features/push_notifications.dart/data/notification_repoimpl.dart'
+    as _i601;
+import '../../features/push_notifications.dart/ui/bloc/bloc_provider.dart'
+    as _i185;
 import '../../features/transport_confirmation/data/transport_confrimation_repo.dart'
     as _i271;
 import '../../features/transport_confirmation/data/transport_confrimation_repoimpl.dart'
@@ -82,6 +88,7 @@ import '../local_storage/key_vale_storage.dart' as _i1012;
 import '../network/api_client.dart' as _i557;
 import '../network/internet_check.dart' as _i402;
 import '../network/network.dart' as _i855;
+import '../utils/notification_usecase.dart' as _i970;
 import 'injector.dart' as _i811;
 
 extension GetItInjectableX on _i174.GetIt {
@@ -170,6 +177,9 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i947.SignInCubit(gh<_i585.AuthRepo>()),
     );
     gh.factory<_i190.AuthCubit>(() => _i190.AuthCubit(gh<_i585.AuthRepo>()));
+    gh.lazySingleton<_i1001.NotificationRepo>(
+      () => _i601.NoticationRepoImpl(gh<_i351.ApiClient>()),
+    );
     gh.lazySingleton<_i820.AppRepository>(
       () => _i820.AppRepository(gh<_i351.ApiClient>(), gh<_i346.AppVersion>()),
     );
@@ -211,6 +221,12 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i614.LogisticPlanningBlocProvider>(
       () =>
           _i614.LogisticPlanningBlocProvider(gh<_i876.LogisticPlanningRepo>()),
+    );
+    gh.lazySingleton<_i185.NotificationBlocProvider>(
+      () => _i185.NotificationBlocProvider(gh<_i1001.NotificationRepo>()),
+    );
+    gh.lazySingleton<_i970.NotificationUsecase>(
+      () => _i970.NotificationUsecase(repo: gh<_i1001.NotificationRepo>()),
     );
     return this;
   }

@@ -10,7 +10,6 @@ import 'package:shakti_hormann/app/presentation/ui/app_splash_scrn.dart';
 import 'package:shakti_hormann/features/auth/model/logged_in_user.dart';
 import 'package:shakti_hormann/features/dashboard/presentation/dashboard_page.dart';
 import 'package:shakti_hormann/app/presentation/widgets/app_scaffold_widget.dart';
-import 'package:shakti_hormann/app/presentation/widgets/notifcations_scrn.dart';
 import 'package:shakti_hormann/core/consts/messages.dart';
 import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/features/gate_entry/model/gate_entry_form.dart';
@@ -38,6 +37,8 @@ import 'package:shakti_hormann/features/proof_of_delivery/presentation/bloc/bloc
 import 'package:shakti_hormann/features/proof_of_delivery/presentation/bloc/create_pd_cubit/create_pod_cubit.dart';
 import 'package:shakti_hormann/features/proof_of_delivery/presentation/ui/new_pod.dart';
 import 'package:shakti_hormann/features/proof_of_delivery/presentation/widget/pod_list.dart';
+import 'package:shakti_hormann/features/push_notifications.dart/ui/bloc/bloc_provider.dart';
+import 'package:shakti_hormann/features/push_notifications.dart/ui/notification_scrn.dart';
 import 'package:shakti_hormann/features/transport_confirmation/model/transport_confirmation_form.dart';
 import 'package:shakti_hormann/features/transport_confirmation/presentation/bloc/bloc_provider.dart';
 import 'package:shakti_hormann/features/transport_confirmation/presentation/bloc/create_transport_cubit.dart/create_transport_cubit.dart';
@@ -105,8 +106,19 @@ class AppRouterConfig {
                     ),
                 routes: [
                   GoRoute(
+                    
                     path: _getPath(AppRoute.notifications),
-                    builder: (ctxt, state) => NotificationListScreen(),
+                    
+                    // final form = state.extra as Notif?;
+                    builder: (ctxt, state) => MultiBlocProvider(providers: [
+                      BlocProvider(
+                        create:
+                            (_) =>
+                                NotificationBlocProvider.get()
+                                    .fetchNotifications()..request(),
+                      ),
+                    ],
+                    child: NotificationListScreen()),
                   ),
                   GoRoute(
                     path: _getPath(AppRoute.gateEntry),

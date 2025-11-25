@@ -53,4 +53,7 @@ class Urls {
   static final submitproofOfDelivery = '$cusWs/shaktihormann.api.submitProofOfDelivery';
 
 
+  static final oneSignal = '$cusWs/onesignal.api.save_user_device';
+
+
 }

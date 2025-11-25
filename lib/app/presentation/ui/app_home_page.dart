@@ -8,6 +8,7 @@ import 'package:shakti_hormann/app/presentation/bloc/app_update_bloc_provider.da
 import 'package:shakti_hormann/app/presentation/widgets/dashboard_item.dart';
 import 'package:shakti_hormann/app/presentation/widgets/greeting_widget.dart';
 import 'package:shakti_hormann/core/core.dart';
+import 'package:shakti_hormann/core/utils/notification_usecase.dart';
 import 'package:shakti_hormann/features/auth/model/logged_in_user.dart';
 import 'package:shakti_hormann/styles/app_icons.dart';
 import 'package:shakti_hormann/widgets/app_update_dailog.dart';
@@ -23,14 +24,18 @@ class AppHomePage extends StatefulWidget {
 class _AppHomePageState extends State<AppHomePage> {
   @override
   void initState() {
-    super.initState();
+        super.initState();
+    $sl.get<NotificationUsecase>().updateOSDetails();
+    
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
         statusBarIconBrightness: Brightness.dark,
         statusBarBrightness: Brightness.light,
       ),
+      
     );
+
   }
 
   final List<DashboardItem> dashboardItems = [
@@ -240,7 +245,7 @@ class _AppHomePageState extends State<AppHomePage> {
                     Padding(
                       padding: const EdgeInsets.only(right: 20),
                       child: GestureDetector(
-                        // onTap: () => AppRoute.notifications.push(context),
+                        onTap: () => AppRoute.notifications.push(context),
                         child: Container(
                           width: 50,
                           height: 50,

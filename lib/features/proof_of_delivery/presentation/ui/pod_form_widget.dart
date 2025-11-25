@@ -12,6 +12,7 @@ import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/widgets/input_filed.dart';
 import 'package:shakti_hormann/widgets/inputs/date_picker_field.dart';
 import 'package:shakti_hormann/widgets/inputs/new_upload_photo_widget.dart';
+import 'package:shakti_hormann/widgets/inputs/pod_photo_widget.dart';
 import 'package:shakti_hormann/widgets/sectionheader.dart';
 import 'package:shakti_hormann/widgets/spaced_column.dart';
 
@@ -325,7 +326,7 @@ class _PodFormWidgetState extends State<PodFormWidget>
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      NewUploadPhotoWidget(
+                      PodPhotoWidget(
                         fileName: 'vehicleinvoice',
                         imageUrl: newform.podPhoto,
                         title: 'Pod Photo',
@@ -338,7 +339,7 @@ class _PodFormWidgetState extends State<PodFormWidget>
                         },
                         focusNode: focusNodes.elementAt(27),
                       ),
-                      NewUploadPhotoWidget(
+                      PodPhotoWidget(
                         fileName: 'vehiclefront',
                         isRequired: true,
                         imageUrl: newform.unloadingPhoto1,
@@ -351,7 +352,7 @@ class _PodFormWidgetState extends State<PodFormWidget>
                         },
                         focusNode: focusNodes.elementAt(27),
                       ),
-                      NewUploadPhotoWidget(
+                      PodPhotoWidget(
                         fileName: 'vehicleback',
                         // isRequired: true,
                         imageUrl: newform.unloadingPhoto2,

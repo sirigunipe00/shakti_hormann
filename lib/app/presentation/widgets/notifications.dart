@@ -6,6 +6,7 @@ class NotificationCard extends StatelessWidget {
     super.key,
     required this.title,
     required this.description,
+    required this.date,
     required this.time,
     this.onTap,
   });
@@ -13,28 +14,29 @@ class NotificationCard extends StatelessWidget {
   final String title;
   final String description;
   final String time;
+  final String date;
   final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         border: const Border(
-          left: BorderSide(color: AppColors.darkBlue, width: 2), 
+          left: BorderSide(color: AppColors.darkBlue, width: 2),
         ),
         boxShadow: [
           const BoxShadow(
             color: Colors.black12,
             blurRadius: 4,
-            offset:  Offset(0, 2),
+            offset: Offset(0, 2),
           ),
         ],
       ),
       child: ListTile(
-        contentPadding: const EdgeInsets.all(16),
+        contentPadding: const EdgeInsets.all(8),
         onTap: onTap,
         title: Text(
           title,
@@ -57,13 +59,28 @@ class NotificationCard extends StatelessWidget {
             const SizedBox(height: 8),
           ],
         ),
-        trailing: Text(
-          time,
-          style: const TextStyle(
-            fontSize: 12,
-            color: Colors.grey,
-            fontWeight: FontWeight.w600,
-          ),
+        trailing: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Text(
+              time,
+              style: const TextStyle(
+                fontSize: 12,
+                color: Colors.black,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              date,
+              style: const TextStyle(
+                fontSize: 12,
+                color: Colors.black,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
         ),
       ),
     );

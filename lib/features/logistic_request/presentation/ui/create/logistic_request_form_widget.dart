@@ -169,27 +169,28 @@ class __LogisticPlanningFormWidgetState
                                     .toList();
                               },
                               onSelected: (selected) {
-                                if (selected == 'Hormann') {
+                                // if (selected == 'Hormann') {
                                   context
                                       .cubit<CreateLogisticCubit>()
                                       .onValueChanged(
                                         transporterType: selected,
-                                        transporterName: null,
-                                        transporterName2: null,
+                                        // transporterName: null,
+                                        // transporterName2: null,
                                       );
-                                } else {
-                                  context
-                                      .cubit<CreateLogisticCubit>()
-                                      .onValueChanged(
-                                        transporterType: selected,
-                                        transporterName: '',
-                                        transporterName2: '',
-                                      );
-                                }
+                                // }
+                                //  else {
+                                //   context
+                                //       .cubit<CreateLogisticCubit>()
+                                //       .onValueChanged(
+                                //         transporterType: selected,
+                                //         transporterName: '',
+                                //         transporterName2: '',
+                                //       );
+                                // }
 
-                                setState(() {
-                                  transportersForm = null;
-                                });
+                              //   setState(() {
+                              //     transportersForm = null;
+                              //   });
                               },
                               focusNode: focusNodes.elementAt(5),
                             ),
@@ -226,180 +227,181 @@ class __LogisticPlanningFormWidgetState
                               focusNode: focusNodes.elementAt(5),
                             ),
 
-                            // BlocBuilder<TransportersList, TransportersState>(
-                            //   buildWhen:
-                            //       (previous, current) => previous != current,
-                            //   builder: (_, state) {
-                            //     final allData = state.maybeWhen(
-                            //       orElse: () => <TransportersForm>[],
-                            //       success: (data) {
-                            //         return data;
-                            //       },
-                            //     );
-                            //     final names = allData.toList();
+                            BlocBuilder<TransportersList, TransportersState>(
+                              buildWhen:
+                                  (previous, current) => previous != current,
+                              builder: (_, state) {
+                                final allData = state.maybeWhen(
+                                  orElse: () => <TransportersForm>[],
+                                  success: (data) {
+                                    return data;
+                                  },
+                                );
+                                final names = allData.toList();
 
-                            //     return SearchDropDownList(
-                            //       key: ValueKey(newform.transporterName),
-                            //       readOnly: isCompleted,
-                            //       color: AppColors.black,
-                            //       items: names,
+                                return SearchDropDownList(
+                                  key: ValueKey(newform.transporterName),
+                                  readOnly: isCompleted,
+                                  color: AppColors.black,
+                                  items: names,
+                                  isRequired: true,
 
-                            //       defaultSelection:
-                            //           names
-                            //               .where(
-                            //                 (e) =>
-                            //                     e.name ==
-                            //                     newform.transporterName,
-                            //               )
-                            //               .firstOrNull,
-                            //       title: 'Transporter',
-                            //       hint: 'Select Transporter',
-                            //       isloading: state.isLoading,
-                            //       futureRequest: (searchText) async {
-                            //         if (searchText.trim().isEmpty) {
-                            //           return names;
-                            //         }
-                            //         final query =
-                            //             searchText.trim().toLowerCase();
-                            //         final filtered =
-                            //             names.where((item) {
-                            //               final name =
-                            //                   item.name?.toLowerCase() ?? '';
-                            //               final supplier =
-                            //                   item.suppliername
-                            //                       ?.toLowerCase() ??
-                            //                   '';
-                            //               return name.contains(query) ||
-                            //                   supplier.contains(query);
-                            //             }).toList();
+                                  defaultSelection:
+                                      names
+                                          .where(
+                                            (e) =>
+                                                e.name ==
+                                                newform.transporterName,
+                                          )
+                                          .firstOrNull,
+                                  title: 'Transporter Name',
+                                  hint: 'Select Transporter',
+                                  isloading: state.isLoading,
+                                  futureRequest: (searchText) async {
+                                    if (searchText.trim().isEmpty) {
+                                      return names;
+                                    }
+                                    final query =
+                                        searchText.trim().toLowerCase();
+                                    final filtered =
+                                        names.where((item) {
+                                          final name =
+                                              item.name?.toLowerCase() ?? '';
+                                          final supplier =
+                                              item.suppliername
+                                                  ?.toLowerCase() ??
+                                              '';
+                                          return name.contains(query) ||
+                                              supplier.contains(query);
+                                        }).toList();
 
-                            //         return filtered;
-                            //       },
-                            //       headerBuilder:
-                            //           (_, item, __) => Text(
-                            //             '${item.name ?? ''} - ${item.suppliername ?? ''}',
-                            //             style: const TextStyle(
-                            //               fontWeight: FontWeight.bold,
-                            //             ),
-                            //           ),
-
-                            //       listItemBuilder:
-                            //           (_, item, __, ___) => Column(
-                            //             crossAxisAlignment:
-                            //                 CrossAxisAlignment.start,
-                            //             children: [
-                            //               Text(
-                            //                 'Transporter ID: ${item.name ?? ''}',
-                            //                 style: const TextStyle(
-                            //                   fontWeight: FontWeight.bold,
-                            //                 ),
-                            //               ),
-                            //               if (item.suppliername != null)
-                            //                 Text(
-                            //                   'Transporter Name : ${item.suppliername ?? ''}',
-                            //                 ),
-
-                            //               const Divider(height: 8),
-                            //             ],
-                            //           ),
-                            //       onSelected: (selected) {
-                            //         setState(() {
-                            //           transportersForm = selected;
-                            //         });
-                            //         context
-                            //             .cubit<CreateLogisticCubit>()
-                            //             .onValueChanged(
-                            //               transporterName: selected.name,
-                            //             );
-                            //       },
-                            //       focusNode: focusNodes.elementAt(3),
-                            //     );
-                            //   },
-                            // ),
-                            if (newform.transporterType == 'Hormann') ...[
-                              const SizedBox(height: 12),
-                              BlocBuilder<TransportersList, TransportersState>(
-                                buildWhen:
-                                    (previous, current) => previous != current,
-                                builder: (_, state) {
-                                  final allData = state.maybeWhen(
-                                    orElse: () => <TransportersForm>[],
-                                    success: (data) => data,
-                                  );
-                                  final names = allData.toList();
-
-                                  return SearchDropDownList(
-                                    key: ValueKey(newform.transporterName),
-                                    readOnly: isCompleted,
-                                    color: AppColors.black,
-                                    items: names,
-                                    isRequired: true,
-                                    defaultSelection:
-                                        names
-                                            .where(
-                                              (e) =>
-                                                  e.name ==
-                                                  newform.transporterName,
-                                            )
-                                            .firstOrNull,
-                                    title: 'Transporter',
-                                    hint: 'Select Transporter',
-                                    isloading: state.isLoading,
-                                    futureRequest: (searchText) async {
-                                      if (searchText.trim().isEmpty)
-                                        return names;
-                                      final query =
-                                          searchText.trim().toLowerCase();
-                                      return names.where((item) {
-                                        final name =
-                                            item.name?.toLowerCase() ?? '';
-                                        final supplier =
-                                            item.suppliername?.toLowerCase() ??
-                                            '';
-                                        return name.contains(query) ||
-                                            supplier.contains(query);
-                                      }).toList();
-                                    },
-                                    headerBuilder:
-                                        (_, item, __) => Text(
-                                          '${item.name ?? ''} - ${item.suppliername ?? ''}',
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                          ),
+                                    return filtered;
+                                  },
+                                  headerBuilder:
+                                      (_, item, __) => Text(
+                                        '${item.name ?? ''} - ${item.suppliername ?? ''}',
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
                                         ),
-                                    listItemBuilder:
-                                        (_, item, __, ___) => Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              'Transporter ID: ${item.name ?? ''}',
-                                              style: const TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                              ),
+                                      ),
+
+                                  listItemBuilder:
+                                      (_, item, __, ___) => Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            'Transporter ID: ${item.name ?? ''}',
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
                                             ),
-                                            if (item.suppliername != null)
-                                              Text(
-                                                'Transporter Name: ${item.suppliername ?? ''}',
-                                              ),
-                                            const Divider(height: 8),
-                                          ],
-                                        ),
-                                    onSelected: (selected) {
-                                      setState(() {
-                                        transportersForm = selected;
-                                      });
-                                      context
-                                          .cubit<CreateLogisticCubit>()
-                                          .onValueChanged(
-                                            transporterName: selected.name,
-                                          );
-                                    },
-                                    focusNode: focusNodes.elementAt(3),
-                                  );
-                                },
-                              ),
-                            ],
+                                          ),
+                                          if (item.suppliername != null)
+                                            Text(
+                                              'Transporter Name : ${item.suppliername ?? ''}',
+                                            ),
+
+                                          const Divider(height: 8),
+                                        ],
+                                      ),
+                                  onSelected: (selected) {
+                                    setState(() {
+                                      transportersForm = selected;
+                                    });
+                                    context
+                                        .cubit<CreateLogisticCubit>()
+                                        .onValueChanged(
+                                          transporterName: selected.name,
+                                        );
+                                  },
+                                  focusNode: focusNodes.elementAt(3),
+                                );
+                              },
+                            ),
+                            // if (newform.transporterType == 'Hormann') ...[
+                            //   const SizedBox(height: 12),
+                            //   BlocBuilder<TransportersList, TransportersState>(
+                            //     buildWhen:
+                            //         (previous, current) => previous != current,
+                            //     builder: (_, state) {
+                            //       final allData = state.maybeWhen(
+                            //         orElse: () => <TransportersForm>[],
+                            //         success: (data) => data,
+                            //       );
+                            //       final names = allData.toList();
+
+                            //       return SearchDropDownList(
+                            //         key: ValueKey(newform.transporterName),
+                            //         readOnly: isCompleted,
+                            //         color: AppColors.black,
+                            //         items: names,
+                            //         isRequired: true,
+                            //         defaultSelection:
+                            //             names
+                            //                 .where(
+                            //                   (e) =>
+                            //                       e.name ==
+                            //                       newform.transporterName,
+                            //                 )
+                            //                 .firstOrNull,
+                            //         title: 'Transporter',
+                            //         hint: 'Select Transporter',
+                            //         isloading: state.isLoading,
+                            //         futureRequest: (searchText) async {
+                            //           if (searchText.trim().isEmpty)
+                            //             return names;
+                            //           final query =
+                            //               searchText.trim().toLowerCase();
+                            //           return names.where((item) {
+                            //             final name =
+                            //                 item.name?.toLowerCase() ?? '';
+                            //             final supplier =
+                            //                 item.suppliername?.toLowerCase() ??
+                            //                 '';
+                            //             return name.contains(query) ||
+                            //                 supplier.contains(query);
+                            //           }).toList();
+                            //         },
+                            //         headerBuilder:
+                            //             (_, item, __) => Text(
+                            //               '${item.name ?? ''} - ${item.suppliername ?? ''}',
+                            //               style: const TextStyle(
+                            //                 fontWeight: FontWeight.bold,
+                            //               ),
+                            //             ),
+                            //         listItemBuilder:
+                            //             (_, item, __, ___) => Column(
+                            //               crossAxisAlignment:
+                            //                   CrossAxisAlignment.start,
+                            //               children: [
+                            //                 Text(
+                            //                   'Transporter ID: ${item.name ?? ''}',
+                            //                   style: const TextStyle(
+                            //                     fontWeight: FontWeight.bold,
+                            //                   ),
+                            //                 ),
+                            //                 if (item.suppliername != null)
+                            //                   Text(
+                            //                     'Transporter Name: ${item.suppliername ?? ''}',
+                            //                   ),
+                            //                 const Divider(height: 8),
+                            //               ],
+                            //             ),
+                            //         onSelected: (selected) {
+                            //           setState(() {
+                            //             transportersForm = selected;
+                            //           });
+                            //           context
+                            //               .cubit<CreateLogisticCubit>()
+                            //               .onValueChanged(
+                            //                 transporterName: selected.name,
+                            //               );
+                            //         },
+                            //         focusNode: focusNodes.elementAt(3),
+                            //       );
+                            //     },
+                            //   ),
+                            // ],
 
                             const SizedBox(height: 12),
                             BlocBuilder<VehicleList, VehicleListState>(
