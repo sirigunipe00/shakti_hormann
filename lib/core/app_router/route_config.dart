@@ -22,6 +22,11 @@ import 'package:shakti_hormann/features/gate_exit/presentation/bloc/bloc_provide
 import 'package:shakti_hormann/features/gate_exit/presentation/bloc/create_gate_cubit/gate_exit_cubit.dart';
 import 'package:shakti_hormann/features/gate_exit/presentation/ui/create/new_gate_exit.dart';
 import 'package:shakti_hormann/features/gate_exit/presentation/ui/widgets/gate_exit_list.dart';
+import 'package:shakti_hormann/features/gate_management/model/gate_management_form.dart';
+import 'package:shakti_hormann/features/gate_management/presentation/bloc/bloc_provider.dart';
+import 'package:shakti_hormann/features/gate_management/presentation/bloc/create_gate_management_cubit.dart/gate_management_cubit.dart';
+import 'package:shakti_hormann/features/gate_management/presentation/ui/create/new_gate_management.dart';
+import 'package:shakti_hormann/features/gate_management/presentation/ui/widget/gate_management_list.dart';
 import 'package:shakti_hormann/features/loading_confirmation/model/loading_cnfm.dart';
 import 'package:shakti_hormann/features/loading_confirmation/presentation/bloc/bloc_provider.dart';
 import 'package:shakti_hormann/features/loading_confirmation/presentation/bloc/create_loading_cubit/create_loading_cnfm_cubit.dart';
@@ -118,7 +123,7 @@ class AppRouterConfig {
                                     .fetchNotifications()..request(),
                       ),
                     ],
-                    child: NotificationListScreen()),
+                    child: const NotificationListScreen()),
                   ),
                   GoRoute(
                     path: _getPath(AppRoute.gateEntry),
@@ -566,6 +571,73 @@ class AppRouterConfig {
                               ),
                             ],
                             child: const NewPod(),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                      GoRoute(
+                    path: _getPath(AppRoute.gateManagement),
+                    builder: (ctxt, state) {
+                      final filters = Pair(
+                        StringUtils.docStatusInt('Draft'),
+                        null,
+                      );
+                      return BlocProvider(
+                        create:
+                            (context) =>
+                                GateManagementBlocProvider.get().fetchGateManagements()
+                                  ..fetchInitial(filters),
+                        child: const GateManagementList(),
+                      );
+                    },
+                    routes: [
+                      GoRoute(
+                        path: _getPath(AppRoute.newGateManagement),
+                        onExit: (context, state) async {
+                          final form = state.extra as GateManagementForm?;
+                          final formStatus =
+                              form?.docStatus == 1 ? 'Submitted' : 'Draft';
+                          return await _promptConf(
+                            context,
+                            formStatus: formStatus,
+                          );
+                        },
+                        builder: (_, state) {
+                          final gateEntryForm = state.extra as GateManagementForm?;
+                          return MultiBlocProvider(
+                            providers: [
+                              // BlocProvider(
+                              //   create:
+                              //       (_) =>
+                              //           GateEntryBlocProvider.get()
+                              //               .purchaseOrderList()
+                              //             ..request(''),
+                              // ),
+                              // BlocProvider(
+                              //   create:
+                              //       (_) =>
+                              //           GateEntryBlocProvider.get()
+                              //               .gateNumberList()
+                              //             ..request(''),
+                              // ),
+
+                              BlocProvider(
+                                create:
+                                    (_) =>
+                                        $sl.get<CreateGateManagementCubit>()
+                                          ..initDetails(gateEntryForm),
+                              ),
+
+                              // BlocProvider(
+                              //   create:
+                              //       (_) =>
+                              //           GateEntryBlocProvider.get()
+                              //               .getPurchase()
+                              //             ..request(gateEntryForm?.name ?? ''),
+                              // ),
+                            ],
+                            child: const NewGateManagement(),
                           );
                         },
                       ),

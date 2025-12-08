@@ -8,10 +8,12 @@ class DashboardItem {
     required this.title,
     required this.icon,
     required this.onTap,
+    this.iconSize,
     required this.permissionSelector,
   });
   final String title;
   final AppIcon icon;
+  final Size? iconSize;
   final void Function(BuildContext context) onTap;
   final int? Function(RoleStatus? roleStatus) permissionSelector;
 }

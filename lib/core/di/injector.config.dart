@@ -39,6 +39,14 @@ import '../../features/gate_exit/data/gate_exit_repo_impl.dart' as _i100;
 import '../../features/gate_exit/presentation/bloc/bloc_provider.dart' as _i565;
 import '../../features/gate_exit/presentation/bloc/create_gate_cubit/gate_exit_cubit.dart'
     as _i297;
+import '../../features/gate_management/data/gate_management_repo.dart'
+    as _i1021;
+import '../../features/gate_management/data/gate_management_repoimpl.dart'
+    as _i431;
+import '../../features/gate_management/presentation/bloc/bloc_provider.dart'
+    as _i1008;
+import '../../features/gate_management/presentation/bloc/create_gate_management_cubit.dart/gate_management_cubit.dart'
+    as _i326;
 import '../../features/loading_confirmation/data/loading_cnfm_repo.dart'
     as _i66;
 import '../../features/loading_confirmation/data/loading_cnfm_repoimpl.dart'
@@ -140,6 +148,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i25.ProofOfDeliveryRepo>(
       () => _i690.PodRepoImpl(gh<_i351.ApiClient>()),
     );
+    gh.lazySingleton<_i1021.GateManagementRepo>(
+      () => _i431.GateManagementRepoimpl(gh<_i351.ApiClient>()),
+    );
     gh.lazySingleton<_i66.LoadingCnfmRepo>(
       () => _i186.LoadingCnfmRepoimpl(gh<_i351.ApiClient>()),
     );
@@ -182,6 +193,12 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i820.AppRepository>(
       () => _i820.AppRepository(gh<_i351.ApiClient>(), gh<_i346.AppVersion>()),
+    );
+    gh.lazySingleton<_i1008.GateManagementBlocProvider>(
+      () => _i1008.GateManagementBlocProvider(gh<_i1021.GateManagementRepo>()),
+    );
+    gh.factory<_i326.CreateGateManagementCubit>(
+      () => _i326.CreateGateManagementCubit(gh<_i1021.GateManagementRepo>()),
     );
     gh.factory<_i92.CreateGateEntryCubit>(
       () => _i92.CreateGateEntryCubit(gh<_i936.GateEntryRepo>()),

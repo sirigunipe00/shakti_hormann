@@ -8,6 +8,8 @@ import 'package:shakti_hormann/features/gate_entry/presentation/bloc/bloc_provid
 import 'package:shakti_hormann/features/gate_entry/presentation/bloc/gate_entry_filter_cubit.dart';
 import 'package:shakti_hormann/features/gate_exit/presentation/bloc/bloc_provider.dart';
 import 'package:shakti_hormann/features/gate_exit/presentation/bloc/gate_exit_filter_cubit.dart';
+import 'package:shakti_hormann/features/gate_management/presentation/bloc/bloc_provider.dart';
+
 import 'package:shakti_hormann/features/loading_confirmation/presentation/bloc/bloc_provider.dart';
 import 'package:shakti_hormann/features/loading_confirmation/presentation/bloc/loading_cnfm_filters_cubit.dart';
 import 'package:shakti_hormann/features/logistic_request/presentation/bloc/bloc_provider.dart';
@@ -19,6 +21,8 @@ import 'package:shakti_hormann/features/transport_confirmation/presentation/bloc
 import 'package:shakti_hormann/features/vehicle_reporting/presentation/bloc/bloc_provider.dart';
 import 'package:shakti_hormann/features/vehicle_reporting/presentation/bloc/vehicle_reporting_filtercubit.dart';
 import 'package:shakti_hormann/styles/material_theme.dart';
+
+import 'features/gate_management/presentation/bloc/gate_management_filter.dart';
 
 
 class ShaktiHormann extends StatefulWidget {
@@ -68,6 +72,8 @@ class _ShaktiHormannState extends State<ShaktiHormann>
         BlocProvider(create: (_) => VehicleReportingFilterCubit()),
         BlocProvider(create: (_) => LoadingCnfmFiltersCubit()),
         BlocProvider(create: (_) => PodFiltersCubit()),
+        BlocProvider(create: (_) => GateManagementFilter()),
+
 
         // BlocProvider<GeoPermissionHandler>(
         //   create: (_) => GeoPermissionHandler(),
@@ -91,6 +97,7 @@ class _ShaktiHormannState extends State<ShaktiHormann>
           create:
               (_) => ProofOfDeliveryBlocProvider.get().fetchProofOfDelivery(),
         ),
+        BlocProvider(create: (_) => GateManagementBlocProvider.get().fetchGateManagements())
       ],
       child: MultiBlocListener(
         listeners: [
@@ -128,6 +135,9 @@ class _ShaktiHormannState extends State<ShaktiHormann>
                   );
                   routerCtxt.cubit<LoadingCnfmCubit>().fetchInitial(filterss);
                   routerCtxt.cubit<ProofOfDeliveryCubit>().fetchInitial(
+                    filters,
+                  );
+                  routerCtxt.cubit<GateMangementCubit>().fetchInitial(
                     filters,
                   );
 

@@ -33,6 +33,8 @@ mixin _$SalesInvoiceForm {
   String? get customerName => throw _privateConstructorUsedError;
   @JsonKey(name: 'order_date')
   String? get orderDate => throw _privateConstructorUsedError;
+  @JsonKey(name: 'customer')
+  String? get customer => throw _privateConstructorUsedError;
   @JsonKey(name: 'remarks')
   String? get remarks => throw _privateConstructorUsedError;
 
@@ -60,6 +62,7 @@ abstract class $SalesInvoiceFormCopyWith<$Res> {
     @JsonKey(name: 'vehicle_no', defaultValue: '') String? vehicleNo,
     @JsonKey(name: 'customer_name') String? customerName,
     @JsonKey(name: 'order_date') String? orderDate,
+    @JsonKey(name: 'customer') String? customer,
     @JsonKey(name: 'remarks') String? remarks,
   });
 }
@@ -85,6 +88,7 @@ class _$SalesInvoiceFormCopyWithImpl<$Res, $Val extends SalesInvoiceForm>
     Object? vehicleNo = freezed,
     Object? customerName = freezed,
     Object? orderDate = freezed,
+    Object? customer = freezed,
     Object? remarks = freezed,
   }) {
     return _then(
@@ -119,6 +123,11 @@ class _$SalesInvoiceFormCopyWithImpl<$Res, $Val extends SalesInvoiceForm>
                     ? _value.orderDate
                     : orderDate // ignore: cast_nullable_to_non_nullable
                         as String?,
+            customer:
+                freezed == customer
+                    ? _value.customer
+                    : customer // ignore: cast_nullable_to_non_nullable
+                        as String?,
             remarks:
                 freezed == remarks
                     ? _value.remarks
@@ -146,6 +155,7 @@ abstract class _$$SalesInvoiceFormImplCopyWith<$Res>
     @JsonKey(name: 'vehicle_no', defaultValue: '') String? vehicleNo,
     @JsonKey(name: 'customer_name') String? customerName,
     @JsonKey(name: 'order_date') String? orderDate,
+    @JsonKey(name: 'customer') String? customer,
     @JsonKey(name: 'remarks') String? remarks,
   });
 }
@@ -170,6 +180,7 @@ class __$$SalesInvoiceFormImplCopyWithImpl<$Res>
     Object? vehicleNo = freezed,
     Object? customerName = freezed,
     Object? orderDate = freezed,
+    Object? customer = freezed,
     Object? remarks = freezed,
   }) {
     return _then(
@@ -204,6 +215,11 @@ class __$$SalesInvoiceFormImplCopyWithImpl<$Res>
                 ? _value.orderDate
                 : orderDate // ignore: cast_nullable_to_non_nullable
                     as String?,
+        customer:
+            freezed == customer
+                ? _value.customer
+                : customer // ignore: cast_nullable_to_non_nullable
+                    as String?,
         remarks:
             freezed == remarks
                 ? _value.remarks
@@ -224,6 +240,7 @@ class _$SalesInvoiceFormImpl implements _SalesInvoiceForm {
     @JsonKey(name: 'vehicle_no', defaultValue: '') this.vehicleNo,
     @JsonKey(name: 'customer_name') this.customerName,
     @JsonKey(name: 'order_date') this.orderDate,
+    @JsonKey(name: 'customer') this.customer,
     @JsonKey(name: 'remarks') this.remarks,
   });
 
@@ -249,12 +266,15 @@ class _$SalesInvoiceFormImpl implements _SalesInvoiceForm {
   @JsonKey(name: 'order_date')
   final String? orderDate;
   @override
+  @JsonKey(name: 'customer')
+  final String? customer;
+  @override
   @JsonKey(name: 'remarks')
   final String? remarks;
 
   @override
   String toString() {
-    return 'SalesInvoiceForm(name: $name, plantName: $plantName, postingDate: $postingDate, vehicleNo: $vehicleNo, customerName: $customerName, orderDate: $orderDate, remarks: $remarks)';
+    return 'SalesInvoiceForm(name: $name, plantName: $plantName, postingDate: $postingDate, vehicleNo: $vehicleNo, customerName: $customerName, orderDate: $orderDate, customer: $customer, remarks: $remarks)';
   }
 
   @override
@@ -273,6 +293,8 @@ class _$SalesInvoiceFormImpl implements _SalesInvoiceForm {
                 other.customerName == customerName) &&
             (identical(other.orderDate, orderDate) ||
                 other.orderDate == orderDate) &&
+            (identical(other.customer, customer) ||
+                other.customer == customer) &&
             (identical(other.remarks, remarks) || other.remarks == remarks));
   }
 
@@ -286,6 +308,7 @@ class _$SalesInvoiceFormImpl implements _SalesInvoiceForm {
     vehicleNo,
     customerName,
     orderDate,
+    customer,
     remarks,
   );
 
@@ -314,6 +337,7 @@ abstract class _SalesInvoiceForm implements SalesInvoiceForm {
     @JsonKey(name: 'vehicle_no', defaultValue: '') final String? vehicleNo,
     @JsonKey(name: 'customer_name') final String? customerName,
     @JsonKey(name: 'order_date') final String? orderDate,
+    @JsonKey(name: 'customer') final String? customer,
     @JsonKey(name: 'remarks') final String? remarks,
   }) = _$SalesInvoiceFormImpl;
 
@@ -338,6 +362,9 @@ abstract class _SalesInvoiceForm implements SalesInvoiceForm {
   @override
   @JsonKey(name: 'order_date')
   String? get orderDate;
+  @override
+  @JsonKey(name: 'customer')
+  String? get customer;
   @override
   @JsonKey(name: 'remarks')
   String? get remarks;

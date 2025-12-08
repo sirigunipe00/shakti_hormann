@@ -241,6 +241,7 @@ class PodRepoImpl extends BaseApiRepository implements ProofOfDeliveryRepo {
   AsyncValueOf<List<SalesInvoiceForm>> fetchSalesInvoice(String name) async {
     return await executeSafely(() async {
        final plantName = user().plantName;
+      final customer = user().customer;
       //  final filters = <List<dynamic>>[];
 
    
@@ -250,6 +251,10 @@ class PodRepoImpl extends BaseApiRepository implements ProofOfDeliveryRepo {
           ['pod', '=', '0'],
           if (plantName != null && plantName.isNotEmpty)
             ['company', '=', plantName],
+             if (customer != null && customer.isNotEmpty)
+            ['customer', '=', customer],
+            
+
         ],
         'limit_start': 0,
         'limit_page_length': 'None',
@@ -274,6 +279,7 @@ class PodRepoImpl extends BaseApiRepository implements ProofOfDeliveryRepo {
       );
       $logger.devLog('salesinvoice.....$config');
       final response = await get(config);
+      $logger.devLog('salesinvoice response.....$response');
       return response.processAsync((r) async {
         return right((r.data!));
       });

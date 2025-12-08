@@ -1,5 +1,3 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -13,7 +11,6 @@ import 'package:shakti_hormann/features/auth/model/logged_in_user.dart';
 import 'package:shakti_hormann/styles/app_icons.dart';
 import 'package:shakti_hormann/widgets/app_update_dailog.dart';
 
-
 class AppHomePage extends StatefulWidget {
   const AppHomePage({super.key});
 
@@ -24,18 +21,16 @@ class AppHomePage extends StatefulWidget {
 class _AppHomePageState extends State<AppHomePage> {
   @override
   void initState() {
-        super.initState();
+    super.initState();
     $sl.get<NotificationUsecase>().updateOSDetails();
-    
+
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
         statusBarIconBrightness: Brightness.dark,
         statusBarBrightness: Brightness.light,
       ),
-      
     );
-
   }
 
   final List<DashboardItem> dashboardItems = [
@@ -96,6 +91,15 @@ class _AppHomePageState extends State<AppHomePage> {
       },
       permissionSelector: (roleStatus) => roleStatus?.showpod,
     ),
+    DashboardItem(
+      title: 'Gate Management',
+      icon: AppIcons.gatemanagement,
+      iconSize: const Size(140, 80),
+      onTap: (context) {
+        AppRoute.gateManagement.push<bool?>(context);
+      },
+      permissionSelector: (roleStatus) => roleStatus?.showgaetManagement,
+    ),
   ];
 
   Widget buildDashboardCard(DashboardItem item) {
@@ -118,7 +122,12 @@ class _AppHomePageState extends State<AppHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            item.icon.toWidget(height: 60, width: 100),
+            // item.icon.toWidget(height: 60, width: 100),
+            item.icon.toWidget(
+              height: item.iconSize?.height ?? 60,
+              width: item.iconSize?.width ?? 100,
+            ),
+
             const SizedBox(height: 10),
             Text(
               item.title,
@@ -138,7 +147,6 @@ class _AppHomePageState extends State<AppHomePage> {
 
   @override
   Widget build(BuildContext context) {
-
     LoggedInUser? user;
     try {
       user = $sl<LoggedInUser>();

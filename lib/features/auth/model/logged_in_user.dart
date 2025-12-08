@@ -25,6 +25,7 @@ class LoggedInUser with _$LoggedInUser {
     @JsonKey(name: 'plant_name') String? plantName,
     @JsonKey(name: 'full_name') String? fullName,
     @JsonKey(name: 'transporter') String? transporter,
+    @JsonKey(name: 'customer') String? customer,
     String? phone,
     String? location,
     String? bio,
@@ -51,6 +52,7 @@ class RoleStatus with _$RoleStatus {
     @JsonKey(name: 'Show Vehicle Reporting in Mobile App') int? showVehicleReporting,
     @JsonKey(name: 'Show Loading Confirmation in Mobile App') int? showLoadingConfirmation,
     @JsonKey(name: 'Show Proof of Delivery in Mobile App') int? showpod,
+    @JsonKey(name: 'Show Gate Management in Mobile App') int? showgaetManagement,
   }) = _RoleStatus;
 
   factory RoleStatus.fromJson(Map<String, dynamic> json) =>

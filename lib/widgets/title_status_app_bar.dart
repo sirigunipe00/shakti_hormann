@@ -13,7 +13,8 @@ enum PageMode2 {
   transportConfirmation('Transport Confirmation'),
   vehicleReporting('Vehicle Reporting Entry'),
   loadingConfirmation('Dispatch Loading'),
-  proofOfDelivery('Proof of Delivery');
+  proofOfDelivery('Proof of Delivery'),
+  gateManagement('Gate Management');
 
 
   const PageMode2(this.name);
@@ -168,7 +169,7 @@ class TitleStatusAppBar extends StatelessWidget implements PreferredSizeWidget {
         ],
         if (showRejectButton &&
             pageMode != PageMode2.logisticRequest &&
-            pageMode != PageMode2.gateentry &&
+            pageMode != PageMode2.gateentry && pageMode != PageMode2.gateManagement && 
             pageMode != PageMode2.gateexit)
           _buildActionButton(
             pageMode == PageMode2.vehicleReporting

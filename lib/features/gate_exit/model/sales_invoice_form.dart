@@ -12,6 +12,7 @@ class SalesInvoiceForm with _$SalesInvoiceForm {
     @JsonKey(name: 'vehicle_no', defaultValue: '') String? vehicleNo,
     @JsonKey(name:'customer_name') String? customerName,
     @JsonKey(name:'order_date') String? orderDate,
+    @JsonKey(name: 'customer') String? customer, 
     @JsonKey(name: 'remarks') String? remarks,
   }) = _SalesInvoiceForm;
   factory SalesInvoiceForm.fromJson(Map<String, dynamic> json) =>

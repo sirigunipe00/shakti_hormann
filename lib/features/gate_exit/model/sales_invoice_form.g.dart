@@ -15,6 +15,7 @@ _$SalesInvoiceFormImpl _$$SalesInvoiceFormImplFromJson(
   vehicleNo: json['vehicle_no'] as String? ?? '',
   customerName: json['customer_name'] as String?,
   orderDate: json['order_date'] as String?,
+  customer: json['customer'] as String?,
   remarks: json['remarks'] as String?,
 );
 
@@ -27,5 +28,6 @@ Map<String, dynamic> _$$SalesInvoiceFormImplToJson(
   'vehicle_no': instance.vehicleNo,
   'customer_name': instance.customerName,
   'order_date': instance.orderDate,
+  'customer': instance.customer,
   'remarks': instance.remarks,
 };

@@ -15,7 +15,8 @@ enum PageMode2 {
   transportConfirmation('Transport Confirmation'),
   vehicleReporting('Vehicle Reporting Entry'),
   loadingConfirmation('Dispatch Loading'),
-  proofOfDelivery('Proof Of Delivery');
+  proofOfDelivery('Proof Of Delivery'),
+  gateManagement('Gate Management');
 
   const PageMode2(this.name);
 
@@ -56,6 +57,7 @@ class _AppPageView2State<T extends PageViewFiltersCubit>
     PageMode2.vehicleReporting => 'Search VRE',
     PageMode2.loadingConfirmation => 'Search VRE',
     PageMode2.proofOfDelivery => 'Search POD',
+    PageMode2.gateManagement => 'Serach GM',
   };
 
   Color get bgColor => switch (widget.mode) {
@@ -66,6 +68,7 @@ class _AppPageView2State<T extends PageViewFiltersCubit>
     PageMode2.vehicleReporting => AppColors.white,
     PageMode2.loadingConfirmation => AppColors.white,
     PageMode2.proofOfDelivery => AppColors.white,
+    PageMode2.gateManagement => AppColors.white,
   };
 
   @override
@@ -76,6 +79,7 @@ class _AppPageView2State<T extends PageViewFiltersCubit>
       case PageMode2.gateentry:
       case PageMode2.gateexit:
       case PageMode2.proofOfDelivery:
+      case PageMode2.gateManagement:
         filters = ['Draft', 'Submitted', 'All'];
         break;
 

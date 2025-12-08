@@ -22,7 +22,7 @@ class AppIcons {
   static const vehicleReporting = AppIcon('$imagesPath/vehiclereportings.svg');
   static const loadingConfirmation = AppIcon('$imagesPath/loadingconfirmation.svg');
   static const pod = AppIcon('$imagesPath/pod.svg');
-
+  static const gatemanagement = AppIcon('$imagesPath/gatemanagement.png');
  
 
 }

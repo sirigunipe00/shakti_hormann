@@ -8,7 +8,7 @@ abstract class _AppRoutePaths {
   static const account = '/account';
   static const dashboard = '/dashboard';
   static const gateEntry='/home/gateentry';
-   static const gateExit='/home/gateexit';
+  static const gateExit='/home/gateexit';
   static const newGateEntry='/home/gateentry/newGateEntry';
   static const newGateExit='/home/gateexit/newGateExit';
   static const notifications='/home/notifications';
@@ -22,6 +22,8 @@ abstract class _AppRoutePaths {
   static const newloadingConfirmation='/home/loadingConfirmation/newLoadingConfirmation';
   static const proofOfDelivery ='/home/proofOfDelivery';
   static const newproofOfDelivery='/home/proofOfDelivery/newproofOfDelivery';
+  static const gateManagement = '/home/gatemanagement';
+  static const newGateManagement = '/home/gatemanagement/newGateManagement';
 }
 
 enum AppRoute {
@@ -30,6 +32,8 @@ enum AppRoute {
   home(_AppRoutePaths.home),
   dashboard(_AppRoutePaths.dashboard),
   gateEntry(_AppRoutePaths.gateEntry),
+  gateManagement(_AppRoutePaths.gateManagement),
+  newGateManagement(_AppRoutePaths.newGateManagement),
   gatexit(_AppRoutePaths.gateExit),
   newGateEntry(_AppRoutePaths.newGateEntry),
   newGateExit(_AppRoutePaths.newGateExit),

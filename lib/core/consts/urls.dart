@@ -51,6 +51,8 @@ class Urls {
   static final getLodedItems = '$cusWs/shaktihormann.api.get_loaded_items';
   static final createproofOfDelivery = '$cusWs/shaktihormann.api.createProofOfDelivery';
   static final submitproofOfDelivery = '$cusWs/shaktihormann.api.submitProofOfDelivery';
+  static final creategateManagement = '$cusWs/shaktihormann.api.create_gate_management';
+  static final submitGateManagement = '$cusWs/shaktihormann.api.submit_and_update_gate_management';
 
 
   static final oneSignal = '$cusWs/onesignal.api.save_user_device';

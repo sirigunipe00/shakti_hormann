@@ -4,6 +4,21 @@ abstract class Dropdownoptions {
     'RO transporter'
    
   ];
+   static const List<String> requestType= [
+  
+    'Amazon',
+    'Canteen Vehicle',
+    'Courier Vehicle',
+    'DC Vehicle',
+    'Internal Memo',
+    'Swiggy',
+    'Jai Adithya Fabrication&Jobworks',
+    'Non- Returnable Gate Pass',
+    'Returnable Gate Pass',
+    'Others (Remarks)'
+   
+  ];
+  
   
   static const List<String> gateNumbers= [
     '1',
@@ -65,6 +80,15 @@ static const List<String> filters = [
   'All',
   'Draft',
   'Submitted',
+  ];
+     static const List<String> vehicleType= [
+  
+    'Truck',
+    'Bike',
+    'Commercial',
+    'Light Motor Vehicle',
+    'Truck'
+   
   ];
   
 
