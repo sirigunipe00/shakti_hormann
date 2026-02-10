@@ -47,11 +47,11 @@ class LocationDistanceCubit extends AppBaseCubit<LocationDistanceState> {
     try {
       emitSafeState(LocationDistanceState.loading());
       if (latitude.isNull || longitude.isNull) return;
-      final currentPosition = await Geolocator.getCurrentPosition();
+      // final currentPosition = await Geolocator.getCurrentPosition();
       // final startLatitude = kDebugMode ? double.tryParse('12.4139') : currentPosition.latitude;
       // final startLongitude = kDebugMode ? double.tryParse('76.6888') : currentPosition.longitude;
-      final startLatitude = currentPosition.latitude;
-      final startLongitude = currentPosition.longitude;
+      // final startLatitude = currentPosition.latitude;
+      // final startLongitude = currentPosition.longitude;
 
       // final bearing = haversine(
       //   startLatitude,
@@ -89,9 +89,9 @@ class LocationDistanceCubit extends AppBaseCubit<LocationDistanceState> {
       emitSafeState(LocationDistanceState.loading());
 
       final currentPosition = await Geolocator.getCurrentPosition();
-      print('currentPosition..:$currentPosition');
-      final startLatitude = currentPosition.latitude;
-      final startLongitude = currentPosition.longitude;
+
+      // final startLatitude = currentPosition.latitude;
+      // final startLongitude = currentPosition.longitude;
 
 
       emitSafeState(LocationDistanceState.processed(currentPosition));

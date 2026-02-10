@@ -1,8 +1,11 @@
 import 'dart:convert';
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:shakti_hormann/core/core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shakti_hormann/features/auth/model/logged_in_user.dart';
 import 'package:shakti_hormann/features/gate_entry/model/gate_entry_form.dart';
 import 'package:shakti_hormann/features/gate_entry/model/gate_number_form.dart';
 import 'package:shakti_hormann/features/gate_entry/presentation/bloc/bloc_provider.dart';
@@ -10,6 +13,7 @@ import 'package:shakti_hormann/features/gate_entry/presentation/bloc/create_gate
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/widgets/input_filed.dart';
 import 'package:shakti_hormann/widgets/inputs/date_picker_field.dart';
+import 'package:shakti_hormann/widgets/inputs/multiple_invoice.dart';
 import 'package:shakti_hormann/widgets/inputs/new_upload_photo_widget.dart';
 import 'package:shakti_hormann/widgets/inputs/search_dropdown_widget.dart';
 import 'package:shakti_hormann/widgets/sectionheader.dart';
@@ -75,12 +79,30 @@ class _GateEntryFormWidgetState extends State<GateEntryFormWidget> {
   //     }
   //   });
   // }
+  bool get _canUpdateGateEntry {
+    try {
+      final user = $sl.get<LoggedInUser>();
+
+      if (user.roles == null || user.roles!.isEmpty) {
+        return false;
+      }
+
+      final hasRole = user.roles!.any((r) => r.role == 'Update-Gate Entry');
+
+      return hasRole;
+    } catch (e) {
+      return false;
+    }
+  }
+  
+
 
   @override
   Widget build(BuildContext context) {
     final formState = context.read<CreateGateEntryCubit>().state;
     final isCompleted = formState.view == GateEntryView.completed;
     final newform = formState.form;
+
 
     $logger.devLog('gatenumber..........${newform.gateNumber}');
 
@@ -135,7 +157,7 @@ class _GateEntryFormWidgetState extends State<GateEntryFormWidget> {
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: Colors.grey.shade300),
                 ),
-                 child: SpacedColumn(
+                child: SpacedColumn(
                   defaultHeight: 6,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -191,7 +213,7 @@ class _GateEntryFormWidgetState extends State<GateEntryFormWidget> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     InputField(
-                      readOnly: isCompleted,
+                      readOnly: isCompleted && !_canUpdateGateEntry,
                       initialValue: newform.vendorInvoiceNo,
                       title: 'Vendor Invoice Number',
                       hintText: 'Enter Invoice No',
@@ -301,22 +323,47 @@ class _GateEntryFormWidgetState extends State<GateEntryFormWidget> {
                       },
                       inputFormatters: [UpperCaseTextFormatter()],
                     ),
+                    if(newform.docStatus == 1)
+                    InputField(
+                      borderColor: AppColors.grey,
+                      readOnly: isCompleted,
+                      
+                      initialValue: DFU.ddMMyyyyHHmmssFromStr(newform.gateExitDateandTime ?? ''),
+                      title: 'Gate Exit Date & Time',
+                      
+                      onChanged: (p0) {
+                        // context.cubit<CreateGateEntryCubit>().onValueChanged(
+                        //   vehicleNo: p0,
+                        // );
+                      },
+                      // inputFormatters: [UpperCaseTextFormatter()],
+                    ),
                     InputField(
                       readOnly: isCompleted,
                       controller: _scanIrnController,
                       title: 'Scan IRN',
                       hintText: 'Tap to Scan QR Code',
                       borderColor: AppColors.grey,
-                      initialValue: context.read<CreateGateEntryCubit>().state.form.scanIrn,
+                      initialValue:
+                          context
+                              .read<CreateGateEntryCubit>()
+                              .state
+                              .form
+                              .scanIrn,
                       onChanged: (val) {
                         context.cubit<CreateGateEntryCubit>().onValueChanged(
                           scanIrn: val,
                         );
                       },
                       suffixIcon: GestureDetector(
-                        onTap: isCompleted ? null
+                        onTap:
+                            isCompleted
+                                ? null
                                 : () async {
-                                  final scanResult = await Navigator.push( context,MaterialPageRoute(builder:
+                                  final scanResult = await Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder:
                                           (context) =>
                                               const SimpleBarcodeScannerPage(
                                                 scanType: ScanType.qr,
@@ -357,7 +404,13 @@ class _GateEntryFormWidgetState extends State<GateEntryFormWidget> {
                           readOnly: isCompleted,
                           isloading: state.isLoading,
                           defaultSelection: names.firstWhere(
-                            (g) => g.name == context.read<CreateGateEntryCubit>().state.form.gateNumber,
+                            (g) =>
+                                g.name ==
+                                context
+                                    .read<CreateGateEntryCubit>()
+                                    .state
+                                    .form
+                                    .gateNumber,
                             orElse: () => const GateNumberForm(),
                           ),
                           futureRequest: (query) async {
@@ -383,7 +436,7 @@ class _GateEntryFormWidgetState extends State<GateEntryFormWidget> {
                                   ),
                                 ],
                               ),
-                              listItemBuilder:
+                          listItemBuilder:
                               (_, item, __, ___) => Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -397,10 +450,10 @@ class _GateEntryFormWidgetState extends State<GateEntryFormWidget> {
                                     Text(
                                       'UnLoading Point Name : ${item.pointName}',
                                     ),
-                                    const Divider(height: 8),
+                                  const Divider(height: 8),
                                 ],
                               ),
-                              onSelected: (selected) {
+                          onSelected: (selected) {
                             setState(() {
                               gateNumberForm = selected;
                               context
@@ -425,61 +478,272 @@ class _GateEntryFormWidgetState extends State<GateEntryFormWidget> {
                   assetIcon: 'assets/images/photoicon.svg',
                 ),
               ),
-
               Padding(
-                padding: const EdgeInsets.only(left: 16.0, right: 16.0),
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: Card(
                   color: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20),
                     side: const BorderSide(color: Color(0xFFE8ECF4), width: 1),
                   ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      NewUploadPhotoWidget(
-                        fileName: 'vehiclefront',
-                        imageUrl: newform.vehiclePhoto,
-                        title: 'Vehicle Front',
-                        isRequired: true,
-                        isReadOnly: isCompleted,
-                        onFileCapture: (file) {
-                          context.cubit<CreateGateEntryCubit>().onValueChanged(
-                            vehiclePhoto: file,
-                          );
-                        },
-                        focusNode: focusNodes.elementAt(27),
-                      ),
-                      NewUploadPhotoWidget(
-                        fileName: 'vehicleback',
-                        imageUrl: newform.vehicleBackPhoto,
-                        title: 'Vehicle Back',
-                        isRequired: true,
-                        isReadOnly: isCompleted,
-                        onFileCapture: (file) {
-                          context.cubit<CreateGateEntryCubit>().onValueChanged(
-                            vehicleBackPhoto: file,
-                          );
-                        },
-                        focusNode: focusNodes.elementAt(27),
-                      ),
-                      NewUploadPhotoWidget(
-                        fileName: 'vehicleinvoice',
-                        imageUrl: newform.invoicePhoto,
-                        title: 'Vendor Invoice',
-                        isRequired: true,
-                        isReadOnly: isCompleted,
-                        onFileCapture: (file) {
-                          context.cubit<CreateGateEntryCubit>().onValueChanged(
-                            invoicePhoto: file,
-                          );
-                        },
-                        focusNode: focusNodes.elementAt(27),
-                      ),
-                    ],
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 16.0,
+                      horizontal: 8.0,
+                    ),
+                    child: BlocBuilder<
+                      CreateGateEntryCubit,
+                      CreateGateEntryState
+                    >(
+                      builder: (context, state) {
+                        final newform = state.form;
+                        return Column(
+                          children: [
+
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                NewUploadPhotoWidget(
+                                  fileName: 'vehiclefront',
+                                  imageUrl: newform.vehiclePhoto,
+                                  title: 'Vehicle Front',
+                                  isRequired: true,
+                                  isReadOnly: isCompleted,
+                                  onFileCapture: (file) {
+                                    context
+                                        .cubit<CreateGateEntryCubit>()
+                                        .onValueChanged(vehiclePhoto: file);
+                                  },
+                                ),
+                                NewUploadPhotoWidget(
+                                  fileName: 'vehicleback',
+                                  imageUrl: newform.vehicleBackPhoto,
+                                  title: 'Vehicle Back',
+                                  isRequired: true,
+                                  isReadOnly: isCompleted,
+                                  onFileCapture: (file) {
+                                    context
+                                        .cubit<CreateGateEntryCubit>()
+                                        .onValueChanged(vehicleBackPhoto: file);
+                                  },
+                                ),
+
+                                if (!isCompleted)
+                                  Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const SizedBox(height: 18),
+                                      _PlusAddTile(
+                                        onTap: () async {
+                                          final picker = ImagePicker();
+                                          final image = await picker.pickImage(
+                                            source: ImageSource.camera,
+                                            imageQuality: 70,
+                                          );
+                                          if (image != null) {
+                                            context
+                                                .read<CreateGateEntryCubit>()
+                                                .addInvoicePhoto(
+                                                  File(image.path),
+                                                );
+                                          }
+                                        },
+                                      ),
+                                      const SizedBox(height: 9),
+                                      RichText(
+                                        text: const TextSpan(
+                                          children: [
+                                            TextSpan(
+                                              text: 'Vendor Invoices',
+                                              style: TextStyle(
+                                                fontSize: 15,
+                                                fontWeight: FontWeight.bold,
+                                                fontFamily: 'Urbanist',
+                                                color: Colors.black,
+                                              ),
+                                            ),
+                                            TextSpan(
+                                              text: ' *',
+                                              style: TextStyle(
+                                                fontSize: 15,
+                                                fontWeight: FontWeight.bold,
+                                                color:
+                                                    Colors
+                                                        .red,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                              ],
+                            ),
+
+
+                            if ((newform.invoicePhotoImg?.isNotEmpty ??
+                                    false) ||
+                                (newform.invoicePhotos?.isNotEmpty ??
+                                    false)) ...[
+                              const Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 12.0),
+                                child: Divider(height: 32),
+                              ),
+                              MultipleImageUploadWidget(
+                                title: 'Captured Invoices',
+                                isReadOnly: isCompleted,
+                                localFiles: newform.invoicePhotoImg,
+                                serverUrls: newform.invoicePhotos,
+                                showAddButton:
+                                    false, 
+                                onLocalFileAdded:
+                                    (file) => context
+                                        .read<CreateGateEntryCubit>()
+                                        .addInvoicePhoto(file),
+                                onLocalFileRemoved:
+                                    (index) => context
+                                        .read<CreateGateEntryCubit>()
+                                        .removeLocalInvoicePhoto(index),
+                                onServerFileRemoved:
+                                    (index) => context
+                                        .read<CreateGateEntryCubit>()
+                                        .removeServerInvoicePhoto(index),
+                              ),
+                            ],
+                          ],
+                        );
+                      },
+                    ),
                   ),
                 ),
               ),
+              //              Padding(
+              //                 padding: const EdgeInsets.only(left: 16.0, right: 16.0),
+              //                 child: Card(
+              //                   color: Colors.white,
+              //                   shape: RoundedRectangleBorder(
+              //                     borderRadius: BorderRadius.circular(20),
+              //                     side: const BorderSide(color: Color(0xFFE8ECF4), width: 1),
+              //                   ),
+              //                 child: Column(
+              //                   children: [
+              //                     Row(
+              //                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              //                       children: [
+              //                         NewUploadPhotoWidget(
+              //                           fileName: 'vehiclefront',
+              //                           imageUrl: newform.vehiclePhoto,
+              //                           title: 'Vehicle Front',
+              //                           isRequired: true,
+              //                           isReadOnly: isCompleted,
+              //                           onFileCapture: (file) {
+              //                             context
+              //                                 .cubit<CreateGateEntryCubit>()
+              //                                 .onValueChanged(vehiclePhoto: file);
+              //                           },
+              //                         ),
+              //                         NewUploadPhotoWidget(
+              //                           fileName: 'vehicleback',
+              //                           imageUrl: newform.vehicleBackPhoto,
+              //                           title: 'Vehicle Back',
+              //                           isRequired: true,
+              //                           isReadOnly: isCompleted,
+              //                           onFileCapture: (file) {
+              //                             context
+              //                                 .cubit<CreateGateEntryCubit>()
+              //                                 .onValueChanged(vehicleBackPhoto: file);
+              //                           },
+              //                         ),
+              //                       ],
+              //                     ),
+
+              //                     const Divider(height: 12),
+
+              //                  BlocBuilder<CreateGateEntryCubit, CreateGateEntryState>(
+              //   buildWhen: (prev, curr) =>
+              //       prev.form.invoicePhotoImg != curr.form.invoicePhotoImg ||
+              //       prev.form.invoicePhotos != curr.form.invoicePhotos,
+              //   builder: (context, state) {
+              //     return MultipleImageUploadWidget(
+              //       title: 'Vendor Invoices',
+              //       isReadOnly: isCompleted,
+
+              //       localFiles: state.form.invoicePhotoImg,
+              //       serverUrls: state.form.invoicePhotos,
+
+              //       onLocalFileAdded: (file) {
+              //         context.read<CreateGateEntryCubit>().addInvoicePhoto(file);
+              //       },
+              //       onLocalFileRemoved: (index) {
+              //         context.read<CreateGateEntryCubit>().removeLocalInvoicePhoto(index);
+              //       },
+              //       onServerFileRemoved: (index) {
+              //         context.read<CreateGateEntryCubit>().removeServerInvoicePhoto(index);
+              //       },
+              //     );
+              //   },
+              // ),
+
+              //                   ],
+              //                 ),
+              //               ),
+              //              ),
+
+              // Padding(
+              //   padding: const EdgeInsets.only(left: 16.0, right: 16.0),
+              //   child: Card(
+              //     color: Colors.white,
+              //     shape: RoundedRectangleBorder(
+              //       borderRadius: BorderRadius.circular(20),
+              //       side: const BorderSide(color: Color(0xFFE8ECF4), width: 1),
+              //     ),
+              //     child: Row(
+              //       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              //       children: [
+              //         NewUploadPhotoWidget(
+              //           fileName: 'vehiclefront',
+              //           imageUrl: newform.vehiclePhoto,
+              //           title: 'Vehicle Front',
+              //           isRequired: true,
+              //           isReadOnly: isCompleted,
+              //           onFileCapture: (file) {
+              //             context.cubit<CreateGateEntryCubit>().onValueChanged(
+              //               vehiclePhoto: file,
+              //             );
+              //           },
+              //           focusNode: focusNodes.elementAt(27),
+              //         ),
+              //         NewUploadPhotoWidget(
+              //           fileName: 'vehicleback',
+              //           imageUrl: newform.vehicleBackPhoto,
+              //           title: 'Vehicle Back',
+              //           isRequired: true,
+              //           isReadOnly: isCompleted,
+              //           onFileCapture: (file) {
+              //             context.cubit<CreateGateEntryCubit>().onValueChanged(
+              //               vehicleBackPhoto: file,
+              //             );
+              //           },
+              //           focusNode: focusNodes.elementAt(27),
+              //         ),
+              //         NewUploadPhotoWidget(
+              //           fileName: 'vehicleinvoice',
+              //           imageUrl: newform.invoicePhoto,
+              //           title: 'Vendor Invoice',
+              //           isRequired: true,
+              //           isReadOnly: isCompleted,
+              //           onFileCapture: (file) {
+              //             context.cubit<CreateGateEntryCubit>().onValueChanged(
+              //               invoicePhoto: file,
+              //             );
+              //           },
+              //           focusNode: focusNodes.elementAt(27),
+              //         ),
+              //       ],
+              //     ),
+              //   ),
+              // ),
               const SizedBox(height: 10),
               const Padding(
                 padding: EdgeInsets.only(left: 16.0),
@@ -537,4 +801,29 @@ String extractIrnFromQr(String qrData) {
     }
   }
   return qrData;
+}
+
+class _PlusAddTile extends StatelessWidget {
+  const _PlusAddTile({required this.onTap});
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        // 🎯 Adjusted to match your NewUploadPhotoWidget size
+        width: 60,
+        height: 60,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.grey.shade400),
+          color: Colors.grey.shade100,
+        ),
+        child: const Center(
+          child: Icon(Icons.add, size: 30, color: Colors.pink),
+        ),
+      ),
+    );
+  }
 }

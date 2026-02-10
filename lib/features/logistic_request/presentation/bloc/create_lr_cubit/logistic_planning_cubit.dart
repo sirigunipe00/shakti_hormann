@@ -120,7 +120,7 @@ class CreateLogisticCubit extends AppBaseCubit<CreateLogisticState> {
     shouldAskForConfirmation.value = false;
     if (entry is LogisticPlanningForm) {
       final form = state.form;
-      print('requestedDeliveryDate ${entry.requestedDeliveryDate}');
+      // print('requestedDeliveryDate ${entry.requestedDeliveryDate}');
       final updatedForm = form.copyWith(
         docstatus: entry.docstatus,
         name: entry.name,

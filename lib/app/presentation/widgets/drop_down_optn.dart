@@ -5,16 +5,16 @@ abstract class Dropdownoptions {
    
   ];
    static const List<String> requestType= [
-  
     'Amazon',
     'Canteen Vehicle',
     'Courier Vehicle',
     'DC Vehicle',
     'Internal Memo',
-    'Swiggy',
     'Jai Adithya Fabrication&Jobworks',
     'Non- Returnable Gate Pass',
+    'Purchase Return Invoice',
     'Returnable Gate Pass',
+    'Swiggy',
     'Others (Remarks)'
    
   ];

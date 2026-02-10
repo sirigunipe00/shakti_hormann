@@ -240,14 +240,14 @@ class _NewGateEntryState extends State<NewGateEntry> {
                       child: TitleStatusAppBar(
                         title: '$name',
                         status: StringUtils.docStatus(status ?? 0),
-                        actionButton: (status == 1)
+                        actionButton: (status == 1 && !gateEntryState.isModified)
                                 ? null
                                 : BlocBuilder<CreateGateEntryCubit,CreateGateEntryState>(
                                   builder: (context, state) {
                                     return AppButton(
                                       borderColor: Colors.grey,
                                       isLoading: state.isLoading,
-                                      label: gateEntryState.view.toName(),
+                                      label: state.isModified && status == 1 ? 'Update' : state.view.toName(),
                                       onPressed: () {
                                         context
                                             .cubit<CreateGateEntryCubit>()

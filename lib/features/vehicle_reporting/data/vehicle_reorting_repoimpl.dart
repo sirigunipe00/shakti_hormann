@@ -39,6 +39,7 @@ class VehicleReportingRepoimpl extends BaseApiRepository
     if (plantName != null && plantName.isNotEmpty) {
       filters.add(['plant_name', '=', plantName]);
     }
+
     final requestConfig = RequestConfig(
       url: Urls.getList,
       parser: (json) {
@@ -80,12 +81,12 @@ class VehicleReportingRepoimpl extends BaseApiRepository
     }
 
     final formattedTime =
-          form.arrivalTime != null
-              ? DateFormat('HH:mm:ss').format(
-                DateFormat('HH:mm:ss').tryParse(form.arrivalTime!) ??
-                    DateFormat('HH:mm').parse(form.arrivalTime!),
-              )
-              : null;
+        form.arrivalTime != null
+            ? DateFormat('HH:mm:ss').format(
+              DateFormat('HH:mm:ss').tryParse(form.arrivalTime!) ??
+                  DateFormat('HH:mm').parse(form.arrivalTime!),
+            )
+            : null;
 
     $logger.devLog('arrtival date repo......${form.arrivalDate}');
     return await executeSafely(() async {
@@ -102,23 +103,25 @@ class VehicleReportingRepoimpl extends BaseApiRepository
       }
 
       final Map<String, dynamic> requestBody = {
-           'plant_name': form.plantName,
-          'linked_transporter_confirmation': form.linkedTransporterConfirmation,
-          'arrival_date': arrivaldate,
-          'arrival_time': formattedTime,
-          'driver_id_proof':
-              driverIdfrontcompressedBytes == null
-                  ? null
-                  : base64Encode(driverIdfrontcompressedBytes),
-          'vehicle_number': form.vehicleNumber,
-          'vehicle_reporting_entry_vre_date': form.vehicleReportingEntryVreDate,
-          'driver_contact': form.driverContact,
-          'remarks': form.remarks,
+        'plant_name': form.plantName,
+        'linked_transporter_confirmation': form.linkedTransporterConfirmation,
+        'arrival_date': arrivaldate,
+        'arrival_time': formattedTime,
+        'driver_id_proof':
+            driverIdfrontcompressedBytes == null
+                ? null
+                : base64Encode(driverIdfrontcompressedBytes),
+        'vehicle_number': form.vehicleNumber,
+        'vehicle_reporting_entry_vre_date': form.vehicleReportingEntryVreDate,
+        'driver_contact': form.driverContact,
+        'remarks': form.remarks,
       };
-       if (form.plantName != null && form.plantName!.trim().isNotEmpty && form.plantName != '') {
-      print('form.plantName....:${form.plantName}');
-      requestBody['plant_name'] = form.plantName;
-    }
+      if (form.plantName != null &&
+          form.plantName!.trim().isNotEmpty &&
+          form.plantName != '') {
+        // print('form.plantName....:${form.plantName}');
+        requestBody['plant_name'] = form.plantName;
+      }
       final config = RequestConfig(
         url: Urls.createVehicleReporting,
         parser: (json) {
@@ -146,13 +149,13 @@ class VehicleReportingRepoimpl extends BaseApiRepository
   AsyncValueOf<Pair<String, String>> submitVehicleReporting(
     VehicleReportingForm form,
   ) async {
-     final formattedTime =
-          form.arrivalTime != null
-              ? DateFormat('HH:mm').format(
-                DateFormat('HH:mm:ss').tryParse(form.arrivalTime!) ??
-                    DateFormat('HH:mm').parse(form.arrivalTime!),
-              )
-              : null;
+    final formattedTime =
+        form.arrivalTime != null
+            ? DateFormat('HH:mm').format(
+              DateFormat('HH:mm:ss').tryParse(form.arrivalTime!) ??
+                  DateFormat('HH:mm').parse(form.arrivalTime!),
+            )
+            : null;
     $logger.devLog('arrtival date repo......${form.arrivalDate}');
 
     return await executeSafely(() async {
@@ -169,26 +172,28 @@ class VehicleReportingRepoimpl extends BaseApiRepository
           form.driverIdPhoto ?? '',
         );
       }
-           final Map<String, dynamic> requestBody = {
-           'plant_name': form.plantName,
-           'name': form.name,
-          'linked_transporter_confirmation': form.linkedTransporterConfirmation,
-          'arrival_date': form.arrivalDate,
-          'arrival_time': formattedTime,
-          'driver_id_proof':
-              driverIdfrontcompressedBytes == null
-                  ? null
-                  : base64Encode(driverIdfrontcompressedBytes),
-          'vehicle_number': form.vehicleNumber,
-          'vehicle_reporting_entry_vre_date': form.vehicleReportingEntryVreDate,
-          'driver_contact': form.driverContact,
-          'remarks': form.remarks,
-          'status': 'Reported',
+      final Map<String, dynamic> requestBody = {
+        'plant_name': form.plantName,
+        'name': form.name,
+        'linked_transporter_confirmation': form.linkedTransporterConfirmation,
+        'arrival_date': form.arrivalDate,
+        'arrival_time': formattedTime,
+        'driver_id_proof':
+            driverIdfrontcompressedBytes == null
+                ? null
+                : base64Encode(driverIdfrontcompressedBytes),
+        'vehicle_number': form.vehicleNumber,
+        'vehicle_reporting_entry_vre_date': form.vehicleReportingEntryVreDate,
+        'driver_contact': form.driverContact,
+        'remarks': form.remarks,
+        'status': 'Reported',
       };
-       if (form.plantName != null && form.plantName!.trim().isNotEmpty && form.plantName != '') {
-      print('form.plantName....:${form.plantName}');
-      requestBody['plant_name'] = form.plantName;
-    }
+      if (form.plantName != null &&
+          form.plantName!.trim().isNotEmpty &&
+          form.plantName != '') {
+        // print('form.plantName....:${form.plantName}');
+        requestBody['plant_name'] = form.plantName;
+      }
       final config = RequestConfig(
         url: Urls.updateVehicleReporting,
         parser: (json) {
@@ -257,6 +262,18 @@ class VehicleReportingRepoimpl extends BaseApiRepository
         ..add(['docstatus', '=', 1])
         ..add(['status', '=', 'Transporter Confirmed'])
         ..add(['vehicle_reported_loaded', '=', 0]);
+      final now = DateTime.now();
+      final today = DateFormat('yyyy-MM-dd').format(now);
+      final yesterday = DateFormat(
+        'yyyy-MM-dd',
+      ).format(now.subtract(const Duration(days: 1)));
+
+      filters.add([
+        'transporter_confirmation_date',
+        'between',
+        [yesterday, today],
+      ]);
+
       final config = RequestConfig(
         url: Urls.getList,
 
@@ -301,5 +318,3 @@ Future<Uint8List?> fetchAndConvertToBase64(String relativePath) async {
     throw Exception('Failed to load file: ${response.statusCode}');
   }
 }
-
-

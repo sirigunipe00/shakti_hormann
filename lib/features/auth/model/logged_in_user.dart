@@ -31,12 +31,20 @@ class LoggedInUser with _$LoggedInUser {
     String? bio,
     @JsonKey(name: 'mobile_no') String? mobileNo,
     @JsonKey(name: 'otp_verified') bool? isOtpVerified,
-
+    @JsonKey(name: 'roles') List<UserRole>? roles,
     @JsonKey(name: 'role_status') RoleStatus? roleStatus,
   }) = _LoggedInUser;
 
   factory LoggedInUser.fromJson(Map<String, dynamic> json) =>
       _$LoggedInUserFromJson(json);
+}
+@freezed
+class UserRole with _$UserRole {
+  const factory UserRole({
+    @JsonKey(name: 'role') String? role,
+  }) = _UserRole;
+
+  factory UserRole.fromJson(Map<String, dynamic> json) => _$UserRoleFromJson(json);
 }
 
 @freezed

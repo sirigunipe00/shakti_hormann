@@ -18,7 +18,7 @@ class NoticationRepoImpl extends BaseApiRepository implements NotificationRepo {
       // Do not log subscription ids here to avoid leaking identifiers
       final subsId = OneSignal.User.pushSubscription.id;
 
-      print('subsId ....:$subsId');
+      // print('subsId ....:$subsId');
 
       final config = RequestConfig(
         url: Urls.oneSignal,

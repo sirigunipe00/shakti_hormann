@@ -62,14 +62,14 @@ class _PodFormWidgetState extends State<PodFormWidget>
         longitude = position.longitude;
       });
 
-      print('latitude ....:$latitude $longitude');
+
 
       context.read<CreatePodCubit>().onValueChanged(
         geoLatitude: latitude.toString(),
         geoLongitude: longitude.toString(),
       );
     } catch (e) {
-      print('Location error: $e');
+
     }
   }
 
@@ -80,6 +80,7 @@ class _PodFormWidgetState extends State<PodFormWidget>
 
     final isCompleted = formState.view == PodView.completed;
     final newform = formState.form;
+
 
     $logger.devLog(
       'Sending LAT: ${newform.geoLatitude}, LNG: ${newform.geoLongitude}',
@@ -154,7 +155,7 @@ class _PodFormWidgetState extends State<PodFormWidget>
                   );
                 },
               ).then((value) async {
-                print('value...:$value');
+
                 if (value.isTrue) {
                   _shouldRequestPermission = true;
                   await Geolocator.openAppSettings();

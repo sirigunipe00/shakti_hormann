@@ -123,7 +123,7 @@ class PodRepoImpl extends BaseApiRepository implements ProofOfDeliveryRepo {
                 : base64Encode(unloading2compressedBytes),
           };
       if (form.plantName != null && form.plantName!.trim().isNotEmpty && form.plantName != '') {
-      print('form.plantName....:${form.plantName}');
+      // print('form.plantName....:${form.plantName}');
       requestBody['plant_name'] = form.plantName;
     }
 
@@ -212,7 +212,7 @@ class PodRepoImpl extends BaseApiRepository implements ProofOfDeliveryRepo {
                 : base64Encode(unloading2compressedBytes),
           };
       if (form.plantName != null && form.plantName!.trim().isNotEmpty && form.plantName != '') {
-      print('form.plantName....:${form.plantName}');
+      // print('form.plantName....:${form.plantName}');
       requestBody['plant_name'] = form.plantName;
     }
 

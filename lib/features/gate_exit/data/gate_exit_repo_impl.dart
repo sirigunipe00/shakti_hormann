@@ -107,7 +107,7 @@ class GateExitRepoimpl extends BaseApiRepository implements GateExitRepo {
         
       };
         if (form.plantName != null && form.plantName!.trim().isNotEmpty && form.plantName != '') {
-      print('form.plantName....:${form.plantName}');
+
       requestBody['plant_name'] = form.plantName;
     }
 
@@ -181,7 +181,7 @@ class GateExitRepoimpl extends BaseApiRepository implements GateExitRepo {
         
       };
         if (form.plantName != null && form.plantName!.trim().isNotEmpty && form.plantName != '') {
-      print('form.plantName....:${form.plantName}');
+
       requestBody['plant_name'] = form.plantName;
     }
 

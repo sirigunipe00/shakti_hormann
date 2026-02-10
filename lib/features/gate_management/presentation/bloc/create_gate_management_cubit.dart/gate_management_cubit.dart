@@ -34,7 +34,7 @@ class CreateGateManagementCubit extends AppBaseCubit<CreateGateManagementState> 
     int? docStatus,
     String? modifiedBy,
     String? vehicleNo,
-    String? requestType,
+    List<String>? requestType,
     String? gateEntryTime,
     String? gateEntryDate,
     String? remarks,
@@ -55,7 +55,11 @@ class CreateGateManagementCubit extends AppBaseCubit<CreateGateManagementState> 
 
     final vehiclePhotos = vehiclePhoto ?? form.vehiclePhotoImg;
     final backPhotos = backPhoto ?? form.backPhotoImg;
-    final documentPhotos = documentPhoto ?? form.documentPhotoImg;
+    // final documentPhotos = documentPhoto ?? form.documentPhotoImg;
+     List<File> updatedInvoiceFiles = List.from(form.documentPhotoImg ?? []);
+    if (documentPhoto != null) {
+      updatedInvoiceFiles.add(documentPhoto);
+    }
 
     final newForm = form.copyWith(
       plantName: plantName ?? form.plantName,
@@ -78,13 +82,13 @@ class CreateGateManagementCubit extends AppBaseCubit<CreateGateManagementState> 
       gateeEntrydate: gateEntryDate ?? form.gateeEntrydate,
       vehiclePhotoImg: vehiclePhotos,
       backPhotoImg: backPhotos,
-      documentPhotoImg: documentPhotos,
+      documentPhotoImg: updatedInvoiceFiles,
     );
 
     emitSafeState(state.copyWith(form: newForm));
   }
 
-  void initDetails(Object? entry) {
+  Future<void> initDetails(Object? entry) async {
     shouldAskForConfirmation.value = false;
     if (entry is GateManagementForm) {
       final form = state.form;
@@ -99,7 +103,7 @@ class CreateGateManagementCubit extends AppBaseCubit<CreateGateManagementState> 
         vehicleNo: entry.vehicleNo,
         vehiclePhoto: entry.vehiclePhoto,
         backPhoto: entry.backPhoto,
-        documentPhoto: entry.documentPhoto,
+        invoicePhotos: entry.invoicePhotos,
         driverMobileNo: entry.driverMobileNo,
         requestType: entry.requestType,
         vehicleType: entry.vehicleType,
@@ -127,11 +131,74 @@ class CreateGateManagementCubit extends AppBaseCubit<CreateGateManagementState> 
       
      
       emitSafeState(state.copyWith(form: updatedForm, view: mode));
+       if (entry.name != null) {
+      final response = await repo.fetchAttachments(entry.name!);
+      response.fold(
+        (l) => null, 
+        (attachments) {
+
+          final List<String> urls = attachments
+              .map((e) => e.fileUrl ?? '')
+              .where((url) => url.isNotEmpty)
+              .toList();
+
+          emitSafeState(state.copyWith(
+            form: state.form.copyWith(invoicePhotos: urls),
+          ));
+        },
+      );
+    }
     }
     if(entry == null) return;
   }
 
+ void addInvoicePhoto(File file) {
+  final form = state.form;
 
+  final List<File> updatedFiles = List<File>.from(form.documentPhotoImg ?? []);
+  updatedFiles.add(file);
+
+  emitSafeState(
+    state.copyWith(
+      form: form.copyWith(documentPhotoImg: updatedFiles),
+     
+    ),
+  );
+}
+
+
+  void removeLocalInvoicePhoto(int index) {
+    final form = state.form;
+    final List<File> updatedFiles = List.from(form.documentPhotoImg ?? []);
+
+    if (index >= 0 && index < updatedFiles.length) {
+      updatedFiles.removeAt(index);
+    }
+
+    emitSafeState(
+      state.copyWith(
+        form: form.copyWith(documentPhotoImg: updatedFiles),
+       
+      ),
+    );
+  }
+
+
+  void removeServerInvoicePhoto(int index) {
+    final form = state.form;
+    final List<String> updatedUrls = List.from(form.invoicePhotos ?? []);
+
+    if (index >= 0 && index < updatedUrls.length) {
+      updatedUrls.removeAt(index);
+    }
+
+    emitSafeState(
+      state.copyWith(
+        form: form.copyWith(invoicePhotos: updatedUrls),
+        
+      ),
+    );
+  }
 
 
   void save() async {
@@ -218,20 +285,24 @@ class CreateGateManagementCubit extends AppBaseCubit<CreateGateManagementState> 
   final currentView = state.view;
 
 
-  final rt = form.requestType?.trim().toLowerCase();
-  final isSpecialType = rt == 'amazon' || rt == 'swiggy';
+  // final rt = form.requestType?.firstOrNull?.trim().toLowerCase();
+  // final isSpecialType = rt == 'amazon' || rt == 'swiggy';
+    final selectedTypes =
+      form.requestType!
+          .map((e) => e.trim().toLowerCase())
+          .toList();
 
-  // if (form.plantName == null || form.plantName!.isEmpty ) {
-  //   return optionOf(const Pair('Plant Name Cannot Be Empty', 0));
-  // }
+  final isSpecialType =
+      selectedTypes.contains('amazon') ||
+      selectedTypes.contains('swiggy');
 
-  // if (form.gateeEntrydate == null || form.gateeEntrydate!.isEmpty ) {
-  //   return optionOf(const Pair('Missing Gate Entry Date', 0));
-  // }
-
-  // if (form.gateEntryTime == null  || form.gateEntryTime!.isEmpty) {
-  //   return optionOf(const Pair('Missing Gate Entry Time', 0));
-  // }
+  if (form.vehiclePhotoImg.isNull  &&  form.vehiclePhoto.doesNotHaveValue ) {
+    return optionOf(const Pair('Missing Vehicle Front Photo', 0));
+  } else if (form.backPhotoImg.isNull && form.backPhoto.doesNotHaveValue ) {
+    return optionOf(const Pair('Missing Vehicle Back Photo', 0));
+  }else if (form.documentPhotoImg.isNull  && form.invoicePhotos!.isEmpty) {
+    return optionOf(const Pair('Missing Document Photo', 0));
+  }
     final isSubmissionAttempt = currentView == GateManagementView.completed;
     // || currentView == GateManagementView.submitted;
 
@@ -245,6 +316,7 @@ class CreateGateManagementCubit extends AppBaseCubit<CreateGateManagementState> 
       return optionOf(const Pair('Missing Gate Exit Time', 0));
     }
   }
+
 
   return const None();
 }

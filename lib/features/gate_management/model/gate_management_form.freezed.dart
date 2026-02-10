@@ -31,9 +31,7 @@ mixin _$GateManagementForm {
   @JsonKey(name: 'creation')
   String? get modifiedBy => throw _privateConstructorUsedError;
   @JsonKey(name: 'plant_name')
-  String? get plantName => throw _privateConstructorUsedError;
-  @JsonKey(name: 'request_type')
-  String? get requestType => throw _privateConstructorUsedError;
+  String? get plantName => throw _privateConstructorUsedError; // @JsonKey(name: 'request_type') List<String>? requestType,
   @JsonKey(name: 'gate_entry_date')
   String? get gateeEntrydate => throw _privateConstructorUsedError;
   @JsonKey(name: 'gate_entry_time')
@@ -61,9 +59,11 @@ mixin _$GateManagementForm {
   @JsonKey(name: 'gate_exit_date')
   String? get gateExitdate => throw _privateConstructorUsedError;
   @JsonKey(name: 'gate_exit_time')
-  String? get gateExitTime => throw _privateConstructorUsedError;
-  @JsonKey(name: 'document_photos')
-  String? get documentPhoto => throw _privateConstructorUsedError;
+  String? get gateExitTime => throw _privateConstructorUsedError; // @JsonKey(name: 'document_photos') String? documentPhoto,
+  @JsonKey(name: 'document_photos', fromJson: _stringOrListToStringList)
+  List<String>? get invoicePhotos => throw _privateConstructorUsedError;
+  @JsonKey(readValue: _extractRequestTypes)
+  List<String>? get requestType => throw _privateConstructorUsedError;
   @JsonKey(
     includeFromJson: true,
     includeToJson: false,
@@ -84,7 +84,7 @@ mixin _$GateManagementForm {
     toJson: toNull,
     fromJson: toNull,
   )
-  File? get documentPhotoImg => throw _privateConstructorUsedError;
+  List<File>? get documentPhotoImg => throw _privateConstructorUsedError;
 
   /// Serializes this GateManagementForm to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -110,7 +110,6 @@ abstract class $GateManagementFormCopyWith<$Res> {
     @JsonKey(name: 'owner') String? owner,
     @JsonKey(name: 'creation') String? modifiedBy,
     @JsonKey(name: 'plant_name') String? plantName,
-    @JsonKey(name: 'request_type') String? requestType,
     @JsonKey(name: 'gate_entry_date') String? gateeEntrydate,
     @JsonKey(name: 'gate_entry_time') String? gateEntryTime,
     @JsonKey(name: 'purpose__remarks') String? remarks,
@@ -125,7 +124,9 @@ abstract class $GateManagementFormCopyWith<$Res> {
     @JsonKey(name: 'vehicle_back_photo') String? backPhoto,
     @JsonKey(name: 'gate_exit_date') String? gateExitdate,
     @JsonKey(name: 'gate_exit_time') String? gateExitTime,
-    @JsonKey(name: 'document_photos') String? documentPhoto,
+    @JsonKey(name: 'document_photos', fromJson: _stringOrListToStringList)
+    List<String>? invoicePhotos,
+    @JsonKey(readValue: _extractRequestTypes) List<String>? requestType,
     @JsonKey(
       includeFromJson: true,
       includeToJson: false,
@@ -146,7 +147,7 @@ abstract class $GateManagementFormCopyWith<$Res> {
       toJson: toNull,
       fromJson: toNull,
     )
-    File? documentPhotoImg,
+    List<File>? documentPhotoImg,
   });
 }
 
@@ -171,7 +172,6 @@ class _$GateManagementFormCopyWithImpl<$Res, $Val extends GateManagementForm>
     Object? owner = freezed,
     Object? modifiedBy = freezed,
     Object? plantName = freezed,
-    Object? requestType = freezed,
     Object? gateeEntrydate = freezed,
     Object? gateEntryTime = freezed,
     Object? remarks = freezed,
@@ -186,7 +186,8 @@ class _$GateManagementFormCopyWithImpl<$Res, $Val extends GateManagementForm>
     Object? backPhoto = freezed,
     Object? gateExitdate = freezed,
     Object? gateExitTime = freezed,
-    Object? documentPhoto = freezed,
+    Object? invoicePhotos = freezed,
+    Object? requestType = freezed,
     Object? vehiclePhotoImg = freezed,
     Object? backPhotoImg = freezed,
     Object? documentPhotoImg = freezed,
@@ -222,11 +223,6 @@ class _$GateManagementFormCopyWithImpl<$Res, $Val extends GateManagementForm>
                 freezed == plantName
                     ? _value.plantName
                     : plantName // ignore: cast_nullable_to_non_nullable
-                        as String?,
-            requestType:
-                freezed == requestType
-                    ? _value.requestType
-                    : requestType // ignore: cast_nullable_to_non_nullable
                         as String?,
             gateeEntrydate:
                 freezed == gateeEntrydate
@@ -298,11 +294,16 @@ class _$GateManagementFormCopyWithImpl<$Res, $Val extends GateManagementForm>
                     ? _value.gateExitTime
                     : gateExitTime // ignore: cast_nullable_to_non_nullable
                         as String?,
-            documentPhoto:
-                freezed == documentPhoto
-                    ? _value.documentPhoto
-                    : documentPhoto // ignore: cast_nullable_to_non_nullable
-                        as String?,
+            invoicePhotos:
+                freezed == invoicePhotos
+                    ? _value.invoicePhotos
+                    : invoicePhotos // ignore: cast_nullable_to_non_nullable
+                        as List<String>?,
+            requestType:
+                freezed == requestType
+                    ? _value.requestType
+                    : requestType // ignore: cast_nullable_to_non_nullable
+                        as List<String>?,
             vehiclePhotoImg:
                 freezed == vehiclePhotoImg
                     ? _value.vehiclePhotoImg
@@ -317,7 +318,7 @@ class _$GateManagementFormCopyWithImpl<$Res, $Val extends GateManagementForm>
                 freezed == documentPhotoImg
                     ? _value.documentPhotoImg
                     : documentPhotoImg // ignore: cast_nullable_to_non_nullable
-                        as File?,
+                        as List<File>?,
           )
           as $Val,
     );
@@ -340,7 +341,6 @@ abstract class _$$GateManagementFormImplCopyWith<$Res>
     @JsonKey(name: 'owner') String? owner,
     @JsonKey(name: 'creation') String? modifiedBy,
     @JsonKey(name: 'plant_name') String? plantName,
-    @JsonKey(name: 'request_type') String? requestType,
     @JsonKey(name: 'gate_entry_date') String? gateeEntrydate,
     @JsonKey(name: 'gate_entry_time') String? gateEntryTime,
     @JsonKey(name: 'purpose__remarks') String? remarks,
@@ -355,7 +355,9 @@ abstract class _$$GateManagementFormImplCopyWith<$Res>
     @JsonKey(name: 'vehicle_back_photo') String? backPhoto,
     @JsonKey(name: 'gate_exit_date') String? gateExitdate,
     @JsonKey(name: 'gate_exit_time') String? gateExitTime,
-    @JsonKey(name: 'document_photos') String? documentPhoto,
+    @JsonKey(name: 'document_photos', fromJson: _stringOrListToStringList)
+    List<String>? invoicePhotos,
+    @JsonKey(readValue: _extractRequestTypes) List<String>? requestType,
     @JsonKey(
       includeFromJson: true,
       includeToJson: false,
@@ -376,7 +378,7 @@ abstract class _$$GateManagementFormImplCopyWith<$Res>
       toJson: toNull,
       fromJson: toNull,
     )
-    File? documentPhotoImg,
+    List<File>? documentPhotoImg,
   });
 }
 
@@ -400,7 +402,6 @@ class __$$GateManagementFormImplCopyWithImpl<$Res>
     Object? owner = freezed,
     Object? modifiedBy = freezed,
     Object? plantName = freezed,
-    Object? requestType = freezed,
     Object? gateeEntrydate = freezed,
     Object? gateEntryTime = freezed,
     Object? remarks = freezed,
@@ -415,7 +416,8 @@ class __$$GateManagementFormImplCopyWithImpl<$Res>
     Object? backPhoto = freezed,
     Object? gateExitdate = freezed,
     Object? gateExitTime = freezed,
-    Object? documentPhoto = freezed,
+    Object? invoicePhotos = freezed,
+    Object? requestType = freezed,
     Object? vehiclePhotoImg = freezed,
     Object? backPhotoImg = freezed,
     Object? documentPhotoImg = freezed,
@@ -451,11 +453,6 @@ class __$$GateManagementFormImplCopyWithImpl<$Res>
             freezed == plantName
                 ? _value.plantName
                 : plantName // ignore: cast_nullable_to_non_nullable
-                    as String?,
-        requestType:
-            freezed == requestType
-                ? _value.requestType
-                : requestType // ignore: cast_nullable_to_non_nullable
                     as String?,
         gateeEntrydate:
             freezed == gateeEntrydate
@@ -527,11 +524,16 @@ class __$$GateManagementFormImplCopyWithImpl<$Res>
                 ? _value.gateExitTime
                 : gateExitTime // ignore: cast_nullable_to_non_nullable
                     as String?,
-        documentPhoto:
-            freezed == documentPhoto
-                ? _value.documentPhoto
-                : documentPhoto // ignore: cast_nullable_to_non_nullable
-                    as String?,
+        invoicePhotos:
+            freezed == invoicePhotos
+                ? _value._invoicePhotos
+                : invoicePhotos // ignore: cast_nullable_to_non_nullable
+                    as List<String>?,
+        requestType:
+            freezed == requestType
+                ? _value._requestType
+                : requestType // ignore: cast_nullable_to_non_nullable
+                    as List<String>?,
         vehiclePhotoImg:
             freezed == vehiclePhotoImg
                 ? _value.vehiclePhotoImg
@@ -544,9 +546,9 @@ class __$$GateManagementFormImplCopyWithImpl<$Res>
                     as File?,
         documentPhotoImg:
             freezed == documentPhotoImg
-                ? _value.documentPhotoImg
+                ? _value._documentPhotoImg
                 : documentPhotoImg // ignore: cast_nullable_to_non_nullable
-                    as File?,
+                    as List<File>?,
       ),
     );
   }
@@ -562,7 +564,6 @@ class _$GateManagementFormImpl implements _GateManagementForm {
     @JsonKey(name: 'owner') this.owner,
     @JsonKey(name: 'creation') this.modifiedBy,
     @JsonKey(name: 'plant_name') this.plantName,
-    @JsonKey(name: 'request_type') this.requestType,
     @JsonKey(name: 'gate_entry_date') this.gateeEntrydate,
     @JsonKey(name: 'gate_entry_time') this.gateEntryTime,
     @JsonKey(name: 'purpose__remarks') this.remarks,
@@ -577,7 +578,9 @@ class _$GateManagementFormImpl implements _GateManagementForm {
     @JsonKey(name: 'vehicle_back_photo') this.backPhoto,
     @JsonKey(name: 'gate_exit_date') this.gateExitdate,
     @JsonKey(name: 'gate_exit_time') this.gateExitTime,
-    @JsonKey(name: 'document_photos') this.documentPhoto,
+    @JsonKey(name: 'document_photos', fromJson: _stringOrListToStringList)
+    final List<String>? invoicePhotos,
+    @JsonKey(readValue: _extractRequestTypes) final List<String>? requestType,
     @JsonKey(
       includeFromJson: true,
       includeToJson: false,
@@ -598,8 +601,10 @@ class _$GateManagementFormImpl implements _GateManagementForm {
       toJson: toNull,
       fromJson: toNull,
     )
-    this.documentPhotoImg,
-  });
+    final List<File>? documentPhotoImg,
+  }) : _invoicePhotos = invoicePhotos,
+       _requestType = requestType,
+       _documentPhotoImg = documentPhotoImg;
 
   factory _$GateManagementFormImpl.fromJson(Map<String, dynamic> json) =>
       _$$GateManagementFormImplFromJson(json);
@@ -621,9 +626,7 @@ class _$GateManagementFormImpl implements _GateManagementForm {
   @override
   @JsonKey(name: 'plant_name')
   final String? plantName;
-  @override
-  @JsonKey(name: 'request_type')
-  final String? requestType;
+  // @JsonKey(name: 'request_type') List<String>? requestType,
   @override
   @JsonKey(name: 'gate_entry_date')
   final String? gateeEntrydate;
@@ -666,9 +669,30 @@ class _$GateManagementFormImpl implements _GateManagementForm {
   @override
   @JsonKey(name: 'gate_exit_time')
   final String? gateExitTime;
+  // @JsonKey(name: 'document_photos') String? documentPhoto,
+  final List<String>? _invoicePhotos;
+  // @JsonKey(name: 'document_photos') String? documentPhoto,
   @override
-  @JsonKey(name: 'document_photos')
-  final String? documentPhoto;
+  @JsonKey(name: 'document_photos', fromJson: _stringOrListToStringList)
+  List<String>? get invoicePhotos {
+    final value = _invoicePhotos;
+    if (value == null) return null;
+    if (_invoicePhotos is EqualUnmodifiableListView) return _invoicePhotos;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(value);
+  }
+
+  final List<String>? _requestType;
+  @override
+  @JsonKey(readValue: _extractRequestTypes)
+  List<String>? get requestType {
+    final value = _requestType;
+    if (value == null) return null;
+    if (_requestType is EqualUnmodifiableListView) return _requestType;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(value);
+  }
+
   @override
   @JsonKey(
     includeFromJson: true,
@@ -685,6 +709,7 @@ class _$GateManagementFormImpl implements _GateManagementForm {
     fromJson: toNull,
   )
   final File? backPhotoImg;
+  final List<File>? _documentPhotoImg;
   @override
   @JsonKey(
     includeFromJson: true,
@@ -692,11 +717,18 @@ class _$GateManagementFormImpl implements _GateManagementForm {
     toJson: toNull,
     fromJson: toNull,
   )
-  final File? documentPhotoImg;
+  List<File>? get documentPhotoImg {
+    final value = _documentPhotoImg;
+    if (value == null) return null;
+    if (_documentPhotoImg is EqualUnmodifiableListView)
+      return _documentPhotoImg;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(value);
+  }
 
   @override
   String toString() {
-    return 'GateManagementForm(status: $status, name: $name, docStatus: $docStatus, owner: $owner, modifiedBy: $modifiedBy, plantName: $plantName, requestType: $requestType, gateeEntrydate: $gateeEntrydate, gateEntryTime: $gateEntryTime, remarks: $remarks, vehicleNo: $vehicleNo, vehicleType: $vehicleType, vendorInvoiceNo: $vendorInvoiceNo, driverName: $driverName, driverMobileNo: $driverMobileNo, vendorName: $vendorName, securityRemarks: $securityRemarks, vehiclePhoto: $vehiclePhoto, backPhoto: $backPhoto, gateExitdate: $gateExitdate, gateExitTime: $gateExitTime, documentPhoto: $documentPhoto, vehiclePhotoImg: $vehiclePhotoImg, backPhotoImg: $backPhotoImg, documentPhotoImg: $documentPhotoImg)';
+    return 'GateManagementForm(status: $status, name: $name, docStatus: $docStatus, owner: $owner, modifiedBy: $modifiedBy, plantName: $plantName, gateeEntrydate: $gateeEntrydate, gateEntryTime: $gateEntryTime, remarks: $remarks, vehicleNo: $vehicleNo, vehicleType: $vehicleType, vendorInvoiceNo: $vendorInvoiceNo, driverName: $driverName, driverMobileNo: $driverMobileNo, vendorName: $vendorName, securityRemarks: $securityRemarks, vehiclePhoto: $vehiclePhoto, backPhoto: $backPhoto, gateExitdate: $gateExitdate, gateExitTime: $gateExitTime, invoicePhotos: $invoicePhotos, requestType: $requestType, vehiclePhotoImg: $vehiclePhotoImg, backPhotoImg: $backPhotoImg, documentPhotoImg: $documentPhotoImg)';
   }
 
   @override
@@ -713,8 +745,6 @@ class _$GateManagementFormImpl implements _GateManagementForm {
                 other.modifiedBy == modifiedBy) &&
             (identical(other.plantName, plantName) ||
                 other.plantName == plantName) &&
-            (identical(other.requestType, requestType) ||
-                other.requestType == requestType) &&
             (identical(other.gateeEntrydate, gateeEntrydate) ||
                 other.gateeEntrydate == gateeEntrydate) &&
             (identical(other.gateEntryTime, gateEntryTime) ||
@@ -742,14 +772,22 @@ class _$GateManagementFormImpl implements _GateManagementForm {
                 other.gateExitdate == gateExitdate) &&
             (identical(other.gateExitTime, gateExitTime) ||
                 other.gateExitTime == gateExitTime) &&
-            (identical(other.documentPhoto, documentPhoto) ||
-                other.documentPhoto == documentPhoto) &&
+            const DeepCollectionEquality().equals(
+              other._invoicePhotos,
+              _invoicePhotos,
+            ) &&
+            const DeepCollectionEquality().equals(
+              other._requestType,
+              _requestType,
+            ) &&
             (identical(other.vehiclePhotoImg, vehiclePhotoImg) ||
                 other.vehiclePhotoImg == vehiclePhotoImg) &&
             (identical(other.backPhotoImg, backPhotoImg) ||
                 other.backPhotoImg == backPhotoImg) &&
-            (identical(other.documentPhotoImg, documentPhotoImg) ||
-                other.documentPhotoImg == documentPhotoImg));
+            const DeepCollectionEquality().equals(
+              other._documentPhotoImg,
+              _documentPhotoImg,
+            ));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -762,7 +800,6 @@ class _$GateManagementFormImpl implements _GateManagementForm {
     owner,
     modifiedBy,
     plantName,
-    requestType,
     gateeEntrydate,
     gateEntryTime,
     remarks,
@@ -777,10 +814,11 @@ class _$GateManagementFormImpl implements _GateManagementForm {
     backPhoto,
     gateExitdate,
     gateExitTime,
-    documentPhoto,
+    const DeepCollectionEquality().hash(_invoicePhotos),
+    const DeepCollectionEquality().hash(_requestType),
     vehiclePhotoImg,
     backPhotoImg,
-    documentPhotoImg,
+    const DeepCollectionEquality().hash(_documentPhotoImg),
   ]);
 
   /// Create a copy of GateManagementForm
@@ -808,7 +846,6 @@ abstract class _GateManagementForm implements GateManagementForm {
     @JsonKey(name: 'owner') final String? owner,
     @JsonKey(name: 'creation') final String? modifiedBy,
     @JsonKey(name: 'plant_name') final String? plantName,
-    @JsonKey(name: 'request_type') final String? requestType,
     @JsonKey(name: 'gate_entry_date') final String? gateeEntrydate,
     @JsonKey(name: 'gate_entry_time') final String? gateEntryTime,
     @JsonKey(name: 'purpose__remarks') final String? remarks,
@@ -823,7 +860,9 @@ abstract class _GateManagementForm implements GateManagementForm {
     @JsonKey(name: 'vehicle_back_photo') final String? backPhoto,
     @JsonKey(name: 'gate_exit_date') final String? gateExitdate,
     @JsonKey(name: 'gate_exit_time') final String? gateExitTime,
-    @JsonKey(name: 'document_photos') final String? documentPhoto,
+    @JsonKey(name: 'document_photos', fromJson: _stringOrListToStringList)
+    final List<String>? invoicePhotos,
+    @JsonKey(readValue: _extractRequestTypes) final List<String>? requestType,
     @JsonKey(
       includeFromJson: true,
       includeToJson: false,
@@ -844,7 +883,7 @@ abstract class _GateManagementForm implements GateManagementForm {
       toJson: toNull,
       fromJson: toNull,
     )
-    final File? documentPhotoImg,
+    final List<File>? documentPhotoImg,
   }) = _$GateManagementFormImpl;
 
   factory _GateManagementForm.fromJson(Map<String, dynamic> json) =
@@ -866,10 +905,7 @@ abstract class _GateManagementForm implements GateManagementForm {
   String? get modifiedBy;
   @override
   @JsonKey(name: 'plant_name')
-  String? get plantName;
-  @override
-  @JsonKey(name: 'request_type')
-  String? get requestType;
+  String? get plantName; // @JsonKey(name: 'request_type') List<String>? requestType,
   @override
   @JsonKey(name: 'gate_entry_date')
   String? get gateeEntrydate;
@@ -911,10 +947,13 @@ abstract class _GateManagementForm implements GateManagementForm {
   String? get gateExitdate;
   @override
   @JsonKey(name: 'gate_exit_time')
-  String? get gateExitTime;
+  String? get gateExitTime; // @JsonKey(name: 'document_photos') String? documentPhoto,
   @override
-  @JsonKey(name: 'document_photos')
-  String? get documentPhoto;
+  @JsonKey(name: 'document_photos', fromJson: _stringOrListToStringList)
+  List<String>? get invoicePhotos;
+  @override
+  @JsonKey(readValue: _extractRequestTypes)
+  List<String>? get requestType;
   @override
   @JsonKey(
     includeFromJson: true,
@@ -938,7 +977,7 @@ abstract class _GateManagementForm implements GateManagementForm {
     toJson: toNull,
     fromJson: toNull,
   )
-  File? get documentPhotoImg;
+  List<File>? get documentPhotoImg;
 
   /// Create a copy of GateManagementForm
   /// with the given fields replaced by the non-null parameter values.

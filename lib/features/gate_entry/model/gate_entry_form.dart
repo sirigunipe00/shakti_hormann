@@ -34,7 +34,12 @@ class GateEntryForm with _$GateEntryForm {
     @JsonKey(name: 'remarks') String? remarks,
     @JsonKey(name: 'is_purchase_receipt_created') int? receipt,
     @JsonKey(name: 'vehicle_photo') String? vehiclePhoto,
-    @JsonKey(name: 'vendor_invoice_photo') String? invoicePhoto,
+    @JsonKey(name: 'gate_exit_datetime') String? gateExitDateandTime,
+      @JsonKey(
+      name: 'vendor_invoice_photo',
+      fromJson: _stringOrListToStringList,
+    )
+    List<String>? invoicePhotos,
     @JsonKey(name: 'vehicle_back_photo') String? vehicleBackPhoto,
     @JsonKey(name:  'gate_number') String? gateNumber,
     @JsonKey(
@@ -48,7 +53,7 @@ class GateEntryForm with _$GateEntryForm {
         includeToJson: false,
         toJson: toNull,
         fromJson: toNull)
-    File? invoicePhotoImg,
+    List<File>? invoicePhotoImg,
     @JsonKey(
         includeFromJson: true,
         includeToJson: false,
@@ -56,7 +61,21 @@ class GateEntryForm with _$GateEntryForm {
         fromJson: toNull)
     File? vehicleBackPhotoImg,
     
+    
   }) = _GateEntryForm;
   factory GateEntryForm.fromJson(Map<String, dynamic> json) =>
       _$GateEntryFormFromJson(json);
+}
+List<String>? _stringOrListToStringList(dynamic value) {
+  if (value == null) return null;
+
+  if (value is List) {
+    return value.map((e) => e.toString()).toList();
+  }
+
+  if (value is String && value.isNotEmpty) {
+    return [value];
+  }
+
+  return [];
 }

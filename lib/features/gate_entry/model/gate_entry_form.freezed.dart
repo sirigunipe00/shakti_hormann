@@ -60,8 +60,10 @@ mixin _$GateEntryForm {
   int? get receipt => throw _privateConstructorUsedError;
   @JsonKey(name: 'vehicle_photo')
   String? get vehiclePhoto => throw _privateConstructorUsedError;
-  @JsonKey(name: 'vendor_invoice_photo')
-  String? get invoicePhoto => throw _privateConstructorUsedError;
+  @JsonKey(name: 'gate_exit_datetime')
+  String? get gateExitDateandTime => throw _privateConstructorUsedError;
+  @JsonKey(name: 'vendor_invoice_photo', fromJson: _stringOrListToStringList)
+  List<String>? get invoicePhotos => throw _privateConstructorUsedError;
   @JsonKey(name: 'vehicle_back_photo')
   String? get vehicleBackPhoto => throw _privateConstructorUsedError;
   @JsonKey(name: 'gate_number')
@@ -79,7 +81,7 @@ mixin _$GateEntryForm {
     toJson: toNull,
     fromJson: toNull,
   )
-  File? get invoicePhotoImg => throw _privateConstructorUsedError;
+  List<File>? get invoicePhotoImg => throw _privateConstructorUsedError;
   @JsonKey(
     includeFromJson: true,
     includeToJson: false,
@@ -126,7 +128,9 @@ abstract class $GateEntryFormCopyWith<$Res> {
     @JsonKey(name: 'remarks') String? remarks,
     @JsonKey(name: 'is_purchase_receipt_created') int? receipt,
     @JsonKey(name: 'vehicle_photo') String? vehiclePhoto,
-    @JsonKey(name: 'vendor_invoice_photo') String? invoicePhoto,
+    @JsonKey(name: 'gate_exit_datetime') String? gateExitDateandTime,
+    @JsonKey(name: 'vendor_invoice_photo', fromJson: _stringOrListToStringList)
+    List<String>? invoicePhotos,
     @JsonKey(name: 'vehicle_back_photo') String? vehicleBackPhoto,
     @JsonKey(name: 'gate_number') String? gateNumber,
     @JsonKey(
@@ -142,7 +146,7 @@ abstract class $GateEntryFormCopyWith<$Res> {
       toJson: toNull,
       fromJson: toNull,
     )
-    File? invoicePhotoImg,
+    List<File>? invoicePhotoImg,
     @JsonKey(
       includeFromJson: true,
       includeToJson: false,
@@ -188,7 +192,8 @@ class _$GateEntryFormCopyWithImpl<$Res, $Val extends GateEntryForm>
     Object? remarks = freezed,
     Object? receipt = freezed,
     Object? vehiclePhoto = freezed,
-    Object? invoicePhoto = freezed,
+    Object? gateExitDateandTime = freezed,
+    Object? invoicePhotos = freezed,
     Object? vehicleBackPhoto = freezed,
     Object? gateNumber = freezed,
     Object? vehiclePhotoImg = freezed,
@@ -297,11 +302,16 @@ class _$GateEntryFormCopyWithImpl<$Res, $Val extends GateEntryForm>
                     ? _value.vehiclePhoto
                     : vehiclePhoto // ignore: cast_nullable_to_non_nullable
                         as String?,
-            invoicePhoto:
-                freezed == invoicePhoto
-                    ? _value.invoicePhoto
-                    : invoicePhoto // ignore: cast_nullable_to_non_nullable
+            gateExitDateandTime:
+                freezed == gateExitDateandTime
+                    ? _value.gateExitDateandTime
+                    : gateExitDateandTime // ignore: cast_nullable_to_non_nullable
                         as String?,
+            invoicePhotos:
+                freezed == invoicePhotos
+                    ? _value.invoicePhotos
+                    : invoicePhotos // ignore: cast_nullable_to_non_nullable
+                        as List<String>?,
             vehicleBackPhoto:
                 freezed == vehicleBackPhoto
                     ? _value.vehicleBackPhoto
@@ -321,7 +331,7 @@ class _$GateEntryFormCopyWithImpl<$Res, $Val extends GateEntryForm>
                 freezed == invoicePhotoImg
                     ? _value.invoicePhotoImg
                     : invoicePhotoImg // ignore: cast_nullable_to_non_nullable
-                        as File?,
+                        as List<File>?,
             vehicleBackPhotoImg:
                 freezed == vehicleBackPhotoImg
                     ? _value.vehicleBackPhotoImg
@@ -363,7 +373,9 @@ abstract class _$$GateEntryFormImplCopyWith<$Res>
     @JsonKey(name: 'remarks') String? remarks,
     @JsonKey(name: 'is_purchase_receipt_created') int? receipt,
     @JsonKey(name: 'vehicle_photo') String? vehiclePhoto,
-    @JsonKey(name: 'vendor_invoice_photo') String? invoicePhoto,
+    @JsonKey(name: 'gate_exit_datetime') String? gateExitDateandTime,
+    @JsonKey(name: 'vendor_invoice_photo', fromJson: _stringOrListToStringList)
+    List<String>? invoicePhotos,
     @JsonKey(name: 'vehicle_back_photo') String? vehicleBackPhoto,
     @JsonKey(name: 'gate_number') String? gateNumber,
     @JsonKey(
@@ -379,7 +391,7 @@ abstract class _$$GateEntryFormImplCopyWith<$Res>
       toJson: toNull,
       fromJson: toNull,
     )
-    File? invoicePhotoImg,
+    List<File>? invoicePhotoImg,
     @JsonKey(
       includeFromJson: true,
       includeToJson: false,
@@ -424,7 +436,8 @@ class __$$GateEntryFormImplCopyWithImpl<$Res>
     Object? remarks = freezed,
     Object? receipt = freezed,
     Object? vehiclePhoto = freezed,
-    Object? invoicePhoto = freezed,
+    Object? gateExitDateandTime = freezed,
+    Object? invoicePhotos = freezed,
     Object? vehicleBackPhoto = freezed,
     Object? gateNumber = freezed,
     Object? vehiclePhotoImg = freezed,
@@ -533,11 +546,16 @@ class __$$GateEntryFormImplCopyWithImpl<$Res>
                 ? _value.vehiclePhoto
                 : vehiclePhoto // ignore: cast_nullable_to_non_nullable
                     as String?,
-        invoicePhoto:
-            freezed == invoicePhoto
-                ? _value.invoicePhoto
-                : invoicePhoto // ignore: cast_nullable_to_non_nullable
+        gateExitDateandTime:
+            freezed == gateExitDateandTime
+                ? _value.gateExitDateandTime
+                : gateExitDateandTime // ignore: cast_nullable_to_non_nullable
                     as String?,
+        invoicePhotos:
+            freezed == invoicePhotos
+                ? _value._invoicePhotos
+                : invoicePhotos // ignore: cast_nullable_to_non_nullable
+                    as List<String>?,
         vehicleBackPhoto:
             freezed == vehicleBackPhoto
                 ? _value.vehicleBackPhoto
@@ -555,9 +573,9 @@ class __$$GateEntryFormImplCopyWithImpl<$Res>
                     as File?,
         invoicePhotoImg:
             freezed == invoicePhotoImg
-                ? _value.invoicePhotoImg
+                ? _value._invoicePhotoImg
                 : invoicePhotoImg // ignore: cast_nullable_to_non_nullable
-                    as File?,
+                    as List<File>?,
         vehicleBackPhotoImg:
             freezed == vehicleBackPhotoImg
                 ? _value.vehicleBackPhotoImg
@@ -592,7 +610,9 @@ class _$GateEntryFormImpl implements _GateEntryForm {
     @JsonKey(name: 'remarks') this.remarks,
     @JsonKey(name: 'is_purchase_receipt_created') this.receipt,
     @JsonKey(name: 'vehicle_photo') this.vehiclePhoto,
-    @JsonKey(name: 'vendor_invoice_photo') this.invoicePhoto,
+    @JsonKey(name: 'gate_exit_datetime') this.gateExitDateandTime,
+    @JsonKey(name: 'vendor_invoice_photo', fromJson: _stringOrListToStringList)
+    final List<String>? invoicePhotos,
     @JsonKey(name: 'vehicle_back_photo') this.vehicleBackPhoto,
     @JsonKey(name: 'gate_number') this.gateNumber,
     @JsonKey(
@@ -608,7 +628,7 @@ class _$GateEntryFormImpl implements _GateEntryForm {
       toJson: toNull,
       fromJson: toNull,
     )
-    this.invoicePhotoImg,
+    final List<File>? invoicePhotoImg,
     @JsonKey(
       includeFromJson: true,
       includeToJson: false,
@@ -616,7 +636,9 @@ class _$GateEntryFormImpl implements _GateEntryForm {
       fromJson: toNull,
     )
     this.vehicleBackPhotoImg,
-  }) : _purchaseOrder = purchaseOrder;
+  }) : _purchaseOrder = purchaseOrder,
+       _invoicePhotos = invoicePhotos,
+       _invoicePhotoImg = invoicePhotoImg;
 
   factory _$GateEntryFormImpl.fromJson(Map<String, dynamic> json) =>
       _$$GateEntryFormImplFromJson(json);
@@ -689,8 +711,19 @@ class _$GateEntryFormImpl implements _GateEntryForm {
   @JsonKey(name: 'vehicle_photo')
   final String? vehiclePhoto;
   @override
-  @JsonKey(name: 'vendor_invoice_photo')
-  final String? invoicePhoto;
+  @JsonKey(name: 'gate_exit_datetime')
+  final String? gateExitDateandTime;
+  final List<String>? _invoicePhotos;
+  @override
+  @JsonKey(name: 'vendor_invoice_photo', fromJson: _stringOrListToStringList)
+  List<String>? get invoicePhotos {
+    final value = _invoicePhotos;
+    if (value == null) return null;
+    if (_invoicePhotos is EqualUnmodifiableListView) return _invoicePhotos;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(value);
+  }
+
   @override
   @JsonKey(name: 'vehicle_back_photo')
   final String? vehicleBackPhoto;
@@ -705,6 +738,7 @@ class _$GateEntryFormImpl implements _GateEntryForm {
     fromJson: toNull,
   )
   final File? vehiclePhotoImg;
+  final List<File>? _invoicePhotoImg;
   @override
   @JsonKey(
     includeFromJson: true,
@@ -712,7 +746,14 @@ class _$GateEntryFormImpl implements _GateEntryForm {
     toJson: toNull,
     fromJson: toNull,
   )
-  final File? invoicePhotoImg;
+  List<File>? get invoicePhotoImg {
+    final value = _invoicePhotoImg;
+    if (value == null) return null;
+    if (_invoicePhotoImg is EqualUnmodifiableListView) return _invoicePhotoImg;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(value);
+  }
+
   @override
   @JsonKey(
     includeFromJson: true,
@@ -724,7 +765,7 @@ class _$GateEntryFormImpl implements _GateEntryForm {
 
   @override
   String toString() {
-    return 'GateEntryForm(status: $status, name: $name, owner: $owner, creationDate: $creationDate, docStatus: $docStatus, modifiedDate: $modifiedDate, modifiedBy: $modifiedBy, idx: $idx, plantName: $plantName, purchaseOrder: $purchaseOrder, scanIrn: $scanIrn, vehicleNo: $vehicleNo, vendorInvoiceDate: $vendorInvoiceDate, vendorInvoiceNo: $vendorInvoiceNo, gateEntryDate: $gateEntryDate, invoiceQuantity: $invoiceQuantity, invoiceAmount: $invoiceAmount, remarks: $remarks, receipt: $receipt, vehiclePhoto: $vehiclePhoto, invoicePhoto: $invoicePhoto, vehicleBackPhoto: $vehicleBackPhoto, gateNumber: $gateNumber, vehiclePhotoImg: $vehiclePhotoImg, invoicePhotoImg: $invoicePhotoImg, vehicleBackPhotoImg: $vehicleBackPhotoImg)';
+    return 'GateEntryForm(status: $status, name: $name, owner: $owner, creationDate: $creationDate, docStatus: $docStatus, modifiedDate: $modifiedDate, modifiedBy: $modifiedBy, idx: $idx, plantName: $plantName, purchaseOrder: $purchaseOrder, scanIrn: $scanIrn, vehicleNo: $vehicleNo, vendorInvoiceDate: $vendorInvoiceDate, vendorInvoiceNo: $vendorInvoiceNo, gateEntryDate: $gateEntryDate, invoiceQuantity: $invoiceQuantity, invoiceAmount: $invoiceAmount, remarks: $remarks, receipt: $receipt, vehiclePhoto: $vehiclePhoto, gateExitDateandTime: $gateExitDateandTime, invoicePhotos: $invoicePhotos, vehicleBackPhoto: $vehicleBackPhoto, gateNumber: $gateNumber, vehiclePhotoImg: $vehiclePhotoImg, invoicePhotoImg: $invoicePhotoImg, vehicleBackPhotoImg: $vehicleBackPhotoImg)';
   }
 
   @override
@@ -767,16 +808,22 @@ class _$GateEntryFormImpl implements _GateEntryForm {
             (identical(other.receipt, receipt) || other.receipt == receipt) &&
             (identical(other.vehiclePhoto, vehiclePhoto) ||
                 other.vehiclePhoto == vehiclePhoto) &&
-            (identical(other.invoicePhoto, invoicePhoto) ||
-                other.invoicePhoto == invoicePhoto) &&
+            (identical(other.gateExitDateandTime, gateExitDateandTime) ||
+                other.gateExitDateandTime == gateExitDateandTime) &&
+            const DeepCollectionEquality().equals(
+              other._invoicePhotos,
+              _invoicePhotos,
+            ) &&
             (identical(other.vehicleBackPhoto, vehicleBackPhoto) ||
                 other.vehicleBackPhoto == vehicleBackPhoto) &&
             (identical(other.gateNumber, gateNumber) ||
                 other.gateNumber == gateNumber) &&
             (identical(other.vehiclePhotoImg, vehiclePhotoImg) ||
                 other.vehiclePhotoImg == vehiclePhotoImg) &&
-            (identical(other.invoicePhotoImg, invoicePhotoImg) ||
-                other.invoicePhotoImg == invoicePhotoImg) &&
+            const DeepCollectionEquality().equals(
+              other._invoicePhotoImg,
+              _invoicePhotoImg,
+            ) &&
             (identical(other.vehicleBackPhotoImg, vehicleBackPhotoImg) ||
                 other.vehicleBackPhotoImg == vehicleBackPhotoImg));
   }
@@ -805,11 +852,12 @@ class _$GateEntryFormImpl implements _GateEntryForm {
     remarks,
     receipt,
     vehiclePhoto,
-    invoicePhoto,
+    gateExitDateandTime,
+    const DeepCollectionEquality().hash(_invoicePhotos),
     vehicleBackPhoto,
     gateNumber,
     vehiclePhotoImg,
-    invoicePhotoImg,
+    const DeepCollectionEquality().hash(_invoicePhotoImg),
     vehicleBackPhotoImg,
   ]);
 
@@ -849,7 +897,9 @@ abstract class _GateEntryForm implements GateEntryForm {
     @JsonKey(name: 'remarks') final String? remarks,
     @JsonKey(name: 'is_purchase_receipt_created') final int? receipt,
     @JsonKey(name: 'vehicle_photo') final String? vehiclePhoto,
-    @JsonKey(name: 'vendor_invoice_photo') final String? invoicePhoto,
+    @JsonKey(name: 'gate_exit_datetime') final String? gateExitDateandTime,
+    @JsonKey(name: 'vendor_invoice_photo', fromJson: _stringOrListToStringList)
+    final List<String>? invoicePhotos,
     @JsonKey(name: 'vehicle_back_photo') final String? vehicleBackPhoto,
     @JsonKey(name: 'gate_number') final String? gateNumber,
     @JsonKey(
@@ -865,7 +915,7 @@ abstract class _GateEntryForm implements GateEntryForm {
       toJson: toNull,
       fromJson: toNull,
     )
-    final File? invoicePhotoImg,
+    final List<File>? invoicePhotoImg,
     @JsonKey(
       includeFromJson: true,
       includeToJson: false,
@@ -938,8 +988,11 @@ abstract class _GateEntryForm implements GateEntryForm {
   @JsonKey(name: 'vehicle_photo')
   String? get vehiclePhoto;
   @override
-  @JsonKey(name: 'vendor_invoice_photo')
-  String? get invoicePhoto;
+  @JsonKey(name: 'gate_exit_datetime')
+  String? get gateExitDateandTime;
+  @override
+  @JsonKey(name: 'vendor_invoice_photo', fromJson: _stringOrListToStringList)
+  List<String>? get invoicePhotos;
   @override
   @JsonKey(name: 'vehicle_back_photo')
   String? get vehicleBackPhoto;
@@ -961,7 +1014,7 @@ abstract class _GateEntryForm implements GateEntryForm {
     toJson: toNull,
     fromJson: toNull,
   )
-  File? get invoicePhotoImg;
+  List<File>? get invoicePhotoImg;
   @override
   @JsonKey(
     includeFromJson: true,

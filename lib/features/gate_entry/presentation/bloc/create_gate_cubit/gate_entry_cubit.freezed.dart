@@ -21,6 +21,7 @@ mixin _$CreateGateEntryState {
   bool get isLoading => throw _privateConstructorUsedError;
   bool get isSuccess => throw _privateConstructorUsedError;
   GateEntryView get view => throw _privateConstructorUsedError;
+  bool get isModified => throw _privateConstructorUsedError;
   String? get successMsg => throw _privateConstructorUsedError;
   Failure? get error => throw _privateConstructorUsedError;
 
@@ -43,6 +44,7 @@ abstract class $CreateGateEntryStateCopyWith<$Res> {
     bool isLoading,
     bool isSuccess,
     GateEntryView view,
+    bool isModified,
     String? successMsg,
     Failure? error,
   });
@@ -73,6 +75,7 @@ class _$CreateGateEntryStateCopyWithImpl<
     Object? isLoading = null,
     Object? isSuccess = null,
     Object? view = null,
+    Object? isModified = null,
     Object? successMsg = freezed,
     Object? error = freezed,
   }) {
@@ -98,6 +101,11 @@ class _$CreateGateEntryStateCopyWithImpl<
                     ? _value.view
                     : view // ignore: cast_nullable_to_non_nullable
                         as GateEntryView,
+            isModified:
+                null == isModified
+                    ? _value.isModified
+                    : isModified // ignore: cast_nullable_to_non_nullable
+                        as bool,
             successMsg:
                 freezed == successMsg
                     ? _value.successMsg
@@ -152,6 +160,7 @@ abstract class _$$CreateGateEntryStateImplCopyWith<$Res>
     bool isLoading,
     bool isSuccess,
     GateEntryView view,
+    bool isModified,
     String? successMsg,
     Failure? error,
   });
@@ -180,6 +189,7 @@ class __$$CreateGateEntryStateImplCopyWithImpl<$Res>
     Object? isLoading = null,
     Object? isSuccess = null,
     Object? view = null,
+    Object? isModified = null,
     Object? successMsg = freezed,
     Object? error = freezed,
   }) {
@@ -205,6 +215,11 @@ class __$$CreateGateEntryStateImplCopyWithImpl<$Res>
                 ? _value.view
                 : view // ignore: cast_nullable_to_non_nullable
                     as GateEntryView,
+        isModified:
+            null == isModified
+                ? _value.isModified
+                : isModified // ignore: cast_nullable_to_non_nullable
+                    as bool,
         successMsg:
             freezed == successMsg
                 ? _value.successMsg
@@ -228,6 +243,7 @@ class _$CreateGateEntryStateImpl implements _CreateGateEntryState {
     required this.isLoading,
     required this.isSuccess,
     required this.view,
+    this.isModified = false,
     this.successMsg,
     this.error,
   });
@@ -241,13 +257,16 @@ class _$CreateGateEntryStateImpl implements _CreateGateEntryState {
   @override
   final GateEntryView view;
   @override
+  @JsonKey()
+  final bool isModified;
+  @override
   final String? successMsg;
   @override
   final Failure? error;
 
   @override
   String toString() {
-    return 'CreateGateEntryState(form: $form, isLoading: $isLoading, isSuccess: $isSuccess, view: $view, successMsg: $successMsg, error: $error)';
+    return 'CreateGateEntryState(form: $form, isLoading: $isLoading, isSuccess: $isSuccess, view: $view, isModified: $isModified, successMsg: $successMsg, error: $error)';
   }
 
   @override
@@ -261,6 +280,8 @@ class _$CreateGateEntryStateImpl implements _CreateGateEntryState {
             (identical(other.isSuccess, isSuccess) ||
                 other.isSuccess == isSuccess) &&
             (identical(other.view, view) || other.view == view) &&
+            (identical(other.isModified, isModified) ||
+                other.isModified == isModified) &&
             (identical(other.successMsg, successMsg) ||
                 other.successMsg == successMsg) &&
             (identical(other.error, error) || other.error == error));
@@ -273,6 +294,7 @@ class _$CreateGateEntryStateImpl implements _CreateGateEntryState {
     isLoading,
     isSuccess,
     view,
+    isModified,
     successMsg,
     error,
   );
@@ -296,6 +318,7 @@ abstract class _CreateGateEntryState implements CreateGateEntryState {
     required final bool isLoading,
     required final bool isSuccess,
     required final GateEntryView view,
+    final bool isModified,
     final String? successMsg,
     final Failure? error,
   }) = _$CreateGateEntryStateImpl;
@@ -308,6 +331,8 @@ abstract class _CreateGateEntryState implements CreateGateEntryState {
   bool get isSuccess;
   @override
   GateEntryView get view;
+  @override
+  bool get isModified;
   @override
   String? get successMsg;
   @override

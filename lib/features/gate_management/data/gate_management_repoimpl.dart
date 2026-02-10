@@ -8,6 +8,7 @@ import 'package:injectable/injectable.dart';
 import 'package:intl/intl.dart';
 import 'package:path/path.dart' as p;
 import 'package:shakti_hormann/core/core.dart';
+import 'package:shakti_hormann/features/gate_entry/model/attachement.dart';
 import 'package:shakti_hormann/features/gate_management/data/gate_management_repo.dart';
 import 'package:shakti_hormann/features/gate_management/model/gate_management_form.dart';
 
@@ -57,6 +58,33 @@ class GateManagementRepoimpl extends BaseApiRepository
     final response = await get(requestConfig);
     return response.process((r) => right(r.data!));
   }
+  @override
+AsyncValueOf<List<AttachementInvoices>> fetchAttachments(String id) async {
+  return await executeSafely(() async {
+    final filters = [
+      ['attached_to_doctype', '=', 'Gate Management'],
+      ['attached_to_name', '=', id],
+      ['attached_to_field', '=', 'document_photos']
+    ];
+
+    final config = RequestConfig(
+      url: Urls.getList, 
+      parser: (json) {
+        final data = json['message'] as List<dynamic>;
+        return data.map((e) => AttachementInvoices.fromJson(e)).toList();
+      },
+      reqParams: {
+        'doctype': 'File',
+        'filters': jsonEncode(filters),
+        'fields': jsonEncode(['file_url', 'attached_to_doctype', 'attached_to_name', 'attached_to_field']),
+      },
+    );
+
+    final response = await get(config);
+    $logger.devLog('fetchAttachments response.....$response');
+    return response.process((r) => right(r.data!));
+  });
+}
 
   @override
   AsyncValueOf<Pair<String, String>> createGateManagement(
@@ -71,8 +99,8 @@ class GateManagementRepoimpl extends BaseApiRepository
 
     Uint8List? vehiclefrontcompressedBytes;
     Uint8List? vehiclebackcompressedBytes;
-    Uint8List? documentcompressedBytes;
-
+    // Uint8List? documentcompressedBytes;
+List<String> documentInvoiceBase64List = [];
     $logger.info('form.....:$form');
 
     if (form.vehiclePhotoImg != null) {
@@ -98,17 +126,29 @@ class GateManagementRepoimpl extends BaseApiRepository
         form.backPhoto ?? '',
       );
     }
+        if (form.invoicePhotos != null && form.invoicePhotos!.isNotEmpty) {
+      for (var path in form.invoicePhotos!) {
+         final bytes = await fetchAndConvertToBase64(path);
+         if (bytes != null) {
+           documentInvoiceBase64List.add(base64Encode(bytes));
+         }
+      }
+    }
 
-    if (form.documentPhotoImg != null) {
-      final filePath = form.documentPhotoImg!.path;
-      documentcompressedBytes = await FlutterImageCompress.compressWithFile(
-        filePath,
-        quality: 50,
-      );
-    } else if (form.documentPhoto != null) {
-      documentcompressedBytes = await fetchAndConvertToBase64(
-        form.documentPhoto ?? '',
-      );
+
+  if (form.documentPhotoImg != null && form.documentPhotoImg!.isNotEmpty) {
+      for (var file in form.documentPhotoImg!) {
+
+        if (await file.exists()) {
+          final compressed = await FlutterImageCompress.compressWithFile(
+            file.path, 
+            quality: 50
+          );
+          if (compressed != null) {
+            documentInvoiceBase64List.add(base64Encode(compressed));
+          }
+        }
+      }
     }
 
     final Map<String, dynamic> requestBody = {
@@ -137,10 +177,10 @@ class GateManagementRepoimpl extends BaseApiRepository
           vehiclefrontcompressedBytes == null
               ? null
               : base64Encode(vehiclefrontcompressedBytes),
-      'document_photos':
-          documentcompressedBytes == null
-              ? null
-              : base64Encode(documentcompressedBytes),
+      'document_photos': documentInvoiceBase64List,
+          // documentcompressedBytes == null
+          //     ? null
+          //     : base64Encode(documentcompressedBytes),
       'vehicle_back_photo':
           vehiclebackcompressedBytes == null
               ? null
@@ -151,7 +191,7 @@ class GateManagementRepoimpl extends BaseApiRepository
     if (form.plantName != null &&
         form.plantName!.trim().isNotEmpty &&
         form.plantName != '') {
-      print('form.plantName....:${form.plantName}');
+
       requestBody['plant_name'] = form.plantName;
     }
 
@@ -184,14 +224,15 @@ class GateManagementRepoimpl extends BaseApiRepository
     GateManagementForm form,
   ) async {
     final today = DateFormat('dd-MM-yyyy').format(DateTime.now());
-    final time = DateTime.now();
+    // final time = DateTime.now();
     final formJson = form.toJson();
 
     formJson['status'] = 'Draft';
 
     Uint8List? vehiclefrontcompressedBytes;
     Uint8List? vehiclebackcompressedBytes;
-    Uint8List? documentcompressedBytes;
+    // Uint8List? documentcompressedBytes;
+     List<String> vendorInvoiceBase64List = [];
 
     $logger.info('form.....:$form');
 
@@ -218,18 +259,40 @@ class GateManagementRepoimpl extends BaseApiRepository
         form.backPhoto ?? '',
       );
     }
-
-    if (form.documentPhotoImg != null) {
-      final filePath = form.documentPhotoImg!.path;
-      documentcompressedBytes = await FlutterImageCompress.compressWithFile(
-        filePath,
-        quality: 50,
-      );
-    } else if (form.documentPhoto != null) {
-      documentcompressedBytes = await fetchAndConvertToBase64(
-        form.documentPhoto ?? '',
-      );
+     if (form.invoicePhotos != null && form.invoicePhotos!.isNotEmpty) {
+      for (var path in form.invoicePhotos!) {
+         final bytes = await fetchAndConvertToBase64(path);
+         if (bytes != null) {
+           vendorInvoiceBase64List.add(base64Encode(bytes));
+         }
+      }
     }
+      if (form.documentPhotoImg != null && form.documentPhotoImg!.isNotEmpty) {
+      for (var file in form.documentPhotoImg!) {
+
+        if (await file.exists()) {
+          final compressed = await FlutterImageCompress.compressWithFile(
+            file.path, 
+            quality: 50
+          );
+          if (compressed != null) {
+            vendorInvoiceBase64List.add(base64Encode(compressed));
+          }
+        }
+      }
+    }
+
+    // if (form.documentPhotoImg != null) {
+    //   final filePath = form.documentPhotoImg!.path;
+    //   documentcompressedBytes = await FlutterImageCompress.compressWithFile(
+    //     filePath,
+    //     quality: 50,
+    //   );
+    // } else if (form.documentPhoto != null) {
+    //   documentcompressedBytes = await fetchAndConvertToBase64(
+    //     form.documentPhoto ?? '',
+    //   );
+    // }
       String? formattedgateentryDate;
       String? gateExitFormatedate;
      
@@ -291,10 +354,10 @@ class GateManagementRepoimpl extends BaseApiRepository
           vehiclefrontcompressedBytes == null
               ? null
               : base64Encode(vehiclefrontcompressedBytes),
-      'document_photos':
-          documentcompressedBytes == null
-              ? null
-              : base64Encode(documentcompressedBytes),
+      'document_photos': vendorInvoiceBase64List,
+          // documentcompressedBytes == null
+          //     ? null
+          //     : base64Encode(documentcompressedBytes),
       'vehicle_back_photo':
           vehiclebackcompressedBytes == null
               ? null
@@ -305,7 +368,7 @@ class GateManagementRepoimpl extends BaseApiRepository
     if (form.plantName != null &&
         form.plantName!.trim().isNotEmpty &&
         form.plantName != '') {
-      print('form.plantName....:${form.plantName}');
+
       requestBody['plant_name'] = form.plantName;
     }
 

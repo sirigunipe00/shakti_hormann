@@ -227,27 +227,27 @@ class AppProfilePage extends StatelessWidget {
                       ),
                     ),
                 
-                    SizedBox(height: height * 0.08),
+                    // SizedBox(height: height * 0.08),
                 
-                    Column(
-                      children: [
-                        SvgPicture.asset(
-                          'assets/logo/EasyCloud Logo 150 x 80.svg',
-                          height: height * 0.05,
-                          fit: BoxFit.contain,
-                        ),
-                        SizedBox(height: height * 0.005),
-                        const Text(
-                          'Powered by EasyCloud',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey,
-                            fontFamily: 'Urbanist',
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ],
-                    ),
+                    // Column(
+                    //   children: [
+                    //     SvgPicture.asset(
+                    //       'assets/logo/EasyCloud Logo 150 x 80.svg',
+                    //       height: height * 0.05,
+                    //       fit: BoxFit.contain,
+                    //     ),
+                    //     SizedBox(height: height * 0.005),
+                    //     const Text(
+                    //       'Powered by EasyCloud',
+                    //       style: TextStyle(
+                    //         fontSize: 14,
+                    //         color: Colors.grey,
+                    //         fontFamily: 'Urbanist',
+                    //         fontWeight: FontWeight.w700,
+                    //       ),
+                    //     ),
+                    //   ],
+                    // ),
                   ],
                 ),
               ),

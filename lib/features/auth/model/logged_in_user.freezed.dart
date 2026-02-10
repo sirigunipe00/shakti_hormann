@@ -60,6 +60,8 @@ mixin _$LoggedInUser {
   String? get mobileNo => throw _privateConstructorUsedError;
   @JsonKey(name: 'otp_verified')
   bool? get isOtpVerified => throw _privateConstructorUsedError;
+  @JsonKey(name: 'roles')
+  List<UserRole>? get roles => throw _privateConstructorUsedError;
   @JsonKey(name: 'role_status')
   RoleStatus? get roleStatus => throw _privateConstructorUsedError;
 
@@ -104,6 +106,7 @@ abstract class $LoggedInUserCopyWith<$Res> {
     String? bio,
     @JsonKey(name: 'mobile_no') String? mobileNo,
     @JsonKey(name: 'otp_verified') bool? isOtpVerified,
+    @JsonKey(name: 'roles') List<UserRole>? roles,
     @JsonKey(name: 'role_status') RoleStatus? roleStatus,
   });
 
@@ -147,6 +150,7 @@ class _$LoggedInUserCopyWithImpl<$Res, $Val extends LoggedInUser>
     Object? bio = freezed,
     Object? mobileNo = freezed,
     Object? isOtpVerified = freezed,
+    Object? roles = freezed,
     Object? roleStatus = freezed,
   }) {
     return _then(
@@ -261,6 +265,11 @@ class _$LoggedInUserCopyWithImpl<$Res, $Val extends LoggedInUser>
                     ? _value.isOtpVerified
                     : isOtpVerified // ignore: cast_nullable_to_non_nullable
                         as bool?,
+            roles:
+                freezed == roles
+                    ? _value.roles
+                    : roles // ignore: cast_nullable_to_non_nullable
+                        as List<UserRole>?,
             roleStatus:
                 freezed == roleStatus
                     ? _value.roleStatus
@@ -319,6 +328,7 @@ abstract class _$$LoggedInUserImplCopyWith<$Res>
     String? bio,
     @JsonKey(name: 'mobile_no') String? mobileNo,
     @JsonKey(name: 'otp_verified') bool? isOtpVerified,
+    @JsonKey(name: 'roles') List<UserRole>? roles,
     @JsonKey(name: 'role_status') RoleStatus? roleStatus,
   });
 
@@ -362,6 +372,7 @@ class __$$LoggedInUserImplCopyWithImpl<$Res>
     Object? bio = freezed,
     Object? mobileNo = freezed,
     Object? isOtpVerified = freezed,
+    Object? roles = freezed,
     Object? roleStatus = freezed,
   }) {
     return _then(
@@ -476,6 +487,11 @@ class __$$LoggedInUserImplCopyWithImpl<$Res>
                 ? _value.isOtpVerified
                 : isOtpVerified // ignore: cast_nullable_to_non_nullable
                     as bool?,
+        roles:
+            freezed == roles
+                ? _value._roles
+                : roles // ignore: cast_nullable_to_non_nullable
+                    as List<UserRole>?,
         roleStatus:
             freezed == roleStatus
                 ? _value.roleStatus
@@ -512,8 +528,10 @@ class _$LoggedInUserImpl extends _LoggedInUser {
     this.bio,
     @JsonKey(name: 'mobile_no') this.mobileNo,
     @JsonKey(name: 'otp_verified') this.isOtpVerified,
+    @JsonKey(name: 'roles') final List<UserRole>? roles,
     @JsonKey(name: 'role_status') this.roleStatus,
-  }) : super._();
+  }) : _roles = roles,
+       super._();
 
   factory _$LoggedInUserImpl.fromJson(Map<String, dynamic> json) =>
       _$$LoggedInUserImplFromJson(json);
@@ -579,13 +597,24 @@ class _$LoggedInUserImpl extends _LoggedInUser {
   @override
   @JsonKey(name: 'otp_verified')
   final bool? isOtpVerified;
+  final List<UserRole>? _roles;
+  @override
+  @JsonKey(name: 'roles')
+  List<UserRole>? get roles {
+    final value = _roles;
+    if (value == null) return null;
+    if (_roles is EqualUnmodifiableListView) return _roles;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(value);
+  }
+
   @override
   @JsonKey(name: 'role_status')
   final RoleStatus? roleStatus;
 
   @override
   String toString() {
-    return 'LoggedInUser(name: $name, username: $username, firstName: $firstName, lastName: $lastName, apiKey: $apiKey, apiSecret: $apiSecret, email: $email, password: $password, roleProfileName: $roleProfileName, userType: $userType, gender: $gender, birthDate: $birthDate, depoName: $depoName, plantName: $plantName, fullName: $fullName, transporter: $transporter, customer: $customer, phone: $phone, location: $location, bio: $bio, mobileNo: $mobileNo, isOtpVerified: $isOtpVerified, roleStatus: $roleStatus)';
+    return 'LoggedInUser(name: $name, username: $username, firstName: $firstName, lastName: $lastName, apiKey: $apiKey, apiSecret: $apiSecret, email: $email, password: $password, roleProfileName: $roleProfileName, userType: $userType, gender: $gender, birthDate: $birthDate, depoName: $depoName, plantName: $plantName, fullName: $fullName, transporter: $transporter, customer: $customer, phone: $phone, location: $location, bio: $bio, mobileNo: $mobileNo, isOtpVerified: $isOtpVerified, roles: $roles, roleStatus: $roleStatus)';
   }
 
   @override
@@ -631,6 +660,7 @@ class _$LoggedInUserImpl extends _LoggedInUser {
                 other.mobileNo == mobileNo) &&
             (identical(other.isOtpVerified, isOtpVerified) ||
                 other.isOtpVerified == isOtpVerified) &&
+            const DeepCollectionEquality().equals(other._roles, _roles) &&
             (identical(other.roleStatus, roleStatus) ||
                 other.roleStatus == roleStatus));
   }
@@ -661,6 +691,7 @@ class _$LoggedInUserImpl extends _LoggedInUser {
     bio,
     mobileNo,
     isOtpVerified,
+    const DeepCollectionEquality().hash(_roles),
     roleStatus,
   ]);
 
@@ -704,6 +735,7 @@ abstract class _LoggedInUser extends LoggedInUser {
     final String? bio,
     @JsonKey(name: 'mobile_no') final String? mobileNo,
     @JsonKey(name: 'otp_verified') final bool? isOtpVerified,
+    @JsonKey(name: 'roles') final List<UserRole>? roles,
     @JsonKey(name: 'role_status') final RoleStatus? roleStatus,
   }) = _$LoggedInUserImpl;
   const _LoggedInUser._() : super._();
@@ -773,6 +805,9 @@ abstract class _LoggedInUser extends LoggedInUser {
   @JsonKey(name: 'otp_verified')
   bool? get isOtpVerified;
   @override
+  @JsonKey(name: 'roles')
+  List<UserRole>? get roles;
+  @override
   @JsonKey(name: 'role_status')
   RoleStatus? get roleStatus;
 
@@ -781,6 +816,161 @@ abstract class _LoggedInUser extends LoggedInUser {
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
   _$$LoggedInUserImplCopyWith<_$LoggedInUserImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+UserRole _$UserRoleFromJson(Map<String, dynamic> json) {
+  return _UserRole.fromJson(json);
+}
+
+/// @nodoc
+mixin _$UserRole {
+  @JsonKey(name: 'role')
+  String? get role => throw _privateConstructorUsedError;
+
+  /// Serializes this UserRole to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of UserRole
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $UserRoleCopyWith<UserRole> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $UserRoleCopyWith<$Res> {
+  factory $UserRoleCopyWith(UserRole value, $Res Function(UserRole) then) =
+      _$UserRoleCopyWithImpl<$Res, UserRole>;
+  @useResult
+  $Res call({@JsonKey(name: 'role') String? role});
+}
+
+/// @nodoc
+class _$UserRoleCopyWithImpl<$Res, $Val extends UserRole>
+    implements $UserRoleCopyWith<$Res> {
+  _$UserRoleCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of UserRole
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({Object? role = freezed}) {
+    return _then(
+      _value.copyWith(
+            role:
+                freezed == role
+                    ? _value.role
+                    : role // ignore: cast_nullable_to_non_nullable
+                        as String?,
+          )
+          as $Val,
+    );
+  }
+}
+
+/// @nodoc
+abstract class _$$UserRoleImplCopyWith<$Res>
+    implements $UserRoleCopyWith<$Res> {
+  factory _$$UserRoleImplCopyWith(
+    _$UserRoleImpl value,
+    $Res Function(_$UserRoleImpl) then,
+  ) = __$$UserRoleImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({@JsonKey(name: 'role') String? role});
+}
+
+/// @nodoc
+class __$$UserRoleImplCopyWithImpl<$Res>
+    extends _$UserRoleCopyWithImpl<$Res, _$UserRoleImpl>
+    implements _$$UserRoleImplCopyWith<$Res> {
+  __$$UserRoleImplCopyWithImpl(
+    _$UserRoleImpl _value,
+    $Res Function(_$UserRoleImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of UserRole
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({Object? role = freezed}) {
+    return _then(
+      _$UserRoleImpl(
+        role:
+            freezed == role
+                ? _value.role
+                : role // ignore: cast_nullable_to_non_nullable
+                    as String?,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$UserRoleImpl implements _UserRole {
+  const _$UserRoleImpl({@JsonKey(name: 'role') this.role});
+
+  factory _$UserRoleImpl.fromJson(Map<String, dynamic> json) =>
+      _$$UserRoleImplFromJson(json);
+
+  @override
+  @JsonKey(name: 'role')
+  final String? role;
+
+  @override
+  String toString() {
+    return 'UserRole(role: $role)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$UserRoleImpl &&
+            (identical(other.role, role) || other.role == role));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(runtimeType, role);
+
+  /// Create a copy of UserRole
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$UserRoleImplCopyWith<_$UserRoleImpl> get copyWith =>
+      __$$UserRoleImplCopyWithImpl<_$UserRoleImpl>(this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$UserRoleImplToJson(this);
+  }
+}
+
+abstract class _UserRole implements UserRole {
+  const factory _UserRole({@JsonKey(name: 'role') final String? role}) =
+      _$UserRoleImpl;
+
+  factory _UserRole.fromJson(Map<String, dynamic> json) =
+      _$UserRoleImpl.fromJson;
+
+  @override
+  @JsonKey(name: 'role')
+  String? get role;
+
+  /// Create a copy of UserRole
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$UserRoleImplCopyWith<_$UserRoleImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
 

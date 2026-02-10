@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:shakti_hormann/app/presentation/widgets/drop_down_optn.dart';
 import 'package:shakti_hormann/core/core.dart';
@@ -13,24 +15,23 @@ import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/widgets/input_filed.dart';
 import 'package:shakti_hormann/widgets/inputs/compact_listtile.dart';
 import 'package:shakti_hormann/widgets/inputs/date_picker_field.dart';
+import 'package:shakti_hormann/widgets/inputs/multi_dropdown_select.dart';
+import 'package:shakti_hormann/widgets/inputs/multiple_invoice.dart';
 import 'package:shakti_hormann/widgets/inputs/new_upload_photo_widget.dart';
 import 'package:shakti_hormann/widgets/inputs/search_dropdown_widget.dart';
 import 'package:shakti_hormann/widgets/inputs/time_field.dart';
 import 'package:shakti_hormann/widgets/sectionheader.dart';
 import 'package:shakti_hormann/widgets/spaced_column.dart';
 
-
 class GateManagementFormWidget extends StatefulWidget {
   const GateManagementFormWidget({super.key});
 
   @override
-  State<GateManagementFormWidget> createState() => _GateManagementFormWidgetState();
+  State<GateManagementFormWidget> createState() =>
+      _GateManagementFormWidgetState();
 }
 
 class _GateManagementFormWidgetState extends State<GateManagementFormWidget> {
-
-
-
   final ScrollController _scrollController = ScrollController();
   final TextEditingController vehicleNo = TextEditingController();
   final TextEditingController vendorInvoiceNo = TextEditingController();
@@ -38,16 +39,13 @@ class _GateManagementFormWidgetState extends State<GateManagementFormWidget> {
   final TextEditingController driverName = TextEditingController();
   final TextEditingController driverMobileNo = TextEditingController();
   final TextEditingController vendorName = TextEditingController();
-  final TextEditingController securityRemarks= TextEditingController();
+  final TextEditingController securityRemarks = TextEditingController();
 
   GateManagementForm? gateManagementForm;
 
   LoggedInUser user() => $sl.get<LoggedInUser>();
 
   String scanVal = '';
-  
-
-  
 
   final focusNodes = List.generate(40, (index) => FocusNode());
   // final _indianFormat = NumberFormat.decimalPattern('en_IN');
@@ -100,13 +98,10 @@ class _GateManagementFormWidgetState extends State<GateManagementFormWidget> {
     final newform = formState.form;
     $logger.devLog('form.........$newform');
 
-
-
     return MultiBlocListener(
       listeners: [
         BlocListener<CreateGateManagementCubit, CreateGateManagementState>(
           listenWhen: (previous, current) {
-            
             final prevStatus = previous.error?.status;
             final currStatus = current.error?.status;
             return prevStatus != currStatus;
@@ -154,7 +149,7 @@ class _GateManagementFormWidgetState extends State<GateManagementFormWidget> {
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: Colors.grey.shade300),
                 ),
-                 child: SpacedColumn(
+                child: SpacedColumn(
                   defaultHeight: 6,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -183,95 +178,107 @@ class _GateManagementFormWidgetState extends State<GateManagementFormWidget> {
                       ),
                       fillColor: Colors.grey[200],
                       onSelected: (date) {
-                        context.cubit<CreateGateManagementCubit>().onValueChanged(
-                          gateEntryDate: DateFormat('dd-MM-yyyy').format(date),
-                        );
+                        context
+                            .cubit<CreateGateManagementCubit>()
+                            .onValueChanged(
+                              gateEntryDate: DateFormat(
+                                'dd-MM-yyyy',
+                              ).format(date),
+                            );
                       },
                     ),
-                      TimeField(
-                                  title: 'Gate Entry Time',
-                                  readOnly: isCompleted,
-                                  isRequired: true,
-                                  hintText: 'Select Time',
-                                  initialTime: formatTime(
-                                    newform.gateEntryTime,
-                                  ),
-                                  onTimeChanged: (selectedTime) {
-                                    context
-                                        .cubit<CreateGateManagementCubit>()
-                                        .onValueChanged(
-                                          gateEntryTime: selectedTime,
-                                        );
-                                  },
-                                ),
-                                if(!isCreating) ...[
-                                   AppDateField(
-                      title: 'Gate Exit Date',
-                      isRequired: true,
-                      hintText: 'Select Exit Date',
-                      startDate: DateTime(2020),
-                      endDate: DateTime(2030),
+                    TimeField(
+                      title: 'Gate Entry Time',
                       readOnly: isCompleted,
-                      initialValue: DFU.ddMMyyyyFromStr(
-                        newform.gateExitdate ?? '',
-                      ),
-                      fillColor: Colors.grey[200],
-                      onSelected: (date) {
-                        context.cubit<CreateGateManagementCubit>().onValueChanged(
-                          gateExitdate: DateFormat('dd-MM-yyyy').format(date),
-                        );
+                      isRequired: true,
+                      hintText: 'Select Time',
+                      initialTime: formatTime(newform.gateEntryTime),
+                      onTimeChanged: (selectedTime) {
+                        context
+                            .cubit<CreateGateManagementCubit>()
+                            .onValueChanged(gateEntryTime: selectedTime);
                       },
                     ),
+                    if (!isCreating) ...[
+                      AppDateField(
+                        title: 'Gate Exit Date',
+                        isRequired: true,
+                        hintText: 'Select Exit Date',
+                        startDate: DateTime(2020),
+                        endDate: DateTime(2030),
+                        readOnly: isCompleted,
+                        initialValue: DFU.ddMMyyyyFromStr(
+                          newform.gateExitdate ?? '',
+                        ),
+                        fillColor: Colors.grey[200],
+                        onSelected: (date) {
+                          context
+                              .cubit<CreateGateManagementCubit>()
+                              .onValueChanged(
+                                gateExitdate: DateFormat(
+                                  'dd-MM-yyyy',
+                                ).format(date),
+                              );
+                        },
+                      ),
                       TimeField(
-                                  title: 'Gate Exit Time',
-                                  readOnly: isCompleted,
-                                  isRequired: true,
-                                  hintText: 'Select Time',
-                                  initialTime: formatTime(
-                                    newform.gateExitTime,
-                                  ),
-                                  onTimeChanged: (selectedTime) {
-                                    context
-                                        .cubit<CreateGateManagementCubit>()
-                                        .onValueChanged(
-                                          gateExitTime: selectedTime,
-                                        );
-                                  },
-                                ),
+                        title: 'Gate Exit Time',
+                        readOnly: isCompleted,
+                        isRequired: true,
+                        hintText: 'Select Time',
+                        initialTime: formatTime(newform.gateExitTime),
+                        onTimeChanged: (selectedTime) {
+                          context
+                              .cubit<CreateGateManagementCubit>()
+                              .onValueChanged(gateExitTime: selectedTime);
+                        },
+                      ),
+                    ],
+                    MultiSearchDropDownList<String>(
+                      title: 'Request Type',
+                      hint: 'Select Request Types',
+                      readOnly: isCompleted,
+                      items: Dropdownoptions.requestType,
+                      defaultSelection: newform.requestType ?? [],
+                      color: AppColors.black,
+                      onSelected: (selectedList) {
+                        context
+                            .cubit<CreateGateManagementCubit>()
+                            .onValueChanged(requestType: selectedList);
+                      },
+                    ),
 
-                                ],
-                               
-                            SearchDropDownList<String>(
-                              title: 'Request Type',
-                              hint: 'Select Request Type',
-                              isRequired: false,
-                              readOnly: isCompleted,
-                              color: AppColors.black,
-                              items: Dropdownoptions.requestType,
-                              defaultSelection: newform.requestType,
-                              headerBuilder: (_, item, __) => Text(item),
-                              listItemBuilder:
-                                  (_, item, __, ___) =>
-                                      CompactListTile(title: item),
-                              futureRequest: (searchText) async {
-                                final all = Dropdownoptions.requestType;
-                                if (searchText.trim().isEmpty) return all;
-                                return all
-                                    .where(
-                                      (item) => item.toLowerCase().contains(
-                                        searchText.trim().toLowerCase(),
-                                      ),
-                                    )
-                                    .toList();
-                              },
-                              onSelected: (selected) {
-                                context
-                                    .cubit<CreateGateManagementCubit>()
-                                    .onValueChanged(requestType: selected);
-                              },
-                              focusNode: focusNodes.elementAt(5),
-                            ),
-                            InputField(
+                    // SearchDropDownList<String>(
+                    //   title: 'Request Type',
+                    //   hint: 'Select Request Type',
+                    //   isRequired: false,
+                    //   readOnly: isCompleted,
+                    //   color: AppColors.black,
+                    //   items: Dropdownoptions.requestType,
+                    //   defaultSelection: newform.requestType,
+                    //   headerBuilder: (_, item, __) => Text(item),
+                    //   listItemBuilder:
+                    //       (_, item, __, ___) =>
+                    //           CompactListTile(title: item),
+                    //   futureRequest: (searchText) async {
+                    //     final all = Dropdownoptions.requestType;
+                    //     if (searchText.trim().isEmpty) return all;
+                    //     return all
+                    //         .where(
+                    //           (item) => item.toLowerCase().contains(
+                    //             searchText.trim().toLowerCase(),
+                    //           ),
+                    //         )
+                    //         .toList();
+                    //   },
+                    //   onSelected: (selected) {
+                    //     context
+                    //         .cubit<CreateGateManagementCubit>()
+                    //         .onValueChanged(requestType: selected);
+                    //   },
+                    //   focusNode: focusNodes.elementAt(5),
+                    // ),
+                    InputField(
                       title: 'Purpose / Remarks',
                       hintText: 'Enter Your Remarks',
                       readOnly: isCompleted,
@@ -320,13 +327,13 @@ class _GateManagementFormWidgetState extends State<GateManagementFormWidget> {
                       controller: vehicleNo,
                       borderColor: AppColors.grey,
                       onChanged: (p0) {
-                        context.cubit<CreateGateManagementCubit>().onValueChanged(
-                          vehicleNo: p0,
-                        );
+                        context
+                            .cubit<CreateGateManagementCubit>()
+                            .onValueChanged(vehicleNo: p0);
                       },
                       focusNode: focusNodes.elementAt(13),
                     ),
-                     InputField(
+                    InputField(
                       readOnly: isCompleted,
                       initialValue: newform.vendorInvoiceNo,
                       title: 'Vendor Invoice Number',
@@ -335,44 +342,43 @@ class _GateManagementFormWidgetState extends State<GateManagementFormWidget> {
                       controller: vendorInvoiceNo,
                       borderColor: AppColors.grey,
                       onChanged: (p0) {
-                        context.cubit<CreateGateManagementCubit>().onValueChanged(
-                          vendorInvoiceNo: p0,
-                        );
+                        context
+                            .cubit<CreateGateManagementCubit>()
+                            .onValueChanged(vendorInvoiceNo: p0);
                       },
                       focusNode: focusNodes.elementAt(13),
                     ),
 
-                            SearchDropDownList<String>(
-                              title: 'Vehicle Type',
-                              hint: 'Select Vehicle Type',
-                              isRequired: false,
-                              readOnly: isCompleted,
-                              color: AppColors.black,
-                              items: Dropdownoptions.vehicleType,
-                              defaultSelection: newform.vehicleType,
-                              headerBuilder: (_, item, __) => Text(item),
-                              listItemBuilder:
-                                  (_, item, __, ___) =>
-                                      CompactListTile(title: item),
-                              futureRequest: (searchText) async {
-                                final all = Dropdownoptions.vehicleType;
-                                if (searchText.trim().isEmpty) return all;
-                                return all
-                                    .where(
-                                      (item) => item.toLowerCase().contains(
-                                        searchText.trim().toLowerCase(),
-                                      ),
-                                    )
-                                    .toList();
-                              },
-                              onSelected: (selected) {
-                                context
-                                    .cubit<CreateGateManagementCubit>()
-                                    .onValueChanged(vehicleType: selected);
-                              },
-                              focusNode: focusNodes.elementAt(5),
-                            ),
-                             InputField(
+                    SearchDropDownList<String>(
+                      title: 'Vehicle Type',
+                      hint: 'Select Vehicle Type',
+                      isRequired: false,
+                      readOnly: isCompleted,
+                      color: AppColors.black,
+                      items: Dropdownoptions.vehicleType,
+                      defaultSelection: newform.vehicleType,
+                      headerBuilder: (_, item, __) => Text(item),
+                      listItemBuilder:
+                          (_, item, __, ___) => CompactListTile(title: item),
+                      futureRequest: (searchText) async {
+                        final all = Dropdownoptions.vehicleType;
+                        if (searchText.trim().isEmpty) return all;
+                        return all
+                            .where(
+                              (item) => item.toLowerCase().contains(
+                                searchText.trim().toLowerCase(),
+                              ),
+                            )
+                            .toList();
+                      },
+                      onSelected: (selected) {
+                        context
+                            .cubit<CreateGateManagementCubit>()
+                            .onValueChanged(vehicleType: selected);
+                      },
+                      focusNode: focusNodes.elementAt(5),
+                    ),
+                    InputField(
                       readOnly: isCompleted,
                       initialValue: newform.driverName,
                       title: 'Driver Name',
@@ -381,34 +387,34 @@ class _GateManagementFormWidgetState extends State<GateManagementFormWidget> {
                       controller: driverName,
                       borderColor: AppColors.grey,
                       onChanged: (p0) {
-                        context.cubit<CreateGateManagementCubit>().onValueChanged(
-                          driverName: p0,
-                        );
+                        context
+                            .cubit<CreateGateManagementCubit>()
+                            .onValueChanged(driverName: p0);
                       },
                       focusNode: focusNodes.elementAt(13),
                     ),
-                     InputField(
+                    InputField(
                       readOnly: isCompleted,
                       isRequired: false,
                       initialValue: newform.driverMobileNo,
                       title: 'Driver Mobile No',
                       hintText: 'Enter Mobile No',
                       inputFormatters: [
-                                FilteringTextInputFormatter.digitsOnly,
-                                LengthLimitingTextInputFormatter(10),
-                              ],
-                              inputType: TextInputType.number,
+                        FilteringTextInputFormatter.digitsOnly,
+                        LengthLimitingTextInputFormatter(10),
+                      ],
+                      inputType: TextInputType.number,
                       controller: driverMobileNo,
                       borderColor: AppColors.grey,
-                      
+
                       onChanged: (p0) {
-                        context.cubit<CreateGateManagementCubit>().onValueChanged(
-                         driverMobileNo : p0,
-                        );
+                        context
+                            .cubit<CreateGateManagementCubit>()
+                            .onValueChanged(driverMobileNo: p0);
                       },
                       focusNode: focusNodes.elementAt(13),
                     ),
-                          InputField(
+                    InputField(
                       readOnly: isCompleted,
                       initialValue: newform.vendorName,
                       title: 'Company / Vendor Name',
@@ -417,13 +423,13 @@ class _GateManagementFormWidgetState extends State<GateManagementFormWidget> {
                       controller: vendorName,
                       borderColor: AppColors.grey,
                       onChanged: (p0) {
-                        context.cubit<CreateGateManagementCubit>().onValueChanged(
-                         vendorName : p0,
-                        );
+                        context
+                            .cubit<CreateGateManagementCubit>()
+                            .onValueChanged(vendorName: p0);
                       },
                       focusNode: focusNodes.elementAt(13),
                     ),
-                     InputField(
+                    InputField(
                       title: 'Security Remarks',
                       hintText: 'Enter Your Remarks',
                       readOnly: isCompleted,
@@ -486,13 +492,10 @@ class _GateManagementFormWidgetState extends State<GateManagementFormWidget> {
                     //   inputType: const TextInputType.numberWithOptions(),
                     //   title: 'Invoice Amount',
                     // ),
-                 
-                 
                   ],
-                  
                 ),
               ),
-                 const SizedBox(height: 10),
+              const SizedBox(height: 10),
               const Padding(
                 padding: EdgeInsets.only(left: 16.0),
                 child: SectionHeader(
@@ -501,62 +504,146 @@ class _GateManagementFormWidgetState extends State<GateManagementFormWidget> {
                 ),
               ),
 
-              Padding(
-                padding: const EdgeInsets.only(left: 16.0, right: 16.0),
+                Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: Card(
                   color: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20),
                     side: const BorderSide(color: Color(0xFFE8ECF4), width: 1),
                   ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      NewUploadPhotoWidget(
-                        fileName: 'vehiclefront',
-                        imageUrl: newform.vehiclePhoto,
-                        title: 'Vehicle Front',
-                        isRequired: false,
-                        isReadOnly: isCompleted,
-                        onFileCapture: (file) {
-                          context.cubit<CreateGateManagementCubit>().onValueChanged(
-                            vehiclePhoto: file,
-                          );
-                        },
-                        focusNode: focusNodes.elementAt(27),
-                      ),
-                      NewUploadPhotoWidget(
-                        fileName: 'vehicleback',
-                        imageUrl: newform.backPhoto,
-                        title: 'Vehicle Back',
-                        isRequired: false,
-                        isReadOnly: isCompleted,
-                        onFileCapture: (file) {
-                          context.cubit<CreateGateManagementCubit>().onValueChanged(
-                            backPhoto: file,
-                          );
-                        },
-                        focusNode: focusNodes.elementAt(27),
-                      ),
-                      NewUploadPhotoWidget(
-                        fileName: 'vehicleinvoice',
-                        imageUrl: newform.documentPhoto,
-                        title: 'Document Photo',
-                        isRequired: false,
-                        isReadOnly: isCompleted,
-                        onFileCapture: (file) {
-                          context.cubit<CreateGateManagementCubit>().onValueChanged(
-                            documentPhoto: file,
-                          );
-                        },
-                        focusNode: focusNodes.elementAt(27),
-                      ),
-                    ],
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 16.0,
+                      horizontal: 8.0,
+                    ),
+                    child: BlocBuilder<
+                      CreateGateManagementCubit,
+                      CreateGateManagementState
+                    >(
+                      builder: (context, state) {
+                        final newform = state.form;
+                        return Column(
+                          children: [
+
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                NewUploadPhotoWidget(
+                                  fileName: 'vehiclefront',
+                                  imageUrl: newform.vehiclePhoto,
+                                  title: 'Vehicle Front',
+                                  isRequired: true,
+                                  isReadOnly: isCompleted,
+                                  onFileCapture: (file) {
+                                    context
+                                        .cubit<CreateGateManagementCubit>()
+                                        .onValueChanged(vehiclePhoto: file);
+                                  },
+                                ),
+                                NewUploadPhotoWidget(
+                                  fileName: 'vehicleback',
+                                  imageUrl: newform.backPhoto,
+                                  title: 'Vehicle Back',
+                                  isRequired: true,
+                                  isReadOnly: isCompleted,
+                                  onFileCapture: (file) {
+                                    context
+                                        .cubit<CreateGateManagementCubit>()
+                                        .onValueChanged(backPhoto: file);
+                                  },
+                                ),
+
+                                if (!isCompleted)
+                                  Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const SizedBox(height: 18),
+                                      _PlusAddTile(
+                                        onTap: () async {
+                                          final picker = ImagePicker();
+                                          final image = await picker.pickImage(
+                                            source: ImageSource.camera,
+                                            imageQuality: 70,
+                                          );
+                                          if (image != null) {
+                                            context
+                                                .read<CreateGateManagementCubit>()
+                                                .addInvoicePhoto(
+                                                  File(image.path),
+                                                );
+                                          }
+                                        },
+                                      ),
+                                      const SizedBox(height: 9),
+                                      RichText(
+                                        text: const TextSpan(
+                                          children: [
+                                            TextSpan(
+                                              text: 'Vendor Invoices',
+                                              style: TextStyle(
+                                                fontSize: 15,
+                                                fontWeight: FontWeight.bold,
+                                                fontFamily: 'Urbanist',
+                                                color: Colors.black,
+                                              ),
+                                            ),
+                                            TextSpan(
+                                              text: ' *',
+                                              style: TextStyle(
+                                                fontSize: 15,
+                                                fontWeight: FontWeight.bold,
+                                                color:
+                                                    Colors
+                                                        .red,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                              ],
+                            ),
+
+
+                            if ((newform.documentPhotoImg?.isNotEmpty ??
+                                    false) ||
+                                (newform.invoicePhotos?.isNotEmpty ??
+                                    false)) ...[
+                              const Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 12.0),
+                                child: Divider(height: 32),
+                              ),
+                              MultipleImageUploadWidget(
+                                title: 'Captured Invoices',
+                                isReadOnly: isCompleted,
+                                localFiles: newform.documentPhotoImg,
+                                serverUrls: newform.invoicePhotos,
+                                showAddButton:
+                                    false, 
+                                onLocalFileAdded:
+                                    (file) => context
+                                        .read<CreateGateManagementCubit>()
+                                        .addInvoicePhoto(file),
+                                onLocalFileRemoved:
+                                    (index) => context
+                                        .read<CreateGateManagementCubit>()
+                                        .removeLocalInvoicePhoto(index),
+                                onServerFileRemoved:
+                                    (index) => context
+                                        .read<CreateGateManagementCubit>()
+                                        .removeServerInvoicePhoto(index),
+                              ),
+                            ],
+                          ],
+                        );
+                      },
+                    ),
                   ),
                 ),
               ),
-
-            
             ],
           ),
         ),
@@ -578,4 +665,28 @@ String extractIrnFromQr(String qrData) {
     }
   }
   return qrData;
+}
+class _PlusAddTile extends StatelessWidget {
+  const _PlusAddTile({required this.onTap});
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+
+        width: 60,
+        height: 60,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.grey.shade400),
+          color: Colors.grey.shade100,
+        ),
+        child: const Center(
+          child: Icon(Icons.add, size: 30, color: Colors.pink),
+        ),
+      ),
+    );
+  }
 }

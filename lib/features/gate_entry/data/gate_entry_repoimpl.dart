@@ -8,6 +8,7 @@ import 'package:injectable/injectable.dart';
 import 'package:path/path.dart' as p;
 import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/features/gate_entry/data/gate_entry.repo.dart';
+import 'package:shakti_hormann/features/gate_entry/model/attachement.dart';
 import 'package:shakti_hormann/features/gate_entry/model/gate_entry_form.dart';
 import 'package:shakti_hormann/features/gate_entry/model/gate_number_form.dart';
 import 'package:shakti_hormann/features/gate_entry/model/purchase_order.dart';
@@ -59,6 +60,34 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
     return response.process((r) => right(r.data!));
   }
 
+
+@override
+AsyncValueOf<List<AttachementInvoices>> fetchAttachments(String gateEntryId) async {
+  return await executeSafely(() async {
+    final filters = [
+      ['attached_to_doctype', '=', 'Gate Entry'],
+      ['attached_to_name', '=', gateEntryId],
+      ['attached_to_field', '=', 'vendor_invoice_photo']
+    ];
+
+    final config = RequestConfig(
+      url: Urls.getList, 
+      parser: (json) {
+        final data = json['message'] as List<dynamic>;
+        return data.map((e) => AttachementInvoices.fromJson(e)).toList();
+      },
+      reqParams: {
+        'doctype': 'File',
+        'filters': jsonEncode(filters),
+        'fields': jsonEncode(['file_url', 'attached_to_doctype', 'attached_to_name', 'attached_to_field']),
+      },
+    );
+
+    final response = await get(config);
+    $logger.devLog('fetchAttachments response.....$response');
+    return response.process((r) => right(r.data!));
+  });
+}
   @override
   AsyncValueOf<List<PurchaseOrder>> fetchPurchase(String name) async {
     return await executeSafely(() async {
@@ -168,7 +197,8 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
     return await executeSafely(() async {
       Uint8List? vehiclefrontcompressedBytes;
       Uint8List? vehiclebackcompressedBytes;
-      Uint8List? invocecompressedBytes;
+      // Uint8List? invocecompressedBytes;
+      List<String> vendorInvoiceBase64List = [];
 
       if (form.vehiclePhotoImg != null) {
         final filePath = form.vehiclePhotoImg!.path;
@@ -189,18 +219,56 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
           form.vehicleBackPhoto ?? '',
         );
       }
-
-      if (form.invoicePhotoImg != null) {
-        final filePath = form.invoicePhotoImg!.path;
-        invocecompressedBytes = await FlutterImageCompress.compressWithFile(
-          filePath,
-          quality: 50,
-        );
-      } else if (form.invoicePhoto != null) {
-        invocecompressedBytes = await fetchAndConvertToBase64(
-          form.invoicePhoto ?? '',
-        );
+      if (form.invoicePhotos != null && form.invoicePhotos!.isNotEmpty) {
+      for (var path in form.invoicePhotos!) {
+         final bytes = await fetchAndConvertToBase64(path);
+         if (bytes != null) {
+           vendorInvoiceBase64List.add(base64Encode(bytes));
+         }
       }
+    }
+
+
+    if (form.invoicePhotoImg != null && form.invoicePhotoImg!.isNotEmpty) {
+      for (var file in form.invoicePhotoImg!) {
+
+        if (await file.exists()) {
+          final compressed = await FlutterImageCompress.compressWithFile(
+            file.path, 
+            quality: 50
+          );
+          if (compressed != null) {
+            vendorInvoiceBase64List.add(base64Encode(compressed));
+          }
+        }
+      }
+    }
+      // if (form.invoicePhotoImg != null && form.invoicePhotoImg!.isNotEmpty) {
+      //   for (var file in form.invoicePhotoImg!) {
+      //     final compressed = await FlutterImageCompress.compressWithFile(file.path, quality: 50);
+      //     if (compressed != null) {
+      //       vendorInvoiceBase64List.add(base64Encode(compressed));
+      //     }
+      //   }
+      // } else if (form.invoicePhotos != null && form.invoicePhotos!.isNotEmpty) {
+      //   // Handle existing images from server if editing
+      //   for (var path in form.invoicePhotos!) {
+      //      final bytes = await fetchAndConvertToBase64(path);
+      //      if (bytes != null) vendorInvoiceBase64List.add(base64Encode(bytes));
+      //   }
+      // }
+
+      // if (form.invoicePhotoImg != null) {
+      //   final filePath = form.invoicePhotoImg!.path;
+      //   invocecompressedBytes = await FlutterImageCompress.compressWithFile(
+      //     filePath,
+      //     quality: 50,
+      //   );
+      // } else if (form.invoicePhoto != null) {
+      //   invocecompressedBytes = await fetchAndConvertToBase64(
+      //     form.invoicePhoto ?? '',
+      //   );
+      // }
 
       final Map<String, dynamic> requestBody = {
           'gate_entry_id': form.name,
@@ -220,10 +288,10 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
               vehiclefrontcompressedBytes == null
                   ? null
                   : base64Encode(vehiclefrontcompressedBytes),
-          'vendor_invoice_photo':
-              invocecompressedBytes == null
-                  ? null
-                  : base64Encode(invocecompressedBytes),
+          'vendor_invoice_photo': vendorInvoiceBase64List,
+              // invocecompressedBytes == null
+              //     ? null
+              //     : base64Encode(invocecompressedBytes),
           'vehicle_back_photo':
               vehiclebackcompressedBytes == null
                   ? null
@@ -236,7 +304,7 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
 
       };
        if (form.plantName != null && form.plantName!.trim().isNotEmpty && form.plantName != '') {
-      print('form.plantName....:${form.plantName}');
+
       requestBody['plant_name'] = form.plantName;
     }
 
@@ -266,7 +334,9 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
 
     Uint8List? vehiclefrontcompressedBytes;
     Uint8List? vehiclebackcompressedBytes;
-    Uint8List? invocecompressedBytes;
+    // Uint8List? invocecompressedBytes;
+
+    List<String> vendorInvoiceBase64List = [];
 
     $logger.info('form.....:$form');
 
@@ -281,6 +351,13 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
         form.vehiclePhoto ?? '',
       );
     }
+// if (form.vehiclePhotoImg != null) {
+//   vehiclefrontcompressedBytes =
+//       await safeCompress(form.vehiclePhotoImg!);
+// } else if (form.vehiclePhoto != null) {
+//   vehiclefrontcompressedBytes =
+//       await fetchAndConvertToBase64(form.vehiclePhoto!);
+// }
 
     if (form.vehicleBackPhotoImg != null) {
       final filePath = form.vehicleBackPhotoImg!.path;
@@ -293,18 +370,59 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
         form.vehicleBackPhoto ?? '',
       );
     }
-
-    if (form.invoicePhotoImg != null) {
-      final filePath = form.invoicePhotoImg!.path;
-      invocecompressedBytes = await FlutterImageCompress.compressWithFile(
-        filePath,
-        quality: 50,
-      );
-    } else if (form.invoicePhoto != null) {
-      invocecompressedBytes = await fetchAndConvertToBase64(
-        form.invoicePhoto ?? '',
-      );
+//     if (form.vehicleBackPhotoImg != null) {
+//   vehiclebackcompressedBytes =
+//       await safeCompress(form.vehicleBackPhotoImg!);
+// } else if (form.vehicleBackPhoto != null) {
+//   vehiclebackcompressedBytes =
+//       await fetchAndConvertToBase64(form.vehicleBackPhoto!);
+// }
+if (form.invoicePhotos != null && form.invoicePhotos!.isNotEmpty) {
+      for (var path in form.invoicePhotos!) {
+         final bytes = await fetchAndConvertToBase64(path);
+         if (bytes != null) {
+           vendorInvoiceBase64List.add(base64Encode(bytes));
+         }
+      }
     }
+// if (form.invoicePhotoImg != null && form.invoicePhotoImg!.isNotEmpty) {
+//   for (final file in form.invoicePhotoImg!) {
+//     final compressed = await safeCompress(file);
+//     if (compressed != null) {
+//       vendorInvoiceBase64List.add(base64Encode(compressed));
+//     }
+//   }
+// }
+
+
+//     if (form.invoicePhotoImg != null && form.invoicePhotoImg!.isNotEmpty) {
+//       for (var file in form.invoicePhotoImg!) {
+
+//         if (await file.exists()) {
+//           final compressed = await FlutterImageCompress.compressWithFile(
+//             file.path, 
+//             quality: 50
+//           );
+//           if (compressed != null) {
+//             vendorInvoiceBase64List.add(base64Encode(compressed));
+//           }
+//         }
+//       }
+//     }
+  if (form.invoicePhotoImg != null && form.invoicePhotoImg!.isNotEmpty) {
+        for (var file in form.invoicePhotoImg!) {
+          final compressed = await FlutterImageCompress.compressWithFile(file.path, quality: 50);
+          if (compressed != null) {
+            vendorInvoiceBase64List.add(base64Encode(compressed));
+          }
+        }
+      } else if (form.invoicePhotos != null && form.invoicePhotos!.isNotEmpty) {
+        // Handle existing images from server if editing
+        for (var path in form.invoicePhotos!) {
+           final bytes = await fetchAndConvertToBase64(path);
+           if (bytes != null) vendorInvoiceBase64List.add(base64Encode(bytes));
+        }
+      }
 
     final Map<String, dynamic> requestBody = {
       'plant_name': form.plantName,
@@ -317,10 +435,10 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
           vehiclefrontcompressedBytes == null
               ? null
               : base64Encode(vehiclefrontcompressedBytes),
-      'vendor_invoice_photo':
-          invocecompressedBytes == null
-              ? null
-              : base64Encode(invocecompressedBytes),
+      'vendor_invoice_photo': vendorInvoiceBase64List,
+          // invocecompressedBytes == null
+          //     ? null
+          //     : base64Encode(invocecompressedBytes),
       'vehicle_back_photo':
           vehiclebackcompressedBytes == null
               ? null
@@ -333,7 +451,7 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
     };
 
     if (form.plantName != null && form.plantName!.trim().isNotEmpty && form.plantName != '') {
-      print('form.plantName....:${form.plantName}');
+
       requestBody['plant_name'] = form.plantName;
     }
 
@@ -375,4 +493,15 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
       throw Exception('Failed to load file: ${response.statusCode}');
     }
   }
+}
+Future<Uint8List?> safeCompress(File file) async {
+  if (!file.existsSync()) {
+    $logger.error('❌ Image missing before compression: ${file.path}');
+    return null;
+  }
+
+  return await FlutterImageCompress.compressWithFile(
+    file.path,
+    quality: 50,
+  );
 }

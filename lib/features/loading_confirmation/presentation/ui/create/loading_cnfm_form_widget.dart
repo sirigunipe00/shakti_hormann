@@ -393,7 +393,7 @@ class _ItemLoadedTableState extends State<ItemLoadedTable> {
     // 🔹 Push API-loaded records to cubit as well
     Future.microtask(() {
       for (final item in widget.initialData) {
-        print('itemm   ..:$item');
+        // print('itemm   ..:$item');
         context.read<CreateLoadingCnfmCubit>().addInitialItem(item);
       }
     });
@@ -411,7 +411,7 @@ class _ItemLoadedTableState extends State<ItemLoadedTable> {
       if (index < cubit.state.listitems.length) {
         final oldItem = cubit.state.listitems[index];
 
-        print('oldItem ...:$oldItem');
+        // print('oldItem ...:$oldItem');
 
        final newItem = oldItem.copyWith(
   imageFile: File(photo.path),
@@ -453,7 +453,7 @@ class _ItemLoadedTableState extends State<ItemLoadedTable> {
       },
     );
 
-    print('result ...:$result');
+    // print('result ...:$result');
 
     if (result != null) {
       final row = result['row'] as Map<String, dynamic>;

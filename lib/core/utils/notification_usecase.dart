@@ -12,7 +12,7 @@ class NotificationUsecase with DeviceInfoMixin {
     final info = await getDeviceInfo();
 
 
-    print('info . ....:$info');
+
     // Avoid logging full device info which may contain identifiers.
     await repo.updateDeviceInfo(info);
   }

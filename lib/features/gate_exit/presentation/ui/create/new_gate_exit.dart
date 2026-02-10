@@ -133,7 +133,7 @@ class _NewGateExitState extends State<NewGateExit> {
                           invoiceform = selected;
                         });
 
-                        print('selected..:${selected.vehicleNo}');
+
 
                         context.cubit<CreateGateExitCubit>().onValueChanged(
                           salesInvoiceNo: selected.name,

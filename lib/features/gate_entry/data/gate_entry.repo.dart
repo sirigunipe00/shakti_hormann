@@ -1,5 +1,6 @@
 import 'package:shakti_hormann/core/model/pair.dart';
 import 'package:shakti_hormann/core/utils/utils.dart';
+import 'package:shakti_hormann/features/gate_entry/model/attachement.dart';
 import 'package:shakti_hormann/features/gate_entry/model/gate_entry_form.dart';
 import 'package:shakti_hormann/features/gate_entry/model/gate_number_form.dart';
 import 'package:shakti_hormann/features/gate_entry/model/purchase_order.dart';
@@ -17,4 +18,5 @@ abstract interface class GateEntryRepo {
   AsyncValueOf<List<PurchaseOrderForm>> fetchPurchaseOrders(String name);
   AsyncValueOf<List<PurchaseOrder>> fetchPurchase(String name);
   AsyncValueOf<List<GateNumberForm>> fetchGateNumber(String name);
+  AsyncValueOf<List<AttachementInvoices>> fetchAttachments(String gateEntryId);
 }

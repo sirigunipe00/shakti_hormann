@@ -167,30 +167,30 @@ class _LoginScrnWidgetState extends State<LoginScrnWidget> {
                     },
                   ),
 
-                  const SizedBox(height: 250),
+                  // const SizedBox(height: 250),
 
-                  Center(
-                    child: Column(
-                      children: [
-                        SvgPicture.asset(
-                          'assets/logo/EasyCloud Logo 150 x 80.svg',
-                          width: 78,
-                          height: 40,
-                          fit: BoxFit.fitWidth,
-                        ),
-                        const SizedBox(height: 8),
-                        const Text(
-                          'Powered by EasyCloud',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.black54,
-                            fontWeight: FontWeight.w700,
-                            fontFamily: 'Urbanist',
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                  // Center(
+                  //   child: Column(
+                  //     children: [
+                  //       SvgPicture.asset(
+                  //         'assets/logo/EasyCloud Logo 150 x 80.svg',
+                  //         width: 78,
+                  //         height: 40,
+                  //         fit: BoxFit.fitWidth,
+                  //       ),
+                  //       const SizedBox(height: 8),
+                  //       const Text(
+                  //         'Powered by EasyCloud',
+                  //         style: TextStyle(
+                  //           fontSize: 14,
+                  //           color: Colors.black54,
+                  //           fontWeight: FontWeight.w700,
+                  //           fontFamily: 'Urbanist',
+                  //         ),
+                  //       ),
+                  //     ],
+                  //   ),
+                  // ),
                 ],
               ),
             ),

@@ -15,7 +15,6 @@ _$GateManagementFormImpl _$$GateManagementFormImplFromJson(
   owner: json['owner'] as String?,
   modifiedBy: json['creation'] as String?,
   plantName: json['plant_name'] as String?,
-  requestType: json['request_type'] as String?,
   gateeEntrydate: json['gate_entry_date'] as String?,
   gateEntryTime: json['gate_entry_time'] as String?,
   remarks: json['purpose__remarks'] as String?,
@@ -30,7 +29,11 @@ _$GateManagementFormImpl _$$GateManagementFormImplFromJson(
   backPhoto: json['vehicle_back_photo'] as String?,
   gateExitdate: json['gate_exit_date'] as String?,
   gateExitTime: json['gate_exit_time'] as String?,
-  documentPhoto: json['document_photos'] as String?,
+  invoicePhotos: _stringOrListToStringList(json['document_photos']),
+  requestType:
+      (_extractRequestTypes(json, 'requestType') as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList(),
   vehiclePhotoImg: toNull(json['vehiclePhotoImg']),
   backPhotoImg: toNull(json['backPhotoImg']),
   documentPhotoImg: toNull(json['documentPhotoImg']),
@@ -45,7 +48,6 @@ Map<String, dynamic> _$$GateManagementFormImplToJson(
   'owner': instance.owner,
   'creation': instance.modifiedBy,
   'plant_name': instance.plantName,
-  'request_type': instance.requestType,
   'gate_entry_date': instance.gateeEntrydate,
   'gate_entry_time': instance.gateEntryTime,
   'purpose__remarks': instance.remarks,
@@ -60,5 +62,6 @@ Map<String, dynamic> _$$GateManagementFormImplToJson(
   'vehicle_back_photo': instance.backPhoto,
   'gate_exit_date': instance.gateExitdate,
   'gate_exit_time': instance.gateExitTime,
-  'document_photos': instance.documentPhoto,
+  'document_photos': instance.invoicePhotos,
+  'requestType': instance.requestType,
 };

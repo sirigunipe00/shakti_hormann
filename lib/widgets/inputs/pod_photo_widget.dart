@@ -78,7 +78,7 @@ class _PodPhotoWidgetState extends State<PodPhotoWidget>
               ),
               ListTile(
                 leading: const Icon(Icons.photo),
-                title: const Text("Gallery"),
+                title: const Text('Gallery'),
                 onTap: () {
                   Navigator.pop(context);
                   _capture(ImageSource.gallery);

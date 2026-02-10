@@ -108,13 +108,13 @@ class _ShaktiHormannState extends State<ShaktiHormann>
               if (routerCtxt == null) return;
               state.maybeWhen(
                 authenticated: () {
-                  print('authenticated initial.....');
+                  // print('authenticated initial.....');
 
 
                     // routerCtxt.cubit<GeoPermissionHandler>().checkPermission();
 
 
-                  print('authenticated..');
+                  // print('authenticated..');
                   final filters = Pair(StringUtils.docStatusInt('Draft'), null);
                   final filter = Pair(
                     StringUtils.docStatuslogistic('Draft'),

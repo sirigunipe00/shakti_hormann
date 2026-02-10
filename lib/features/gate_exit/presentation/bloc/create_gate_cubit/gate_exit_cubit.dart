@@ -38,6 +38,7 @@ class CreateGateExitCubit extends AppBaseCubit<CreateGateExitState> {
     String? salesInvoiceNo,
     String? gateEntryDate,
     String? scanIrn,
+    String? gateExitDateandTime,
     String? remarks,
     File? vehiclePhoto,
     File? vehicleBackPhoto,
@@ -84,7 +85,7 @@ class CreateGateExitCubit extends AppBaseCubit<CreateGateExitState> {
         plantName: entry.plantName,
         gateEntryDate: entry.gateEntryDate,
         salesInvoice: entry.salesInvoice,
-
+        
         vehicleNo: entry.vehicleNo,
         vehiclePhoto: entry.vehiclePhoto,
         vehicleBackPhoto: entry.vehicleBackPhoto,

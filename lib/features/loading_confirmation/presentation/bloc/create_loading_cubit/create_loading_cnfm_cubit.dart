@@ -96,14 +96,14 @@ class CreateLoadingCnfmCubit extends AppBaseCubit<CreateLaodingCnfmState> {
   void addInitialItem(ItemModel newItem) {
     // $logger.devLog('state.listitems....: ${state.listitems}');
     final updatedItems = [...state.listitems, newItem];
-    print('updatedItems....:$updatedItems');
+    // print('updatedItems....:$updatedItems');
     // log('updatedItems---:$updatedItems');
     final stat = state.copyWith(listitems: updatedItems);
-    log('lshjafdjshf:${stat.listitems}');
+    // log('lshjafdjshf:${stat.listitems}');
     emitSafeState(stat);
   }
 void updateItem(int index, ItemModel updatedItem) {
-  print('updatedItem ...:$updatedItem');
+  // print('updatedItem ...:$updatedItem');
   final currentItems = List<ItemModel>.from(state.listitems);
   final oldItem = currentItems[index];
 

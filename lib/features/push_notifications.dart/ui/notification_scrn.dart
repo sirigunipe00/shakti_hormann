@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shakti_hormann/app/presentation/widgets/notifications.dart';
+import 'package:shakti_hormann/features/push_notifications.dart/ui/notifications.dart';
 import 'package:shakti_hormann/core/utils/date_format_util.dart';
 import 'package:shakti_hormann/features/push_notifications.dart/model/notification_model.dart';
 import 'package:shakti_hormann/features/push_notifications.dart/ui/bloc/bloc_provider.dart';
