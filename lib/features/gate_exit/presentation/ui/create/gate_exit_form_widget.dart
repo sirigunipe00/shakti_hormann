@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:flutter/services.dart';
 import 'package:shakti_hormann/core/core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -135,7 +136,9 @@ class _GateExitFormWidgetState extends State<GateExitFormWidget> {
                           (p0) => context
                               .cubit<CreateGateExitCubit>()
                               .onValueChanged(vehicleNo: p0),
-                      inputFormatters: [UpperCaseTextFormatter()],
+                      inputFormatters: [UpperCaseTextFormatter(),
+                      FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9]')),
+                      ],
                     ),
                   ],
                 ),

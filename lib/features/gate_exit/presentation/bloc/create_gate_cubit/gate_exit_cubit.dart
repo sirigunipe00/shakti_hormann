@@ -6,6 +6,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:shakti_hormann/features/gate_exit/data/gate_exit_repo.dart';
 import 'package:shakti_hormann/features/gate_exit/model/gate_exit_form.dart';
+import 'package:shakti_hormann/features/gate_exit/model/sales_invoice.dart';
 
 part 'gate_exit_cubit.freezed.dart';
 
@@ -35,7 +36,7 @@ class CreateGateExitCubit extends AppBaseCubit<CreateGateExitState> {
     String? modifiedBy,
     String? modifiedDate,
     String? vehicleNo,
-    String? salesInvoiceNo,
+    List<SalesInvoice>? salesInvoices,
     String? gateEntryDate,
     String? scanIrn,
     String? gateExitDateandTime,
@@ -57,7 +58,7 @@ class CreateGateExitCubit extends AppBaseCubit<CreateGateExitState> {
       owner: owner ?? form.owner,
       docStatus: docStatus ?? form.docStatus,
       modifiedBy: modifiedBy ?? form.modifiedBy,
-      salesInvoice: salesInvoiceNo ?? form.salesInvoice,
+      salesInvoices: salesInvoices ?? form.salesInvoices,
 
       modifiedDate: modifiedDate ?? form.modifiedDate,
       vehicleNo: vehicleNo ?? form.vehicleNo,
@@ -84,7 +85,7 @@ class CreateGateExitCubit extends AppBaseCubit<CreateGateExitState> {
         remarks: entry.remarks,
         plantName: entry.plantName,
         gateEntryDate: entry.gateEntryDate,
-        salesInvoice: entry.salesInvoice,
+        salesInvoices: entry.salesInvoices,
         
         vehicleNo: entry.vehicleNo,
         vehiclePhoto: entry.vehiclePhoto,
@@ -119,7 +120,11 @@ class CreateGateExitCubit extends AppBaseCubit<CreateGateExitState> {
     final form = state.form.copyWith(vehicleBackPhoto: null);
     emitSafeState(state.copyWith(form: form));
   }
+ void addSalesInvoices({List<SalesInvoice>? salesInvoices}) {
+    final form = state.form.copyWith(salesInvoices: salesInvoices);
 
+    emitSafeState(state.copyWith(form: form));
+  }
   void save() async {
     final validation = _validate();
     return validation.fold(() async {
@@ -198,7 +203,7 @@ class CreateGateExitCubit extends AppBaseCubit<CreateGateExitState> {
   Option<Pair<String, int?>> _validate() {
     final form = state.form;
 
-   if (form.salesInvoice == null || form.salesInvoice!.isEmpty) {
+   if (form.salesInvoices == null || form.salesInvoices!.isEmpty) {
       return optionOf(const Pair('Select Sales Invoice', 0));
    } else if (form.vehicleNo.isNull || 
              (form.vehicleNo?.trim().isEmpty ?? true)) {

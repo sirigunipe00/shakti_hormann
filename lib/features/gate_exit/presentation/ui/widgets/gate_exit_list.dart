@@ -5,6 +5,7 @@ import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/core/model/page_view_filters.dart';
 import 'package:shakti_hormann/features/gate_exit/model/gate_exit_form.dart';
 import 'package:shakti_hormann/features/gate_exit/presentation/bloc/bloc_provider.dart';
+import 'package:shakti_hormann/features/gate_exit/presentation/bloc/create_gate_cubit/gate_exit_cubit.dart';
 import 'package:shakti_hormann/features/gate_exit/presentation/bloc/gate_exit_filter_cubit.dart';
 import 'package:shakti_hormann/features/gate_exit/presentation/ui/widgets/gate_exit_widget.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
@@ -61,16 +62,27 @@ class _GateExitListScrnState extends State<GateExitListScrn>
           listener: (_, state) => _fetchInital(context),
           child: InfiniteListViewWidget<GateExitCubit, GateExitForm>(
             childBuilder:
-                (context, entry) => GateExitWidget(
-                  gateExit: entry,
-                    onTap: () async {
-                    final refresh = await AppRoute.newGateExit
-                        .push<bool?>(context, extra: entry);
-                        if(!context.mounted) return;
-                    if (refresh == true) {
-                      _fetchInital(context);
-                    }
-                  },
+                (context, entry) => MultiBlocProvider(
+                  providers: [
+                     BlocProvider(
+                      create:
+                          (context) =>
+                              GateExitBlocProvider.get().getSales()
+                                ..request(entry.name),
+                    ),
+                    BlocProvider(create: (_) => $sl.get<CreateGateExitCubit>()),
+                  ],
+                  child: GateExitWidget(
+                    gateExit: entry,
+                      onTap: () async {
+                      final refresh = await AppRoute.newGateExit
+                          .push<bool?>(context, extra: entry);
+                          if(!context.mounted) return;
+                      if (refresh == true) {
+                        _fetchInital(context);
+                      }
+                    },
+                  ),
                 ),
             fetchInitial: () => _fetchInital(context),
             fetchMore: () => fetchMore(context),

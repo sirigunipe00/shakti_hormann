@@ -221,6 +221,7 @@ class AppRouterConfig {
                         path: _getPath(AppRoute.newGateExit),
                         builder: (_, state) {
                           final form = state.extra as GateExitForm?;
+                          print('form?.name ?? ''${form?.name}');
                           return MultiBlocProvider(
                             providers: [
                               BlocProvider(
@@ -229,6 +230,14 @@ class AppRouterConfig {
                                         GateExitBlocProvider.get()
                                             .salesInvoiceList()
                                           ..request(''),
+                              ),
+                               BlocProvider(
+                                create:
+                                    (_) =>
+                                        GateExitBlocProvider.get()
+                                            .getSales()
+                                          ..request(form?.name ?? ''),
+                                          
                               ),
                               BlocProvider(
                                 create:

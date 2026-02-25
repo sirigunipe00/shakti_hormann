@@ -1,8 +1,11 @@
 import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:shakti_hormann/core/utils/date_format_util.dart';
 import 'package:shakti_hormann/core/utils/string_utils.dart';
+import 'package:shakti_hormann/features/gate_exit/presentation/bloc/bloc_provider.dart';
+import 'package:shakti_hormann/features/gate_exit/presentation/bloc/create_gate_cubit/gate_exit_cubit.dart';
 import 'package:shakti_hormann/widgets/doc_status_widget.dart';
 import 'package:shakti_hormann/features/gate_exit/model/gate_exit_form.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
@@ -151,13 +154,36 @@ class GateExitWidget extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
       
               children: [
-                Text(
-                  gateExit.salesInvoice ?? '',
-                  style: const TextStyle(
-                    color: Color(0xFF2957A4),
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15,
-                  ),
+                BlocBuilder<Sales, SalesState>(
+                  builder: (context, state) {
+                    return state.maybeWhen(
+                      success: (data) {
+                        context.read<CreateGateExitCubit>().addSalesInvoices(
+                          salesInvoices: data,
+                        );
+                        return Expanded(
+                          child: Wrap(
+                            runSpacing: 2,
+                            spacing: 2,
+                            children: [
+                              Text(
+                                data
+                                    .map((po) => po.name ?? '')
+                                    .where((e) => e.isNotEmpty)
+                                    .join(', '),
+                                style: const TextStyle(
+                                  color: Color(0xFF2957A4),
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                      orElse: () => const SizedBox(),
+                    );
+                  },
                 ),
                 DocStatusWidget(
                   status: StringUtils.docStatus(gateExit.docStatus ?? 0),

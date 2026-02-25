@@ -38,8 +38,8 @@ mixin _$GateExitForm {
   int? get idx => throw _privateConstructorUsedError;
   @JsonKey(name: 'plant_name')
   String? get plantName => throw _privateConstructorUsedError;
-  @JsonKey(name: 'sales_invoice')
-  String? get salesInvoice => throw _privateConstructorUsedError;
+  @JsonKey(name: 'sales_invoices')
+  List<SalesInvoice>? get salesInvoices => throw _privateConstructorUsedError;
   @JsonKey(name: 'vehicle_no')
   String? get vehicleNo => throw _privateConstructorUsedError;
   @JsonKey(name: 'vehicle_photo')
@@ -94,7 +94,7 @@ abstract class $GateExitFormCopyWith<$Res> {
     @JsonKey(name: 'modified_by') String? modifiedBy,
     @JsonKey(name: 'idx') int? idx,
     @JsonKey(name: 'plant_name') String? plantName,
-    @JsonKey(name: 'sales_invoice') String? salesInvoice,
+    @JsonKey(name: 'sales_invoices') List<SalesInvoice>? salesInvoices,
     @JsonKey(name: 'vehicle_no') String? vehicleNo,
     @JsonKey(name: 'vehicle_photo') String? vehiclePhoto,
     @JsonKey(name: 'gate_entry_date') String? gateEntryDate,
@@ -142,7 +142,7 @@ class _$GateExitFormCopyWithImpl<$Res, $Val extends GateExitForm>
     Object? modifiedBy = freezed,
     Object? idx = freezed,
     Object? plantName = freezed,
-    Object? salesInvoice = freezed,
+    Object? salesInvoices = freezed,
     Object? vehicleNo = freezed,
     Object? vehiclePhoto = freezed,
     Object? gateEntryDate = freezed,
@@ -199,11 +199,11 @@ class _$GateExitFormCopyWithImpl<$Res, $Val extends GateExitForm>
                     ? _value.plantName
                     : plantName // ignore: cast_nullable_to_non_nullable
                         as String?,
-            salesInvoice:
-                freezed == salesInvoice
-                    ? _value.salesInvoice
-                    : salesInvoice // ignore: cast_nullable_to_non_nullable
-                        as String?,
+            salesInvoices:
+                freezed == salesInvoices
+                    ? _value.salesInvoices
+                    : salesInvoices // ignore: cast_nullable_to_non_nullable
+                        as List<SalesInvoice>?,
             vehicleNo:
                 freezed == vehicleNo
                     ? _value.vehicleNo
@@ -269,7 +269,7 @@ abstract class _$$GateExitFormImplCopyWith<$Res>
     @JsonKey(name: 'modified_by') String? modifiedBy,
     @JsonKey(name: 'idx') int? idx,
     @JsonKey(name: 'plant_name') String? plantName,
-    @JsonKey(name: 'sales_invoice') String? salesInvoice,
+    @JsonKey(name: 'sales_invoices') List<SalesInvoice>? salesInvoices,
     @JsonKey(name: 'vehicle_no') String? vehicleNo,
     @JsonKey(name: 'vehicle_photo') String? vehiclePhoto,
     @JsonKey(name: 'gate_entry_date') String? gateEntryDate,
@@ -316,7 +316,7 @@ class __$$GateExitFormImplCopyWithImpl<$Res>
     Object? modifiedBy = freezed,
     Object? idx = freezed,
     Object? plantName = freezed,
-    Object? salesInvoice = freezed,
+    Object? salesInvoices = freezed,
     Object? vehicleNo = freezed,
     Object? vehiclePhoto = freezed,
     Object? gateEntryDate = freezed,
@@ -373,11 +373,11 @@ class __$$GateExitFormImplCopyWithImpl<$Res>
                 ? _value.plantName
                 : plantName // ignore: cast_nullable_to_non_nullable
                     as String?,
-        salesInvoice:
-            freezed == salesInvoice
-                ? _value.salesInvoice
-                : salesInvoice // ignore: cast_nullable_to_non_nullable
-                    as String?,
+        salesInvoices:
+            freezed == salesInvoices
+                ? _value._salesInvoices
+                : salesInvoices // ignore: cast_nullable_to_non_nullable
+                    as List<SalesInvoice>?,
         vehicleNo:
             freezed == vehicleNo
                 ? _value.vehicleNo
@@ -436,7 +436,7 @@ class _$GateExitFormImpl implements _GateExitForm {
     @JsonKey(name: 'modified_by') this.modifiedBy,
     @JsonKey(name: 'idx') this.idx,
     @JsonKey(name: 'plant_name') this.plantName,
-    @JsonKey(name: 'sales_invoice') this.salesInvoice,
+    @JsonKey(name: 'sales_invoices') final List<SalesInvoice>? salesInvoices,
     @JsonKey(name: 'vehicle_no') this.vehicleNo,
     @JsonKey(name: 'vehicle_photo') this.vehiclePhoto,
     @JsonKey(name: 'gate_entry_date') this.gateEntryDate,
@@ -457,7 +457,7 @@ class _$GateExitFormImpl implements _GateExitForm {
       fromJson: toNull,
     )
     this.vehicleBackPhotoImg,
-  });
+  }) : _salesInvoices = salesInvoices;
 
   factory _$GateExitFormImpl.fromJson(Map<String, dynamic> json) =>
       _$$GateExitFormImplFromJson(json);
@@ -488,9 +488,17 @@ class _$GateExitFormImpl implements _GateExitForm {
   @override
   @JsonKey(name: 'plant_name')
   final String? plantName;
+  final List<SalesInvoice>? _salesInvoices;
   @override
-  @JsonKey(name: 'sales_invoice')
-  final String? salesInvoice;
+  @JsonKey(name: 'sales_invoices')
+  List<SalesInvoice>? get salesInvoices {
+    final value = _salesInvoices;
+    if (value == null) return null;
+    if (_salesInvoices is EqualUnmodifiableListView) return _salesInvoices;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(value);
+  }
+
   @override
   @JsonKey(name: 'vehicle_no')
   final String? vehicleNo;
@@ -528,7 +536,7 @@ class _$GateExitFormImpl implements _GateExitForm {
 
   @override
   String toString() {
-    return 'GateExitForm(status: $status, name: $name, owner: $owner, creationDate: $creationDate, docStatus: $docStatus, modifiedDate: $modifiedDate, modifiedBy: $modifiedBy, idx: $idx, plantName: $plantName, salesInvoice: $salesInvoice, vehicleNo: $vehicleNo, vehiclePhoto: $vehiclePhoto, gateEntryDate: $gateEntryDate, vehicleBackPhoto: $vehicleBackPhoto, remarks: $remarks, amendedFrom: $amendedFrom, vehiclePhotoImg: $vehiclePhotoImg, vehicleBackPhotoImg: $vehicleBackPhotoImg)';
+    return 'GateExitForm(status: $status, name: $name, owner: $owner, creationDate: $creationDate, docStatus: $docStatus, modifiedDate: $modifiedDate, modifiedBy: $modifiedBy, idx: $idx, plantName: $plantName, salesInvoices: $salesInvoices, vehicleNo: $vehicleNo, vehiclePhoto: $vehiclePhoto, gateEntryDate: $gateEntryDate, vehicleBackPhoto: $vehicleBackPhoto, remarks: $remarks, amendedFrom: $amendedFrom, vehiclePhotoImg: $vehiclePhotoImg, vehicleBackPhotoImg: $vehicleBackPhotoImg)';
   }
 
   @override
@@ -550,8 +558,10 @@ class _$GateExitFormImpl implements _GateExitForm {
             (identical(other.idx, idx) || other.idx == idx) &&
             (identical(other.plantName, plantName) ||
                 other.plantName == plantName) &&
-            (identical(other.salesInvoice, salesInvoice) ||
-                other.salesInvoice == salesInvoice) &&
+            const DeepCollectionEquality().equals(
+              other._salesInvoices,
+              _salesInvoices,
+            ) &&
             (identical(other.vehicleNo, vehicleNo) ||
                 other.vehicleNo == vehicleNo) &&
             (identical(other.vehiclePhoto, vehiclePhoto) ||
@@ -582,7 +592,7 @@ class _$GateExitFormImpl implements _GateExitForm {
     modifiedBy,
     idx,
     plantName,
-    salesInvoice,
+    const DeepCollectionEquality().hash(_salesInvoices),
     vehicleNo,
     vehiclePhoto,
     gateEntryDate,
@@ -618,7 +628,7 @@ abstract class _GateExitForm implements GateExitForm {
     @JsonKey(name: 'modified_by') final String? modifiedBy,
     @JsonKey(name: 'idx') final int? idx,
     @JsonKey(name: 'plant_name') final String? plantName,
-    @JsonKey(name: 'sales_invoice') final String? salesInvoice,
+    @JsonKey(name: 'sales_invoices') final List<SalesInvoice>? salesInvoices,
     @JsonKey(name: 'vehicle_no') final String? vehicleNo,
     @JsonKey(name: 'vehicle_photo') final String? vehiclePhoto,
     @JsonKey(name: 'gate_entry_date') final String? gateEntryDate,
@@ -671,8 +681,8 @@ abstract class _GateExitForm implements GateExitForm {
   @JsonKey(name: 'plant_name')
   String? get plantName;
   @override
-  @JsonKey(name: 'sales_invoice')
-  String? get salesInvoice;
+  @JsonKey(name: 'sales_invoices')
+  List<SalesInvoice>? get salesInvoices;
   @override
   @JsonKey(name: 'vehicle_no')
   String? get vehicleNo;

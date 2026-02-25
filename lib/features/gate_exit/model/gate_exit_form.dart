@@ -2,6 +2,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'dart:io';
 import 'package:shakti_hormann/core/utils/typedefs.dart';
+import 'package:shakti_hormann/features/gate_exit/model/sales_invoice.dart';
 part 'gate_exit_form.freezed.dart';
 part 'gate_exit_form.g.dart';
 
@@ -19,7 +20,7 @@ class GateExitForm with _$GateExitForm {
     @JsonKey(name: 'idx') int? idx,
     @JsonKey(name: 'plant_name') String? plantName,
 
-    @JsonKey(name: 'sales_invoice') String? salesInvoice,
+    @JsonKey(name: 'sales_invoices') List<SalesInvoice>? salesInvoices,
 
     @JsonKey(name: 'vehicle_no') String? vehicleNo,
 

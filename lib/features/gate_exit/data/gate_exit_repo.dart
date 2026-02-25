@@ -1,6 +1,7 @@
 import 'package:shakti_hormann/core/model/pair.dart';
 import 'package:shakti_hormann/core/utils/typedefs.dart';
 import 'package:shakti_hormann/features/gate_exit/model/gate_exit_form.dart';
+import 'package:shakti_hormann/features/gate_exit/model/sales_invoice.dart';
 import 'package:shakti_hormann/features/gate_exit/model/sales_invoice_form.dart';
 
 abstract interface class GateExitRepo {
@@ -11,5 +12,6 @@ abstract interface class GateExitRepo {
   );
   AsyncValueOf<Pair<String,String>> submitGateExit(GateExitForm form);
   AsyncValueOf<Pair<String,String>> createGateExit(GateExitForm form);
+  AsyncValueOf<List<SalesInvoice>> fetchSales(String name);
   AsyncValueOf<List<SalesInvoiceForm>> fetchSalesInvoice(String name);
 }

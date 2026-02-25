@@ -5,6 +5,7 @@ import 'package:shakti_hormann/core/di/injector.dart';
 import 'package:shakti_hormann/core/model/pair.dart';
 import 'package:shakti_hormann/features/gate_exit/data/gate_exit_repo.dart';
 import 'package:shakti_hormann/features/gate_exit/model/gate_exit_form.dart';
+import 'package:shakti_hormann/features/gate_exit/model/sales_invoice.dart';
 import 'package:shakti_hormann/features/gate_exit/model/sales_invoice_form.dart';
 
 typedef GateExitCubit =
@@ -15,6 +16,11 @@ typedef SalesInvoiceList
     = NetworkRequestCubit<List<SalesInvoiceForm>, String>;
 typedef SalesInvoiceState
     = NetworkRequestState<List<SalesInvoiceForm>>;
+
+typedef Sales
+    = NetworkRequestCubit<List<SalesInvoice>, String>;
+typedef SalesState
+    = NetworkRequestState<List<SalesInvoice>>;
 
 @lazySingleton
 class GateExitBlocProvider {
@@ -34,6 +40,9 @@ class GateExitBlocProvider {
 
   SalesInvoiceList salesInvoiceList() => SalesInvoiceList(
     onRequest: (params, state) => repo.fetchSalesInvoice(params ?? ''),
+  );
+  Sales getSales() => Sales(
+    onRequest: (params, state) => repo.fetchSales(params ?? ''),
   );
 
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/features/gate_entry/model/purchase_order_form.dart';
+import 'package:shakti_hormann/features/gate_exit/model/sales_invoice_form.dart';
 import 'package:shakti_hormann/features/logistic_request/model/sales_order_form.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/widgets/app_spacer.dart';
@@ -121,7 +122,13 @@ class _SearchMultiDropDownListState<T>
                                       item.name ?? '',
                                       item.customerName ?? '',
                                     ].join(' ');
-                                  } else {
+                                  }else if (item is SalesInvoiceForm) {
+                                    itemName = [
+                                      item.name ?? '',
+                                      item.vehicleNo ?? '',
+                                    ].join(' ');
+                                  } 
+                                   else {
                                     itemName = item.toString();
                                   }
 
@@ -194,6 +201,8 @@ class _SearchMultiDropDownListState<T>
                                                                   is SalesOrderForm)
                                                               ? (item.name ??
                                                                   '')
+                                                                  : (item is SalesInvoiceForm)
+                                                                  ? (item.name ?? '')
                                                               : item.toString(),
                                                         ),
                                                 value: isSelected,
@@ -288,6 +297,7 @@ class _SearchMultiDropDownListState<T>
                 .map((e) {
                   if (e is PurchaseOrderForm) return e.name ?? '';
                   if (e is SalesOrderForm) return e.name ?? '';
+                  if(e is SalesInvoiceForm) return e.name ?? '';
                   return e.toString();
                 })
                 .where((name) => name.isNotEmpty)

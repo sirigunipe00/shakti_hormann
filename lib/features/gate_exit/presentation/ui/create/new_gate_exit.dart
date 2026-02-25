@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shakti_hormann/core/core.dart';
+import 'package:shakti_hormann/features/gate_exit/model/sales_invoice.dart';
 import 'package:shakti_hormann/features/gate_exit/model/sales_invoice_form.dart';
 import 'package:shakti_hormann/features/gate_exit/presentation/bloc/bloc_provider.dart';
 import 'package:shakti_hormann/features/gate_exit/presentation/bloc/create_gate_cubit/gate_exit_cubit.dart';
@@ -11,7 +12,7 @@ import 'package:shakti_hormann/features/gate_exit/presentation/ui/create/gate_ex
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/widgets/buttons/app_btn.dart';
 import 'package:shakti_hormann/widgets/dailogs/app_dialogs.dart';
-import 'package:shakti_hormann/widgets/inputs/search_dropdown_widget.dart';
+import 'package:shakti_hormann/widgets/inputs/multi_selection.widget.dart';
 import 'package:shakti_hormann/widgets/simple_app_bar.dart';
 import 'package:shakti_hormann/widgets/title_status_app_bar.dart';
 import 'package:simple_barcode_scanner/simple_barcode_scanner.dart';
@@ -25,6 +26,8 @@ class NewGateExit extends StatefulWidget {
 
 class _NewGateExitState extends State<NewGateExit> {
   SalesInvoiceForm? invoiceform;
+  List<SalesInvoiceForm> selectedSalesInvoices = [];
+  List<Sales> dataorders = [];
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +36,7 @@ class _NewGateExitState extends State<NewGateExit> {
     final newform = gateEntryState.form;
     final status = newform.docStatus;
     final name = newform.name;
-    final isCompleted = gateEntryState.view == GateExitView.completed;
+    // final isCompleted = gateEntryState.view == GateExitView.completed;
 
     final isNew = gateEntryState.view == GateExitView.create;
     return Scaffold(
@@ -75,14 +78,14 @@ class _NewGateExitState extends State<NewGateExit> {
 
                     final names = allData.toList();
 
-                    return SearchDropDownList<SalesInvoiceForm>(
+                    return SearchMultiDropDownList<SalesInvoiceForm>(
                       title: 'Invoice No',
                       hint: 'Search Invoice No',
                       key: UniqueKey(),
                       color: AppColors.white,
                       items: names,
                       readOnly: status == 1,
-                      defaultSelection: invoiceform,
+                      defaultSelection: selectedSalesInvoices,
                       isloading: state.isLoading,
                       futureRequest: (query) async {
                         if (query.isEmpty) return names;
@@ -130,16 +133,27 @@ class _NewGateExitState extends State<NewGateExit> {
                           ),
                       onSelected: (selected) {
                         setState(() {
-                          invoiceform = selected;
+                          selectedSalesInvoices = selected;
+                          if (selectedSalesInvoices.isNotEmpty) {
+                            final List<SalesInvoice> salesInvoices =
+                                selected
+                                    .where((e) => e.name != null)
+                                    .map((e) => SalesInvoice(name: e.name))
+                                    .toList();
+                            context.cubit<CreateGateExitCubit>().onValueChanged(
+                              salesInvoices: salesInvoices,
+                              plantName: selectedSalesInvoices[0].plantName,
+                              vehicleNo: selectedSalesInvoices[0].vehicleNo,
+                            );
+                          } else {
+                            context.cubit<CreateGateExitCubit>().onValueChanged(
+                              salesInvoices: [],
+                              plantName: '',
+                              vehicleNo: '',
+                              // gateNumber: '',
+                            );
+                          }
                         });
-
-
-
-                        context.cubit<CreateGateExitCubit>().onValueChanged(
-                          salesInvoiceNo: selected.name,
-                          plantName: selected.plantName,
-                          vehicleNo: selected.vehicleNo,
-                        );
                       },
 
                       focusNode: FocusNode(),
@@ -197,10 +211,11 @@ class _NewGateExitState extends State<NewGateExit> {
                           jsonData['PlantName']?.toString();
 
                       if (invoiceNumber != null && invoiceNumber.isNotEmpty) {
-                        context.cubit<CreateGateExitCubit>().onValueChanged(
-                          salesInvoiceNo: invoiceNumber,
-                          vehicleNo: vehicleNumber,
-                        );
+                        final List<SalesInvoice> scannedInvoices = [
+                          SalesInvoice(
+                            name: invoiceNumber.trim().toUpperCase(),
+                          ),
+                        ];
 
                         final allPOs = context
                             .read<SalesInvoiceList>()
@@ -224,7 +239,21 @@ class _NewGateExitState extends State<NewGateExit> {
                         if (matchedInvoice != null) {
                           setState(() {
                             invoiceform = matchedInvoice;
+                            bool alreadyExists = selectedSalesInvoices.any(
+                              (item) => item.name == matchedInvoice!.name,
+                            );
+
+                            if (!alreadyExists) {
+                              selectedSalesInvoices = [
+                                ...selectedSalesInvoices,
+                                matchedInvoice!,
+                              ];
+                            }
                           });
+                          final List<SalesInvoice> allSelectedInvoices =
+                              selectedSalesInvoices
+                                  .map((e) => SalesInvoice(name: e.name))
+                                  .toList();
 
                           final selectedPlant =
                               plantNameFromQR?.isNotEmpty == true
@@ -232,7 +261,7 @@ class _NewGateExitState extends State<NewGateExit> {
                                   : matchedInvoice.plantName;
 
                           context.cubit<CreateGateExitCubit>().onValueChanged(
-                            salesInvoiceNo: invoiceNumber,
+                            salesInvoices: allSelectedInvoices,
                             plantName: selectedPlant,
                             vehicleNo:
                                 vehicleNumber ?? matchedInvoice.vehicleNo,
@@ -277,7 +306,7 @@ class _NewGateExitState extends State<NewGateExit> {
                         builder:
                             (_) => AlertDialog(
                               title: const Text('Invalid QR Code'),
-                              content:  Text(
+                              content: Text(
                                 'Scanned data is not valid JSON or missing fields.\n\nError: $e',
                               ),
                               actions: [
@@ -300,277 +329,320 @@ class _NewGateExitState extends State<NewGateExit> {
               )
               : PreferredSize(
                 preferredSize: const Size.fromHeight(250),
-                child: TitleStatusAppBar(
-                  title: '$name',
-                  status: StringUtils.docStatus(status ?? 0),
-                  onSubmit: () {},
-                  onReject: () {},
-                  actionButton:  (status == 1)
-                          ? null
-                          : BlocBuilder<CreateGateExitCubit,CreateGateExitState>(
-                            builder: (context, state) {
-                              return AppButton(
-                                isLoading: state.isLoading,
-                                label: state.view.toName(),
-                                borderColor: Colors.grey,
-                                onPressed: () {
-                                  context.cubit<CreateGateExitCubit>().save();
-                                },
-                              );
-                            },
-                          ),
-                  dropdown: BlocBuilder<SalesInvoiceList, SalesInvoiceState>(
-                    builder: (_, state) {
-                      final allData = state.maybeWhen(
-                        orElse: () => <SalesInvoiceForm>[],
-                        success: (data) => data,
-                      );
+                child: BlocListener<Sales, SalesState>(
+                  listener: (context, pstate) {
+                    pstate.maybeWhen(
+                      orElse: () {},
+                      success: (data) {
+                        context.read<CreateGateExitCubit>().addSalesInvoices(
+                          salesInvoices: data,
+                        );
+                      },
+                    );
+                  },
+                  child: TitleStatusAppBar(
+                    title: '$name',
+                    status: StringUtils.docStatus(status ?? 0),
+                    onSubmit: () {},
+                    onReject: () {},
+                    actionButton:
+                        (status == 1)
+                            ? null
+                            : BlocBuilder<
+                              CreateGateExitCubit,
+                              CreateGateExitState
+                            >(
+                              builder: (context, state) {
+                                return AppButton(
+                                  isLoading: state.isLoading,
+                                  label: state.view.toName(),
+                                  borderColor: Colors.grey,
+                                  onPressed: () {
+                                    context.cubit<CreateGateExitCubit>().save();
+                                  },
+                                );
+                              },
+                            ),
+                    dropdown: BlocBuilder<SalesInvoiceList, SalesInvoiceState>(
+                      builder: (_, state) {
+                        final allData = state.maybeWhen(
+                          orElse: () => <SalesInvoiceForm>[],
+                          success: (data) => data,
+                        );
 
-                      final names = allData.toList();
-                      final selectedOrders =
-                          context
-                              .watch<CreateGateExitCubit>()
-                              .state
-                              .form
-                              .salesInvoice ??
-                          '';
+                        final names = allData.toList();
+                        final selectedOrders =
+                            context
+                                .watch<CreateGateExitCubit>()
+                                .state
+                                .form
+                                .salesInvoices ??
+                            [];
 
-                      return SearchDropDownList<SalesInvoiceForm>(
-                        title: 'Invoice No',
-                        hint: 'Search Invoice No',
-                        key: UniqueKey(),
-                        color: AppColors.white,
-                        items: names,
-                        readOnly: status == 1,
+                        return SearchMultiDropDownList<SalesInvoiceForm>(
+                          title: 'Invoice No',
+                          hint: 'Search Invoice No',
+                          key: UniqueKey(),
+                          color: AppColors.white,
+                          items: names,
+                          readOnly: status == 1,
 
-                        defaultSelection: () {
-                          if (names.isEmpty || selectedOrders.isNull) {
-                            return null;
-                          }
+                          defaultSelection:
+                              names
+                                  .where(
+                                    (item) => selectedOrders.any(
+                                      (so) => so.name == item.name,
+                                    ),
+                                  )
+                                  .toList(),
+                          isloading: state.isLoading,
+                          futureRequest: (query) async {
+                            if (query.isEmpty) return names;
 
-                          final selected = names.firstWhere(
-                            (item) => item.name == selectedOrders,
-                            orElse:
-                                () => SalesInvoiceForm(name: selectedOrders),
-                          );
+                            return names.where((item) {
+                              final orderNo = item.name?.toLowerCase() ?? '';
+                              final customer =
+                                  item.customerName?.toLowerCase() ?? '';
+                              final search = query.toLowerCase();
 
-                          return selected;
-                        }(),
-                        isloading: state.isLoading,
-                        futureRequest: (query) async {
-                          if (query.isEmpty) return names;
-
-                          return names.where((item) {
-                            final orderNo = item.name?.toLowerCase() ?? '';
-                            final customer =
-                                item.customerName?.toLowerCase() ?? '';
-                            final search = query.toLowerCase();
-
-                            return orderNo.contains(search) ||
-                                customer.contains(search);
-                          }).toList();
-                        },
-                        headerBuilder:
-                            (_, item, __) => Column(
+                              return orderNo.contains(search) ||
+                                  customer.contains(search);
+                            }).toList();
+                          },
+                          headerBuilder: (_, item, _) {
+                            return Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
                                   item.name ?? '',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color:
-                                        isCompleted
-                                            ? AppColors.white
-                                            : AppColors.black,
-                                  ),
-                                ),
-                              ],
-                            ),
-                        listItemBuilder:
-                            (_, item, __, ___) => Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Sales Invoice No: ${item.name ?? ''}',
                                   style: const TextStyle(
                                     fontWeight: FontWeight.bold,
+                                    color: AppColors.white,
                                   ),
                                 ),
-                                if (item.customerName != null)
-                                  Text('Customer Name : ${item.customerName}'),
-                                Text(
-                                  'Order Date: ${DFU.ddMMyyyyFromStr(item.orderDate ?? '')} ',
-                                ),
-
-                                const Divider(height: 8),
                               ],
-                            ),
-                        onSelected: (selected) {
-                          setState(() {
-                            invoiceform = selected;
-                          });
-                          context.cubit<CreateGateExitCubit>().onValueChanged(
-                            salesInvoiceNo: selected.name,
-                            plantName: selected.plantName,
-                            vehicleNo: selected.vehicleNo,
-                          );
-                        },
-
-                        focusNode: FocusNode(),
-                      );
-                    },
-                  ),
-                  onScan: () async {
-                    if (status == 1) {
-                      return;
-                    }
-                    final scanResult = await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder:
-                            (context) => const SimpleBarcodeScannerPage(
-                              scanType: ScanType.qr,
-                              appBarTitle: 'Scan IRN QR',
-                              isShowFlashIcon: true,
-                            ),
-                      ),
-                    );
-
-                    if (scanResult != null) {
-                      // final scannedValue =
-                      //     extractIrnFromQr(scanResult).trim().toUpperCase();
-                      if (!context.mounted) return;
-                      $logger.devLog('….scanresult….$scanResult');
-
-                      // final allPOs =
-                      //     context
-                      //         .read<SalesInvoiceList>()
-                      //         .state
-                      //         .maybeWhen(
-                      //           orElse: () => <SalesInvoiceForm>[],
-                      //           success: (data) => data,
-                      //         )
-                      //         .toList();
-                      try {
-                        // final dynamic decoded = jsonDecode(scanResult);
-
-                        // if (decoded is! Map) {
-                        //   throw Exception('QR data is not a valid JSON object');
-                        // }
-
-                        // final jsonData = decoded.map(
-                        //   (key, value) =>
-                        //       MapEntry(key.toString(), value?.toString()),
-                        // );
-                        final Map<String, dynamic> jsonData = jsonDecode(
-                          scanResult,
-                        );
-
-                        final String? invoiceNumber =jsonData['InvoiceNumber']?.toString();
-                        final String? vehicleNumber =jsonData['VehicleNumber']?.toString();
-                        final String? plantNameFromQR =jsonData['PlantName']?.toString();
-                         if (invoiceNumber != null && invoiceNumber.isNotEmpty) {
-                          context.cubit<CreateGateExitCubit>().onValueChanged(
-                            salesInvoiceNo: invoiceNumber,
-                            vehicleNo: vehicleNumber,
-                          );
-                           final allPOs = context
-                              .read<SalesInvoiceList>()
-                              .state.maybeWhen(
-                                orElse: () => <SalesInvoiceForm>[],
-                                success: (data) => data,
-                              );
-                              SalesInvoiceForm? matchedInvoice;
-                          try {
-                            matchedInvoice = allPOs.firstWhere(
-                              (po) =>
-                                  (po.name ?? '').trim().toUpperCase() ==
-                                  invoiceNumber.trim().toUpperCase(),
                             );
-                          } catch (_) {
-                            matchedInvoice = null;
-                          }
-
-                          if (matchedInvoice != null) {
-                            setState(() {
-                              invoiceform = matchedInvoice;
-                            });
-
-                            final selectedPlant =
-                                plantNameFromQR?.isNotEmpty == true
-                                    ? plantNameFromQR
-                                    : matchedInvoice.plantName;
-
-                            context.cubit<CreateGateExitCubit>().onValueChanged(
-                              salesInvoiceNo: invoiceNumber,
-                              plantName: selectedPlant,
-                              vehicleNo:
-                                  vehicleNumber ?? matchedInvoice.vehicleNo,
-                            );
-                          } else {
-                            showDialog(
-                              context: context,
-                              builder:
-                                  (_) => AlertDialog(
-                                    title: const Text(
-                                      'Invoice Not Found',
-                                      style: TextStyle(
-                                        color: Colors.red,
-                                        fontWeight: FontWeight.bold,
-                                      ),
+                          },
+                          listItemBuilder:
+                              (_, item, __, ___) => Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Sales Invoice No: ${item.name ?? ''}',
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
                                     ),
-                                    content: const Text(
-                                      'The scanned invoice number does not match any existing invoice.',
+                                  ),
+                                  if (item.customerName != null)
+                                    Text(
+                                      'Customer Name : ${item.customerName}',
                                     ),
-                                    actions: [
-                                      TextButton(
-                                        child: const Text('OK'),
-                                        onPressed:
-                                            () =>
-                                                Navigator.of(
-                                                  context,
-                                                  rootNavigator: true,
-                                                ).pop(),
-                                      ),
-                                    ],
+                                  Text(
+                                    'Order Date: ${DFU.ddMMyyyyFromStr(item.orderDate ?? '')} ',
                                   ),
-                            );
-                          }
-                        } else {
-                          throw Exception(
-                            'Invalid QR Data: Missing InvoiceNumber',
-                          );
-                        }
-                      } catch (e) {
-                        showDialog(
-                          context: context,
-                          builder:
-                              (_) => AlertDialog(
-                                title: const Text('Invalid QR Code'),
-                                content:  Text(
-                                  'Scanned data is not valid JSON or missing fields.\n\nError: $e',
-                                ),
-                                actions: [
-                                  TextButton(
-                                    child: const Text('OK'),
-                                    onPressed:
-                                        () =>
-                                            Navigator.of(
-                                              context,
-                                              rootNavigator: true,
-                                            ).pop(),
-                                  ),
+
+                                  const Divider(height: 8),
                                 ],
                               ),
+                          onSelected: (selected) {
+                            setState(() {
+                              selectedSalesInvoices = selected;
+                              if (selectedSalesInvoices.isNotEmpty) {
+                                final List<SalesInvoice> purchaseOrders =
+                                    selectedSalesInvoices
+                                        .where((e) => e.name != null)
+                                        .map((e) => SalesInvoice(name: e.name))
+                                        .toList();
+                                context
+                                    .cubit<CreateGateExitCubit>()
+                                    .onValueChanged(
+                                      salesInvoices: purchaseOrders,
+                                      plantName:
+                                          selectedSalesInvoices[0].plantName,
+                                      vehicleNo:
+                                          selectedSalesInvoices[0].vehicleNo,
+                                    );
+                              } else {
+                                context
+                                    .cubit<CreateGateExitCubit>()
+                                    .onValueChanged(
+                                      salesInvoices: [],
+                                      plantName: '',
+                                      vehicleNo: '',
+                                    );
+                              }
+                            });
+                          },
+
+                          focusNode: FocusNode(),
                         );
+                      },
+                    ),
+                    onScan: () async {
+                      if (status == 1) {
+                        return;
                       }
-                    }
-                  },
-                  showScanner: true,
-                  textColor: Colors.white,
-                  pageMode: PageMode2.gateexit,
-                  showRejectButton: false,
-                  isSubmitting: gateEntryState.isLoading,
+                      final scanResult = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder:
+                              (context) => const SimpleBarcodeScannerPage(
+                                scanType: ScanType.qr,
+                                appBarTitle: 'Scan IRN QR',
+                                isShowFlashIcon: true,
+                              ),
+                        ),
+                      );
+
+                      if (scanResult != null) {
+                        // final scannedValue =
+                        //     extractIrnFromQr(scanResult).trim().toUpperCase();
+                        if (!context.mounted) return;
+                        $logger.devLog('….scanresult….$scanResult');
+
+                        // final allPOs =
+                        //     context
+                        //         .read<SalesInvoiceList>()
+                        //         .state
+                        //         .maybeWhen(
+                        //           orElse: () => <SalesInvoiceForm>[],
+                        //           success: (data) => data,
+                        //         )
+                        //         .toList();
+                        try {
+                          // final dynamic decoded = jsonDecode(scanResult);
+
+                          // if (decoded is! Map) {
+                          //   throw Exception('QR data is not a valid JSON object');
+                          // }
+
+                          // final jsonData = decoded.map(
+                          //   (key, value) =>
+                          //       MapEntry(key.toString(), value?.toString()),
+                          // );
+                          final Map<String, dynamic> jsonData = jsonDecode(
+                            scanResult,
+                          );
+
+                          final String? invoiceNumber =
+                              jsonData['InvoiceNumber']?.toString();
+                          final String? vehicleNumber =
+                              jsonData['VehicleNumber']?.toString();
+                          final String? plantNameFromQR =
+                              jsonData['PlantName']?.toString();
+                          if (invoiceNumber != null &&
+                              invoiceNumber.isNotEmpty) {
+                            final List<SalesInvoice> scannedInvoices = [
+                              SalesInvoice(
+                                name: invoiceNumber.trim().toUpperCase(),
+                              ),
+                            ];
+                            context.cubit<CreateGateExitCubit>().onValueChanged(
+                              salesInvoices: scannedInvoices,
+                              vehicleNo: vehicleNumber,
+                            );
+                            final allPOs = context
+                                .read<SalesInvoiceList>()
+                                .state
+                                .maybeWhen(
+                                  orElse: () => <SalesInvoiceForm>[],
+                                  success: (data) => data,
+                                );
+                            SalesInvoiceForm? matchedInvoice;
+                            try {
+                              matchedInvoice = allPOs.firstWhere(
+                                (po) =>
+                                    (po.name ?? '').trim().toUpperCase() ==
+                                    invoiceNumber.trim().toUpperCase(),
+                              );
+                            } catch (_) {
+                              matchedInvoice = null;
+                            }
+
+                            if (matchedInvoice != null) {
+                              setState(() {
+                                invoiceform = matchedInvoice;
+                              });
+
+                              final selectedPlant =
+                                  plantNameFromQR?.isNotEmpty == true
+                                      ? plantNameFromQR
+                                      : matchedInvoice.plantName;
+
+                              context
+                                  .cubit<CreateGateExitCubit>()
+                                  .onValueChanged(
+                                    salesInvoices: scannedInvoices,
+                                    plantName: selectedPlant,
+                                    vehicleNo:
+                                        vehicleNumber ??
+                                        matchedInvoice.vehicleNo,
+                                  );
+                            } else {
+                              showDialog(
+                                context: context,
+                                builder:
+                                    (_) => AlertDialog(
+                                      title: const Text(
+                                        'Invoice Not Found',
+                                        style: TextStyle(
+                                          color: Colors.red,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      content: const Text(
+                                        'The scanned invoice number does not match any existing invoice.',
+                                      ),
+                                      actions: [
+                                        TextButton(
+                                          child: const Text('OK'),
+                                          onPressed:
+                                              () =>
+                                                  Navigator.of(
+                                                    context,
+                                                    rootNavigator: true,
+                                                  ).pop(),
+                                        ),
+                                      ],
+                                    ),
+                              );
+                            }
+                          } else {
+                            throw Exception(
+                              'Invalid QR Data: Missing InvoiceNumber',
+                            );
+                          }
+                        } catch (e) {
+                          showDialog(
+                            context: context,
+                            builder:
+                                (_) => AlertDialog(
+                                  title: const Text('Invalid QR Code'),
+                                  content: Text(
+                                    'Scanned data is not valid JSON or missing fields.\n\nError: $e',
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      child: const Text('OK'),
+                                      onPressed:
+                                          () =>
+                                              Navigator.of(
+                                                context,
+                                                rootNavigator: true,
+                                              ).pop(),
+                                    ),
+                                  ],
+                                ),
+                          );
+                        }
+                      }
+                    },
+                    showScanner: true,
+                    textColor: Colors.white,
+                    pageMode: PageMode2.gateexit,
+                    showRejectButton: false,
+                    isSubmitting: gateEntryState.isLoading,
+                  ),
                 ),
               ),
 

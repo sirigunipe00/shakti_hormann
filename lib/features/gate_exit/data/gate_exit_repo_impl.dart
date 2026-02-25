@@ -9,6 +9,7 @@ import 'package:path/path.dart' as p;
 import 'package:shakti_hormann/features/gate_exit/data/gate_exit_repo.dart';
 import 'package:shakti_hormann/features/gate_exit/model/gate_exit_form.dart';
 import 'package:shakti_hormann/core/core.dart';
+import 'package:shakti_hormann/features/gate_exit/model/sales_invoice.dart';
 import 'package:shakti_hormann/features/gate_exit/model/sales_invoice_form.dart';
 
 @LazySingleton(as: GateExitRepo)
@@ -60,6 +61,40 @@ class GateExitRepoimpl extends BaseApiRepository implements GateExitRepo {
   }
 
   @override
+  AsyncValueOf<List<SalesInvoice>> fetchSales(String name) async {
+    return await executeSafely(() async {
+      final config = RequestConfig(
+        url: Urls.getList,
+
+        parser: (json) {
+          final data = json['message'];
+          final listdata = data as List<dynamic>;
+          return listdata.map((e) => SalesInvoice.fromJson(e)).toList();
+        },
+        reqParams: {
+          'filters': [
+            ['parent', '=', name],
+          ],
+          'limit_start': 0,
+          'limit_page_length': 'None',
+          'order_by': 'creation desc',
+          'doctype': 'Gate Exit Lines',
+          'parent': 'Gate Exit',
+          'fields': ['*'],
+        },
+
+        headers: {HttpHeaders.contentTypeHeader: 'application/json'},
+      );
+
+      final response = await get(config);
+      $logger.devLog('response.....$response');
+      return response.processAsync((r) async {
+        return right((r.data!));
+      });
+    });
+  }
+
+  @override
   AsyncValueOf<Pair<String, String>> submitGateExit(GateExitForm form) async {
     return await executeSafely(() async {
       Uint8List? vehiclefrontcompressedBytes;
@@ -91,7 +126,7 @@ class GateExitRepoimpl extends BaseApiRepository implements GateExitRepo {
          'gate_exit_id': form.name,
          'plant_name': form.plantName,
         
-        'sales_invoice': form.salesInvoice,
+        'sales_invoices': form.salesInvoices,
         'vehicle_no': form.vehicleNo,
         'vehicle_back_photo':
             vehiclebackcompressedBytes == null
@@ -165,7 +200,7 @@ class GateExitRepoimpl extends BaseApiRepository implements GateExitRepo {
     cleanedJson['status'] = 'Draft';
      final Map<String, dynamic> requestBody = {
          'plant_name': form.plantName,
-        'sales_invoice': form.salesInvoice,
+        'sales_invoices': form.salesInvoices,
         'vehicle_no': form.vehicleNo,
         'vehicle_back_photo':
             vehiclebackcompressedBytes == null
