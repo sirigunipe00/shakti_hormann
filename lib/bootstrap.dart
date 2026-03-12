@@ -14,8 +14,10 @@ import 'package:shakti_hormann/core/logger/app_logger.dart';
 import 'package:shakti_hormann/firebase_options.dart';
 
 
+
 Future<void> bootstrap(void Function() runApp) async {
   WidgetsFlutterBinding.ensureInitialized();
+ 
   await SystemChrome.setPreferredOrientations(
       [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
   await _initInjector();
@@ -43,6 +45,7 @@ Future<void> _initFirebase() async {
   OneSignal.initialize(onesignalid);
 
   OneSignal.Notifications.requestPermission(false);
+
 }
 
 
@@ -63,6 +66,7 @@ void _setupErrorHandling(void Function() runApp) {
 
   runZonedGuarded<Future<void>>(
     () async {
+      
       FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
       runApp();
     },

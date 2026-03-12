@@ -50,7 +50,7 @@ enum AppRoute {
   proofOfDelivery(_AppRoutePaths.proofOfDelivery),
   notifications(_AppRoutePaths.notifications);
 
-  
+
 
   const AppRoute(this.path);
   final String path;

@@ -11,7 +11,7 @@ class AppMaterialTheme {
 
   static ThemeData _buildTheme(ColorScheme scheme) => ThemeData(
         fontFamily: 'Urbanist',
-        textTheme: GoogleFonts.quicksandTextTheme(),
+        textTheme: GoogleFonts.urbanistTextTheme(),
         colorScheme: scheme,
         cardTheme: CardThemeData(
           shape: RoundedRectangleBorder(
