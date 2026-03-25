@@ -155,8 +155,8 @@ class CreateGateManagementCubit extends AppBaseCubit<CreateGateManagementState> 
  void addInvoicePhoto(File file) {
   final form = state.form;
 
-  final List<File> updatedFiles = List<File>.from(form.documentPhotoImg ?? []);
-  updatedFiles.add(file);
+  final List<File> updatedFiles = List<File>.from(form.documentPhotoImg ?? [])
+  ..add(file);
 
   emitSafeState(
     state.copyWith(

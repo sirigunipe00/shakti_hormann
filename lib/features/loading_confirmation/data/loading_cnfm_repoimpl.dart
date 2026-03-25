@@ -5,6 +5,7 @@ import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:http/http.dart' as http;
 import 'package:injectable/injectable.dart';
 import 'package:shakti_hormann/core/core.dart';
+import 'package:shakti_hormann/features/auth/model/logged_in_user.dart';
 import 'package:shakti_hormann/features/loading_confirmation/data/loading_cnfm_repo.dart';
 import 'package:shakti_hormann/features/loading_confirmation/model/item_model.dart';
 import 'package:shakti_hormann/features/loading_confirmation/model/loading_cnfm.dart';
@@ -33,8 +34,12 @@ class LoadingCnfmRepoimpl extends BaseApiRepository implements LoadingCnfmRepo {
     if (serach != null && serach.isNotEmpty) {
       filters.add(['name', 'like', '%$serach%']);
     }
-    final plantName = user().plantName;
-    if (plantName != null && plantName.isNotEmpty) {
+   
+     final users = $sl.get<LoggedInUser>();
+final hasRole = users.roles!.any((r) => r.role == 'Admin Role-SH');
+$logger.devLog('hasRole...$hasRole');
+final plantName = user().plantName;
+    if (!hasRole && plantName != null && plantName.isNotEmpty) {
       filters.add(['plant_name', '=', plantName]);
     }
     final requestConfig = RequestConfig(

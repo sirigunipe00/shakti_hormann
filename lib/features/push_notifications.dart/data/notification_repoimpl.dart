@@ -74,8 +74,8 @@ class NoticationRepoImpl extends BaseApiRepository implements NotificationRepo {
       );
 
       final response = await get(config);
-      $logger.devLog('request params....$config');
-      $logger.devLog('response.....$response');
+      $logger..devLog('request params....$config')
+      ..devLog('response.....$response');
       return response.processAsync((r) async {
         return right((r.data!));
       });

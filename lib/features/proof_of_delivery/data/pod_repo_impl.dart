@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:injectable/injectable.dart';
 import 'package:path/path.dart' as p;
 import 'package:shakti_hormann/core/core.dart';
+import 'package:shakti_hormann/features/auth/model/logged_in_user.dart';
 import 'package:shakti_hormann/features/gate_exit/model/sales_invoice_form.dart';
 import 'package:shakti_hormann/features/proof_of_delivery/data/pod_repo.dart';
 import 'package:shakti_hormann/features/proof_of_delivery/model/proof_of_delivery.dart';
@@ -29,8 +30,12 @@ class PodRepoImpl extends BaseApiRepository implements ProofOfDeliveryRepo {
     if (search != null && search.isNotEmpty) {
       filters.add(['name', 'like', '%$search%']);
     }
-         final plantName = user().plantName;
-  if (plantName != null && plantName.isNotEmpty) {
+         
+     final users = $sl.get<LoggedInUser>();
+final hasRole = users.roles!.any((r) => r.role == 'Admin Role-SH');
+$logger.devLog('hasRole...$hasRole');
+final plantName = user().plantName;
+  if (!hasRole && plantName != null && plantName.isNotEmpty) {
     filters.add(['plant_name', '=', plantName]); 
    
   }

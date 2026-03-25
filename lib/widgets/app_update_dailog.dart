@@ -40,7 +40,7 @@ class AppUpdateDialog extends StatelessWidget {
         ),
         actions: [
           AppButton(
-            width: 500,
+            width: MediaQuery.of(context).size.width * 0.8  ,
             label: 'Open PlayStore',
             onPressed: () => launchPlayStore(packageName),
           ),

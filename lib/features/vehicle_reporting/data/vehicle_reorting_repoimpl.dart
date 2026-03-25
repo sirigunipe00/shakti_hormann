@@ -8,6 +8,7 @@ import 'package:injectable/injectable.dart';
 import 'package:intl/intl.dart';
 import 'package:path/path.dart' as p;
 import 'package:shakti_hormann/core/core.dart';
+import 'package:shakti_hormann/features/auth/model/logged_in_user.dart';
 import 'package:shakti_hormann/features/transport_confirmation/model/transport_confirmation_form.dart';
 import 'package:shakti_hormann/features/vehicle_reporting/data/vehicle_reporting_repo.dart';
 import 'package:shakti_hormann/features/vehicle_reporting/model/vehicle_reporting_form.dart';
@@ -35,8 +36,12 @@ class VehicleReportingRepoimpl extends BaseApiRepository
     if (serach != null && serach.isNotEmpty) {
       filters.add(['name', 'like', '%$serach%']);
     }
-    final plantName = user().plantName;
-    if (plantName != null && plantName.isNotEmpty) {
+    
+     final users = $sl.get<LoggedInUser>();
+final hasRole = users.roles!.any((r) => r.role == 'Admin Role-SH');
+$logger.devLog('hasRole...$hasRole');
+final plantName = user().plantName;
+    if (!hasRole && plantName != null && plantName.isNotEmpty) {
       filters.add(['plant_name', '=', plantName]);
     }
 

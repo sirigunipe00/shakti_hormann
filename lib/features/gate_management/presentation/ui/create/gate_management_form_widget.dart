@@ -107,20 +107,7 @@ class _GateManagementFormWidgetState extends State<GateManagementFormWidget> {
             return prevStatus != currStatus;
           },
           listener: (_, state) async {
-            // final indx = state.error?.status;
-            // if (indx != null) {
-            //   final focus = focusNodes.elementAt(indx);
-            //   FocusScope.of(context).requestFocus(focus);
-
-            //   final targetContext = focus.context;
-            //   if (targetContext != null) {
-            //     await Scrollable.ensureVisible(
-            //       targetContext,
-            //       duration: const Duration(milliseconds: 300),
-            //       curve: Curves.easeInOut,
-            //     );
-            //   }
-            // }
+            
           },
         ),
       ],

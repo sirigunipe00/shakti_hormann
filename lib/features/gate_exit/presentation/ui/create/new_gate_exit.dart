@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shakti_hormann/core/core.dart';
@@ -211,11 +210,11 @@ class _NewGateExitState extends State<NewGateExit> {
                           jsonData['PlantName']?.toString();
 
                       if (invoiceNumber != null && invoiceNumber.isNotEmpty) {
-                        final List<SalesInvoice> scannedInvoices = [
-                          SalesInvoice(
-                            name: invoiceNumber.trim().toUpperCase(),
-                          ),
-                        ];
+                        // final List<SalesInvoice> scannedInvoices = [
+                        //   SalesInvoice(
+                        //     name: invoiceNumber.trim().toUpperCase(),
+                        //   ),
+                        // ];
 
                         final allPOs = context
                             .read<SalesInvoiceList>()
@@ -337,6 +336,23 @@ class _NewGateExitState extends State<NewGateExit> {
                         context.read<CreateGateExitCubit>().addSalesInvoices(
                           salesInvoices: data,
                         );
+                        final allInvoiceForms = context
+                            .read<SalesInvoiceList>()
+                            .state
+                            .maybeWhen(
+                              orElse: () => <SalesInvoiceForm>[],
+                              success: (d) => d,
+                            );
+
+                        setState(() {
+                          selectedSalesInvoices =
+                              allInvoiceForms
+                                  .where(
+                                    (item) =>
+                                        data.any((si) => si.name == item.name),
+                                  )
+                                  .toList();
+                        });
                       },
                     );
                   },
@@ -386,15 +402,31 @@ class _NewGateExitState extends State<NewGateExit> {
                           color: AppColors.white,
                           items: names,
                           readOnly: status == 1,
+                          defaultSelection: [
+                            ...names.where(
+                              (item) => selectedOrders.any(
+                                (so) => so.name == item.name,
+                              ),
+                            ),
 
-                          defaultSelection:
-                              names
-                                  .where(
-                                    (item) => selectedOrders.any(
-                                      (so) => so.name == item.name,
-                                    ),
-                                  )
-                                  .toList(),
+                            ...selectedOrders
+                                .where(
+                                  (so) =>
+                                      !names.any(
+                                        (item) => item.name == so.name,
+                                      ),
+                                )
+                                .map((so) => SalesInvoiceForm(name: so.name)),
+                          ],
+
+                          // defaultSelection:
+                          //     names
+                          //         .where(
+                          //           (item) => selectedOrders.any(
+                          //             (so) => so.name == item.name,
+                          //           ),
+                          //         )
+                          //         .toList(),
                           isloading: state.isLoading,
                           futureRequest: (query) async {
                             if (query.isEmpty) return names;

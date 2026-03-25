@@ -4,6 +4,7 @@ import 'package:dartz/dartz.dart';
 import 'package:injectable/injectable.dart';
 import 'package:intl/intl.dart';
 import 'package:shakti_hormann/core/core.dart';
+import 'package:shakti_hormann/features/auth/model/logged_in_user.dart';
 import 'package:shakti_hormann/features/logistic_request/data/logistic_planning_repo.dart';
 import 'package:shakti_hormann/features/logistic_request/model/logistic_planning_form.dart';
 import 'package:shakti_hormann/features/logistic_request/model/sales_order.dart';
@@ -29,14 +30,22 @@ class LogisticPlanningRepoimpl extends BaseApiRepository
         ..add(['status', '=', status])
         ..add(['docstatus', '!=', 2]);
     }
+ final users = $sl.get<LoggedInUser>();
+final hasRole = users.roles!.any((r) => r.role == 'Admin Role-SH');
+$logger.devLog('hasRole...$hasRole');
+final plantName = user().plantName;
 
     if (serach != null && serach.isNotEmpty) {
       filters.add(['name', 'like', '%$serach%']);
     }
-    final plantName = user().plantName;
-    if (plantName != null && plantName.isNotEmpty) {
-      filters.add(['plant_name', '=', plantName]);
-    }
+    // final plantName = user().plantName;
+    // if (plantName != null && plantName.isNotEmpty) {
+    //   filters.add(['plant_name', '=', plantName]);
+    // }
+    if (!hasRole && plantName != null && plantName.isNotEmpty) {
+  filters.add(['plant_name', '=', plantName]);
+}
+$logger.devLog('hasRole...$hasRole...filters...$filters');
     final requestConfig = RequestConfig(
       url: Urls.getList,
       parser: (json) {
@@ -54,7 +63,7 @@ class LogisticPlanningRepoimpl extends BaseApiRepository
       },
       headers: {HttpHeaders.contentTypeHeader: 'application/json'},
     );
-    $logger.devLog('requestConfig....$requestConfig');
+    $logger.devLog('requestConfig....sdfergrgrhrtghth$requestConfig');
     final response = await get(requestConfig);
     return response.process((r) => right(r.data!));
   }

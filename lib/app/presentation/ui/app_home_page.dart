@@ -303,12 +303,7 @@ class _AppHomePageState extends State<AppHomePage> {
                 ),
               ),
 
-              // const TaskWidget(
-              //   title: "Your Today's Task",
-              //   subtitle: 'Almost done!',
-              //   icon: Icons.check_circle,
-              //   onCancel: null,
-              // ),
+
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),

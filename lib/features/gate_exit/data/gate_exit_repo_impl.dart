@@ -6,6 +6,7 @@ import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:http/http.dart' as http;
 import 'package:injectable/injectable.dart';
 import 'package:path/path.dart' as p;
+import 'package:shakti_hormann/features/auth/model/logged_in_user.dart';
 import 'package:shakti_hormann/features/gate_exit/data/gate_exit_repo.dart';
 import 'package:shakti_hormann/features/gate_exit/model/gate_exit_form.dart';
 import 'package:shakti_hormann/core/core.dart';
@@ -31,8 +32,12 @@ class GateExitRepoimpl extends BaseApiRepository implements GateExitRepo {
       filters.add(['name', 'like', '%$search%']);
     }
 
-    final plantName = user().plantName;
-    if (plantName != null && plantName.isNotEmpty) {
+ 
+     final users = $sl.get<LoggedInUser>();
+final hasRole = users.roles!.any((r) => r.role == 'Admin Role-SH');
+$logger.devLog('hasRole...$hasRole');
+final plantName = user().plantName;
+    if (!hasRole && plantName != null && plantName.isNotEmpty) {
       filters.add(['plant_name', '=', plantName]);
     }
 

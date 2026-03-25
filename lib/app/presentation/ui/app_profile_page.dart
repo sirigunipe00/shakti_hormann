@@ -14,10 +14,7 @@ class AppProfilePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // final size = MediaQuery.of(context).size;
-    // final height = size.height;
-    // final width = size.width;
-    return Scaffold(
+      return Scaffold(
       body: LayoutBuilder(
         builder: (context, constraints) {
           final height = constraints.maxHeight;
@@ -103,7 +100,7 @@ class AppProfilePage extends StatelessWidget {
                                 padding: EdgeInsets.all(width * 0.02),
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(60),
-                                  // shape: BoxShape.circle,
+
                                   border: Border.all(
                                     color: AppColors.darkBlue,
                                     width: 2,
@@ -131,11 +128,12 @@ class AppProfilePage extends StatelessWidget {
                             
                 
                             
-                            // 🟡 Right-Side Yellow Arc
+
                              
                             SizedBox(height: height * 0.015),
                             Text(
                               context.user.firstName ?? '',
+
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: width * 0.045,
@@ -226,28 +224,6 @@ class AppProfilePage extends StatelessWidget {
                         ),
                       ),
                     ),
-                
-                    // SizedBox(height: height * 0.08),
-                
-                    // Column(
-                    //   children: [
-                    //     SvgPicture.asset(
-                    //       'assets/logo/EasyCloud Logo 150 x 80.svg',
-                    //       height: height * 0.05,
-                    //       fit: BoxFit.contain,
-                    //     ),
-                    //     SizedBox(height: height * 0.005),
-                    //     const Text(
-                    //       'Powered by EasyCloud',
-                    //       style: TextStyle(
-                    //         fontSize: 14,
-                    //         color: Colors.grey,
-                    //         fontFamily: 'Urbanist',
-                    //         fontWeight: FontWeight.w700,
-                    //       ),
-                    //     ),
-                    //   ],
-                    // ),
                   ],
                 ),
               ),
@@ -299,19 +275,19 @@ class _RightArcPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round;
 
-    // Make the arc rectangle slightly *larger*
-    final double extra = 6; // increase this value to make arc larger
+
+    final double extra = 6; 
     final rect = Rect.fromLTWH(
-      -extra, // shift left
-      -extra, // shift up
-      size.width + extra * 2, // expand width
-      size.height + extra * 2, // expand height
+      -extra, 
+      -extra, 
+      size.width + extra * 2, 
+      size.height + extra * 2, 
     );
 
     canvas.drawArc(
       rect.deflate(2),
-      math.pi * 1.5, // start from top
-      math.pi / 0.9, // sweep angle
+      math.pi * 1.5, 
+      math.pi / 0.9, 
       false,
       paint,
     );

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/styles/app_text_styles.dart';
@@ -244,22 +243,3 @@ class TitleStatusAppBar extends StatelessWidget implements PreferredSizeWidget {
   Size get preferredSize => const Size.fromHeight(250);
 }
 
-
-
-
-
-class SubmitCubit extends Cubit<bool> {
-  SubmitCubit() : super(false); // false = not loading
-
-  Future<void> submitRequest() async {
-    emit(true); // show loading
-    await Future.delayed(const Duration(seconds: 2)); // simulate API
-    emit(false); // hide loading
-  }
-
-  Future<void> rejectRequest() async {
-    emit(true);
-    await Future.delayed(const Duration(seconds: 2));
-    emit(false);
-  }
-}

@@ -5,7 +5,6 @@ import 'package:geolocator/geolocator.dart';
 import 'package:shakti_hormann/core/core.dart';
 import 'dart:math';
 
-import 'package:shakti_hormann/core/cubit/base/base_cubit.dart';
 
 enum GeoLocationState { initial, loading, success, failure }
 

@@ -29,12 +29,12 @@ class TransportCnfrmRepoimpl extends BaseApiRepository
     if (serach != null && serach.isNotEmpty) {
       filters.add(['name', 'like', '%$serach%']);
     }
-         final plantName = user().plantName;
+        //  final plantName = user().plantName;
          final transporter = user().transporter;
-  if (plantName != null && plantName.isNotEmpty) {
-    filters.add(['plant_name', '=', plantName]); 
+  // if (plantName != null && plantName.isNotEmpty) {
+  //   filters.add(['plant_name', '=', plantName]); 
    
-  }
+  // }
   if (transporter != null && transporter.isNotEmpty) {
     filters.add(['transporter_name', '=', transporter]); 
    

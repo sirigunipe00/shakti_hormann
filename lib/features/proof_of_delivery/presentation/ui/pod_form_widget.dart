@@ -1,5 +1,4 @@
 import 'dart:developer';
-
 import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shakti_hormann/app/presentation/bloc/geo_permission/geo_permission_handler.dart';
@@ -69,6 +68,7 @@ class _PodFormWidgetState extends State<PodFormWidget>
         geoLongitude: longitude.toString(),
       );
     } catch (e) {
+      $logger.error('[PodFormWidget] - Error fetching location', e);
 
     }
   }
@@ -159,7 +159,11 @@ class _PodFormWidgetState extends State<PodFormWidget>
                 if (value.isTrue) {
                   _shouldRequestPermission = true;
                   await Geolocator.openAppSettings();
-                  context.pop();
+                  if(context.mounted){
+                     context.pop();
+
+                  }
+                 
 
                   // context.cubit<GeoPermissionHandler>().checkPermission();
                 }

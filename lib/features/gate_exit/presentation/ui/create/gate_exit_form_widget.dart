@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:shakti_hormann/core/core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shakti_hormann/features/gate_exit/model/sales_invoice_form.dart';
 import 'package:shakti_hormann/features/gate_exit/presentation/bloc/create_gate_cubit/gate_exit_cubit.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/widgets/input_filed.dart';
@@ -23,6 +24,7 @@ class _GateExitFormWidgetState extends State<GateExitFormWidget> {
   final ScrollController _scrollController = ScrollController();
   final TextEditingController remarks = TextEditingController();
   final TextEditingController vehicleNo = TextEditingController();
+  SalesInvoiceForm? selectedInvoice;
   // late TextEditingController vehicleNoController;
 
   // @override

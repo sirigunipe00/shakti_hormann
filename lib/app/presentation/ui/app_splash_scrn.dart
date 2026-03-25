@@ -64,14 +64,7 @@ class _AppSplashScrnState extends State<AppSplashScrn> {
           
               const SizedBox(height: 12),
           
-              // const Row(
-              //   mainAxisAlignment: MainAxisAlignment.center,
-              //   children: [
-              //     Dot(active: true),
-              //     Dot(active: false),
-              //     Dot(active: false),
-              //   ],
-              // ),
+
           
               const SizedBox(height: 24),
           
@@ -117,30 +110,7 @@ class _AppSplashScrnState extends State<AppSplashScrn> {
                 ),
               ),
           
-              // const SizedBox(height: 80),
 
-              //     Center(
-              //       child: Column(
-              //         children: [
-              //           SvgPicture.asset(
-              //             'assets/logo/EasyCloud Logo 150 x 80.svg',
-              //             width: 78,
-              //             height: 40,
-              //             fit: BoxFit.fitWidth,
-              //           ),
-              //           const SizedBox(height: 8),
-              //           const Text(
-              //             'Powered by EasyCloud',
-              //             style: TextStyle(
-              //               fontSize: 14,
-              //               color: Colors.black54,
-              //               fontWeight: FontWeight.w700,
-              //               fontFamily: 'Urbanist',
-              //             ),
-              //           ),
-              //         ],
-              //       ),
-              //     ),
             ],
           ),
         ),

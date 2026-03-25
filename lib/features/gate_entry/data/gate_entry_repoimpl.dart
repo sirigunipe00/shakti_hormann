@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:injectable/injectable.dart';
 import 'package:path/path.dart' as p;
 import 'package:shakti_hormann/core/core.dart';
+import 'package:shakti_hormann/features/auth/model/logged_in_user.dart';
 import 'package:shakti_hormann/features/gate_entry/data/gate_entry.repo.dart';
 import 'package:shakti_hormann/features/gate_entry/model/attachement.dart';
 import 'package:shakti_hormann/features/gate_entry/model/gate_entry_form.dart';
@@ -32,9 +33,13 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
     if (search != null && search.isNotEmpty) {
       filters.add(['name', 'like', '%$search%']);
     }
-    final plantName = user().plantName;
 
-    if (plantName != null && plantName.isNotEmpty) {
+     final users = $sl.get<LoggedInUser>();
+final hasRole = users.roles!.any((r) => r.role == 'Admin Role-SH');
+$logger.devLog('hasRole...$hasRole');
+final plantName = user().plantName;
+
+    if (!hasRole && plantName != null && plantName.isNotEmpty) {
       filters.add(['plant_name', '=', plantName]);
     }
     final requestConfig = RequestConfig(
