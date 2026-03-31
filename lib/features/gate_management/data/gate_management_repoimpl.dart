@@ -35,7 +35,7 @@ class GateManagementRepoimpl extends BaseApiRepository
     
      final users = $sl.get<LoggedInUser>();
 final hasRole = users.roles!.any((r) => r.role == 'Admin Role-SH');
-$logger.devLog('hasRole...$hasRole');
+
 final plantName = user().plantName;
 
     if (!hasRole && plantName != null && plantName.isNotEmpty) {
@@ -166,11 +166,7 @@ List<String> documentInvoiceBase64List = [];
         : today,
       'gate_entry_time': (form.gateEntryTime != null && form.gateEntryTime!.trim().isNotEmpty) 
       ? form.gateEntryTime : time,
-      // 'gate_exit_date': form.gateExitdate,
-    // (form.gateExitdate != null && form.gateExitdate!.trim().isNotEmpty) 
-    //     ? form.gateExitdate 
-    //     : today,
-      // 'gate_exit_time': form.gateExitTime,
+
       'vehicle_no': form.vehicleNo,
       'vehicle_type': form.vehicleType,
       'vendor_invoice_no': form.vendorInvoiceNo,
@@ -183,9 +179,7 @@ List<String> documentInvoiceBase64List = [];
               ? null
               : base64Encode(vehiclefrontcompressedBytes),
       'document_photos': documentInvoiceBase64List,
-          // documentcompressedBytes == null
-          //     ? null
-          //     : base64Encode(documentcompressedBytes),
+
       'vehicle_back_photo':
           vehiclebackcompressedBytes == null
               ? null
@@ -229,7 +223,7 @@ List<String> documentInvoiceBase64List = [];
     GateManagementForm form,
   ) async {
     final today = DateFormat('dd-MM-yyyy').format(DateTime.now());
-    // final time = DateTime.now();
+
     final formJson = form.toJson();
 
     formJson['status'] = 'Draft';
@@ -287,17 +281,7 @@ List<String> documentInvoiceBase64List = [];
       }
     }
 
-    // if (form.documentPhotoImg != null) {
-    //   final filePath = form.documentPhotoImg!.path;
-    //   documentcompressedBytes = await FlutterImageCompress.compressWithFile(
-    //     filePath,
-    //     quality: 50,
-    //   );
-    // } else if (form.documentPhoto != null) {
-    //   documentcompressedBytes = await fetchAndConvertToBase64(
-    //     form.documentPhoto ?? '',
-    //   );
-    // }
+
       String? formattedgateentryDate;
       String? gateExitFormatedate;
      
@@ -312,16 +296,7 @@ List<String> documentInvoiceBase64List = [];
         final date = inputFormat.parse(form.gateeEntrydate!);
         formattedgateentryDate = outputFormat.format(date);
       }
-        //  final gateexitddMMyyyyRegex = RegExp(r'^\d{2}-\d{2}-\d{4}$');
 
-      // if (gateexitddMMyyyyRegex.hasMatch(form.gateExitdate!)) {
-      //   gateExitFormatedate = form.gateExitdate!;
-      // } else {
-      //   final inputFormat = DateFormat('yyyy-MM-dd');
-      //   final outputFormat = DateFormat('dd-MM-yyyy');
-      //   final date = inputFormat.parse(form.gateExitdate!);
-      //   gateExitFormatedate = outputFormat.format(date);
-      // }
       if (form.gateExitdate != null && form.gateExitdate!.trim().isNotEmpty) {
   final ddMMyyyyRegex = RegExp(r'^\d{2}-\d{2}-\d{4}$');
 
@@ -360,9 +335,7 @@ List<String> documentInvoiceBase64List = [];
               ? null
               : base64Encode(vehiclefrontcompressedBytes),
       'document_photos': vendorInvoiceBase64List,
-          // documentcompressedBytes == null
-          //     ? null
-          //     : base64Encode(documentcompressedBytes),
+
       'vehicle_back_photo':
           vehiclebackcompressedBytes == null
               ? null
@@ -400,117 +373,7 @@ List<String> documentInvoiceBase64List = [];
       return right(Pair(r.data!.first, r.data!.second));
     });
   }
-  //   @override
-  // AsyncValueOf<Pair<String, String>> submitGateManagement(
-  //   GateManagementForm form,
-  // ) async {
-  //   final formJson = form.toJson();
 
-  //   formJson['status'] = 'Draft';
-
-  //   Uint8List? vehiclefrontcompressedBytes;
-  //   Uint8List? vehiclebackcompressedBytes;
-  //   Uint8List? documentcompressedBytes;
-
-  //   $logger.info('form.....:$form');
-
-  //   if (form.vehiclePhotoImg != null) {
-  //     final filePath = form.vehiclePhotoImg!.path;
-  //     vehiclefrontcompressedBytes = await FlutterImageCompress.compressWithFile(
-  //       filePath,
-  //       quality: 50,
-  //     );
-  //   } else if (form.vehiclePhoto != null) {
-  //     vehiclefrontcompressedBytes = await fetchAndConvertToBase64(
-  //       form.vehiclePhoto ?? '',
-  //     );
-  //   }
-
-  //   if (form.backPhotoImg != null) {
-  //     final filePath = form.backPhotoImg!.path;
-  //     vehiclebackcompressedBytes = await FlutterImageCompress.compressWithFile(
-  //       filePath,
-  //       quality: 50,
-  //     );
-  //   } else if (form.backPhoto != null) {
-  //     vehiclebackcompressedBytes = await fetchAndConvertToBase64(
-  //       form.backPhoto ?? '',
-  //     );
-  //   }
-
-  //   if (form.documentPhotoImg != null) {
-  //     final filePath = form.documentPhotoImg!.path;
-  //     documentcompressedBytes = await FlutterImageCompress.compressWithFile(
-  //       filePath,
-  //       quality: 50,
-  //     );
-  //   } else if (form.documentPhoto != null) {
-  //     documentcompressedBytes = await fetchAndConvertToBase64(
-  //       form.documentPhoto ?? '',
-  //     );
-  //   }
-
-  //   final Map<String, dynamic> requestBody = {
-  //     'plant_name': user().plantName,
-  //     'gate_mgmt_id': form.name,
-  //     'request_type': form.requestType,
-  //     'purpose_remarks': form.remarks,
-  //     'gate_entry_date': form.gateeEntrydate,
-  //     'gate_entry_time': form.gateEntryTime,
-  //     'gate_exit_date': form.gateExitdate,
-  //     'gate_exit_time': form.gateExitTime,
-  //     'vehicle_no': form.vehicleNo,
-  //     'vehicle_type': form.vehicleType,
-  //     'vendor_invoice_no': form.vendorInvoiceNo,
-  //     'driver_name': form.driverName,
-  //     'driver_mobile': form.driverMobileNo,
-  //     'company_vendor_name': form.vendorName,
-
-  //     'vehicle_photo':
-  //         vehiclefrontcompressedBytes == null
-  //             ? null
-  //             : base64Encode(vehiclefrontcompressedBytes),
-  //     'document_photos':
-  //         documentcompressedBytes == null
-  //             ? null
-  //             : base64Encode(documentcompressedBytes),
-  //     'vehicle_back_photo':
-  //         vehiclebackcompressedBytes == null
-  //             ? null
-  //             : base64Encode(vehiclebackcompressedBytes),
-  //     'security_remarks': form.securityRemarks,
-  //   };
-
-  //   if (form.plantName != null &&
-  //       form.plantName!.trim().isNotEmpty &&
-  //       form.plantName != '') {
-  //     print('form.plantName....:${form.plantName}');
-  //     requestBody['plant_name'] = form.plantName;
-  //   }
-
-  //   // if (form.plantName != null && form.plantName!.trim().isNotEmpty) {
-  //   //   requestBody['plant_name'] = form.plantName;
-  //   // }
-
-  //   final config = RequestConfig(
-  //     url: Urls.submitGateManagement,
-  //     parser: (json) {
-  //       final data = json['message']['message'] as String;
-  //       return Pair(data, '');
-  //     },
-
-  //     body: jsonEncode(requestBody),
-  //     headers: {HttpHeaders.contentTypeHeader: 'application/json'},
-  //   );
-
-  //   $logger.devLog('requestConfig.....$config');
-
-  //   final response = await post(config);
-  //   $logger.devLog('response..........$response');
-  //   return response.processAsync((r) async {
-  //     return right(Pair(r.data!.first, r.data!.second));
-  //   });
-  // }
 
   Future<Uint8List?> fetchAndConvertToBase64(String relativePath) async {
     if (p.extension(relativePath).isEmpty) {

@@ -96,7 +96,7 @@ class _GateManagementFormWidgetState extends State<GateManagementFormWidget> {
     final isCompleted = formState.view == GateManagementView.completed;
     final isCreating = formState.view == GateManagementView.create;
     final newform = formState.form;
-    $logger.devLog('form.........$newform');
+
 
     return MultiBlocListener(
       listeners: [

@@ -106,13 +106,7 @@ class GateEntryWidget extends StatelessWidget {
                             ],
                           ),
 
-                          // Text(
-                          //   '(SHM)',
-                          //   style: AppTextStyles.titleLarge(context).copyWith(
-                          //     color: const Color(0xFF2957A4),
-                          //     fontWeight: FontWeight.bold,
-                          //   ),
-                          // ),
+
                         ],
                       ),
 
@@ -140,21 +134,7 @@ class GateEntryWidget extends StatelessWidget {
                             ],
                           ),
 
-                          //         Row(
-                          //           children: [
-                          //          Image.asset(
-                          //           'assets/images/timeicon.png'
-                          //  ,
-                          //          ),
-                          //             Text(
-                          //               DFU.timeFromStr(gateEntry.creationDate ?? ''),
-                          //               style: AppTextStyles.titleMedium(
-                          //                 context,
-                          //                 AppColors.darkBlue,
-                          //               ).copyWith(color: AppColors.litecyan),
-                          //             ),
-                          //           ],
-                          //         ),
+
                         ],
                       ),
                     ],

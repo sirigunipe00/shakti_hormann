@@ -35,7 +35,7 @@ class GateExitRepoimpl extends BaseApiRepository implements GateExitRepo {
  
      final users = $sl.get<LoggedInUser>();
 final hasRole = users.roles!.any((r) => r.role == 'Admin Role-SH');
-$logger.devLog('hasRole...$hasRole');
+
 final plantName = user().plantName;
     if (!hasRole && plantName != null && plantName.isNotEmpty) {
       filters.add(['plant_name', '=', plantName]);

@@ -86,13 +86,7 @@ class VehicleRequestWidget extends StatelessWidget {
                             ],
                           ),
 
-                          // Text(
-                          //   '(SHM)',
-                          //   style: AppTextStyles.titleLarge(context).copyWith(
-                          //     color: const Color(0xFF2957A4),
-                          //     fontWeight: FontWeight.bold,
-                          //   ),
-                          // ),
+
                         ],
                       ),
 
@@ -122,21 +116,7 @@ class VehicleRequestWidget extends StatelessWidget {
                               ),
                             ],
                           ),
-                          //         Row(
-                          //           children: [
-                          //            Image.asset(
-                          //           'assets/images/timeicon.png'
-                          //  ,
-                          //          ),
-                          //             Text(
-                          //               DFU.timeFromStr(vehicleReporting.vehicleReportingEntryVreDate ?? ''),
-                          //               style: AppTextStyles.titleMedium(
-                          //                 context,
-                          //                 AppColors.darkBlue,
-                          //               ).copyWith(color: AppColors.litecyan),
-                          //             ),
-                          //           ],
-                          //         ),
+
                         ],
                       ),
                     ],
@@ -174,16 +154,14 @@ class VehicleRequestWidget extends StatelessWidget {
                               vehicleReporting.status == '')
                       ? 'Draft'
                       : vehicleReporting.status ?? '',
-                  // vehicleReporting.docstatus.toString() ?? '',
+
                   style: AppTextStyles.titleLarge(context).copyWith(
                     color: _getStatusColor( vehicleReporting.docstatus == 1 ? 'Submitted' : vehicleReporting.status),
                     fontWeight: FontWeight.bold,
                     fontSize: 12,
                   ),
                 ),
-                // DocStatusWidget(
-                //     status: StringUtils.docStatus(vehicleReporting.docstatus ?? 0),
-                //   ),
+
               ],
             ),
           ],

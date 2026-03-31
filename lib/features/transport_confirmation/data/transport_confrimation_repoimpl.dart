@@ -29,12 +29,9 @@ class TransportCnfrmRepoimpl extends BaseApiRepository
     if (serach != null && serach.isNotEmpty) {
       filters.add(['name', 'like', '%$serach%']);
     }
-        //  final plantName = user().plantName;
+
          final transporter = user().transporter;
-  // if (plantName != null && plantName.isNotEmpty) {
-  //   filters.add(['plant_name', '=', plantName]); 
-   
-  // }
+
   if (transporter != null && transporter.isNotEmpty) {
     filters.add(['transporter_name', '=', transporter]); 
    
@@ -114,31 +111,7 @@ class TransportCnfrmRepoimpl extends BaseApiRepository
     TransportConfirmationForm form,
   ) async {
     return await executeSafely(() async {
-      // String? estimatedArrival;
-      // if (form.estimatedArrival != null && form.!.isNotEmpty) {
-      //   try {
-      //     final parsedDate = DateFormat(
-      //       'dd-MM-yyyy',
-      //     ).parse(form.estimatedArrival!);
 
-      //     final now = DateTime.now();
-
-      //     final combinedDateTime = DateTime(
-      //       parsedDate.year,
-      //       parsedDate.month,
-      //       parsedDate.day,
-      //       now.hour,
-      //       now.minute,
-      //       now.second,
-      //     );
-
-      //     estimatedArrival = DateFormat(
-      //       'dd-MM-yyyy HH:mm:ss',
-      //     ).format(combinedDateTime);
-      //   } catch (e) {
-      //     $logger.devLog('Date parsing error: $e');
-      //   }
-      // }
        final formattedTime =
           form.estimatedArrivalTime != null
               ? DateFormat('HH:mm:ss').format(

@@ -169,25 +169,7 @@ class CreateVehicleCubit extends AppBaseCubit<CreateVehicleState> {
           },
         );
       }
-      // else {
-      //   final response = await repo.submitGateEntry(state.form);
 
-      //   return response.fold(
-      //     (l) => emitSafeState(state.copyWith(isLoading: false, error: l)),
-      //     (r) {
-      //       shouldAskForConfirmation.value = false;
-      //       emitSafeState(
-      //         state.copyWith(
-      //           isLoading: false,
-      //           isSuccess: true,
-      //           form: state.form.copyWith(docStatus: 1),
-      //           successMsg: r.first,
-      //           view: VehicleView.completed,
-      //         ),
-      //       );
-      //     },
-      //   );
-      // }
     }, _emitError);
   }
 
@@ -220,7 +202,7 @@ class CreateVehicleCubit extends AppBaseCubit<CreateVehicleState> {
   void reject(String reason) async {
     emitSafeState(state.copyWith(isRejecting: true, isSuccess: false));
 
-    // Update form with reject reason
+
     final updatedForm = state.form.copyWith(rejectReason: reason);
 
     if (reason.isEmpty) {

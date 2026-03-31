@@ -24,32 +24,7 @@ class NewPod extends StatefulWidget {
 class _NewPodState extends State<NewPod> with WidgetsBindingObserver {
   SalesInvoiceForm? invoiceform;
 
-  // bool _isCheckingPermission = false;
 
-  // @override
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   WidgetsBinding.instance.addObserver(this);
-  // }
-
-  // @override
-  // void dispose() {
-  //   WidgetsBinding.instance.removeObserver(this);
-  //   super.dispose();
-  // }
-
-  // @override
-  // void didChangeAppLifecycleState(AppLifecycleState state) {
-  //   if (state == AppLifecycleState.resumed && !_isCheckingPermission) {
-  //     _isCheckingPermission = true;
-  //     context.cubit<GeoPermissionHandler>().checkPermission();
-
-  //     Future.delayed(const Duration(milliseconds: 500), () {
-  //       _isCheckingPermission = false;
-  //     });
-  //   }
-  // }
 
   @override
   Widget build(BuildContext context) {

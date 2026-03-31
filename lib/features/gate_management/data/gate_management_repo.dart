@@ -9,7 +9,6 @@ abstract interface class GateManagementRepo {
     String? search,
   );
   AsyncValueOf<Pair<String, String>> createGateManagement(GateManagementForm form);
-  // AsyncValueOf<Pair<String,String>> updateGateManagement(GateManagementForm form);
   AsyncValueOf<Pair<String,String>> submitGateManagement(GateManagementForm form);
   AsyncValueOf<List<AttachementInvoices>> fetchAttachments(String id);
   

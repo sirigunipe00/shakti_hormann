@@ -86,13 +86,7 @@ class PodWidget extends StatelessWidget {
                             ],
                           ),
 
-                          // Text(
-                          //   '(SHM)',
-                          //   style: AppTextStyles.titleLarge(context).copyWith(
-                          //     color: const Color(0xFF2957A4),
-                          //     fontWeight: FontWeight.bold,
-                          //   ),
-                          // ),
+
                         ],
                       ),
 
@@ -118,21 +112,7 @@ class PodWidget extends StatelessWidget {
                               ),
                             ],
                           ),
-                          //         Row(
-                          //           children: [
-                          //            Image.asset(
-                          //           'assets/images/timeicon.png'
-                          //  ,
-                          //          ),
-                          //             Text(
-                          //               DFU.timeFromStr(gateExit.creationDate ?? ''),
-                          //               style: AppTextStyles.titleMedium(
-                          //                 context,
-                          //                 AppColors.darkBlue,
-                          //               ).copyWith(color: AppColors.litecyan),
-                          //             ),
-                          //           ],
-                          //         ),
+
                         ],
                       ),
                     ],
@@ -154,7 +134,7 @@ class PodWidget extends StatelessWidget {
 
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              // crossAxisAlignment: CrossAxisAlignment.start,
+
               children: [
                 Text(
                   pod.salesInvoice ?? '',

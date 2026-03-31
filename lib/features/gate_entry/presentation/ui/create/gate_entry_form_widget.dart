@@ -104,7 +104,7 @@ class _GateEntryFormWidgetState extends State<GateEntryFormWidget> {
     final newform = formState.form;
 
 
-    $logger.devLog('gatenumber..........${newform.gateNumber}');
+
 
     return MultiBlocListener(
       listeners: [
@@ -115,20 +115,7 @@ class _GateEntryFormWidgetState extends State<GateEntryFormWidget> {
             return prevStatus != currStatus;
           },
           listener: (_, state) async {
-            // final indx = state.error?.status;
-            // if (indx != null) {
-            //   final focus = focusNodes.elementAt(indx);
-            //   FocusScope.of(context).requestFocus(focus);
 
-            //   final targetContext = focus.context;
-            //   if (targetContext != null) {
-            //     await Scrollable.ensureVisible(
-            //       targetContext,
-            //       duration: const Duration(milliseconds: 300),
-            //       curve: Curves.easeInOut,
-            //     );
-            //   }
-            // }
           },
         ),
       ],
@@ -618,132 +605,7 @@ class _GateEntryFormWidgetState extends State<GateEntryFormWidget> {
                   ),
                 ),
               ),
-              //              Padding(
-              //                 padding: const EdgeInsets.only(left: 16.0, right: 16.0),
-              //                 child: Card(
-              //                   color: Colors.white,
-              //                   shape: RoundedRectangleBorder(
-              //                     borderRadius: BorderRadius.circular(20),
-              //                     side: const BorderSide(color: Color(0xFFE8ECF4), width: 1),
-              //                   ),
-              //                 child: Column(
-              //                   children: [
-              //                     Row(
-              //                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              //                       children: [
-              //                         NewUploadPhotoWidget(
-              //                           fileName: 'vehiclefront',
-              //                           imageUrl: newform.vehiclePhoto,
-              //                           title: 'Vehicle Front',
-              //                           isRequired: true,
-              //                           isReadOnly: isCompleted,
-              //                           onFileCapture: (file) {
-              //                             context
-              //                                 .cubit<CreateGateEntryCubit>()
-              //                                 .onValueChanged(vehiclePhoto: file);
-              //                           },
-              //                         ),
-              //                         NewUploadPhotoWidget(
-              //                           fileName: 'vehicleback',
-              //                           imageUrl: newform.vehicleBackPhoto,
-              //                           title: 'Vehicle Back',
-              //                           isRequired: true,
-              //                           isReadOnly: isCompleted,
-              //                           onFileCapture: (file) {
-              //                             context
-              //                                 .cubit<CreateGateEntryCubit>()
-              //                                 .onValueChanged(vehicleBackPhoto: file);
-              //                           },
-              //                         ),
-              //                       ],
-              //                     ),
 
-              //                     const Divider(height: 12),
-
-              //                  BlocBuilder<CreateGateEntryCubit, CreateGateEntryState>(
-              //   buildWhen: (prev, curr) =>
-              //       prev.form.invoicePhotoImg != curr.form.invoicePhotoImg ||
-              //       prev.form.invoicePhotos != curr.form.invoicePhotos,
-              //   builder: (context, state) {
-              //     return MultipleImageUploadWidget(
-              //       title: 'Vendor Invoices',
-              //       isReadOnly: isCompleted,
-
-              //       localFiles: state.form.invoicePhotoImg,
-              //       serverUrls: state.form.invoicePhotos,
-
-              //       onLocalFileAdded: (file) {
-              //         context.read<CreateGateEntryCubit>().addInvoicePhoto(file);
-              //       },
-              //       onLocalFileRemoved: (index) {
-              //         context.read<CreateGateEntryCubit>().removeLocalInvoicePhoto(index);
-              //       },
-              //       onServerFileRemoved: (index) {
-              //         context.read<CreateGateEntryCubit>().removeServerInvoicePhoto(index);
-              //       },
-              //     );
-              //   },
-              // ),
-
-              //                   ],
-              //                 ),
-              //               ),
-              //              ),
-
-              // Padding(
-              //   padding: const EdgeInsets.only(left: 16.0, right: 16.0),
-              //   child: Card(
-              //     color: Colors.white,
-              //     shape: RoundedRectangleBorder(
-              //       borderRadius: BorderRadius.circular(20),
-              //       side: const BorderSide(color: Color(0xFFE8ECF4), width: 1),
-              //     ),
-              //     child: Row(
-              //       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              //       children: [
-              //         NewUploadPhotoWidget(
-              //           fileName: 'vehiclefront',
-              //           imageUrl: newform.vehiclePhoto,
-              //           title: 'Vehicle Front',
-              //           isRequired: true,
-              //           isReadOnly: isCompleted,
-              //           onFileCapture: (file) {
-              //             context.cubit<CreateGateEntryCubit>().onValueChanged(
-              //               vehiclePhoto: file,
-              //             );
-              //           },
-              //           focusNode: focusNodes.elementAt(27),
-              //         ),
-              //         NewUploadPhotoWidget(
-              //           fileName: 'vehicleback',
-              //           imageUrl: newform.vehicleBackPhoto,
-              //           title: 'Vehicle Back',
-              //           isRequired: true,
-              //           isReadOnly: isCompleted,
-              //           onFileCapture: (file) {
-              //             context.cubit<CreateGateEntryCubit>().onValueChanged(
-              //               vehicleBackPhoto: file,
-              //             );
-              //           },
-              //           focusNode: focusNodes.elementAt(27),
-              //         ),
-              //         NewUploadPhotoWidget(
-              //           fileName: 'vehicleinvoice',
-              //           imageUrl: newform.invoicePhoto,
-              //           title: 'Vendor Invoice',
-              //           isRequired: true,
-              //           isReadOnly: isCompleted,
-              //           onFileCapture: (file) {
-              //             context.cubit<CreateGateEntryCubit>().onValueChanged(
-              //               invoicePhoto: file,
-              //             );
-              //           },
-              //           focusNode: focusNodes.elementAt(27),
-              //         ),
-              //       ],
-              //     ),
-              //   ),
-              // ),
               const SizedBox(height: 10),
               const Padding(
                 padding: EdgeInsets.only(left: 16.0),
@@ -812,7 +674,7 @@ class _PlusAddTile extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        // 🎯 Adjusted to match your NewUploadPhotoWidget size
+
         width: 60,
         height: 60,
         decoration: BoxDecoration(

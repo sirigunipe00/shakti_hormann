@@ -38,7 +38,7 @@ class _VehicleReportingFormWidget extends State<VehicleReportingFormWidget> {
             formState.form.status == 'Rejected');
     final hasVehicleNo = (vehicleForm?.vehicleNumber?.isNotEmpty ?? false);
     final newform = formState.form;
-    $logger.devLog('.........$newform');
+
 
     return MultiBlocListener(
       listeners: [

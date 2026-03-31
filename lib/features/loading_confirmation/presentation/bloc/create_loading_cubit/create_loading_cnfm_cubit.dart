@@ -83,27 +83,24 @@ class CreateLoadingCnfmCubit extends AppBaseCubit<CreateLaodingCnfmState> {
   }
 
   void addItem(ItemModel newItem) {
-    // $logger.devLog('state.listitems....: ${state.listitems}');
+
     final updatedItems = [...state.listitems, newItem];
 
-    // log('updatedItems---:$updatedItems');
-    // final filitems = updatedItems.where((e) => e.isActive && !e.isDeleting);
-    // final invoice = _recalculateTotals(filitems.toList());
+
     final stat = state.copyWith(listitems: updatedItems, view: LoadingView.create);
-    // log('lshjafdjshf:${stat.listitems}');
+
     emitSafeState(stat);
   }
   void addInitialItem(ItemModel newItem) {
-    // $logger.devLog('state.listitems....: ${state.listitems}');
+
     final updatedItems = [...state.listitems, newItem];
-    // print('updatedItems....:$updatedItems');
-    // log('updatedItems---:$updatedItems');
+
     final stat = state.copyWith(listitems: updatedItems);
-    // log('lshjafdjshf:${stat.listitems}');
+
     emitSafeState(stat);
   }
 void updateItem(int index, ItemModel updatedItem) {
-  // print('updatedItem ...:$updatedItem');
+
   final currentItems = List<ItemModel>.from(state.listitems);
   final oldItem = currentItems[index];
 
@@ -130,10 +127,7 @@ void updateItem(int index, ItemModel updatedItem) {
     final validation = _validate();
     return validation.fold(() async {
       emitSafeState(state.copyWith(isLoading: true, isSuccess: false));
-      // final nextMode = switch (state.view) {
-      //   LoadingView.create => LoadingView.edit,
-      //   LoadingView.edit || LoadingView.completed => LoadingView.completed,
-      // };
+
 
 
 
@@ -162,7 +156,7 @@ void updateItem(int index, ItemModel updatedItem) {
       }
         else if (state.view == LoadingView.edit) {
 
-          log('state.listitems........:${state.listitems}');
+
       
       final response = await repo.updateLoadingCnfm(
         state.listitems,
@@ -231,29 +225,20 @@ void updateItem(int index, ItemModel updatedItem) {
 Option<Pair<String, int?>> _validate() {
   final items = state.listitems;
 
-  // ✅ Check if the item list is empty
+
   if (items.isEmpty ) {
     return optionOf(const Pair('At least one item is required to submit', 0));
   }
 
-  // ✅ Check individual item details
+
   for (var item in items) {
     if (item.itemCode == null || item.itemCode!.trim().isEmpty) {
       return optionOf(const Pair('Item Code is required', 0));
     }
-    // You can uncomment these if you want deeper validation
-    // if (item.itemName == null || item.itemName!.trim().isEmpty) {
-    //   return optionOf(const Pair('Item Name is required', 0));
-    // }
-    // if (item.sampleQuantity == null || item.sampleQuantity! <= 0) {
-    //   return optionOf(const Pair('Quantity Loaded must be greater than 0', 0));
-    // }
-    // if (item.stockUom == null || item.stockUom!.trim().isEmpty) {
-    //   return optionOf(const Pair('UOM is required', 0));
-    // }
+
   }
 
-  return none(); // ✅ All validations passed
+  return none();
 }
 
 }

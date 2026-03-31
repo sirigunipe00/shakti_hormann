@@ -116,21 +116,7 @@ class GateExitWidget extends StatelessWidget {
                               ),
                             ],
                           ),
-                          //         Row(
-                          //           children: [
-                          //            Image.asset(
-                          //           'assets/images/timeicon.png'
-                          //  ,
-                          //          ),
-                          //             Text(
-                          //               DFU.timeFromStr(gateExit.creationDate ?? ''),
-                          //               style: AppTextStyles.titleMedium(
-                          //                 context,
-                          //                 AppColors.darkBlue,
-                          //               ).copyWith(color: AppColors.litecyan),
-                          //             ),
-                          //           ],
-                          //         ),
+
                         ],
                       ),
                     ],

@@ -143,8 +143,7 @@ class CreateTransportCubit extends AppBaseCubit<CreateTransportState> {
         transporterName2: entry.transporterName2
       );
 
-      // final formattedStr = DFU.friendlyFormat(parsedDate);
-      // final date = DFU.ddMMyyyy(selectedDate);
+
 
       final status = entry.docstatus;
 
@@ -201,7 +200,7 @@ class CreateTransportCubit extends AppBaseCubit<CreateTransportState> {
   void reject(String reason) async {
     emitSafeState(state.copyWith(isRejecting: true, isSuccess: false));
 
-    // Update form with reject reason
+
     final updatedForm = state.form.copyWith(rejectReason: reason);
 
     if (reason.isEmpty) {
@@ -264,10 +263,7 @@ class CreateTransportCubit extends AppBaseCubit<CreateTransportState> {
         const Pair('Please re-enter a valid 10-digit driver contact number', 0),
       );
       }
-    //  else if (form.estimatedArrivalDate.isNull ||
-    //     (form.estimatedArrivalDate?.trim().isEmpty ?? true)) {
-    //   return optionOf(const Pair('Missing Estimated Arrival Date', 0));
-    // }
+
     else if (form.estimatedArrivalTime.isNull ||
         (form.estimatedArrivalTime?.trim().isEmpty ?? true)) {
       return optionOf(const Pair('Missing Estimated Arrival Time', 0));

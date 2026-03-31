@@ -27,12 +27,12 @@ class _NewVehicleReportingState extends State<NewVehicleReporting> {
   Widget build(BuildContext context) {
     final vehicleState = context.read<CreateVehicleCubit>().state;
 
-    // final isCreating = vehicleState.view == VehicleView.create;
+
 
     final newform = vehicleState.form;
     final status = newform.status;
     final name = newform.name;
-$logger.devLog('status:.....${newform.status}');
+
     final isNew = vehicleState.view == VehicleView.create;
     return Scaffold(
       resizeToAvoidBottomInset: true,
@@ -300,7 +300,7 @@ $logger.devLog('status:.....${newform.status}');
       body: BlocListener<CreateVehicleCubit, CreateVehicleState>(
         listener: (_, state) async {
           if (state.isSuccess && state.successMsg!.isNotNull) {
-            // final isReject = state.successMsg!.toLowerCase().contains('reject');
+
 
             if (state.view == VehicleView.reject) {
               AppDialog.showErrorDialog(

@@ -40,7 +40,7 @@ class CreatePodCubit extends AppBaseCubit<CreatePodState> {
     File? unloadingPhoto2,
   }) {
     shouldAskForConfirmation.value = true;
-    // final today = DateFormat('yyyy-MM-dd').format(DateTime.now());
+
     final form = state.form;
     final podPhotos = podPhoto ?? form.podPhotoImg;
 
@@ -223,7 +223,7 @@ class CreatePodState with _$CreatePodState {
   }) = _CreatePodState;
 
   factory CreatePodState.initial() {
-    // final creationDate = DFU.friendlyFormat(DFU.now());
+
 
     return const CreatePodState(
       form: ProofOfDelivery(),

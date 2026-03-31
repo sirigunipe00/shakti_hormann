@@ -36,7 +36,7 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
 
      final users = $sl.get<LoggedInUser>();
 final hasRole = users.roles!.any((r) => r.role == 'Admin Role-SH');
-$logger.devLog('hasRole...$hasRole');
+
 final plantName = user().plantName;
 
     if (!hasRole && plantName != null && plantName.isNotEmpty) {
@@ -248,32 +248,7 @@ AsyncValueOf<List<AttachementInvoices>> fetchAttachments(String gateEntryId) asy
         }
       }
     }
-      // if (form.invoicePhotoImg != null && form.invoicePhotoImg!.isNotEmpty) {
-      //   for (var file in form.invoicePhotoImg!) {
-      //     final compressed = await FlutterImageCompress.compressWithFile(file.path, quality: 50);
-      //     if (compressed != null) {
-      //       vendorInvoiceBase64List.add(base64Encode(compressed));
-      //     }
-      //   }
-      // } else if (form.invoicePhotos != null && form.invoicePhotos!.isNotEmpty) {
-      //   // Handle existing images from server if editing
-      //   for (var path in form.invoicePhotos!) {
-      //      final bytes = await fetchAndConvertToBase64(path);
-      //      if (bytes != null) vendorInvoiceBase64List.add(base64Encode(bytes));
-      //   }
-      // }
 
-      // if (form.invoicePhotoImg != null) {
-      //   final filePath = form.invoicePhotoImg!.path;
-      //   invocecompressedBytes = await FlutterImageCompress.compressWithFile(
-      //     filePath,
-      //     quality: 50,
-      //   );
-      // } else if (form.invoicePhoto != null) {
-      //   invocecompressedBytes = await fetchAndConvertToBase64(
-      //     form.invoicePhoto ?? '',
-      //   );
-      // }
 
       final Map<String, dynamic> requestBody = {
           'gate_entry_id': form.name,
@@ -282,11 +257,7 @@ AsyncValueOf<List<AttachementInvoices>> fetchAttachments(String gateEntryId) asy
           'invoice_amount': form.invoiceAmount,
 
           'vendor_invoice_date': form.vendorInvoiceDate,
-          // form.vendorInvoiceDate != null
-          //     ? DateFormat('yyyy-MM-dd').format(
-          //       DateFormat('dd-MM-yyyy').parse(form.vendorInvoiceDate!),
-          //     )
-          //     : null ,
+
           'gate_entry_date': form.gateEntryDate,
           'vendor_invoice_no': form.vendorInvoiceNo,
           'vehicle_photo':
@@ -294,9 +265,7 @@ AsyncValueOf<List<AttachementInvoices>> fetchAttachments(String gateEntryId) asy
                   ? null
                   : base64Encode(vehiclefrontcompressedBytes),
           'vendor_invoice_photo': vendorInvoiceBase64List,
-              // invocecompressedBytes == null
-              //     ? null
-              //     : base64Encode(invocecompressedBytes),
+
           'vehicle_back_photo':
               vehiclebackcompressedBytes == null
                   ? null
@@ -356,13 +325,7 @@ AsyncValueOf<List<AttachementInvoices>> fetchAttachments(String gateEntryId) asy
         form.vehiclePhoto ?? '',
       );
     }
-// if (form.vehiclePhotoImg != null) {
-//   vehiclefrontcompressedBytes =
-//       await safeCompress(form.vehiclePhotoImg!);
-// } else if (form.vehiclePhoto != null) {
-//   vehiclefrontcompressedBytes =
-//       await fetchAndConvertToBase64(form.vehiclePhoto!);
-// }
+
 
     if (form.vehicleBackPhotoImg != null) {
       final filePath = form.vehicleBackPhotoImg!.path;
@@ -375,13 +338,7 @@ AsyncValueOf<List<AttachementInvoices>> fetchAttachments(String gateEntryId) asy
         form.vehicleBackPhoto ?? '',
       );
     }
-//     if (form.vehicleBackPhotoImg != null) {
-//   vehiclebackcompressedBytes =
-//       await safeCompress(form.vehicleBackPhotoImg!);
-// } else if (form.vehicleBackPhoto != null) {
-//   vehiclebackcompressedBytes =
-//       await fetchAndConvertToBase64(form.vehicleBackPhoto!);
-// }
+
 if (form.invoicePhotos != null && form.invoicePhotos!.isNotEmpty) {
       for (var path in form.invoicePhotos!) {
          final bytes = await fetchAndConvertToBase64(path);
@@ -390,30 +347,7 @@ if (form.invoicePhotos != null && form.invoicePhotos!.isNotEmpty) {
          }
       }
     }
-// if (form.invoicePhotoImg != null && form.invoicePhotoImg!.isNotEmpty) {
-//   for (final file in form.invoicePhotoImg!) {
-//     final compressed = await safeCompress(file);
-//     if (compressed != null) {
-//       vendorInvoiceBase64List.add(base64Encode(compressed));
-//     }
-//   }
-// }
 
-
-//     if (form.invoicePhotoImg != null && form.invoicePhotoImg!.isNotEmpty) {
-//       for (var file in form.invoicePhotoImg!) {
-
-//         if (await file.exists()) {
-//           final compressed = await FlutterImageCompress.compressWithFile(
-//             file.path, 
-//             quality: 50
-//           );
-//           if (compressed != null) {
-//             vendorInvoiceBase64List.add(base64Encode(compressed));
-//           }
-//         }
-//       }
-//     }
   if (form.invoicePhotoImg != null && form.invoicePhotoImg!.isNotEmpty) {
         for (var file in form.invoicePhotoImg!) {
           final compressed = await FlutterImageCompress.compressWithFile(file.path, quality: 50);
@@ -422,7 +356,7 @@ if (form.invoicePhotos != null && form.invoicePhotos!.isNotEmpty) {
           }
         }
       } else if (form.invoicePhotos != null && form.invoicePhotos!.isNotEmpty) {
-        // Handle existing images from server if editing
+
         for (var path in form.invoicePhotos!) {
            final bytes = await fetchAndConvertToBase64(path);
            if (bytes != null) vendorInvoiceBase64List.add(base64Encode(bytes));
@@ -441,9 +375,7 @@ if (form.invoicePhotos != null && form.invoicePhotos!.isNotEmpty) {
               ? null
               : base64Encode(vehiclefrontcompressedBytes),
       'vendor_invoice_photo': vendorInvoiceBase64List,
-          // invocecompressedBytes == null
-          //     ? null
-          //     : base64Encode(invocecompressedBytes),
+
       'vehicle_back_photo':
           vehiclebackcompressedBytes == null
               ? null

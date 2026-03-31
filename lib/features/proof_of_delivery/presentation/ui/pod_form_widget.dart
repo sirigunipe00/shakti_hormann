@@ -124,7 +124,7 @@ class _PodFormWidgetState extends State<PodFormWidget>
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
-                              color: Colors.red, // heading in red
+                              color: Colors.red, 
                             ),
                             textAlign: TextAlign.center,
                           ),
@@ -266,47 +266,10 @@ class _PodFormWidgetState extends State<PodFormWidget>
                       initialValue: DFU.ddMMyyyyFromStr(newform.podDate ?? ''),
                       fillColor: Colors.grey[200],
                       onSelected: (DateTime date) {
-                        //   selectedDate = date;
 
-                        // context.cubit<CreatePodCubit>().onValueChanged(
-                        //   podDate: DateFormat('dd-MM-yyyy').format(date),
-                        // );
                       },
                     ),
-                    // BlocBuilder<CreatePodCubit, CreatePodState>(
-                    //   builder: (context, state) {
-                    //     return InputField(
-                    //                       title: 'Latitude',
-                    //                       hintText: 'Latitude',
-                    //                       readOnly: true,
-                    //                       isRequired: true,
-                    //                       borderColor: AppColors.grey,
-                    //                       initialValue: latitude?.toString() ?? newform.geoLatitude?.toString() ?? '',
-                    //                       onChanged:
-                    //                           (p0) => context
-                    //                               .cubit<CreatePodCubit>()
-                    //                               .onValueChanged(geoLatitude: double.tryParse(p0)),
-                    //                     );
-                    //   },
-                    // ),
-                    // BlocBuilder<CreatePodCubit, CreatePodState>(
-                    //   builder: (context, state) {
-                    //     return InputField(
-                    //       title: 'Longitude',
-                    //       hintText: 'Longitude',
-                    //       readOnly: true,
-                    //       isRequired: true,
-                    //       borderColor: AppColors.grey,
-                    //       initialValue:  longitude?.toString() ??  newform.geoLongitude?.toString() ?? '',
-                    //       onChanged:
-                    //           (p0) => context
-                    //               .cubit<CreatePodCubit>()
-                    //               .onValueChanged(
-                    //                 geoLongitude: double.tryParse(p0),
-                    //               ),
-                    //     );
-                    //   },
-                    // ),
+
                   ],
                 ),
               ),
@@ -373,42 +336,7 @@ class _PodFormWidgetState extends State<PodFormWidget>
                   ),
                 ),
               ),
-              // const SizedBox(height: 12),
-              // const Padding(
-              //   padding: EdgeInsets.only(left: 16.0),
-              //   child: SectionHeader(
-              //     title: 'Remarks',
-              //     assetIcon: 'assets/images/reamraksicon.png',
-              //   ),
-              // ),
-              // Padding(
-              //   padding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
-              //   child: Card(
-              //     color: Colors.white,
-              //     shape: RoundedRectangleBorder(
-              //       borderRadius: BorderRadius.circular(20),
-              //       side: const BorderSide(color: Color(0xFFE8ECF4), width: 1),
-              //     ),
-              //     elevation: 0,
-              //     child: Padding(
-              //       padding: const EdgeInsets.all(8.0),
-              //       child: InputField(
-              //         controller: remarks,
-              //         minLines: 3,
-              //         maxLines: 6,
-              //         readOnly: isCompleted,
-              //         initialValue: newform.remarks,
-              //         title: 'Remarks (if any)',
-              //         hintText: 'Enter Here....',
-              //         onChanged: (text) {
-              //           context.cubit<CreateGateExitCubit>().onValueChanged(
-              //             remarks: text,
-              //           );
-              //         },
-              //       ),
-              //     ),
-              //   ),
-              // ),
+
             ],
           ),
         ),

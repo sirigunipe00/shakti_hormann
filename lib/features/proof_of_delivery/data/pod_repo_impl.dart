@@ -33,7 +33,7 @@ class PodRepoImpl extends BaseApiRepository implements ProofOfDeliveryRepo {
          
      final users = $sl.get<LoggedInUser>();
 final hasRole = users.roles!.any((r) => r.role == 'Admin Role-SH');
-$logger.devLog('hasRole...$hasRole');
+
 final plantName = user().plantName;
   if (!hasRole && plantName != null && plantName.isNotEmpty) {
     filters.add(['plant_name', '=', plantName]); 
@@ -128,7 +128,7 @@ final plantName = user().plantName;
                 : base64Encode(unloading2compressedBytes),
           };
       if (form.plantName != null && form.plantName!.trim().isNotEmpty && form.plantName != '') {
-      // print('form.plantName....:${form.plantName}');
+
       requestBody['plant_name'] = form.plantName;
     }
 
@@ -217,7 +217,7 @@ final plantName = user().plantName;
                 : base64Encode(unloading2compressedBytes),
           };
       if (form.plantName != null && form.plantName!.trim().isNotEmpty && form.plantName != '') {
-      // print('form.plantName....:${form.plantName}');
+
       requestBody['plant_name'] = form.plantName;
     }
 
@@ -247,7 +247,7 @@ final plantName = user().plantName;
     return await executeSafely(() async {
        final plantName = user().plantName;
       final customer = user().customer;
-      //  final filters = <List<dynamic>>[];
+
 
    
 

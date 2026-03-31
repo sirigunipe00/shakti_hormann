@@ -140,7 +140,7 @@ class _NewGateEntryState extends State<NewGateEntry> {
                                 .onValueChanged(
                                   purchaseOrder: [],
                                   plantName: '',
-                                  // gateNumber: '',
+
                                 );
                           }
                         });
@@ -149,79 +149,7 @@ class _NewGateEntryState extends State<NewGateEntry> {
                     );
                   },
                 ),
-                //  dropdown : BlocBuilder<PurchaseOrderList, PurchaseOrderState>(
-                //   builder: (_, state) {
-                //     final allData = state.maybeWhen(
-                //       orElse: () => <PurchaseOrderForm>[],
-                //       success: (data) => data,
-                //     );
 
-                //     final names = allData.toList();
-
-                //     return SearchDropDownList<PurchaseOrderForm>(
-                //       title: 'Purchase Order No',
-                //       hint: 'Search Purchase No',
-                //       color: AppColors.white,
-                //       key: UniqueKey(),
-                //       defaultSelection: purchaseOrderForm,
-                //       items: names,
-                //       isloading: state.isLoading,
-                //       futureRequest: (query) async {
-                //         if (query.isEmpty) return names;
-
-                //         return names.where((item) {
-                //           final orderNo = item.name?.toLowerCase() ?? '';
-                //           final customer =
-                //               item.supplierName?.toLowerCase() ?? '';
-                //           final transporter =
-                //               item.orderDate?.toLowerCase() ?? '';
-                //           final search = query.toLowerCase();
-
-                //           return orderNo.contains(search) ||
-                //               customer.contains(search) ||
-                //               transporter.contains(search);
-                //         }).toList();
-                //       },
-
-                //       headerBuilder:
-                //           (_, item, __) => Column(
-                //             crossAxisAlignment: CrossAxisAlignment.start,
-                //             children: [Text(item.name ?? '')],
-                //           ),
-                //       listItemBuilder:
-                //           (_, item, __, ___) => Column(
-                //             crossAxisAlignment: CrossAxisAlignment.start,
-                //             children: [
-                //               Text(
-                //                 'Purchase Order No: ${item.name ?? ''}',
-                //                 style: const TextStyle(
-                //                   fontWeight: FontWeight.bold,
-                //                 ),
-                //               ),
-                //               if (item.supplierName != null)
-                //                 Text(
-                //                   'Supplier Name : ${item.supplierName}',
-                //                 ),
-                //               Text('Order Date: ${DFU.ddMMyyyyFromStr(item.orderDate ?? '')} '),
-                //               const Divider(height: 8),
-                //             ],
-                //           ),
-
-                //       onSelected: (selected) {
-                //         setState(() {
-                //           purchaseOrderForm = selected;
-                //         });
-                //         context.cubit<CreateGateEntryCubit>().onValueChanged(
-                //           purchaseOrder: selected.name,
-                //           plantName: selected.plantName,
-                //           gateNumber: selected.gateNumber,
-
-                //         );
-                //       },
-                //       focusNode: FocusNode(),
-                //     );
-                //   },
-                // ),
                 showScanner: false,
               )
               : PreferredSize(
@@ -353,7 +281,7 @@ class _NewGateEntryState extends State<NewGateEntry> {
                                 .onValueChanged(
                                   purchaseOrder: [],
                                   plantName: '',
-                                  // gateNumber: '',
+
                                 );
                           }
                         });

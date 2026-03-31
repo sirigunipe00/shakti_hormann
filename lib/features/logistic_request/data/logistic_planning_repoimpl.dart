@@ -32,16 +32,13 @@ class LogisticPlanningRepoimpl extends BaseApiRepository
     }
  final users = $sl.get<LoggedInUser>();
 final hasRole = users.roles!.any((r) => r.role == 'Admin Role-SH');
-$logger.devLog('hasRole...$hasRole');
+
 final plantName = user().plantName;
 
     if (serach != null && serach.isNotEmpty) {
       filters.add(['name', 'like', '%$serach%']);
     }
-    // final plantName = user().plantName;
-    // if (plantName != null && plantName.isNotEmpty) {
-    //   filters.add(['plant_name', '=', plantName]);
-    // }
+
     if (!hasRole && plantName != null && plantName.isNotEmpty) {
   filters.add(['plant_name', '=', plantName]);
 }
@@ -77,9 +74,7 @@ $logger.devLog('hasRole...$hasRole...filters...$filters');
       for (String key in keysToRemove) {
         formData.remove(key);
       }
-      $logger.devLog(
-        'requestedDeliveryDatecreate......${form.requestedDeliveryDate}',
-      );
+
 
       final formattedTime =
           form.requestedDeliveryTime != null
@@ -130,7 +125,7 @@ $logger.devLog('hasRole...$hasRole...filters...$filters');
 
         };
       if (form.plantName != null && form.plantName!.trim().isNotEmpty && form.plantName != '') {
-      // print('form.plantName....:${form.plantName}');
+
       requestBody['plant_name'] = form.plantName;
     }
 
@@ -160,12 +155,7 @@ $logger.devLog('hasRole...$hasRole...filters...$filters');
     return await executeSafely(() async {
       $logger.devLog('updatedate......${form.requestedDeliveryDate}');
 
-      // final formattedDate =
-      //     form.requestedDeliveryDate != null
-      //         ? DateFormat('dd-MM-yyyy').format(
-      //           DateFormat('dd-MM-yyyy').parse(form.requestedDeliveryDate!),
-      //         )
-      //         : null;
+
       final formattedTime =
           form.requestedDeliveryTime != null
               ? DateFormat('HH:mm').format(
@@ -181,10 +171,7 @@ $logger.devLog('hasRole...$hasRole...filters...$filters');
               ).format(DateTime.parse(form.logisticsRequestDate!))
               : null;
 
-      // final formattedRequestedDeliveryDate =
-      //     form.requestedDeliveryDate != null
-      //         ? form.requestedDeliveryDate
-      //         : null;
+
 
         final Map<String, dynamic> requestBody = {
            'plant_name': form.plantName,
@@ -209,7 +196,7 @@ $logger.devLog('hasRole...$hasRole...filters...$filters');
         };
 
       if (form.plantName != null && form.plantName!.trim().isNotEmpty && form.plantName != '') {
-      // print('form.plantName....:${form.plantName}');
+
       requestBody['plant_name'] = form.plantName;
     }
 

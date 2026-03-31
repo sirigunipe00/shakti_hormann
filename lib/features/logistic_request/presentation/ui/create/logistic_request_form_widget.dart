@@ -169,28 +169,14 @@ class __LogisticPlanningFormWidgetState
                                     .toList();
                               },
                               onSelected: (selected) {
-                                // if (selected == 'Hormann') {
+
                                   context
                                       .cubit<CreateLogisticCubit>()
                                       .onValueChanged(
                                         transporterType: selected,
-                                        // transporterName: null,
-                                        // transporterName2: null,
-                                      );
-                                // }
-                                //  else {
-                                //   context
-                                //       .cubit<CreateLogisticCubit>()
-                                //       .onValueChanged(
-                                //         transporterType: selected,
-                                //         transporterName: '',
-                                //         transporterName2: '',
-                                //       );
-                                // }
 
-                              //   setState(() {
-                              //     transportersForm = null;
-                              //   });
+                                      );
+
                               },
                               focusNode: focusNodes.elementAt(5),
                             ),
@@ -318,90 +304,7 @@ class __LogisticPlanningFormWidgetState
                                 );
                               },
                             ),
-                            // if (newform.transporterType == 'Hormann') ...[
-                            //   const SizedBox(height: 12),
-                            //   BlocBuilder<TransportersList, TransportersState>(
-                            //     buildWhen:
-                            //         (previous, current) => previous != current,
-                            //     builder: (_, state) {
-                            //       final allData = state.maybeWhen(
-                            //         orElse: () => <TransportersForm>[],
-                            //         success: (data) => data,
-                            //       );
-                            //       final names = allData.toList();
 
-                            //       return SearchDropDownList(
-                            //         key: ValueKey(newform.transporterName),
-                            //         readOnly: isCompleted,
-                            //         color: AppColors.black,
-                            //         items: names,
-                            //         isRequired: true,
-                            //         defaultSelection:
-                            //             names
-                            //                 .where(
-                            //                   (e) =>
-                            //                       e.name ==
-                            //                       newform.transporterName,
-                            //                 )
-                            //                 .firstOrNull,
-                            //         title: 'Transporter',
-                            //         hint: 'Select Transporter',
-                            //         isloading: state.isLoading,
-                            //         futureRequest: (searchText) async {
-                            //           if (searchText.trim().isEmpty)
-                            //             return names;
-                            //           final query =
-                            //               searchText.trim().toLowerCase();
-                            //           return names.where((item) {
-                            //             final name =
-                            //                 item.name?.toLowerCase() ?? '';
-                            //             final supplier =
-                            //                 item.suppliername?.toLowerCase() ??
-                            //                 '';
-                            //             return name.contains(query) ||
-                            //                 supplier.contains(query);
-                            //           }).toList();
-                            //         },
-                            //         headerBuilder:
-                            //             (_, item, __) => Text(
-                            //               '${item.name ?? ''} - ${item.suppliername ?? ''}',
-                            //               style: const TextStyle(
-                            //                 fontWeight: FontWeight.bold,
-                            //               ),
-                            //             ),
-                            //         listItemBuilder:
-                            //             (_, item, __, ___) => Column(
-                            //               crossAxisAlignment:
-                            //                   CrossAxisAlignment.start,
-                            //               children: [
-                            //                 Text(
-                            //                   'Transporter ID: ${item.name ?? ''}',
-                            //                   style: const TextStyle(
-                            //                     fontWeight: FontWeight.bold,
-                            //                   ),
-                            //                 ),
-                            //                 if (item.suppliername != null)
-                            //                   Text(
-                            //                     'Transporter Name: ${item.suppliername ?? ''}',
-                            //                   ),
-                            //                 const Divider(height: 8),
-                            //               ],
-                            //             ),
-                            //         onSelected: (selected) {
-                            //           setState(() {
-                            //             transportersForm = selected;
-                            //           });
-                            //           context
-                            //               .cubit<CreateLogisticCubit>()
-                            //               .onValueChanged(
-                            //                 transporterName: selected.name,
-                            //               );
-                            //         },
-                            //         focusNode: focusNodes.elementAt(3),
-                            //       );
-                            //     },
-                            //   ),
-                            // ],
 
                             const SizedBox(height: 12),
                             BlocBuilder<VehicleList, VehicleListState>(
@@ -584,83 +487,7 @@ class __LogisticPlanningFormWidgetState
                 ),
               ),
 
-              //         const SizedBox(height: 16),
-              //         InputField(
-              //           title: 'Shipping Address-1',
-              //           readOnly: true,
-              //           // hintText: 'Enter Address',
-              //           borderColor: AppColors.grey,
-              //           initialValue: newform.shippingAddress1,
-              //           onChanged:
-              //               (value) => context
-              //                   .cubit<CreateLogisticCubit>()
-              //                   .onValueChanged(shippingAddress1: value),
-              //         ),
-              //         const SizedBox(height: 16),
-              //         InputField(
-              //           title: 'Shipping Address-2',
-              //           readOnly: true,
-              //           // hintText: 'Enter Address',
-              //           borderColor: AppColors.grey,
-              //           initialValue: newform.shippingAddress2,
-              //           onChanged:
-              //               (value) => context
-              //                   .cubit<CreateLogisticCubit>()
-              //                   .onValueChanged(shippingAddress2: value),
-              //         ),
 
-              //         const SizedBox(height: 16),
-              //         InputField(
-              //           title: 'Shipping Country',
-              //           readOnly: true,
-              //           // hintText: 'Enter Country',
-              //           borderColor: AppColors.grey,
-              //           initialValue: newform.country,
-              //           onChanged:
-              //               (value) => context
-              //                   .cubit<CreateLogisticCubit>()
-              //                   .onValueChanged(country: value),
-              //         ),
-              //         const SizedBox(height: 16),
-              //         InputField(
-              //           title: 'Shipping State',
-              //           readOnly: true,
-              //           // hintText: 'Enter State',
-              //           borderColor: AppColors.grey,
-              //           initialValue: newform.states,
-              //           onChanged:
-              //               (value) => context
-              //                   .cubit<CreateLogisticCubit>()
-              //                   .onValueChanged(states: value),
-              //         ),
-              //         const SizedBox(height: 16),
-              //         InputField(
-              //           title: 'Shipping City',
-              //           readOnly: true,
-              //           // hintText: 'Enter City',
-              //           borderColor: AppColors.grey,
-              //           initialValue: newform.city,
-              //           onChanged:
-              //               (value) => context
-              //                   .cubit<CreateLogisticCubit>()
-              //                   .onValueChanged(city: value),
-              //         ),
-              //         const SizedBox(height: 16),
-              //         InputField(
-              //           title: 'Shipping Pin Code',
-              //           readOnly: true,
-              //           // hintText: 'Enter Pincode',
-              //           borderColor: AppColors.grey,
-              //           initialValue: newform.pincode,
-              //           onChanged:
-              //               (value) => context
-              //                   .cubit<CreateLogisticCubit>()
-              //                   .onValueChanged(pinCode: value),
-              //         ),
-              //       ],
-              //     ),
-              //   ),
-              // ),
               const SizedBox(height: 15),
               const Padding(
                 padding: EdgeInsets.only(left: 16.0),

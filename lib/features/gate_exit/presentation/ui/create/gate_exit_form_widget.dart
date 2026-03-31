@@ -1,4 +1,4 @@
-import 'dart:developer';
+
 
 import 'package:flutter/services.dart';
 import 'package:shakti_hormann/core/core.dart';
@@ -25,27 +25,9 @@ class _GateExitFormWidgetState extends State<GateExitFormWidget> {
   final TextEditingController remarks = TextEditingController();
   final TextEditingController vehicleNo = TextEditingController();
   SalesInvoiceForm? selectedInvoice;
-  // late TextEditingController vehicleNoController;
 
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   final form = context.read<CreateGateExitCubit>().state.form;
-  //   vehicleNoController = TextEditingController(text: form.vehicleNo ?? '');
-  // }
 
-  // @override
-  // void didUpdateWidget(covariant GateExitFormWidget oldWidget) {
-  //   super.didUpdateWidget(oldWidget);
-  //   final form = context.read<CreateGateExitCubit>().state.form;
-  //   vehicleNoController.text = form.vehicleNo ?? '';
-  // }
 
-  // @override
-  // void dispose() {
-  //   vehicleNoController.dispose();
-  //   super.dispose();
-  // }
 
   final focusNodes = List.generate(40, (index) => FocusNode());
 
@@ -56,7 +38,7 @@ class _GateExitFormWidgetState extends State<GateExitFormWidget> {
     final isCompleted = formState.view == GateExitView.completed;
     final newform = formState.form;
 
-    log('newform.vehicleNo...:${newform.vehicleNo}');
+
 
     vehicleNo.text = newform.vehicleNo ?? '';
 

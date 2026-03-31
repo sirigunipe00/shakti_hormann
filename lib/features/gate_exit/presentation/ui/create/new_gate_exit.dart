@@ -35,7 +35,7 @@ class _NewGateExitState extends State<NewGateExit> {
     final newform = gateEntryState.form;
     final status = newform.docStatus;
     final name = newform.name;
-    // final isCompleted = gateEntryState.view == GateExitView.completed;
+
 
     final isNew = gateEntryState.view == GateExitView.create;
     return Scaffold(
@@ -173,31 +173,12 @@ class _NewGateExitState extends State<NewGateExit> {
                   );
 
                   if (scanResult != null) {
-                    // final scannedValue =
-                    //     extractIrnFromQr(scanResult).trim().toUpperCase();
+
                     if (!context.mounted) return;
 
-                    // final allPOs =
-                    //     context
-                    //         .read<SalesInvoiceList>()
-                    //         .state
-                    //         .maybeWhen(
-                    //           orElse: () => <SalesInvoiceForm>[],
-                    //           success: (data) => data,
-                    //         )
-                    //         .toList();
                     $logger.devLog('….scanresult….$scanResult');
                     try {
-                      // final dynamic decoded = jsonDecode(scanResult);
-
-                      // if (decoded is! Map) {
-                      //   throw Exception('QR data is not a valid JSON object');
-                      // }
-
-                      // final jsonData = decoded.map(
-                      //   (key, value) =>
-                      //       MapEntry(key.toString(), value?.toString()),
-                      // );
+                      
                       final Map<String, dynamic> jsonData = jsonDecode(
                         scanResult,
                       );
@@ -210,11 +191,7 @@ class _NewGateExitState extends State<NewGateExit> {
                           jsonData['PlantName']?.toString();
 
                       if (invoiceNumber != null && invoiceNumber.isNotEmpty) {
-                        // final List<SalesInvoice> scannedInvoices = [
-                        //   SalesInvoice(
-                        //     name: invoiceNumber.trim().toUpperCase(),
-                        //   ),
-                        // ];
+
 
                         final allPOs = context
                             .read<SalesInvoiceList>()
@@ -419,14 +396,7 @@ class _NewGateExitState extends State<NewGateExit> {
                                 .map((so) => SalesInvoiceForm(name: so.name)),
                           ],
 
-                          // defaultSelection:
-                          //     names
-                          //         .where(
-                          //           (item) => selectedOrders.any(
-                          //             (so) => so.name == item.name,
-                          //           ),
-                          //         )
-                          //         .toList(),
+
                           isloading: state.isLoading,
                           futureRequest: (query) async {
                             if (query.isEmpty) return names;
@@ -527,31 +497,14 @@ class _NewGateExitState extends State<NewGateExit> {
                       );
 
                       if (scanResult != null) {
-                        // final scannedValue =
-                        //     extractIrnFromQr(scanResult).trim().toUpperCase();
+
                         if (!context.mounted) return;
-                        $logger.devLog('….scanresult….$scanResult');
 
-                        // final allPOs =
-                        //     context
-                        //         .read<SalesInvoiceList>()
-                        //         .state
-                        //         .maybeWhen(
-                        //           orElse: () => <SalesInvoiceForm>[],
-                        //           success: (data) => data,
-                        //         )
-                        //         .toList();
+
+
+
                         try {
-                          // final dynamic decoded = jsonDecode(scanResult);
 
-                          // if (decoded is! Map) {
-                          //   throw Exception('QR data is not a valid JSON object');
-                          // }
-
-                          // final jsonData = decoded.map(
-                          //   (key, value) =>
-                          //       MapEntry(key.toString(), value?.toString()),
-                          // );
                           final Map<String, dynamic> jsonData = jsonDecode(
                             scanResult,
                           );

@@ -21,14 +21,7 @@ class LogisticRequestWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    //     final statusText = logistic.docstatus == 2
-    //     ? 'Cancelled'
-    //     : logistic.status ?? '';
 
-    // final formattedDateTime = formatDateTime(
-    //   logistic.requestedDeliveryDate,
-    //   logistic.requestedDeliveryTime,
-    // );
     return GestureDetector(
       onTap: onTap,
       child: Card(
@@ -86,8 +79,7 @@ class LogisticRequestWidget extends StatelessWidget {
                                 ),
                               ),
                               const SizedBox(height: 5),
-                              // if ((logistic.transporterType ?? '') == 
-                              //     'Hormann')
+
                                 Text(
                                   [
                                         logistic.transporterName,
@@ -197,14 +189,7 @@ class LogisticRequestWidget extends StatelessWidget {
                     );
                   },
                 ),
-                //                 Text(
-                //   "$statusText – $formattedDateTime",
-                //   style: AppTextStyles.titleLarge(context).copyWith(
-                //     color: _getStatusColor(statusText),
-                //     fontWeight: FontWeight.bold,
-                //     fontSize: 12,
-                //   ),
-                // ),
+
                 Text(
                   logistic.docstatus == 2 ? 'Cancelled' : logistic.status ?? '',
                   style: AppTextStyles.titleLarge(context).copyWith(
@@ -259,7 +244,7 @@ String formatDateTime(String? date, String? time) {
   final parts = time.split(':');
   if (parts.length < 2) return formattedDate;
 
-  // Convert 24hr → 12hr
+
   int hour = int.tryParse(parts[0]) ?? 0;
   final minute = parts[1];
   final suffix = hour >= 12 ? 'PM' : 'AM';

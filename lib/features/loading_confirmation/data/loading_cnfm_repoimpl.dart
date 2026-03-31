@@ -37,7 +37,7 @@ class LoadingCnfmRepoimpl extends BaseApiRepository implements LoadingCnfmRepo {
    
      final users = $sl.get<LoggedInUser>();
 final hasRole = users.roles!.any((r) => r.role == 'Admin Role-SH');
-$logger.devLog('hasRole...$hasRole');
+
 final plantName = user().plantName;
     if (!hasRole && plantName != null && plantName.isNotEmpty) {
       filters.add(['plant_name', '=', plantName]);
@@ -177,8 +177,6 @@ final plantName = user().plantName;
     String name,
   ) async {
 
-    $logger.devLog('items..........$items');
-    $logger.devLog('Updating loading confirmation for $name');
 
     final cleanedItems = await Future.wait(
       items.map((e) async {
@@ -219,7 +217,7 @@ final plantName = user().plantName;
           }
         }
 
-        // Return cleaned map without null or empty fields
+
         map.removeWhere(
           (key, value) =>
               value == null ||

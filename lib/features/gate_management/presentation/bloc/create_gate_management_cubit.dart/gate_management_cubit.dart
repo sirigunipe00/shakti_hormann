@@ -285,8 +285,7 @@ class CreateGateManagementCubit extends AppBaseCubit<CreateGateManagementState> 
   final currentView = state.view;
 
 
-  // final rt = form.requestType?.firstOrNull?.trim().toLowerCase();
-  // final isSpecialType = rt == 'amazon' || rt == 'swiggy';
+
     final selectedTypes =
       form.requestType!
           .map((e) => e.trim().toLowerCase())
@@ -304,7 +303,7 @@ class CreateGateManagementCubit extends AppBaseCubit<CreateGateManagementState> 
     return optionOf(const Pair('Missing Document Photo', 0));
   }
     final isSubmissionAttempt = currentView == GateManagementView.completed;
-    // || currentView == GateManagementView.submitted;
+
 
 
   if ( isSubmissionAttempt && !isSpecialType) {

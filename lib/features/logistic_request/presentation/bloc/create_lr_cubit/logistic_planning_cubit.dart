@@ -103,12 +103,7 @@ class CreateLogisticCubit extends AppBaseCubit<CreateLogisticState> {
       
 
     );
-    // if ((transporterType ?? form.transporterType) != 'Hormann') {
-    //      newForm = newForm.copyWith(
-    //         transporterName: '',
-    //      transporterNAme2: '',
-    //      );
-    //    }
+
 
     emitSafeState(state.copyWith(form: newForm));
   }
@@ -120,7 +115,7 @@ class CreateLogisticCubit extends AppBaseCubit<CreateLogisticState> {
     shouldAskForConfirmation.value = false;
     if (entry is LogisticPlanningForm) {
       final form = state.form;
-      // print('requestedDeliveryDate ${entry.requestedDeliveryDate}');
+
       final updatedForm = form.copyWith(
         docstatus: entry.docstatus,
         name: entry.name,
@@ -186,11 +181,7 @@ class CreateLogisticCubit extends AppBaseCubit<CreateLogisticState> {
         LogisticPlanningView.completed => LogisticPlanningView.completed,
       };
 
-      // final status = switch (state.view) {
-      //   LogisticPlanningView.create => 'Draft',
-      //   LogisticPlanningView.edit ||
-      //   LogisticPlanningView.completed => 'Send For Approval',
-      // };
+
       
 
       if (state.view == LogisticPlanningView.create) {
