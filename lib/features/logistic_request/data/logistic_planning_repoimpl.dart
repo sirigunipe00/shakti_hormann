@@ -286,8 +286,11 @@ $logger.devLog('hasRole...$hasRole...filters...$filters');
   AsyncValueOf<List<SalesOrderForm>> fetchSalesOrder(String name) async {
     return await executeSafely(() async {
       final filters = <List<dynamic>>[];
+
+      final users = $sl.get<LoggedInUser>();
+      final hasRole = users.roles!.any((r) => r.role == 'Admin Role-SH');
       final plantName = user().plantName;
-      if (plantName != null && plantName.isNotEmpty) {
+      if (!hasRole && plantName != null && plantName.isNotEmpty) {
         filters.add(['company', '=', plantName]);
       }
 

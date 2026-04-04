@@ -32,9 +32,9 @@ class PodRepoImpl extends BaseApiRepository implements ProofOfDeliveryRepo {
     }
          
      final users = $sl.get<LoggedInUser>();
-final hasRole = users.roles!.any((r) => r.role == 'Admin Role-SH');
+     final hasRole = users.roles!.any((r) => r.role == 'Admin Role-SH');
 
-final plantName = user().plantName;
+     final plantName = user().plantName;
   if (!hasRole && plantName != null && plantName.isNotEmpty) {
     filters.add(['plant_name', '=', plantName]); 
    
@@ -245,16 +245,14 @@ final plantName = user().plantName;
   @override
   AsyncValueOf<List<SalesInvoiceForm>> fetchSalesInvoice(String name) async {
     return await executeSafely(() async {
-       final plantName = user().plantName;
+      final users = $sl.get<LoggedInUser>();
+      final hasRole = users.roles!.any((r) => r.role == 'Admin Role-SH');
+      final plantName = user().plantName;
       final customer = user().customer;
-
-
-   
-
       final reqParams = {
          'filters': [
           ['pod', '=', '0'],
-          if (plantName != null && plantName.isNotEmpty)
+          if (!hasRole && plantName != null && plantName.isNotEmpty)
             ['company', '=', plantName],
              if (customer != null && customer.isNotEmpty)
             ['customer', '=', customer],

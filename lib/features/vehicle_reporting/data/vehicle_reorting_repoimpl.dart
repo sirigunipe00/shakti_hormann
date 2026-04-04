@@ -38,9 +38,9 @@ class VehicleReportingRepoimpl extends BaseApiRepository
     }
     
      final users = $sl.get<LoggedInUser>();
-final hasRole = users.roles!.any((r) => r.role == 'Admin Role-SH');
+     final hasRole = users.roles!.any((r) => r.role == 'Admin Role-SH');
 
-final plantName = user().plantName;
+     final plantName = user().plantName;
     if (!hasRole && plantName != null && plantName.isNotEmpty) {
       filters.add(['plant_name', '=', plantName]);
     }
@@ -260,7 +260,10 @@ final plantName = user().plantName;
       final plantName = user().plantName;
       final filters = <List<dynamic>>[];
 
-      if (plantName != null && plantName.isNotEmpty) {
+      final users = $sl.get<LoggedInUser>();
+       final hasRole = users.roles!.any((r) => r.role == 'Admin Role-SH');
+
+      if (!hasRole && plantName != null && plantName.isNotEmpty) {
         filters.add(['plant_name', '=', plantName]);
       }
       filters

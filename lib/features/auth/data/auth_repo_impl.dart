@@ -43,7 +43,7 @@ class AuthRepoImpl extends BaseApiRepository implements AuthRepo {
             return LoggedInUser.fromJson(data.first);
           } else if (data is Map<String, dynamic>) {
             $logger.devLog('REPO DEBUG: Does raw data contain roles? ${data.containsKey('roles')}');
-    $logger.devLog('REPO DEBUG: Roles content: ${data['roles']}');
+  
             return LoggedInUser.fromJson(data);
           } else {
             throw Exception('Unexpected data format in login response: $data');

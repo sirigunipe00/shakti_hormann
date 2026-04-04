@@ -247,12 +247,15 @@ final plantName = user().plantName;
   @override
   AsyncValueOf<List<SalesInvoiceForm>> fetchSalesInvoice(String name) async {
     return await executeSafely(() async {
+     final users = $sl.get<LoggedInUser>();
+final hasRole = users.roles!.any((r) => r.role == 'Admin Role-SH');
+
       final plantName = user().plantName;
 
       final reqParams = {
         'filters': [
           ['gate_exit_created', '=', '0'],
-          if (plantName != null && plantName.isNotEmpty)
+          if (!hasRole && plantName != null && plantName.isNotEmpty)
             ['company', '=', plantName],
         ],
         'limit_page_length': 'None',

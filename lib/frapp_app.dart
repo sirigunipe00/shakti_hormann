@@ -189,7 +189,7 @@ class _ShaktiHormannState extends State<ShaktiHormann>
           theme: AppMaterialTheme.lightTheme,
           darkTheme: AppMaterialTheme.lightTheme,
           routerConfig: AppRouterConfig.router,
-          debugShowCheckedModeBanner: false,
+          debugShowCheckedModeBanner: Urls.isTest,
         ),
       ),
     );
