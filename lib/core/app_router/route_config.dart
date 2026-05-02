@@ -255,9 +255,10 @@ class AppRouterConfig {
                   GoRoute(
                     path: _getPath(AppRoute.logisticRequest),
                     builder: (ctxt, state) {
-                      final filters = Pair(
+                      final filters = Triple(
                         StringUtils.docStatuslogistic('Draft'),
                         null,
+                        null
                       );
                       return BlocProvider(
                         create:
@@ -436,8 +437,9 @@ class AppRouterConfig {
                   GoRoute(
                     path: _getPath(AppRoute.loadingConfirmation),
                     builder: (ctxt, state) {
-                      final filters = Pair(
+                      final filters = Triple(
                         StringUtils.docStatusVehicle('Reported'),
+                        null,
                         null,
                       );
                       return BlocProvider(

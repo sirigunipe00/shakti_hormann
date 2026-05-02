@@ -15,6 +15,14 @@ class LogisticPlanningFilterCubit extends PageViewFiltersCubit {
       emitSafeState(newState);
     }
   }
+  @override
+  void onChangeSalesOrder(String? salesOrder) {
+    if (salesOrder == null) {
+      emit(state.copyWith(clearSalesOrder: true));
+    } else {
+      emit(state.copyWith(salesOrder: salesOrder));
+    }
+  }
 
   @override
   void onSearch([String? query]) {

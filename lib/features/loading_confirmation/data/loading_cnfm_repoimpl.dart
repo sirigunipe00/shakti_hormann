@@ -15,13 +15,65 @@ import 'package:shakti_hormann/features/loading_confirmation/model/logistic.dart
 class LoadingCnfmRepoimpl extends BaseApiRepository implements LoadingCnfmRepo {
   const LoadingCnfmRepoimpl(super.client);
 
-  @override
-  AsyncValueOf<List<LoadingCnfmForm>> fetchLoadingList(
-    int start,
-    String? docStatus,
-    String? serach,
-  ) async {
-    final filters = <List<dynamic>>[];
+@override
+AsyncValueOf<List<LoadingCnfmForm>> fetchLoadingList(
+  int start,
+  String? docStatus,
+  String? search,
+  String? salesOrder,
+) async {
+  final filters = <List<dynamic>>[];
+
+
+
+  if (salesOrder != null && salesOrder.isNotEmpty) {
+    final childConfig = RequestConfig(
+      url: Urls.getList,
+      parser: (json) => json['message'] as List<dynamic>,
+      reqParams: {
+        'doctype': 'Logistic Planning and Confirmation Lines',
+        'parent':'Vehicle Reporting and Dispatch Loading',
+        'filters': jsonEncode([
+          ['sales_order', '=', salesOrder],
+          ['parenttype', '=', 'Vehicle Reporting and Dispatch Loading']
+        ]),
+        'fields': jsonEncode(['parent']), 
+        'limit_page_length': 'None'
+      },
+      headers: {
+        HttpHeaders.contentTypeHeader: 'application/json',
+      },
+    );
+
+    final childResponse = await get(childConfig);
+
+
+final result = childResponse.process((r) => right(r.data ?? []));
+
+    if (result.isLeft()) {
+      return right([]);
+    }
+
+    final childData = result.getOrElse(() => []);
+
+    final parentList = (childData)
+        .map((e) => e['parent'])
+        .where((e) => e != null)
+        .toSet()
+        .toList();
+
+    if (parentList.isEmpty) {
+      return right([]);
+    }
+
+
+    filters.add(['name', 'in', parentList]);
+  }
+
+
+
+  if (salesOrder == null || salesOrder.isEmpty) {
+    
 
     if (docStatus.isNotNull && docStatus != '4' && docStatus != '1') {
       filters
@@ -31,38 +83,52 @@ class LoadingCnfmRepoimpl extends BaseApiRepository implements LoadingCnfmRepo {
       filters.add(['docstatus', '=', 1]);
     }
 
-    if (serach != null && serach.isNotEmpty) {
-      filters.add(['name', 'like', '%$serach%']);
-    }
-   
-     final users = $sl.get<LoggedInUser>();
-final hasRole = users.roles!.any((r) => r.role == 'Admin Role-SH');
 
-final plantName = user().plantName;
+    if (search != null && search.isNotEmpty) {
+      filters.add(['name', 'like', '%$search%']);
+    }
+
+
+    final users = $sl.get<LoggedInUser>();
+    final hasRole = users.roles!.any((r) => r.role == 'Admin Role-SH');
+
+    final plantName = user().plantName;
+
     if (!hasRole && plantName != null && plantName.isNotEmpty) {
       filters.add(['plant_name', '=', plantName]);
     }
-    final requestConfig = RequestConfig(
-      url: Urls.getList,
-      parser: (json) {
-        final data = json['message'];
-        final listdata = data as List<dynamic>;
-        return listdata.map((e) => LoadingCnfmForm.fromJson(e)).toList();
-      },
-      reqParams: {
-        'filters': jsonEncode(filters),
-        'limit_start': start,
-        'limit_page_length': 'None',
-        'order_by': 'creation desc',
-        'doctype': 'Vehicle Reporting and Dispatch Loading',
-        'fields': jsonEncode(['*']),
-      },
-      headers: {HttpHeaders.contentTypeHeader: 'application/json'},
-    );
-    $logger.devLog('requestConfig....$requestConfig');
-    final response = await get(requestConfig);
-    return response.process((r) => right(r.data!));
   }
+
+
+
+  $logger.devLog('FINAL FILTERS ---> $filters');
+
+
+
+  final requestConfig = RequestConfig(
+    url: Urls.getList,
+    parser: (json) {
+      final data = json['message'] as List<dynamic>;
+      return data.map((e) => LoadingCnfmForm.fromJson(e)).toList();
+    },
+    reqParams: {
+      'filters': jsonEncode(filters),
+      'limit_start': start,
+      'limit_page_length': 'None',
+      'order_by': 'creation desc',
+      'doctype': 'Vehicle Reporting and Dispatch Loading',
+      'fields': jsonEncode(['*']),
+    },
+    headers: {
+      HttpHeaders.contentTypeHeader: 'application/json',
+    },
+  );
+
+  final response = await get(requestConfig);
+
+  return response.process((r) => right(r.data!));
+}
+
 
   @override
   AsyncValueOf<List<ItemModel>> fetchItemList(

@@ -118,21 +118,31 @@ class _ShaktiHormannState extends State<ShaktiHormann>
                   final filter = Pair(
                     StringUtils.docStatuslogistic('Draft'),
                     null,
+                    
+                  );
+                  final logisticfilter = Triple(
+                    StringUtils.docStatuslogistic('Draft'),
+                    null,
+                    null
                   );
                   final filterss = Pair(
                     StringUtils.docStatusVehicle('Reported'),
                     null,
                   );
+                  final filtersslogistic = Triple(
+                    StringUtils.docStatusVehicle('Reported'),
+                    null,null
+                  );
                   routerCtxt.cubit<GateEntriesCubit>().fetchInitial(filters);
                   routerCtxt.cubit<GateExitCubit>().fetchInitial(filters);
                   routerCtxt.cubit<LogisticPlanningCubit>().fetchInitial(
-                    filter,
+                    logisticfilter,
                   );
                   routerCtxt.cubit<TransportCubit>().fetchInitial(filter);
                   routerCtxt.cubit<VehicleReportingCubit>().fetchInitial(
                     filterss,
                   );
-                  routerCtxt.cubit<LoadingCnfmCubit>().fetchInitial(filterss);
+                  routerCtxt.cubit<LoadingCnfmCubit>().fetchInitial(filtersslogistic);
                   routerCtxt.cubit<ProofOfDeliveryCubit>().fetchInitial(
                     filters,
                   );
@@ -189,7 +199,7 @@ class _ShaktiHormannState extends State<ShaktiHormann>
           theme: AppMaterialTheme.lightTheme,
           darkTheme: AppMaterialTheme.lightTheme,
           routerConfig: AppRouterConfig.router,
-          debugShowCheckedModeBanner: Urls.isTest,
+          debugShowCheckedModeBanner: false,
         ),
       ),
     );

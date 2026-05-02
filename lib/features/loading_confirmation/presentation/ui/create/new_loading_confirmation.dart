@@ -94,9 +94,10 @@ class _NewLoadingConfirmationState extends State<NewLoadingConfirmation> {
               final vehicleFilters =
                   context.read<LoadingCnfmFiltersCubit>().state;
               context.cubit<LoadingCnfmCubit>().fetchInitial(
-                Pair(
+                Triple(
                   StringUtils.docStatusVehicle(vehicleFilters.status),
                   vehicleFilters.query,
+                  vehicleFilters.salesOrder
                 ),
               );
               Navigator.pop(context, true);

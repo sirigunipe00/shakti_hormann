@@ -2,13 +2,14 @@ import 'package:injectable/injectable.dart';
 import 'package:shakti_hormann/core/cubit/infinite_list/infinite_list_cubit.dart';
 import 'package:shakti_hormann/core/cubit/network_request/network_request_cubit.dart';
 import 'package:shakti_hormann/core/di/injector.dart';
+import 'package:shakti_hormann/core/model/model.dart';
 import 'package:shakti_hormann/core/model/pair.dart';
 import 'package:shakti_hormann/features/loading_confirmation/data/loading_cnfm_repo.dart';
 import 'package:shakti_hormann/features/loading_confirmation/model/item_model.dart';
 import 'package:shakti_hormann/features/loading_confirmation/model/loading_cnfm.dart';
 import 'package:shakti_hormann/features/loading_confirmation/model/logistic.dart';
 
-typedef LoadingCnfmCubit =InfiniteListCubit<LoadingCnfmForm, Pair<String?, String?>, Pair<String?, String?>>;
+typedef LoadingCnfmCubit =InfiniteListCubit<LoadingCnfmForm, Triple<String?, String?,String?>, Triple<String?, String?,String?>>;
 typedef LoadingCnfmState = InfiniteListState<LoadingCnfmForm>;
 
 typedef ItemList = NetworkRequestCubit<List<ItemModel>, List<LogisticModel>>;
@@ -34,10 +35,10 @@ class LoadingCnfmBlocProvider {
 
   LoadingCnfmCubit fetchLoadingCnfmList() => LoadingCnfmCubit(
     requestInitial:
-        (params, state) => repo.fetchLoadingList(0, params!.first, params.second),
+        (params, state) => repo.fetchLoadingList(0, params!.first, params.second,params.third),
     requestMore:
         (params, state) =>
-            repo.fetchLoadingList(state.curLength, params!.first, params.second),
+            repo.fetchLoadingList(state.curLength, params!.first, params.second,params.third),
   );
 
  ItemList itemList() => ItemList(

@@ -9,4 +9,7 @@ abstract class PageViewFiltersCubit extends AppBaseCubit<PageViewFilters> {
   void onChangeStatus(String status);
 
   void onSearch([String? query]);
+  void onChangeSalesOrder(String? salesOrder) {
+  // emit(state.copyWith(salesOrder: salesOrder));
+}
 }

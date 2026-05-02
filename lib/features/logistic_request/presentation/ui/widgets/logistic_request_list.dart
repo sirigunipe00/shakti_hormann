@@ -4,6 +4,7 @@ import 'package:shakti_hormann/app/presentation/widgets/app_page_view2.dart';
 import 'package:shakti_hormann/app/presentation/widgets/staticlist_tile.dart';
 import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/core/model/page_view_filters.dart';
+import 'package:shakti_hormann/features/loading_confirmation/presentation/ui/widgets/sales_filter.dart';
 import 'package:shakti_hormann/features/logistic_request/model/logistic_planning_form.dart';
 import 'package:shakti_hormann/features/logistic_request/presentation/bloc/bloc_provider.dart';
 import 'package:shakti_hormann/features/logistic_request/presentation/bloc/create_lr_cubit/logistic_planning_cubit.dart';
@@ -45,12 +46,29 @@ class _LogisticRequestListState extends State<LogisticRequestList>
       },
 
       scaffoldBg: '',
+       trailingAction: BlocBuilder<LogisticPlanningFilterCubit, PageViewFilters>(
+            builder:
+                (context, filters) => BlocProvider(
+                  create: (context) => LogisticPlanningBlocProvider.get().salesOrderList()..request(),
+                  child: SalesOrderFilterButton(
+                    selectedSalesOrder: filters.salesOrder,
+                    onSelect:
+                        (so) => context
+                            .read<LogisticPlanningFilterCubit>()
+                            .onChangeSalesOrder(so),
+                    onClear:
+                        () => context
+                            .read<LogisticPlanningFilterCubit>()
+                            .onChangeSalesOrder(null),
+                  ),
+                ),
+          ),
 
       child: RefreshIndicator(
         onRefresh: () {
           final filters = context.read<LogisticPlanningFilterCubit>().state;
           return context.cubit<LogisticPlanningCubit>().fetchInitial(
-            Pair(StringUtils.docStatuslogistic(filters.status), filters.query),
+            Triple(StringUtils.docStatuslogistic(filters.status), filters.query,filters.salesOrder),
           );
         },
         child: BlocListener<LogisticPlanningFilterCubit, PageViewFilters>(
@@ -90,14 +108,14 @@ class _LogisticRequestListState extends State<LogisticRequestList>
   void _fetchInital(BuildContext context) {
     final filters = context.read<LogisticPlanningFilterCubit>().state;
     context.cubit<LogisticPlanningCubit>().fetchInitial(
-      Pair(StringUtils.docStatuslogistic(filters.status), filters.query),
+      Triple(StringUtils.docStatuslogistic(filters.status), filters.query,filters.salesOrder),
     );
   }
 
   void fetchMore(BuildContext context) {
     final filters = context.read<LogisticPlanningFilterCubit>().state;
     context.cubit<LogisticPlanningCubit>().fetchMore(
-      Pair(StringUtils.docStatuslogistic(filters.status), filters.query),
+      Triple(StringUtils.docStatuslogistic(filters.status), filters.query,filters.salesOrder),
     );
   }
 }

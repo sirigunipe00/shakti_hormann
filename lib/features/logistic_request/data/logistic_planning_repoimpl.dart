@@ -17,53 +17,108 @@ class LogisticPlanningRepoimpl extends BaseApiRepository
     implements LogisticPlanningRepo {
   const LogisticPlanningRepoimpl(super.client);
 
-  @override
-  AsyncValueOf<List<LogisticPlanningForm>> fetchLogistics(
-    int start,
-    String? status,
-    String? serach,
-  ) async {
-    final filters = <List<dynamic>>[];
+@override
+AsyncValueOf<List<LogisticPlanningForm>> fetchLogistics(
+  int start,
+  String? status,
+  String? search,
+  String? salesOrder,
+) async {
+  final filters = <List<dynamic>>[];
 
-    if (status != null && status != '4') {
-      filters
-        ..add(['status', '=', status])
-        ..add(['docstatus', '!=', 2]);
+
+
+  if (salesOrder != null && salesOrder.isNotEmpty) {
+    final childConfig = RequestConfig(
+      url: Urls.getList,
+      parser: (json) => json['message'] as List<dynamic>,
+      reqParams: {
+        'doctype': 'Logistic Planning and Confirmation Lines',
+        'parent': 'Logistic Planning and Confirmation',
+        'filters': jsonEncode([
+          ['sales_order', '=', salesOrder],
+          ['parenttype', '=', 'Logistic Planning and Confirmation']
+        ]),
+        'fields': jsonEncode(['parent']), 
+        'limit_page_length': 'None'
+      },
+      headers: {
+        HttpHeaders.contentTypeHeader: 'application/json',
+      },
+    );
+
+    final childResponse = await get(childConfig);
+
+final result = childResponse.process((r) => right(r.data ?? []));
+
+    if (result.isLeft()) {
+      return right([]);
     }
- final users = $sl.get<LoggedInUser>();
-final hasRole = users.roles!.any((r) => r.role == 'Admin Role-SH');
 
-final plantName = user().plantName;
+    final childData = result.getOrElse(() => []);
 
-    if (serach != null && serach.isNotEmpty) {
-      filters.add(['name', 'like', '%$serach%']);
+    final parentList = (childData as List)
+        .map((e) => e['parent'])
+        .where((e) => e != null)
+        .toSet()
+        .toList();
+
+    if (parentList.isEmpty) {
+      return right([]);
     }
+
+
+    filters.add(['name', 'in', parentList]);
+  }
+
+
+
+  if (salesOrder == null || salesOrder.isEmpty) {
+    if (status != null && status.isNotEmpty && status != '4') {
+      filters..add(['status', '=', status])
+      ..add(['docstatus', '!=', 2]);
+    }
+
+    final users = $sl.get<LoggedInUser>();
+    final hasRole = users.roles!.any((r) => r.role == 'Admin Role-SH');
+    final plantName = user().plantName;
 
     if (!hasRole && plantName != null && plantName.isNotEmpty) {
-  filters.add(['plant_name', '=', plantName]);
-}
-$logger.devLog('hasRole...$hasRole...filters...$filters');
-    final requestConfig = RequestConfig(
-      url: Urls.getList,
-      parser: (json) {
-        final data = json['message'];
-        final listdata = data as List<dynamic>;
-        return listdata.map((e) => LogisticPlanningForm.fromJson(e)).toList();
-      },
-      reqParams: {
-        'filters': jsonEncode(filters),
-        'limit_start': start,
-        'limit_page_length': 'None',
-        'order_by': 'creation desc',
-        'doctype': 'Logistic Planning and Confirmation',
-        'fields': ['*'],
-      },
-      headers: {HttpHeaders.contentTypeHeader: 'application/json'},
-    );
-    $logger.devLog('requestConfig....sdfergrgrhrtghth$requestConfig');
-    final response = await get(requestConfig);
-    return response.process((r) => right(r.data!));
+      filters.add(['plant_name', '=', plantName]);
+    }
+
+    if (search != null && search.isNotEmpty) {
+      filters.add(['name', 'like', '%$search%']);
+    }
   }
+
+
+  $logger.devLog('FINAL FILTERS ---> $filters');
+
+
+  final requestConfig = RequestConfig(
+    url: Urls.getList,
+    parser: (json) {
+      final data = json['message'] as List<dynamic>;
+      return data.map((e) => LogisticPlanningForm.fromJson(e)).toList();
+    },
+    reqParams: {
+      'filters': jsonEncode(filters),
+      'limit_start': start,
+      'limit_page_length': 'None',
+      'order_by': 'creation desc',
+      'doctype': 'Logistic Planning and Confirmation',
+      'fields': jsonEncode(['*']),
+    },
+    headers: {
+      HttpHeaders.contentTypeHeader: 'application/json',
+    },
+  );
+
+  final response = await get(requestConfig);
+
+  return response.process((r) => right(r.data!));
+}
 
   @override
   AsyncValueOf<String> updateLogisticPlanning(LogisticPlanningForm form) async {
@@ -293,7 +348,9 @@ $logger.devLog('hasRole...$hasRole...filters...$filters');
       if (!hasRole && plantName != null && plantName.isNotEmpty) {
         filters.add(['company', '=', plantName]);
       }
-
+      if (name.isNotEmpty) {
+      filters.add(['name', 'like', '%$name%']); 
+    }
       final reqParams = {
         'limit_start': 0,
         'limit_page_length': 'None',

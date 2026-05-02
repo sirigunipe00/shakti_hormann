@@ -7,6 +7,7 @@ class SimpleSearchBar extends StatefulWidget {
     required this.onSearch,
     required this.onCancel,
     this.initial,
+    this.trailAction,
     super.key,
   });
 
@@ -14,6 +15,7 @@ class SimpleSearchBar extends StatefulWidget {
   final String? initial;
   final Function(String) onSearch;
   final Function() onCancel;
+  final Widget? trailAction;
 
   @override
   State<SimpleSearchBar> createState() => _SimpleSearchBarState();

@@ -9,6 +9,7 @@ abstract interface class LoadingCnfmRepo {
     int start,
     String? docStatus,
     String? search,
+    String? salesOrder,
   );
   AsyncValueOf<Pair<String,String>> submitLoading(String form);
   AsyncValueOf<Pair<String,String>> createLoadingCnfm(List<ItemModel> form,String name);
@@ -16,4 +17,5 @@ abstract interface class LoadingCnfmRepo {
   AsyncValueOf<List<ItemModel>> fetchItemList(List<LogisticModel> logistic);
   AsyncValueOf<List<ItemModel>> getItems(String name);
   AsyncValueOf<List<LogisticModel>> fetchLogisticList(String name);
+  
 }

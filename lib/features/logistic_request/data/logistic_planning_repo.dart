@@ -11,6 +11,7 @@ abstract interface class LogisticPlanningRepo {
     int start,
     String? status,
     String? search,
+    String? salesOrder,
     
   );
   AsyncValueOf<List<TransportersForm>> fetchTransporters();

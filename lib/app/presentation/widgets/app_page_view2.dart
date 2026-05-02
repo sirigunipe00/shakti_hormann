@@ -31,6 +31,7 @@ class AppPageView2<T extends PageViewFiltersCubit> extends StatefulWidget {
     required this.onNew,
     required this.backgroundColor,
     required this.scaffoldBg,
+    this.trailingAction,
 
   });
 
@@ -39,6 +40,7 @@ class AppPageView2<T extends PageViewFiltersCubit> extends StatefulWidget {
   final VoidCallback onNew;
   final Color backgroundColor;
   final String scaffoldBg;
+  final Widget? trailingAction;
  
 
   @override
@@ -198,8 +200,18 @@ class _AppPageView2State<T extends PageViewFiltersCubit>
                     hintText: hintText,
                     onCancel: context.cubit<T>().onSearch,
                     onSearch: context.cubit<T>().onSearch,
+
                   ),
+                  
                 ),
+                if (widget.mode == PageMode2.loadingConfirmation ||
+              widget.mode == PageMode2.logisticRequest) ...[
+            const SizedBox(width: 8),
+            Expanded(
+          flex: 1, // other 50%
+          child: widget.trailingAction ?? const SizedBox.shrink(),
+        ),
+          ],
               ],
             ),
           ),
