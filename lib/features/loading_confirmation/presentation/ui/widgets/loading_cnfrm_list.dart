@@ -119,10 +119,5 @@ class _LoadingCnfrmListState extends State<LoadingCnfrmList>
     );
   }
 
-  List<String> _availableSalesOrders() {
-    return [];
-    // Return from your cubit state or a separate loaded list
-    // e.g. context.read<LoadingCnfmCubit>().state.salesOrders ?? []
-    // return context.read<LoadingCnfmCubit>().state.availableSalesOrders ?? [];
-  }
+ 
 }

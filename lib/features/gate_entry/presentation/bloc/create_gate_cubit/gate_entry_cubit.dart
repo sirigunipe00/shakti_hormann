@@ -169,8 +169,8 @@ class CreateGateEntryCubit extends AppBaseCubit<CreateGateEntryState> {
  void addInvoicePhoto(File file) {
   final form = state.form;
 
-  final List<File> updatedFiles = List<File>.from(form.invoicePhotoImg ?? []);
-  updatedFiles.add(file);
+  final List<File> updatedFiles = List<File>.from(form.invoicePhotoImg ?? [])
+  ..add(file);
 
   emitSafeState(
     state.copyWith(

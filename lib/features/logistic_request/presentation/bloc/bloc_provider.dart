@@ -2,7 +2,6 @@ import 'package:injectable/injectable.dart';
 import 'package:shakti_hormann/core/cubit/infinite_list/infinite_list_cubit.dart';
 import 'package:shakti_hormann/core/cubit/network_request/network_request_cubit.dart';
 import 'package:shakti_hormann/core/di/injector.dart';
-import 'package:shakti_hormann/core/model/pair.dart';
 import 'package:shakti_hormann/core/model/triple.dart';
 import 'package:shakti_hormann/features/logistic_request/data/logistic_planning_repo.dart';
 import 'package:shakti_hormann/features/logistic_request/model/logistic_planning_form.dart';

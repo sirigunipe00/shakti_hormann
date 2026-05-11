@@ -3,9 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shakti_hormann/features/logistic_request/presentation/bloc/bloc_provider.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
 
-// ─────────────────────────────────────────────
-//  Public button widget
-// ─────────────────────────────────────────────
+
 
 class SalesOrderFilterButton extends StatelessWidget {
   const SalesOrderFilterButton({
@@ -25,7 +23,7 @@ class SalesOrderFilterButton extends StatelessWidget {
 
     return GestureDetector(
       onTap: () {
-        // ✅ fetch before opening
+
         context.read<SalesOrderList>().request();
         _showPicker(context);
       },
@@ -100,7 +98,7 @@ class SalesOrderFilterButton extends StatelessWidget {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (_) => BlocProvider.value(
-        value: context.read<SalesOrderList>(), // ✅ pass existing cubit
+        value: context.read<SalesOrderList>(), 
         child: _SalesOrderPickerSheet(
           selected: selectedSalesOrder,
           onSelect: (val) {
@@ -113,9 +111,7 @@ class SalesOrderFilterButton extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────
-//  Bottom sheet
-// ─────────────────────────────────────────────
+
 
 class _SalesOrderPickerSheet extends StatefulWidget {
   const _SalesOrderPickerSheet({
@@ -229,10 +225,9 @@ class _SalesOrderPickerSheetState extends State<_SalesOrderPickerSheet> {
                 child: TextField(
                   controller: _searchCtrl,
                   onChanged: (val) {
-                    setState(() {}); // rebuild to show/hide clear icon
-                    print('value........$val');
+                    setState(() {}); 
                     
-context.read<SalesOrderList>().request(val.trim());
+                    context.read<SalesOrderList>().request(val.trim());
 
 
                   },
@@ -279,7 +274,7 @@ context.read<SalesOrderList>().request(val.trim());
                 child: BlocBuilder<SalesOrderList, SalesOrderState>(
                   builder: (context, state) {
                     return state.maybeWhen(
-                      orElse: () => SizedBox(),
+                      orElse: () => const SizedBox(),
                       
 
                       // ── Loading ──
@@ -340,7 +335,7 @@ context.read<SalesOrderList>().request(val.trim());
                           ),
                           itemBuilder: (_, i) {
                             final so = items[i];
-                            // ✅ replace .name with your actual SO field
+
                             final soValue = so.name;
                             final isSelected = soValue == widget.selected;
 

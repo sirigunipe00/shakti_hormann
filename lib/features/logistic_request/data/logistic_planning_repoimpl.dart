@@ -57,7 +57,7 @@ final result = childResponse.process((r) => right(r.data ?? []));
 
     final childData = result.getOrElse(() => []);
 
-    final parentList = (childData as List)
+    final parentList = (childData)
         .map((e) => e['parent'])
         .where((e) => e != null)
         .toSet()

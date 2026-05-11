@@ -3,7 +3,6 @@ import 'package:shakti_hormann/core/cubit/infinite_list/infinite_list_cubit.dart
 import 'package:shakti_hormann/core/cubit/network_request/network_request_cubit.dart';
 import 'package:shakti_hormann/core/di/injector.dart';
 import 'package:shakti_hormann/core/model/model.dart';
-import 'package:shakti_hormann/core/model/pair.dart';
 import 'package:shakti_hormann/features/loading_confirmation/data/loading_cnfm_repo.dart';
 import 'package:shakti_hormann/features/loading_confirmation/model/item_model.dart';
 import 'package:shakti_hormann/features/loading_confirmation/model/loading_cnfm.dart';

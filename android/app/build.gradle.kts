@@ -8,7 +8,6 @@ plugins {
 }
 
 android {
-    
     namespace = "in.easycloud.shakti_hormann"
     compileSdk = 36
     ndkVersion = "27.0.12077973"
@@ -23,8 +22,6 @@ android {
     }
 
     defaultConfig {
-
-
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "in.easycloud.shakti_hormann"
         // You can update the following values to match your application needs.
@@ -33,19 +30,22 @@ android {
         targetSdk = 36
         versionCode = flutter.versionCode
         versionName = flutter.versionName
-
-        
-
-   
     }
 
 
-   buildTypes {
-        release {
-            firebaseCrashlytics {
-                mappingFileUploadEnabled false
-            }
-        }
+  buildTypes {
+    release {
+        signingConfig = signingConfigs.getByName("release")
+    }
+
+    debug {
+        signingConfig = signingConfigs.getByName("debug")
+    }
+}
+}
+tasks.whenTaskAdded {
+    if (name.contains("uploadCrashlyticsMappingFile")) {
+        enabled = false
     }
 }
 
