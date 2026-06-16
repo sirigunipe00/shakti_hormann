@@ -4,22 +4,31 @@ import 'package:shakti_hormann/app/presentation/bloc/geo_permission/geo_permissi
 import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/features/auth/presentation/bloc/auth/auth_cubit.dart';
 import 'package:shakti_hormann/features/auth/presentation/ui/sign_in/sign_in_cubit.dart';
+import 'package:shakti_hormann/features/frame_packing/presentation/bloc/bloc_provider.dart';
+import 'package:shakti_hormann/features/frame_packing/presentation/bloc/frame_fliter_cubit.dart';
 import 'package:shakti_hormann/features/gate_entry/presentation/bloc/bloc_provider.dart';
 import 'package:shakti_hormann/features/gate_entry/presentation/bloc/gate_entry_filter_cubit.dart';
 import 'package:shakti_hormann/features/gate_exit/presentation/bloc/bloc_provider.dart';
 import 'package:shakti_hormann/features/gate_exit/presentation/bloc/gate_exit_filter_cubit.dart';
 import 'package:shakti_hormann/features/gate_management/presentation/bloc/bloc_provider.dart';
-
+import 'package:shakti_hormann/features/hardware_packing/presentation/bloc/bloc_provider.dart';
+import 'package:shakti_hormann/features/hardware_packing/presentation/bloc/hardware_filter_cubit.dart';
 import 'package:shakti_hormann/features/loading_confirmation/presentation/bloc/bloc_provider.dart';
 import 'package:shakti_hormann/features/loading_confirmation/presentation/bloc/loading_cnfm_filters_cubit.dart';
 import 'package:shakti_hormann/features/logistic_request/presentation/bloc/bloc_provider.dart';
 import 'package:shakti_hormann/features/logistic_request/presentation/bloc/logistic_planning_filter_cubit.dart';
 import 'package:shakti_hormann/features/proof_of_delivery/presentation/bloc/bloc_provider.dart';
 import 'package:shakti_hormann/features/proof_of_delivery/presentation/bloc/pod_filters_cubit.dart';
+import 'package:shakti_hormann/features/shutter_packing/presentation/bloc/bloc_provider.dart';
+import 'package:shakti_hormann/features/shutter_packing/presentation/bloc/shutter_filter_cubit.dart';
+import 'package:shakti_hormann/features/storage_allocation/presentation/bloc/bloc_provider.dart';
+import 'package:shakti_hormann/features/storage_allocation/presentation/bloc/storage_filter_cubit.dart';
 import 'package:shakti_hormann/features/transport_confirmation/presentation/bloc/bloc_provider.dart';
 import 'package:shakti_hormann/features/transport_confirmation/presentation/bloc/transport_filter_cubit.dart';
 import 'package:shakti_hormann/features/vehicle_reporting/presentation/bloc/bloc_provider.dart';
 import 'package:shakti_hormann/features/vehicle_reporting/presentation/bloc/vehicle_reporting_filtercubit.dart';
+import 'package:shakti_hormann/features/zone_transfer/presentation/bloc/bloc_provider.dart';
+import 'package:shakti_hormann/features/zone_transfer/presentation/bloc/zone_filter_cubit.dart';
 import 'package:shakti_hormann/styles/material_theme.dart';
 
 import 'features/gate_management/presentation/bloc/gate_management_filter.dart';
@@ -73,12 +82,14 @@ class _ShaktiHormannState extends State<ShaktiHormann>
         BlocProvider(create: (_) => LoadingCnfmFiltersCubit()),
         BlocProvider(create: (_) => PodFiltersCubit()),
         BlocProvider(create: (_) => GateManagementFilter()),
-
-
+        BlocProvider(create: (_) => ZoneFilterCubit()),
+        BlocProvider(create: (_) => HardWareFilterCubit()),
+        BlocProvider(create: (_) => StorageFilterCubit()),
+        BlocProvider(create: (_) => ShutterFilterCubit()),
+        BlocProvider(create: (_) => FrameFliterCubit()),
         // BlocProvider<GeoPermissionHandler>(
         //   create: (_) => GeoPermissionHandler(),
         // ),
-
         BlocProvider(
           create: (_) => GateEntryBlocProvider.get().fetchGateEntries(),
         ),
@@ -97,7 +108,14 @@ class _ShaktiHormannState extends State<ShaktiHormann>
           create:
               (_) => ProofOfDeliveryBlocProvider.get().fetchProofOfDelivery(),
         ),
-        BlocProvider(create: (_) => GateManagementBlocProvider.get().fetchGateManagements())
+       BlocProvider(create: (_) => GateManagementBlocProvider.get().fetchGateManagements()) ,
+       BlocProvider(create: (_) => ZoneBlocProvider.get().fetchZone()),
+       BlocProvider(create: (_) => StorageBlocProvider.get().fetchStorage()),
+       BlocProvider(create: (_) => HardwareBlocProvider.get().fetchHardware()),
+       BlocProvider(create: (_) => ShutterBlocProvider.get().fetchShutter()),
+       BlocProvider(
+          create: (_) => FrameBlocProvider.get().fetchFrames(),
+        ),
       ],
       child: MultiBlocListener(
         listeners: [
@@ -108,18 +126,12 @@ class _ShaktiHormannState extends State<ShaktiHormann>
               if (routerCtxt == null) return;
               state.maybeWhen(
                 authenticated: () {
-
-
-
-                    // routerCtxt.cubit<GeoPermissionHandler>().checkPermission();
-
-
-                  final filters = Pair(StringUtils.docStatusInt('Draft'), null);
+                  // routerCtxt.cubit<GeoPermissionHandler>().checkPermission();
+                    final filters = Pair(StringUtils.docStatusInt('Draft'), null);
                   final filter = Pair(
                     StringUtils.docStatuslogistic('Draft'),
                     null,
-                    
-                  );
+                    );
                   final logisticfilter = Triple(
                     StringUtils.docStatuslogistic('Draft'),
                     null,
@@ -135,20 +147,17 @@ class _ShaktiHormannState extends State<ShaktiHormann>
                   );
                   routerCtxt.cubit<GateEntriesCubit>().fetchInitial(filters);
                   routerCtxt.cubit<GateExitCubit>().fetchInitial(filters);
-                  routerCtxt.cubit<LogisticPlanningCubit>().fetchInitial(
-                    logisticfilter,
-                  );
+                  routerCtxt.cubit<LogisticPlanningCubit>().fetchInitial(logisticfilter);
                   routerCtxt.cubit<TransportCubit>().fetchInitial(filter);
-                  routerCtxt.cubit<VehicleReportingCubit>().fetchInitial(
-                    filterss,
-                  );
+                  routerCtxt.cubit<VehicleReportingCubit>().fetchInitial(filterss);
                   routerCtxt.cubit<LoadingCnfmCubit>().fetchInitial(filtersslogistic);
-                  routerCtxt.cubit<ProofOfDeliveryCubit>().fetchInitial(
-                    filters,
-                  );
-                  routerCtxt.cubit<GateMangementCubit>().fetchInitial(
-                    filters,
-                  );
+                  routerCtxt.cubit<ProofOfDeliveryCubit>().fetchInitial(filters);
+                  routerCtxt.cubit<GateMangementCubit>().fetchInitial(filters);
+                  routerCtxt.cubit<HardwareCubit>().fetchInitial(filters);
+                  routerCtxt.cubit<StorageCubit>().fetchInitial(filters);
+                  routerCtxt.cubit<ZoneCubit>().fetchInitial(filters);
+                  routerCtxt.cubit<ShutterCubit>().fetchInitial(filters);
+                  routerCtxt.cubit<FrameCubit>().fetchInitial(filters);
 
                   AppRoute.home.go(routerCtxt);
                 },

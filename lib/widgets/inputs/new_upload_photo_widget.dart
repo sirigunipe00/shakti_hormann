@@ -159,10 +159,11 @@ class _NewUploadPhotoWidgetState extends State<NewUploadPhotoWidget>
                     _photoState == PhotoState.capture
                         ? Padding(
                           padding: const EdgeInsets.all(12),
-                          child: SvgPicture.asset(
-                            'assets/images/${widget.fileName}.svg',
-                            fit: BoxFit.contain,
-                          ),
+                          child: _imageIcon(),
+                          // child: SvgPicture.asset(
+                          //   'assets/images/${widget.fileName}.svg',
+                          //   fit: BoxFit.contain,
+                          // ),
                         )
                         : (_selectedImage != null
                             ? Image.file(_selectedImage!, fit: BoxFit.cover)
@@ -196,6 +197,21 @@ class _NewUploadPhotoWidgetState extends State<NewUploadPhotoWidget>
       ],
     );
   }
+  Widget _imageIcon() {
+  final path = 'assets/images/${widget.fileName}';
+
+  if (widget.fileName.endsWith('.png')) {
+    return Image.asset(
+      path,
+      fit: BoxFit.contain,
+    );
+  }
+
+  return SvgPicture.asset(
+    '$path.svg',
+    fit: BoxFit.contain,
+  );
+}
 }
 
 class ImagePreviewPage extends StatefulWidget {

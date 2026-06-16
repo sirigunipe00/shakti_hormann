@@ -3,8 +3,8 @@ import 'package:shakti_hormann/core/di/injector.dart';
 final _reqisteredUrl = $sl.get<Urls>(instanceName: 'baseUrl');
 
 class Urls {
-  factory Urls.uat() =>
-      const Urls('http://65.21.243.18:8000/api');
+  factory Urls.local() =>
+      const Urls('http://192.168.1.132:8000/api');
   factory Urls.shaktiHormannUAT() =>
    const Urls('https://shaktihormannuat.easycloud.co.in/api');
    factory Urls.live() =>  const Urls('https://shaktihormannlive.easycloud.co.in/api');
@@ -31,6 +31,7 @@ class Urls {
   static final getUsers = '$cusWs/shaktihormann.api.getUsers';
 
   static final appVersion = '$cusWs/easy_common.api.get_app_version';
+  static final defaultShutter = '$jsonWs/Shutter Packing';
 
   static final companyName = '$jsonWs/Company';
   static final dashBoard = '$cusWs/shaktihormann.api.gate_dashboard';
@@ -57,5 +58,12 @@ class Urls {
 
   static final oneSignal = '$cusWs/onesignal.api.save_user_device';
 
+  static final createShutter = '$cusWs/shaktihormann.p2_api.create_shutter_packing';
+  static final updateShutter = '$cusWs/shaktihormann.p2_api.update_shutter_packing';
+  static final submitShutter = '$cusWs/shaktihormann.p2_api.submit_shutter_packing';
+
+  static final createFrame = '$cusWs/shaktihormann.p2_api.create_frame_packing';
+  static final updateFrame = '$cusWs/shaktihormann.p2_api.update_frame_packing';
+  static final submitFrame =  '$cusWs/shaktihormann.p2_api.submit_frame_packing';
 
 }

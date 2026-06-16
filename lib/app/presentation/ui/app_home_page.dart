@@ -100,7 +100,54 @@ class _AppHomePageState extends State<AppHomePage> {
       },
       permissionSelector: (roleStatus) => roleStatus?.showgaetManagement,
     ),
-  ];
+    
+    DashboardItem(
+      title: 'Storage Allocation',
+      icon: AppIcons.storage,
+      iconSize: const Size(140, 80),
+      onTap: (context) {
+        AppRoute.storageAllocation.push<bool?>(context);
+      },
+      permissionSelector: (roleStatus) => roleStatus?.showgaetManagement,
+    ),
+     
+     DashboardItem(
+      title: 'Hardware Packaging',
+      icon: AppIcons.hardware,
+      iconSize: const Size(140, 80),
+      onTap: (context) {
+        AppRoute.hardwarePackaging.push<bool?>(context);
+      },
+      permissionSelector: (roleStatus) => roleStatus?.showgaetManagement,
+    ),
+    DashboardItem(
+      title: 'Zone Transfer',
+      icon: AppIcons.zone,
+      iconSize: const Size(140, 80),
+      onTap: (context) {
+        AppRoute.zoneTransfer.push<bool?>(context);
+      },
+      permissionSelector: (roleStatus) => roleStatus?.showgaetManagement,
+    ),
+    DashboardItem(
+      title: 'Shutter Packaging',
+      icon: AppIcons.zone,
+      iconSize: const Size(140, 80),
+      onTap: (context) {
+        AppRoute.shutterPackaging.push<bool?>(context);
+      },
+      permissionSelector: (roleStatus) => roleStatus?.showgaetManagement,
+    ),
+    DashboardItem(
+      title: 'Frame Packaging',
+      icon: AppIcons.zone,
+      iconSize: const Size(140, 80),
+      onTap: (context) {
+        AppRoute.framePackaging.push<bool?>(context);
+      },
+      permissionSelector: (roleStatus) => roleStatus?.showgaetManagement,
+    ),
+    ];
 
   Widget buildDashboardCard(DashboardItem item) {
     return GestureDetector(
@@ -147,6 +194,7 @@ class _AppHomePageState extends State<AppHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    
     LoggedInUser? user;
     try {
       user = $sl<LoggedInUser>();
@@ -302,26 +350,69 @@ class _AppHomePageState extends State<AppHomePage> {
                   ],
                 ),
               ),
+              
 
 
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: GridView.builder(
-                    itemCount: visibleItems.length,
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          childAspectRatio: 1,
-                          crossAxisSpacing: 16,
-                          mainAxisSpacing: 16,
-                        ),
-                    itemBuilder: (context, index) {
-                      return buildDashboardCard(visibleItems[index]);
-                    },
-                  ),
+             Expanded(
+  child: SingleChildScrollView(
+    child: Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+
+          /// First 8 cards
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: 8,
+            gridDelegate:
+                const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  childAspectRatio: 1,
+                  crossAxisSpacing: 16,
+                  mainAxisSpacing: 16,
                 ),
-              ),
+            itemBuilder: (context, index) {
+              return buildDashboardCard(visibleItems[index]);
+            },
+          ),
+
+          const SizedBox(height: 20),
+
+          /// Heading
+          const Text(
+            'Scanning & Packaging',
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF0E1446),
+            ),
+          ),
+
+          const SizedBox(height: 16),
+
+          /// Remaining 3 cards
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: visibleItems.length - 8,
+            gridDelegate:
+                const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  childAspectRatio: 1,
+                  crossAxisSpacing: 16,
+                  mainAxisSpacing: 16,
+                ),
+            itemBuilder: (context, index) {
+              return buildDashboardCard(visibleItems[index + 8]);
+            },
+          ),
+        ],
+      ),
+    ),
+  ),
+),
             ],
           ),
         ),

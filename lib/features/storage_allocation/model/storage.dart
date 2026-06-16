@@ -1,0 +1,30 @@
+import 'dart:io';
+
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:shakti_hormann/core/utils/typedefs.dart';
+
+part 'storage.freezed.dart';
+part 'storage.g.dart';
+
+@freezed
+class Storage with _$Storage {
+  const factory Storage({
+    @JsonKey(name: 'name') String? name,
+    @JsonKey(name: 'stored_by') String? storedBy,
+    @JsonKey(name: 'storage_timestamp') String? storageTimeStamp,
+    @JsonKey(name: 'remarks') String? remarks,
+    @JsonKey(name: 'location_photo') String? locationPhoto,
+    @JsonKey(
+      includeFromJson: true,
+      includeToJson: false,
+      toJson: toNull,
+      fromJson: toNull,
+    )
+    File? locationPhotoImg,
+    @JsonKey(name: 'zone_qr') String? zoneQr,
+    @JsonKey(name: 'pallet__box_qr_scan') String? palletBoxQr
+}) = _Storage;
+
+  factory Storage.fromJson(Map<String, dynamic> json) =>
+      _$StorageFromJson(json);
+}

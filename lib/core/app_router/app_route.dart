@@ -24,6 +24,16 @@ abstract class _AppRoutePaths {
   static const newproofOfDelivery='/home/proofOfDelivery/newproofOfDelivery';
   static const gateManagement = '/home/gatemanagement';
   static const newGateManagement = '/home/gatemanagement/newGateManagement';
+  static const storageAllocation = '/home/storageallocation';
+  static const newStorageAllocation = '/home/storageallocation/newStorageAllocation';
+  static const zoneTransfer = '/home/zonetransfer';
+  static const newZoneTransfer = '/home/zonetransfer/newZoneTransfer';  
+  static const hardwarePackaging = '/home/hardwarepackaging';
+  static const newHardwarePackaging = '/home/hardwarepackaging/newHardwarePackaging';
+  static const shutterPackaging = '/home/shutterPackaging';
+  static const newshutterPackaging = '/home/shutterPackaging/newshutterPackaging';
+  static const framePackaging = '/home/framePackaging';
+  static const newframePackaging = '/home/framePackaging/newframePackaging';
 }
 
 enum AppRoute {
@@ -47,8 +57,18 @@ enum AppRoute {
   transportConfirmation(_AppRoutePaths.transportConfirmation),
   vehcileReporting(_AppRoutePaths.vehcileReporting),
   loadingConfirmation(_AppRoutePaths.loadingConfirmation),
-  proofOfDelivery(_AppRoutePaths.proofOfDelivery),
-  notifications(_AppRoutePaths.notifications);
+  proofOfDelivery(_AppRoutePaths.proofOfDelivery), 
+  notifications(_AppRoutePaths.notifications),
+  storageAllocation(_AppRoutePaths.storageAllocation),
+  newStorageAllocation(_AppRoutePaths.newStorageAllocation),
+  zoneTransfer(_AppRoutePaths.zoneTransfer),
+  newZoneTransfer(_AppRoutePaths.newZoneTransfer),
+  hardwarePackaging(_AppRoutePaths.hardwarePackaging),
+  newHardwarePackaging(_AppRoutePaths.newHardwarePackaging),
+  shutterPackaging(_AppRoutePaths.shutterPackaging),
+  newshutterPackaging(_AppRoutePaths.newshutterPackaging),
+  framePackaging(_AppRoutePaths.framePackaging),
+  newframePackaging(_AppRoutePaths.newframePackaging);
 
 
 

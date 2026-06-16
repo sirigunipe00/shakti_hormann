@@ -28,6 +28,12 @@ import '../../features/auth/presentation/ui/sign_in/sign_in_cubit.dart'
 import '../../features/dashboard/data/dashboard_repoimpl.dart' as _i959;
 import '../../features/dashboard/data/dashboardrepo.dart' as _i886;
 import '../../features/dashboard/presentation/bloc_provider.dart' as _i627;
+import '../../features/frame_packing/data/frame_packing_repo.dart' as _i117;
+import '../../features/frame_packing/data/frame_packing_repoimpl.dart' as _i210;
+import '../../features/frame_packing/presentation/bloc/bloc_provider.dart'
+    as _i637;
+import '../../features/frame_packing/presentation/bloc/create_frame_cubit.dart/create_frame_cubit.dart'
+    as _i271;
 import '../../features/gate_entry/data/gate_entry.repo.dart' as _i936;
 import '../../features/gate_entry/data/gate_entry_repoimpl.dart' as _i403;
 import '../../features/gate_entry/presentation/bloc/bloc_provider.dart'
@@ -47,6 +53,10 @@ import '../../features/gate_management/presentation/bloc/bloc_provider.dart'
     as _i1008;
 import '../../features/gate_management/presentation/bloc/create_gate_management_cubit.dart/gate_management_cubit.dart'
     as _i326;
+import '../../features/hardware_packing/data/hardware_repo.dart' as _i1009;
+import '../../features/hardware_packing/data/hardware_repo_impl.dart' as _i989;
+import '../../features/hardware_packing/presentation/bloc/bloc_provider.dart'
+    as _i574;
 import '../../features/loading_confirmation/data/loading_cnfm_repo.dart'
     as _i66;
 import '../../features/loading_confirmation/data/loading_cnfm_repoimpl.dart'
@@ -75,6 +85,18 @@ import '../../features/push_notifications.dart/data/notification_repoimpl.dart'
     as _i601;
 import '../../features/push_notifications.dart/ui/bloc/bloc_provider.dart'
     as _i185;
+import '../../features/shutter_packing/data/shutter_packaging_repo.dart'
+    as _i1047;
+import '../../features/shutter_packing/data/shutter_packaging_repoimpl.dart'
+    as _i823;
+import '../../features/shutter_packing/presentation/bloc/bloc_provider.dart'
+    as _i857;
+import '../../features/shutter_packing/presentation/bloc/create_shutter_cubit.dart/create_shutter_cubit.dart'
+    as _i1073;
+import '../../features/storage_allocation/data/storage_repo.dart' as _i791;
+import '../../features/storage_allocation/data/storage_repo_impl.dart' as _i99;
+import '../../features/storage_allocation/presentation/bloc/bloc_provider.dart'
+    as _i708;
 import '../../features/transport_confirmation/data/transport_confrimation_repo.dart'
     as _i271;
 import '../../features/transport_confirmation/data/transport_confrimation_repoimpl.dart'
@@ -91,6 +113,10 @@ import '../../features/vehicle_reporting/presentation/bloc/bloc_provider.dart'
     as _i429;
 import '../../features/vehicle_reporting/presentation/bloc/create_vr_cubit/create_vehicle_cubit.dart'
     as _i585;
+import '../../features/zone_transfer/data/zone_repo.dart' as _i710;
+import '../../features/zone_transfer/data/zone_repo_impl.dart' as _i981;
+import '../../features/zone_transfer/presentation/bloc/bloc_provider.dart'
+    as _i601;
 import '../core.dart' as _i351;
 import '../local_storage/key_vale_storage.dart' as _i1012;
 import '../network/api_client.dart' as _i557;
@@ -139,20 +165,47 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i351.InternetConnectionChecker>(),
       ),
     );
+    gh.lazySingleton<_i1047.ShutterPackingRepo>(
+      () => _i823.ShutterPackingRepoImpl(gh<_i351.ApiClient>()),
+    );
+    gh.lazySingleton<_i791.StorageRepo>(
+      () => _i99.StorageRepoImp(gh<_i351.ApiClient>()),
+    );
+    gh.lazySingleton<_i1009.HardWareRepo>(
+      () => _i989.HardWareRepoImp(gh<_i351.ApiClient>()),
+    );
+    gh.lazySingleton<_i117.FramePackingRepo>(
+      () => _i210.FramePackingRepoImpl(gh<_i351.ApiClient>()),
+    );
     gh.lazySingleton<_i585.AuthRepo>(
       () => _i328.AuthRepoImpl(
         gh<_i351.ApiClient>(),
         gh<_i351.KeyValueStorage>(),
       ),
     );
+    gh.lazySingleton<_i574.HardwareBlocProvider>(
+      () => _i574.HardwareBlocProvider(gh<_i1009.HardWareRepo>()),
+    );
     gh.lazySingleton<_i25.ProofOfDeliveryRepo>(
       () => _i690.PodRepoImpl(gh<_i351.ApiClient>()),
+    );
+    gh.lazySingleton<_i857.ShutterBlocProvider>(
+      () => _i857.ShutterBlocProvider(gh<_i1047.ShutterPackingRepo>()),
+    );
+    gh.factory<_i1073.CreateShutterCubit>(
+      () => _i1073.CreateShutterCubit(gh<_i1047.ShutterPackingRepo>()),
     );
     gh.lazySingleton<_i1021.GateManagementRepo>(
       () => _i431.GateManagementRepoimpl(gh<_i351.ApiClient>()),
     );
     gh.lazySingleton<_i66.LoadingCnfmRepo>(
       () => _i186.LoadingCnfmRepoimpl(gh<_i351.ApiClient>()),
+    );
+    gh.factory<_i271.CreateFrameCubit>(
+      () => _i271.CreateFrameCubit(gh<_i117.FramePackingRepo>()),
+    );
+    gh.lazySingleton<_i637.FrameBlocProvider>(
+      () => _i637.FrameBlocProvider(gh<_i117.FramePackingRepo>()),
     );
     gh.factory<_i345.CreateLoadingCnfmCubit>(
       () => _i345.CreateLoadingCnfmCubit(gh<_i66.LoadingCnfmRepo>()),
@@ -194,6 +247,12 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i820.AppRepository>(
       () => _i820.AppRepository(gh<_i351.ApiClient>(), gh<_i346.AppVersion>()),
     );
+    gh.lazySingleton<_i708.StorageBlocProvider>(
+      () => _i708.StorageBlocProvider(gh<_i791.StorageRepo>()),
+    );
+    gh.lazySingleton<_i710.ZoneRepo>(
+      () => _i981.ZoneRepoImp(gh<_i351.ApiClient>()),
+    );
     gh.lazySingleton<_i1008.GateManagementBlocProvider>(
       () => _i1008.GateManagementBlocProvider(gh<_i1021.GateManagementRepo>()),
     );
@@ -205,6 +264,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i210.GateEntryBlocProvider>(
       () => _i210.GateEntryBlocProvider(gh<_i936.GateEntryRepo>()),
+    );
+    gh.lazySingleton<_i601.ZoneBlocProvider>(
+      () => _i601.ZoneBlocProvider(gh<_i710.ZoneRepo>()),
     );
     gh.factory<_i297.CreateGateExitCubit>(
       () => _i297.CreateGateExitCubit(gh<_i495.GateExitRepo>()),

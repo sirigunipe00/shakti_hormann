@@ -529,12 +529,14 @@ class _GateEntryFormWidgetState extends State<GateEntryFormWidget> {
                                             imageQuality: 70,
                                           );
                                           if (image != null) {
-                                            context
+                                            if(context.mounted){
+                                               context
                                                 .read<CreateGateEntryCubit>()
                                                 .addInvoicePhoto(
                                                   File(image.path),
                                                 );
-                                          }
+                                                }
+                                           }
                                         },
                                       ),
                                       const SizedBox(height: 9),

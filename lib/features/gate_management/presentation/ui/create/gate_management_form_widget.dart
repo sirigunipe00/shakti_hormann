@@ -555,11 +555,14 @@ class _GateManagementFormWidgetState extends State<GateManagementFormWidget> {
                                             imageQuality: 70,
                                           );
                                           if (image != null) {
-                                            context
+                                            if(context.mounted){
+                                                context
                                                 .read<CreateGateManagementCubit>()
                                                 .addInvoicePhoto(
                                                   File(image.path),
                                                 );
+
+                                            }
                                           }
                                         },
                                       ),

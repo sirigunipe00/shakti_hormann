@@ -13,7 +13,12 @@ enum PageMode2 {
   vehicleReporting('Vehicle Reporting Entry'),
   loadingConfirmation('Dispatch Loading'),
   proofOfDelivery('Proof of Delivery'),
-  gateManagement('Gate Management');
+  gateManagement('Gate Management'),
+  storagePacking('Storage Packing'),
+  hardwarePacking('HardWare Packing'),
+  zoneTransfer('Zone Transfer'),
+  shutterPacking('Shutter Packing'),
+  framePacking('Frame Packing');
 
 
   const PageMode2(this.name);

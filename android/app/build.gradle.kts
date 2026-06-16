@@ -35,10 +35,10 @@ android {
 
   buildTypes {
     release {
-        signingConfig = signingConfigs.getByName("release")
-    }
+    //     signingConfig = signingConfigs.getByName("release")
+    // }
 
-    debug {
+    // debug {
         signingConfig = signingConfigs.getByName("debug")
     }
 }
@@ -51,4 +51,12 @@ tasks.whenTaskAdded {
 
 flutter {
     source = "../.."
+}
+dependencies {
+    implementation("com.google.mlkit:text-recognition:16.0.1")
+
+    implementation("com.google.mlkit:text-recognition-chinese:16.0.1")
+    implementation("com.google.mlkit:text-recognition-devanagari:16.0.1")
+    implementation("com.google.mlkit:text-recognition-japanese:16.0.1")
+    implementation("com.google.mlkit:text-recognition-korean:16.0.1")
 }

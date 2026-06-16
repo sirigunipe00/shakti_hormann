@@ -12,6 +12,11 @@ import 'package:shakti_hormann/features/dashboard/presentation/dashboard_page.da
 import 'package:shakti_hormann/app/presentation/widgets/app_scaffold_widget.dart';
 import 'package:shakti_hormann/core/consts/messages.dart';
 import 'package:shakti_hormann/core/core.dart';
+import 'package:shakti_hormann/features/frame_packing/model/frame_packing.dart';
+import 'package:shakti_hormann/features/frame_packing/presentation/bloc/bloc_provider.dart';
+import 'package:shakti_hormann/features/frame_packing/presentation/bloc/create_frame_cubit.dart/create_frame_cubit.dart';
+import 'package:shakti_hormann/features/frame_packing/presentation/ui/create/new_frame.dart';
+import 'package:shakti_hormann/features/frame_packing/presentation/ui/widget/frame_list.dart';
 import 'package:shakti_hormann/features/gate_entry/model/gate_entry_form.dart';
 import 'package:shakti_hormann/features/gate_entry/presentation/bloc/bloc_provider.dart';
 import 'package:shakti_hormann/features/gate_entry/presentation/bloc/create_gate_cubit/gate_entry_cubit.dart';
@@ -27,6 +32,9 @@ import 'package:shakti_hormann/features/gate_management/presentation/bloc/bloc_p
 import 'package:shakti_hormann/features/gate_management/presentation/bloc/create_gate_management_cubit.dart/gate_management_cubit.dart';
 import 'package:shakti_hormann/features/gate_management/presentation/ui/create/new_gate_management.dart';
 import 'package:shakti_hormann/features/gate_management/presentation/ui/widget/gate_management_list.dart';
+import 'package:shakti_hormann/features/hardware_packing/presentation/bloc/bloc_provider.dart';
+import 'package:shakti_hormann/features/hardware_packing/presentation/ui/create/new_hardware.dart';
+import 'package:shakti_hormann/features/hardware_packing/presentation/ui/widget/hardware_list.dart';
 import 'package:shakti_hormann/features/loading_confirmation/model/loading_cnfm.dart';
 import 'package:shakti_hormann/features/loading_confirmation/presentation/bloc/bloc_provider.dart';
 import 'package:shakti_hormann/features/loading_confirmation/presentation/bloc/create_loading_cubit/create_loading_cnfm_cubit.dart';
@@ -44,6 +52,14 @@ import 'package:shakti_hormann/features/proof_of_delivery/presentation/ui/new_po
 import 'package:shakti_hormann/features/proof_of_delivery/presentation/widget/pod_list.dart';
 import 'package:shakti_hormann/features/push_notifications.dart/ui/bloc/bloc_provider.dart';
 import 'package:shakti_hormann/features/push_notifications.dart/ui/notification_scrn.dart';
+import 'package:shakti_hormann/features/shutter_packing/model/shutter_packing.dart';
+import 'package:shakti_hormann/features/shutter_packing/presentation/bloc/bloc_provider.dart';
+import 'package:shakti_hormann/features/shutter_packing/presentation/bloc/create_shutter_cubit.dart/create_shutter_cubit.dart';
+import 'package:shakti_hormann/features/shutter_packing/presentation/ui/create/new_shutter.dart';
+import 'package:shakti_hormann/features/shutter_packing/presentation/ui/widget/shutter_list.dart';
+import 'package:shakti_hormann/features/storage_allocation/presentation/bloc/bloc_provider.dart';
+import 'package:shakti_hormann/features/storage_allocation/presentation/ui/create/new_storage.dart';
+import 'package:shakti_hormann/features/storage_allocation/presentation/ui/widget/storage_list.dart';
 import 'package:shakti_hormann/features/transport_confirmation/model/transport_confirmation_form.dart';
 import 'package:shakti_hormann/features/transport_confirmation/presentation/bloc/bloc_provider.dart';
 import 'package:shakti_hormann/features/transport_confirmation/presentation/bloc/create_transport_cubit.dart/create_transport_cubit.dart';
@@ -54,6 +70,9 @@ import 'package:shakti_hormann/features/vehicle_reporting/presentation/bloc/bloc
 import 'package:shakti_hormann/features/vehicle_reporting/presentation/bloc/create_vr_cubit/create_vehicle_cubit.dart';
 import 'package:shakti_hormann/features/vehicle_reporting/presentation/ui/create/new_vehicle_reporting.dart';
 import 'package:shakti_hormann/features/vehicle_reporting/presentation/ui/widgets/vehicle_reporting_list.dart';
+import 'package:shakti_hormann/features/zone_transfer/presentation/bloc/bloc_provider.dart';
+import 'package:shakti_hormann/features/zone_transfer/presentation/ui/create/new_zone.dart';
+import 'package:shakti_hormann/features/zone_transfer/presentation/ui/widget/zone_list.dart';
 import 'package:shakti_hormann/widgets/dailogs/app_dialogs.dart';
 
 class AppRouterConfig {
@@ -517,14 +536,7 @@ class AppRouterConfig {
                                         .fetchProofOfDelivery()
                                       ..fetchInitial(filters),
                           ),
-
-                          BlocProvider(
-                            create:
-                                (_) =>
-                                    $sl.get<CreatePodCubit>()
-                                      ..initDetails(form),
-                          ),
-                              BlocProvider<GeoPermissionHandler>(
+                          BlocProvider<GeoPermissionHandler>(
                             create:
                                 (_) =>
                                     GeoPermissionHandler()..checkPermission(),
@@ -538,7 +550,6 @@ class AppRouterConfig {
                           ),
                         
                         ],
-
                         child: const PodListScrn(),
                       );
                     },
@@ -587,7 +598,7 @@ class AppRouterConfig {
                       ),
                     ],
                   ),
-                      GoRoute(
+                  GoRoute(
                     path: _getPath(AppRoute.gateManagement),
                     builder: (ctxt, state) {
                       final filters = Pair(
@@ -652,6 +663,262 @@ class AppRouterConfig {
                           );
                         },
                       ),
+                    ],
+                  ),
+                   GoRoute(
+                    path: _getPath(AppRoute.storageAllocation),
+                    builder: (ctxt, state) {
+                      final filters = Pair(
+                        StringUtils.docStatusInt('Draft'),
+                        null,
+                      );
+                      return BlocProvider(
+                        create:
+                            (context) =>
+                                StorageBlocProvider.get().fetchStorage()
+                                  ..fetchInitial(filters),
+                        child: const StorageListScrn(),
+                      );
+                    },
+                    routes: [
+                      GoRoute(
+                        path: _getPath(AppRoute.newStorageAllocation),
+                        onExit: (context, state) async {
+                          final form = state.extra as GateManagementForm?;
+                          final formStatus =
+                              form?.docStatus == 1 ? 'Submitted' : 'Draft';
+                          return await _promptConf(
+                            context,
+                            formStatus: formStatus,
+                          );
+                        },
+                        builder: (_, state) {
+                          final storageForm = state.extra as GateManagementForm?;
+                          final blocprovider = StorageBlocProvider.get();
+                          return MultiBlocProvider(
+                            providers: [
+                              BlocProvider(
+                                create:
+                                    (_) => blocprovider.fetchStorage(),
+                              ),
+                              BlocProvider(
+                                create:
+                                    (_) =>
+                                        $sl.get<CreateFrameCubit>()
+                                          ..initDetails(storageForm),
+                              ),
+                              ],
+                            child: const NewStorage(),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                  GoRoute(
+                    path: _getPath(AppRoute.hardwarePackaging),
+                    builder: (ctxt, state) {
+                      final filters = Pair(
+                        StringUtils.docStatusInt('Draft'),
+                        null,
+                      );
+                      return BlocProvider(
+                        create:
+                            (context) =>
+                                HardwareBlocProvider.get().fetchHardware()
+                                  ..fetchInitial(filters),
+                        child: const HardwareListScrn(),
+                      );
+                    },
+                    routes: [
+                      GoRoute(
+                        path: _getPath(AppRoute.newHardwarePackaging),
+                        onExit: (context, state) async {
+                          final form = state.extra as GateManagementForm?;
+                          final formStatus =
+                              form?.docStatus == 1 ? 'Submitted' : 'Draft';
+                          return await _promptConf(
+                            context,
+                            formStatus: formStatus,
+                          );
+                        },
+                        builder: (_, state) {
+                          final hardwareForm = state.extra as GateManagementForm?;
+                          final blocprovider = HardwareBlocProvider.get();
+                          return MultiBlocProvider(
+                            providers: [
+                              BlocProvider(
+                                create:
+                                    (_) => blocprovider.fetchHardware(),
+                              ),
+                              BlocProvider(
+                                create:
+                                    (_) =>
+                                        $sl.get<CreateFrameCubit>()
+                                          ..initDetails(hardwareForm),
+                              ),
+                              ],
+                            child: const NewHardware(),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                    GoRoute(
+                    path: _getPath(AppRoute.zoneTransfer),
+                    builder: (ctxt, state) {
+                      final filters = Pair(
+                        StringUtils.docStatusInt('Draft'),
+                        null,
+                      );
+                      return BlocProvider(
+                        create:
+                            (context) =>
+                                ZoneBlocProvider.get().fetchZone()
+                                  ..fetchInitial(filters),
+                        child: const ZoneListScrn(),
+                      );
+                    },
+                    routes: [
+                      GoRoute(
+                        path: _getPath(AppRoute.newZoneTransfer),
+                        onExit: (context, state) async {
+                          final form = state.extra as GateManagementForm?;
+                          final formStatus =
+                              form?.docStatus == 1 ? 'Submitted' : 'Draft';
+                          return await _promptConf(
+                            context,
+                            formStatus: formStatus,
+                          );
+                        },
+                        builder: (_, state) {
+                          final zoneForm = state.extra as GateManagementForm?;
+                          final blocprovider = ZoneBlocProvider.get();
+                          return MultiBlocProvider(
+                            providers: [
+                              BlocProvider(
+                                create:
+                                    (_) => blocprovider.fetchZone(),
+                              ),
+                              BlocProvider(
+                                create:
+                                    (_) =>
+                                        $sl.get<CreateFrameCubit>()
+                                          ..initDetails(zoneForm),
+                              ),
+                              ],
+                            child: const NewZone(),
+                          );
+                        },
+                      ),
+                      
+                    ],
+                  ),
+                  GoRoute(
+                    path: _getPath(AppRoute.shutterPackaging),
+                    builder: (ctxt, state) {
+                      final filters = Pair(
+                        StringUtils.docStatusInt('Draft'),
+                        null,
+                      );
+                      return BlocProvider(
+                        create:
+                            (context) =>
+                                ShutterBlocProvider.get().fetchShutter()
+                                  ..fetchInitial(filters),
+                        child: const ShutterListScrn(),
+                      );
+                    },
+                    routes: [
+                      GoRoute(
+                        path: _getPath(AppRoute.newshutterPackaging),
+                        onExit: (context, state) async {
+                          final form = state.extra as ShutterPacking?;
+                          final formStatus =
+                              form?.docStatus == 1 ? 'Submitted' : 'Draft';
+                          return await _promptConf(
+                            context,
+                            formStatus: formStatus,
+                          );
+                        },
+                        builder: (_, state) {
+                          final shutter = state.extra as ShutterPacking?;
+                          final blocprovider = ShutterBlocProvider.get();
+                          return MultiBlocProvider(
+                            providers: [
+                              BlocProvider(
+                                create:
+                                    (_) => blocprovider.fetchShutter(),
+                              ),
+                              BlocProvider(
+                                create:
+                                    (_) => blocprovider.getShutterLines()..request(shutter?.name ?? ''),
+                              ),
+                              BlocProvider(
+                                create:
+                                    (_) =>
+                                        $sl.get<CreateShutterCubit>()
+                                          ..initDetails(shutter),
+                              ),
+                              ],
+                            child: const NewShutter(),
+                          );
+                        },
+                      ),
+                      
+                    ],
+                  ),
+                  GoRoute(
+                    path: _getPath(AppRoute.framePackaging),
+                    builder: (ctxt, state) {
+                      final filters = Pair(
+                        StringUtils.docStatusInt('Draft'),
+                        null,
+                      );
+                      return BlocProvider(
+                        create:
+                            (context) =>
+                                FrameBlocProvider.get().fetchFrames()
+                                  ..fetchInitial(filters),
+                        child: const FrameListScrn(),
+                      );
+                    },
+                    routes: [
+                      GoRoute(
+                        path: _getPath(AppRoute.newframePackaging),
+                        onExit: (context, state) async {
+                          final form = state.extra as FramePacking?;
+                          final formStatus =
+                              form?.docStatus == 1 ? 'Submitted' : 'Draft';
+                          return await _promptConf(
+                            context,
+                            formStatus: formStatus,
+                          );
+                        },
+                        builder: (_, state) {
+                          final frame = state.extra as FramePacking?;
+                          final blocprovider = FrameBlocProvider.get();
+                          return MultiBlocProvider(
+                            providers: [
+                              BlocProvider(
+                                create:
+                                    (_) => blocprovider.fetchFrames(),
+                              ),
+                              BlocProvider(
+                                create:
+                                    (_) => blocprovider.getFrameLines()..request(frame?.name ?? ''),
+                              ),
+                              BlocProvider(
+                                create:
+                                    (_) =>
+                                        $sl.get<CreateFrameCubit>()
+                                          ..initDetails(frame),
+                              ),
+                              ],
+                            child: const NewFrame(),
+                          );
+                        },
+                      ),
+                      
                     ],
                   ),
                 ],

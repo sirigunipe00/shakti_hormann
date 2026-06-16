@@ -137,7 +137,7 @@ class _LoadingCnfmFormWidget extends State<LoadingCnfmFormWidget> {
                               fillColor: Colors.grey[200],
                             ),
                             const SizedBox(height: 12),
-                              InputField(
+                            InputField(
                               title: 'Transporter Name',
                               readOnly: true,
                               borderColor: AppColors.grey,
@@ -147,9 +147,7 @@ class _LoadingCnfmFormWidget extends State<LoadingCnfmFormWidget> {
                                   ]
                                   .where((e) => e != null && e.isNotEmpty)
                                   .join(' - '),
-                              onChanged:
-                                  (p0) => context
-                                      
+                              onChanged: (p0) => context,
                             ),
                           ],
                         ),
@@ -378,7 +376,6 @@ class _ItemLoadedTableState extends State<ItemLoadedTable> {
   void initState() {
     super.initState();
 
-    // Map ItemModel list into rows
     rows =
         widget.initialData.map((item) {
           return {
@@ -386,11 +383,10 @@ class _ItemLoadedTableState extends State<ItemLoadedTable> {
             'itemName': item.itemName,
             'qty': item.qtyLoaded?.toString() ?? '',
             'uom': item.uomValue,
-            'photo': item.loadedItemPhoto ?? '', // 👈 keep raw value
+            'photo': item.loadedItemPhoto ?? '',
           };
         }).toList();
 
-    // 🔹 Push API-loaded records to cubit as well
     Future.microtask(() {
       for (final item in widget.initialData) {
         // print('itemm   ..:$item');
@@ -411,12 +407,10 @@ class _ItemLoadedTableState extends State<ItemLoadedTable> {
       if (index < cubit.state.listitems.length) {
         final oldItem = cubit.state.listitems[index];
 
-        // print('oldItem ...:$oldItem');
-
-       final newItem = oldItem.copyWith(
-  imageFile: File(photo.path),
-  loadedItemPhoto: oldItem.loadedItemPhoto, // keep old if server record exists
-);
+        final newItem = oldItem.copyWith(
+          imageFile: File(photo.path),
+          loadedItemPhoto: oldItem.loadedItemPhoto,
+        );
         cubit.updateItem(index, newItem);
       }
     }
@@ -453,35 +447,33 @@ class _ItemLoadedTableState extends State<ItemLoadedTable> {
       },
     );
 
-    // print('result ...:$result');
+
 
     if (result != null) {
       final row = result['row'] as Map<String, dynamic>;
       final lineItem = result['model'] as ItemModel;
 
-     if (index != null) {
-  final cubit = context.read<CreateLoadingCnfmCubit>();
-  final oldItem = cubit.state.listitems[index];
+      if (index != null) {
+        final cubit = context.read<CreateLoadingCnfmCubit>();
+        final oldItem = cubit.state.listitems[index];
 
-  final updatedItem = oldItem.copyWith(
-    itemCode: lineItem.itemCode ?? oldItem.itemCode,
-    itemName: lineItem.itemName ?? oldItem.itemName,
-    uomValue: lineItem.uomValue ?? oldItem.uomValue,
-    qtyLoaded: lineItem.qtyLoaded ?? oldItem.qtyLoaded,
-    // if photo not changed keep existing
-    sampleQuantity: lineItem.sampleQuantity ?? oldItem.sampleQuantity,
-    loadedItemPhoto: lineItem.loadedItemPhoto ?? oldItem.loadedItemPhoto,
-    imageFile: lineItem.imageFile, // only if new image captured
-  );
+        final updatedItem = oldItem.copyWith(
+          itemCode: lineItem.itemCode ?? oldItem.itemCode,
+          itemName: lineItem.itemName ?? oldItem.itemName,
+          uomValue: lineItem.uomValue ?? oldItem.uomValue,
+          qtyLoaded: lineItem.qtyLoaded ?? oldItem.qtyLoaded,
+          sampleQuantity: lineItem.sampleQuantity ?? oldItem.sampleQuantity,
+          loadedItemPhoto: lineItem.loadedItemPhoto ?? oldItem.loadedItemPhoto,
+          imageFile: lineItem.imageFile, 
+        );
 
-  setState(() {
-    rows[index] = row;
-  });
+        setState(() {
+          rows[index] = row;
+        });
 
-  cubit.updateItem(index, updatedItem);
-}
- else {
-        // 🔹 Adding new row
+        cubit.updateItem(index, updatedItem);
+      } else {
+
         setState(() {
           rows.add(row);
         });
@@ -547,7 +539,7 @@ class _ItemLoadedTableState extends State<ItemLoadedTable> {
                       ),
                     ),
                     if (widget.docstatus !=
-                        1) // 👈 hide edit button when docstatus == 1
+                        1) 
                       DataCell(
                         TextButton.icon(
                           onPressed: () => addRow(index: index),
@@ -583,8 +575,6 @@ class _ItemLoadedTableState extends State<ItemLoadedTable> {
 
 Widget _buildImage(String path, {BuildContext? context}) {
   final baseUrl = Urls.baseUrl.replaceAll('/api', '');
- 
-
 
   Widget imageWidget;
 
@@ -615,7 +605,7 @@ Widget _buildImage(String path, {BuildContext? context}) {
     imageWidget = const Icon(Icons.broken_image);
   }
 
-  // 🔹 Wrap the image in GestureDetector for navigation
+
   return GestureDetector(
     onTap:
         context == null
@@ -660,7 +650,7 @@ class _ItemDialogWidgetState extends State<ItemDialogWidget> {
   void initState() {
     super.initState();
 
-    // initialize with existing row if editing
+
     selectedCode = widget.initialRow?['itemCode'];
     itemNameController = TextEditingController(
       text: widget.initialRow?['itemName'] ?? '',

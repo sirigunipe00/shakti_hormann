@@ -96,9 +96,10 @@ class _PodFormWidgetState extends State<PodFormWidget>
             if (state is GeoLocationDenied) {
               Geolocator.requestPermission().then((_) {
                 log('requestPermission...');
-
-                context.cubit<GeoPermissionHandler>().checkPermission();
-              });
+                if(context.mounted){
+                 context.cubit<GeoPermissionHandler>().checkPermission();
+                }
+                });
               return;
             }
             if (state is GeoLocationDeniedForever ||

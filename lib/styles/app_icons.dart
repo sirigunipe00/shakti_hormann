@@ -6,13 +6,8 @@ class AppIcons {
   static const basePath = 'assets';
   static const imagesPath = '$basePath/images';
   static const iconsPath = '$basePath/logo';
-  
-
-
   static const shaktiHormannLogo = AppIcon('$iconsPath/hormann-logo-new-1 1.png');
-
   // static const bubbles = AppIcon('$imagesPath/bubbles.svg');
-
   static const gateeEntry = AppIcon('$imagesPath/gateentry.svg');
   static const gateExit = AppIcon('$imagesPath/gateexit.svg');
   static const logisticRequest = AppIcon('$imagesPath/Logistics-pana 1.svg');
@@ -23,8 +18,9 @@ class AppIcons {
   static const loadingConfirmation = AppIcon('$imagesPath/loadingconfirmation.svg');
   static const pod = AppIcon('$imagesPath/pod.svg');
   static const gatemanagement = AppIcon('$imagesPath/gatemanagement.png');
- 
-
+  static const storage = AppIcon('$imagesPath/storage.png');
+  static const zone = AppIcon('$imagesPath/zone.png');
+  static const hardware = AppIcon('$imagesPath/hardware_packaging.svg');
 }
 
 class AppIcon {
