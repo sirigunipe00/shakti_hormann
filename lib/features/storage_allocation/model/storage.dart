@@ -9,11 +9,17 @@ part 'storage.g.dart';
 @freezed
 class Storage with _$Storage {
   const factory Storage({
+    String? status,
     @JsonKey(name: 'name') String? name,
     @JsonKey(name: 'stored_by') String? storedBy,
     @JsonKey(name: 'storage_timestamp') String? storageTimeStamp,
     @JsonKey(name: 'remarks') String? remarks,
     @JsonKey(name: 'location_photo') String? locationPhoto,
+    @JsonKey(name: 'docstatus') int? docStatus,
+    @JsonKey(name: 'sales_order') String? salesOrders,
+    @JsonKey(name: 'zone_name') String? zoneName,
+    @JsonKey(name: 'total_qty') int? totalQty,
+    @JsonKey(name: 'creation') String? creation,
     @JsonKey(
       includeFromJson: true,
       includeToJson: false,

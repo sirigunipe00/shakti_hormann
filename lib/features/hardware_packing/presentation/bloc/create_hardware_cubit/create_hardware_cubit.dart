@@ -1,0 +1,195 @@
+import 'dart:io';
+import 'package:intl/intl.dart';
+import 'package:shakti_hormann/core/core.dart';
+import 'package:dartz/dartz.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:injectable/injectable.dart';
+import 'package:shakti_hormann/features/hardware_packing/data/hardware_repo.dart';
+import 'package:shakti_hormann/features/hardware_packing/model/hardware_item.dart';
+import 'package:shakti_hormann/features/hardware_packing/model/hardware_packing.dart';
+
+part 'create_hardware_cubit.freezed.dart';
+
+enum HardwareView { create, completed }
+
+extension ActionType on HardwareView {
+  String toName() {
+    return switch (this) {
+      HardwareView.create => 'Submit',
+      HardwareView.completed => 'Submitted',
+    };
+  }
+}
+
+@injectable
+class CreateHardwareCubit extends AppBaseCubit<CreateHardwareState> {
+  CreateHardwareCubit(this.repo) : super(CreateHardwareState.initial());
+  final HardWareRepo repo;
+
+  void onValueChanged({
+    String? name,
+    String? creationDate,
+    String? owner,
+    int? docStatus,
+    int? boxCount,
+    String? modifiedBy,
+    String? modifiedDate,
+    String? salesOrderNo,
+    String? customerName,
+    String? captueDate,
+    String? operator,
+    String? mesSystem,
+    String? remarks,
+    File? mesImage,
+  }) async {
+    shouldAskForConfirmation.value = true;
+    final today = DateFormat('yyyy-MM-dd').format(DateTime.now());
+    final form = state.form;
+
+    final newForm = form.copyWith(
+
+      name: name ?? form.name,
+      creation: today,
+      owner: owner ?? form.owner,
+      docStatus: docStatus ?? form.docStatus,
+      modifiedBy: modifiedBy ?? form.modifiedBy,
+      modified: modifiedDate ?? form.modified,
+      salesOrderNo: salesOrderNo ?? form.salesOrderNo,
+      customerName: customerName ?? form.customerName,
+      captueDate: captueDate ?? form.captueDate,
+      operator: operator ?? form.operator,
+      mesSystem: mesSystem ?? form.mesSystem,
+      boxCount: boxCount ?? form.boxCount,
+      remarks: remarks ?? form.remarks,
+      mesStickerImage: mesImage ?? form.mesStickerImage,
+      );
+
+    emitSafeState(state.copyWith(form: newForm,isModified: true));
+  }
+
+  void initDetails(Object? entry) async{
+    shouldAskForConfirmation.value = false;
+    if (entry is HardwarePacking) {
+    
+
+      final form = state.form;
+      final updatedForm = form.copyWith(
+        docStatus: entry.docStatus,
+        name: entry.name,
+        remarks: entry.remarks,
+        creation: entry.creation,
+        salesOrderNo: entry.salesOrderNo,
+        customerName: entry.customerName,
+        captueDate: entry.captueDate,
+        operator: entry.operator,
+        mesSystem: entry.mesSystem,
+        boxCount: entry.boxCount,
+     
+      );
+
+      
+      emitSafeState(state.copyWith(form: updatedForm, view: HardwareView.completed));
+     }
+    if (entry == null) return;
+  }
+  void updateHardwareItems(List<HardwareItem> items) {
+  emitSafeState(
+    state.copyWith(
+      lines: items,
+      isModified: true,
+    ),
+  );
+}
+void addAllLines(List<HardwareItem> lines) {
+    emitSafeState(state.copyWith(lines: lines));
+  }
+void save() async {
+    final validation = _validate();
+    return validation.fold(() async {
+      emitSafeState(state.copyWith(isLoading: true, isSuccess: false));
+      
+
+      final status = switch (state.view) {
+        HardwareView.create => 'Draft',
+         HardwareView.completed => 'Submitted',
+      };
+
+      if (state.view == HardwareView.create) {
+        final response = await repo.createHardware(state.form,state.lines);
+
+        return response.fold(
+          (l) => emitSafeState(
+            state.copyWith(isLoading: false, error: l, isSuccess: false),
+          ),
+          (r) {
+            shouldAskForConfirmation.value = false;
+            final docstatus = r.second;
+            emitSafeState(
+              state.copyWith(
+                isLoading: false,
+                isSuccess: true,
+                form: state.form.copyWith(status: status, name: docstatus),
+                successMsg: '${r.first}\n${r.second}',
+                view: HardwareView.completed,
+              ),
+            );
+          },
+        );
+      }
+    }, _emitError);
+  }
+
+  void _emitError(Pair<String, int?> error) {
+    final failure = Failure(
+      error: error.first,
+      title: 'Missing Fields',
+      status: error.second,
+    );
+    emitSafeState(state.copyWith(error: failure, isLoading: false));
+  }
+
+  void errorHandled() {
+    emitSafeState(
+      state.copyWith(
+        error: null,
+        isLoading: false,
+        isSuccess: false,
+        successMsg: null,
+      ),
+    );
+  }
+
+  Option<Pair<String, int?>> _validate() {
+    final form = state.form;
+    if (form.salesOrderNo == null || form.salesOrderNo!.isEmpty) {
+      return optionOf(const Pair('Select Sales Order', 0));
+    } 
+
+    return const None();
+  }
+}
+
+@freezed
+class CreateHardwareState with _$CreateHardwareState {
+  const factory CreateHardwareState({
+    required HardwarePacking form,
+    required List<HardwareItem> lines,
+    required bool isLoading,
+    required bool isSuccess,
+    required HardwareView view,
+    @Default(false) bool isModified,
+
+    String? successMsg,
+    Failure? error,
+  }) = _CreateHardwareState;
+
+  factory CreateHardwareState.initial() {
+    return const CreateHardwareState(
+      form: HardwarePacking(),
+      lines: [],
+      view: HardwareView.create,
+      isLoading: false,
+      isSuccess: false,
+    );
+  }
+}

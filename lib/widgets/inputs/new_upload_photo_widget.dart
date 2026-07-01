@@ -171,6 +171,13 @@ class _NewUploadPhotoWidgetState extends State<NewUploadPhotoWidget>
                                 ? Image.network(
                                   getFullImageUrl(widget.imageUrl),
                                   fit: BoxFit.cover,
+                                  loadingBuilder: (context, child, progress) {
+                                    if (progress == null) return child;
+
+                                    return const Center(
+                                      child: CircularProgressIndicator(),
+                                    );
+                                  },
                                   errorBuilder: (context, error, stackTrace) {
                                     return Padding(
                                       padding: const EdgeInsets.all(12),
@@ -197,21 +204,16 @@ class _NewUploadPhotoWidgetState extends State<NewUploadPhotoWidget>
       ],
     );
   }
+
   Widget _imageIcon() {
-  final path = 'assets/images/${widget.fileName}';
+    final path = 'assets/images/${widget.fileName}';
 
-  if (widget.fileName.endsWith('.png')) {
-    return Image.asset(
-      path,
-      fit: BoxFit.contain,
-    );
+    if (widget.fileName.endsWith('.png')) {
+      return Image.asset(path, fit: BoxFit.contain);
+    }
+
+    return SvgPicture.asset('$path.svg', fit: BoxFit.contain);
   }
-
-  return SvgPicture.asset(
-    '$path.svg',
-    fit: BoxFit.contain,
-  );
-}
 }
 
 class ImagePreviewPage extends StatefulWidget {
@@ -260,6 +262,11 @@ class _ImagePreviewPageState extends State<ImagePreviewPage> {
       imageWidget = Image.file(widget.image!, fit: BoxFit.contain);
     } else if (widget.imageUrl.containsValidValue) {
       imageWidget = Image.network(
+        loadingBuilder: (context, child, progress) {
+          if (progress == null) return child;
+
+          return const Center(child: CircularProgressIndicator());
+        },
         getFullImageUrl(widget.imageUrl),
         fit: BoxFit.contain,
       );

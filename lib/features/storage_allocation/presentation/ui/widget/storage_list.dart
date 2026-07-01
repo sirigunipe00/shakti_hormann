@@ -3,10 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shakti_hormann/app/presentation/widgets/app_page_view2.dart';
 import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/core/model/page_view_filters.dart';
-import 'package:shakti_hormann/features/frame_packing/model/frame_packing.dart';
-import 'package:shakti_hormann/features/frame_packing/presentation/bloc/bloc_provider.dart';
-import 'package:shakti_hormann/features/frame_packing/presentation/ui/widget/frame_widget.dart';
+import 'package:shakti_hormann/features/storage_allocation/model/storage.dart';
+import 'package:shakti_hormann/features/storage_allocation/presentation/bloc/bloc_provider.dart';
 import 'package:shakti_hormann/features/storage_allocation/presentation/bloc/storage_filter_cubit.dart';
+import 'package:shakti_hormann/features/storage_allocation/presentation/ui/widget/storage_widget.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/widgets/infinite_list_widget.dart';
 
@@ -45,15 +45,15 @@ class _StorageListScrnState extends State<StorageListScrn> {
         onRefresh: () {
           final filters = context.read<StorageFilterCubit>().state;
 
-          return context.cubit<FrameCubit>().fetchInitial(
+          return context.cubit<StorageCubit>().fetchInitial(
             Pair(StringUtils.docStatusInt(filters.status), filters.query),
           );
         },
         child: BlocListener<StorageFilterCubit, PageViewFilters>(
           listener: (_, state) => _fetchInital(context),
-          child: InfiniteListViewWidget<FrameCubit, FramePacking>(
-            childBuilder: (context, entry) => FrameWidget(
-              frame: entry,
+          child: InfiniteListViewWidget<StorageCubit, Storage>(
+            childBuilder: (context, entry) => StorageWidget(
+              gateEntry: entry,
               onTap: () async {
                       final refresh = await AppRoute.newStorageAllocation.push<bool?>(
                         context,
@@ -76,14 +76,14 @@ class _StorageListScrnState extends State<StorageListScrn> {
 
   void _fetchInital(BuildContext context) {
     final filters = context.read<StorageFilterCubit>().state;
-    context.cubit<FrameCubit>().fetchInitial(
+    context.cubit<StorageCubit>().fetchInitial(
         Pair(StringUtils.docStatusInt(filters.status), filters.query));
   }
 
   void fetchMore(BuildContext context) {
     final filters = context.read<StorageFilterCubit>().state;
 
-    context.cubit<FrameCubit>().fetchMore(
+    context.cubit<StorageCubit>().fetchMore(
         Pair(StringUtils.docStatusInt(filters.status), filters.query));
   }
 }

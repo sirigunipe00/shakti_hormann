@@ -13,8 +13,6 @@ import 'package:shakti_hormann/core/di/injector.dart';
 import 'package:shakti_hormann/core/logger/app_logger.dart';
 import 'package:shakti_hormann/firebase_options.dart';
 
-
-
 Future<void> bootstrap(void Function() runApp) async {
   WidgetsFlutterBinding.ensureInitialized();
  

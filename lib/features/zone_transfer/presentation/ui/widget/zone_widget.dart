@@ -1,8 +1,7 @@
 import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/material.dart';
-import 'package:shakti_hormann/core/utils/date_format_util.dart';
-import 'package:shakti_hormann/core/utils/string_utils.dart';
-import 'package:shakti_hormann/features/frame_packing/model/frame_packing.dart';
+import 'package:shakti_hormann/core/core.dart';
+import 'package:shakti_hormann/features/zone_transfer/model/zone_transfer.dart';
 import 'package:shakti_hormann/widgets/doc_status_widget.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/styles/app_text_styles.dart';
@@ -11,24 +10,25 @@ import 'package:shakti_hormann/widgets/spaced_column.dart';
 class ZoneWidget extends StatelessWidget {
   const ZoneWidget({
     super.key,
-    required this.frame,
+    required this.gateEntry,
     required this.onTap,
   });
-
-  final FramePacking frame;
+  final ZoneTransfer gateEntry;
   final VoidCallback onTap;
-
   String get _palletDisplayNumber {
-    final raw = frame.name;
+    final raw = gateEntry.name;
     if (raw == null || raw.isEmpty) return '---';
 
-    final digits = RegExp(r'\d+').allMatches(raw).map((m) => m.group(0)!).toList();
+    final digits =
+        RegExp(r'\d+').allMatches(raw).map((m) => m.group(0)!).toList();
     if (digits.isEmpty) {
       return raw.substring(0, raw.length.clamp(0, 3)).toUpperCase();
     }
 
     final last = digits.last;
-    return last.length >= 3 ? last.substring(last.length - 3) : last.padLeft(3, '0');
+    return last.length >= 3
+        ? last.substring(last.length - 3)
+        : last.padLeft(3, '0');
   }
 
   @override
@@ -68,7 +68,6 @@ class ZoneWidget extends StatelessWidget {
                     ),
                   ),
                 ),
-
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
@@ -82,25 +81,34 @@ class ZoneWidget extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                frame.name ?? '',
-                                style: AppTextStyles.titleLarge(context).copyWith(
+                                gateEntry.name ?? '',
+                                style: AppTextStyles.titleLarge(
+                                  context,
+                                ).copyWith(
                                   color: AppColors.black,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
                               const SizedBox(height: 5),
-                              Text(
-                                frame.palletNo ?? '',
-                                style: const TextStyle(
-                                  color: AppColors.grey,
-                                  fontWeight: FontWeight.normal,
-                                  letterSpacing: 0,
-                                ),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'Total Qty : ${gateEntry.totalQty.toString()}',
+                                    style: const TextStyle(
+                                      color: AppColors.grey,
+                                      fontWeight: FontWeight.bold,
+                                      letterSpacing: 0,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
                         ],
                       ),
+
                       const SizedBox(height: 5),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -108,20 +116,25 @@ class ZoneWidget extends StatelessWidget {
                           Row(
                             children: [
                               const Icon(
-                                Icons.calendar_month,
+                                Icons.calendar_today,
                                 size: 14,
                                 color: Color(0xFF163A6B),
                               ),
                               const SizedBox(width: 4),
                               Text(
-                                DFU.ddMMyyyyFromStr(frame.packingDate ?? ''),
-                                style: const TextStyle(
-                                  color: Color(0xFF163A6B),
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                                DFU.ddMMyyyyFromStr(gateEntry.creation ?? ''),
+                                style: AppTextStyles.titleMedium(
+                                  context,
+                                  const Color(0xFF163A6B),
+                                ).copyWith(color: const Color(0xFF163A6B)),
                               ),
                             ],
+                          ),
+
+                          DocStatusWidget(
+                            status: StringUtils.framePackingStatus(
+                              gateEntry.docStatus ?? 0,
+                            ),
                           ),
                         ],
                       ),
@@ -130,7 +143,6 @@ class ZoneWidget extends StatelessWidget {
                 ),
               ],
             ),
-
             const Padding(
               padding: EdgeInsets.symmetric(vertical: 4.0),
               child: DottedLine(
@@ -142,14 +154,16 @@ class ZoneWidget extends StatelessWidget {
                 dashGapLength: 4.0,
               ),
             ),
-
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                Text('Quantity : ${frame.totalUnitsOnPallet} Units',
-                style: const TextStyle(color: Colors.orange,fontWeight: FontWeight.bold,fontSize: 15),),
-                DocStatusWidget(
-                  status: StringUtils.docStatus(frame.docStatus ?? 0),
+                Text(
+                  gateEntry.salesOrders ?? '',
+                  style: const TextStyle(
+                    color: Colors.orange,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0,
+                  ),
                 ),
               ],
             ),

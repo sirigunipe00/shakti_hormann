@@ -14,11 +14,12 @@ enum PageMode2 {
   loadingConfirmation('Dispatch Loading'),
   proofOfDelivery('Proof of Delivery'),
   gateManagement('Gate Management'),
-  storagePacking('Storage Packing'),
+  storagePacking('Storage Allocation'),
   hardwarePacking('HardWare Packing'),
   zoneTransfer('Zone Transfer'),
   shutterPacking('Shutter Packing'),
-  framePacking('Frame Packing');
+  framePacking('Frame Packing'),
+  palletCreation('Pallet Creation');
 
 
   const PageMode2(this.name);
@@ -244,7 +245,11 @@ class TitleStatusAppBar extends StatelessWidget implements PreferredSizeWidget {
     );
   }
 
-  @override
-  Size get preferredSize => const Size.fromHeight(250);
+ @override
+Size get preferredSize {
+  return Size.fromHeight(
+    dropdown != null ? 180 : 70,
+  );
+}
 }
 

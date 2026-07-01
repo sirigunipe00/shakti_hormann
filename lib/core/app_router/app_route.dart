@@ -34,6 +34,8 @@ abstract class _AppRoutePaths {
   static const newshutterPackaging = '/home/shutterPackaging/newshutterPackaging';
   static const framePackaging = '/home/framePackaging';
   static const newframePackaging = '/home/framePackaging/newframePackaging';
+  static const palletCreation = '/home/palletCreation';
+  static const newPalletCreation = '/home/palletCreation/newPallerCreation';
 }
 
 enum AppRoute {
@@ -68,7 +70,10 @@ enum AppRoute {
   shutterPackaging(_AppRoutePaths.shutterPackaging),
   newshutterPackaging(_AppRoutePaths.newshutterPackaging),
   framePackaging(_AppRoutePaths.framePackaging),
-  newframePackaging(_AppRoutePaths.newframePackaging);
+  newframePackaging(_AppRoutePaths.newframePackaging),
+  palletCreation(_AppRoutePaths.palletCreation),
+  newPalletCreation(_AppRoutePaths.newPalletCreation);
+
 
 
 

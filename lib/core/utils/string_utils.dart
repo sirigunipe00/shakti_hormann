@@ -130,6 +130,16 @@ class StringUtils {
       return 'Draft';
     }
   }
+  static String framePackingStatus(int status) {
+  switch (status) {
+    case 0:
+      return 'Completed';
+    case 1:
+      return 'Submitted';
+    default:
+      return 'Completed';
+  }
+}
 }
 
 extension StringExentions on String? {

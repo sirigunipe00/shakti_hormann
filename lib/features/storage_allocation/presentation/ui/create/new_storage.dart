@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shakti_hormann/core/core.dart';
-import 'package:shakti_hormann/features/frame_packing/presentation/bloc/bloc_provider.dart';
-import 'package:shakti_hormann/features/frame_packing/presentation/bloc/create_frame_cubit.dart/create_frame_cubit.dart';
-import 'package:shakti_hormann/features/frame_packing/presentation/bloc/frame_fliter_cubit.dart';
+import 'package:shakti_hormann/features/storage_allocation/presentation/bloc/bloc_provider.dart';
+import 'package:shakti_hormann/features/storage_allocation/presentation/bloc/create_storage_cubit/create_storage_cubit.dart';
+import 'package:shakti_hormann/features/storage_allocation/presentation/bloc/storage_filter_cubit.dart';
 import 'package:shakti_hormann/features/storage_allocation/presentation/ui/create/storage_form_widget.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/widgets/buttons/app_btn.dart';
@@ -21,7 +21,7 @@ class NewStorage extends StatefulWidget {
 class _NewStorageState extends State<NewStorage> {
   @override
   Widget build(BuildContext context) {
-    final gateEntryState = context.read<CreateFrameCubit>().state;
+    final gateEntryState = context.read<CreateStorageCubit>().state;
     final newform = gateEntryState.form;
     final status = newform.docStatus;
     final name = newform.name;
@@ -32,12 +32,12 @@ class _NewStorageState extends State<NewStorage> {
               ? SimpleAppBar(
                 title: 'New Storage Allocation',
                 actionButton:
-                    BlocBuilder<CreateFrameCubit, CreateFrameState>(
+                    BlocBuilder<CreateStorageCubit, CreateStorageState>(
                       builder: (context, state) {
                         return AppButton(
                           borderColor: Colors.grey,
                           bgColor:
-                              state.view == FrameView.create
+                              state.view == StorageView.create
                                   ? const Color.fromARGB(255, 250, 193, 47)
                                   : AppColors.green,
                           textStyle: const TextStyle(
@@ -48,7 +48,7 @@ class _NewStorageState extends State<NewStorage> {
                           isLoading: state.isLoading,
                           label: state.view.toName(),
                           onPressed: () {
-                            context.cubit<CreateFrameCubit>().save();
+                            context.cubit<CreateStorageCubit>().save();
                           },
                         );
                       },
@@ -61,27 +61,28 @@ class _NewStorageState extends State<NewStorage> {
                     pageMode: PageMode2.storagePacking,
                     onSubmit: () {},
                     onReject: () {},
+                    showRejectButton: false,
                     actionButton:
-                        (status == 1 && !gateEntryState.isModified)
+                        gateEntryState.view == StorageView.completed
                             ? null
-                            : BlocBuilder<CreateFrameCubit,CreateFrameState>(
+                            : BlocBuilder<
+                              CreateStorageCubit,
+                              CreateStorageState
+                            >(
                               builder: (context, state) {
                                 return AppButton(
                                   borderColor: Colors.grey,
                                   isLoading: state.isLoading,
-                                  label:
-                                      state.newLines.isNotEmpty 
-                                          ? 'Update'
-                                          : 'Submit',
+                                  label: 'Save',
                                   onPressed: () {
-                                    context.cubit<CreateFrameCubit>().save();
+                                    context.cubit<CreateStorageCubit>().save();
                                   },
                                 );
                               },
                             ),
                   )
                   as PreferredSizeWidget,
-      body: BlocListener<CreateFrameCubit, CreateFrameState>(
+      body: BlocListener<CreateStorageCubit, CreateStorageState>(
         listener: (_, state) async {
           if (state.isSuccess && state.successMsg.isNotNull) {
             AppDialog.showSuccessDialog(
@@ -90,12 +91,12 @@ class _NewStorageState extends State<NewStorage> {
               content: state.successMsg.valueOrEmpty,
               onTapDismiss: context.exit,
             ).then((_) {
-              final docName = state.form.name;
+              // final docName = state.form.name;
               if (!context.mounted) return;
-              context.cubit<CreateFrameCubit>().errorHandled();
-              context.cubit<FrameLinesCubit>().request(docName);
-              final gateEntryFilters = context.read<FrameFliterCubit>().state;
-              context.cubit<FrameCubit>().fetchInitial(
+              context.cubit<CreateStorageCubit>().errorHandled();
+              // context.cubit<FrameLinesCubit>().request(docName);
+              final gateEntryFilters = context.read<StorageFilterCubit>().state;
+              context.cubit<StorageCubit>().fetchInitial(
                 Pair(
                   StringUtils.docStatusInt(gateEntryFilters.status),
                   gateEntryFilters.query,
@@ -113,7 +114,7 @@ class _NewStorageState extends State<NewStorage> {
               onTapDismiss: context.exit,
             );
             if (!context.mounted) return;
-            context.cubit<CreateFrameCubit>().errorHandled();
+            context.cubit<CreateStorageCubit>().errorHandled();
           }
         },
         child: StorageFormWidget(key: ValueKey(status)),

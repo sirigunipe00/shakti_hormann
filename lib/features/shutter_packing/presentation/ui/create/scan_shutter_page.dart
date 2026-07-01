@@ -119,7 +119,7 @@ class _CornerBorderPainter extends CustomPainter {
         Path()
           ..moveTo(0, r + len)
           ..lineTo(0, r)
-          ..arcToPoint(Offset(r, 0), radius: const Radius.circular(r))
+          ..arcToPoint(const Offset(r, 0), radius: const Radius.circular(r))
           ..lineTo(r + len, 0),
         paint,
       )

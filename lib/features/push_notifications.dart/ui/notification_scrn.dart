@@ -22,13 +22,10 @@ class NotificationListScreen extends StatelessWidget {
             success: (data) {
               if (data.isEmpty) {
                 return const Center(child: Text('No Notifications'));
-              }
-
-              return ListView.builder(
+              }return ListView.builder(
                 itemCount: data.length,
                 itemBuilder: (context, index) {
                   final NotificationModel item = data[index];
-
                   return NotificationCard(
                     title: item.notificationType ?? '',
                     description: item.notificationMessage ?? '',
@@ -39,9 +36,6 @@ class NotificationListScreen extends StatelessWidget {
                 },
               );
             },
-
-
-
             orElse: () => const Center(child: Text('No data')),
           );
         },

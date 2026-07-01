@@ -3,10 +3,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shakti_hormann/app/presentation/widgets/app_page_view2.dart';
 import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/core/model/page_view_filters.dart';
-import 'package:shakti_hormann/features/frame_packing/model/frame_packing.dart';
 import 'package:shakti_hormann/features/frame_packing/presentation/bloc/bloc_provider.dart';
-import 'package:shakti_hormann/features/frame_packing/presentation/ui/widget/frame_widget.dart';
+import 'package:shakti_hormann/features/zone_transfer/model/zone_transfer.dart';
+import 'package:shakti_hormann/features/zone_transfer/presentation/bloc/bloc_provider.dart';
 import 'package:shakti_hormann/features/zone_transfer/presentation/bloc/zone_filter_cubit.dart';
+import 'package:shakti_hormann/features/zone_transfer/presentation/ui/widget/zone_widget.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/widgets/infinite_list_widget.dart';
 
@@ -51,9 +52,9 @@ class _ZoneListScrnState extends State<ZoneListScrn> {
         },
         child: BlocListener<ZoneFilterCubit, PageViewFilters>(
           listener: (_, state) => _fetchInital(context),
-          child: InfiniteListViewWidget<FrameCubit, FramePacking>(
-            childBuilder: (context, entry) => FrameWidget(
-              frame: entry,
+          child: InfiniteListViewWidget<ZoneCubit, ZoneTransfer>(
+            childBuilder: (context, entry) => ZoneWidget(
+              gateEntry: entry,
               onTap: () async {
                       final refresh = await AppRoute.newZoneTransfer.push<bool?>(
                         context,
@@ -76,14 +77,14 @@ class _ZoneListScrnState extends State<ZoneListScrn> {
 
   void _fetchInital(BuildContext context) {
     final filters = context.read<ZoneFilterCubit>().state;
-    context.cubit<FrameCubit>().fetchInitial(
+    context.cubit<ZoneCubit>().fetchInitial(
         Pair(StringUtils.docStatusInt(filters.status), filters.query));
   }
 
   void fetchMore(BuildContext context) {
     final filters = context.read<ZoneFilterCubit>().state;
 
-    context.cubit<FrameCubit>().fetchMore(
+    context.cubit<ZoneCubit>().fetchMore(
         Pair(StringUtils.docStatusInt(filters.status), filters.query));
   }
 }

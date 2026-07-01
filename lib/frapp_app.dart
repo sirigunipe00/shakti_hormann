@@ -17,6 +17,8 @@ import 'package:shakti_hormann/features/loading_confirmation/presentation/bloc/b
 import 'package:shakti_hormann/features/loading_confirmation/presentation/bloc/loading_cnfm_filters_cubit.dart';
 import 'package:shakti_hormann/features/logistic_request/presentation/bloc/bloc_provider.dart';
 import 'package:shakti_hormann/features/logistic_request/presentation/bloc/logistic_planning_filter_cubit.dart';
+import 'package:shakti_hormann/features/pallet_creation/presentation/bloc/bloc_provider.dart';
+import 'package:shakti_hormann/features/pallet_creation/presentation/bloc/pallet_filter_cubit.dart';
 import 'package:shakti_hormann/features/proof_of_delivery/presentation/bloc/bloc_provider.dart';
 import 'package:shakti_hormann/features/proof_of_delivery/presentation/bloc/pod_filters_cubit.dart';
 import 'package:shakti_hormann/features/shutter_packing/presentation/bloc/bloc_provider.dart';
@@ -87,6 +89,7 @@ class _ShaktiHormannState extends State<ShaktiHormann>
         BlocProvider(create: (_) => StorageFilterCubit()),
         BlocProvider(create: (_) => ShutterFilterCubit()),
         BlocProvider(create: (_) => FrameFliterCubit()),
+        BlocProvider(create: (_) => PalletFilterCubit()),
         // BlocProvider<GeoPermissionHandler>(
         //   create: (_) => GeoPermissionHandler(),
         // ),
@@ -113,6 +116,7 @@ class _ShaktiHormannState extends State<ShaktiHormann>
        BlocProvider(create: (_) => StorageBlocProvider.get().fetchStorage()),
        BlocProvider(create: (_) => HardwareBlocProvider.get().fetchHardware()),
        BlocProvider(create: (_) => ShutterBlocProvider.get().fetchShutter()),
+       BlocProvider(create: (_) => PalletBlocProvider.get().getPallet()),
        BlocProvider(
           create: (_) => FrameBlocProvider.get().fetchFrames(),
         ),
@@ -158,6 +162,7 @@ class _ShaktiHormannState extends State<ShaktiHormann>
                   routerCtxt.cubit<ZoneCubit>().fetchInitial(filters);
                   routerCtxt.cubit<ShutterCubit>().fetchInitial(filters);
                   routerCtxt.cubit<FrameCubit>().fetchInitial(filters);
+                  routerCtxt.cubit<PalletCubit>().fetchInitial(filters);
 
                   AppRoute.home.go(routerCtxt);
                 },

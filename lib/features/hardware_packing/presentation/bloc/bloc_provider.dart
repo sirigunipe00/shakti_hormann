@@ -1,14 +1,19 @@
 
 import 'package:injectable/injectable.dart';
 import 'package:shakti_hormann/core/cubit/infinite_list/infinite_list_cubit.dart';
+import 'package:shakti_hormann/core/cubit/network_request/network_request_cubit.dart';
 import 'package:shakti_hormann/core/di/injector.dart';
 import 'package:shakti_hormann/core/model/pair.dart';
-import 'package:shakti_hormann/features/gate_entry/model/gate_entry_form.dart';
 import 'package:shakti_hormann/features/hardware_packing/data/hardware_repo.dart';
+import 'package:shakti_hormann/features/hardware_packing/model/hardware_item.dart';
+import 'package:shakti_hormann/features/hardware_packing/model/hardware_packing.dart';
 
 
-typedef HardwareCubit = InfiniteListCubit<GateEntryForm, Pair<int?, String?>, Pair<int?, String?>>;
-typedef HardwareCubitState = InfiniteListState<GateEntryForm>;
+
+typedef HardwareCubit = InfiniteListCubit<HardwarePacking, Pair<int?, String?>, Pair<int?, String?>>;
+typedef HardwareCubitState = InfiniteListState<HardwarePacking>;
+typedef HardwareItemsCubit = NetworkRequestCubit<List<HardwareItem>, String>;
+typedef HardwareItemsState = NetworkRequestState<List<HardwareItem>>;
 
 @lazySingleton
 class HardwareBlocProvider {
@@ -26,6 +31,9 @@ class HardwareBlocProvider {
     requestMore:
         (params, state) =>
             repo.fetchHardware(state.curLength, params!.first, params.second),
+  );
+  HardwareItemsCubit getItemsLines() => HardwareItemsCubit(
+    onRequest: (params, state) => repo.fetchItems(params?? ''),
   );
 
 }

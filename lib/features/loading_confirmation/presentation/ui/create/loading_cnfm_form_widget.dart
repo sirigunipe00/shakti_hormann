@@ -389,7 +389,6 @@ class _ItemLoadedTableState extends State<ItemLoadedTable> {
 
     Future.microtask(() {
       for (final item in widget.initialData) {
-        // print('itemm   ..:$item');
         context.read<CreateLoadingCnfmCubit>().addInitialItem(item);
       }
     });
@@ -492,7 +491,7 @@ class _ItemLoadedTableState extends State<ItemLoadedTable> {
             scrollDirection: Axis.vertical,
             child: DataTable(
               border: TableBorder.all(color: Colors.grey.shade300),
-              headingRowColor: MaterialStateProperty.all(AppColors.darkBlue),
+              headingRowColor: WidgetStateProperty.all(AppColors.darkBlue),
               headingTextStyle: const TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
@@ -526,7 +525,7 @@ class _ItemLoadedTableState extends State<ItemLoadedTable> {
                                     color: Colors.white,
                                   ),
                                   style: ButtonStyle(
-                                    backgroundColor: MaterialStateProperty.all(
+                                    backgroundColor: WidgetStateProperty.all(
                                       AppColors.darkBlue,
                                     ),
                                   ),
@@ -829,7 +828,7 @@ class _ItemDialogWidgetState extends State<ItemDialogWidget> {
                         child: IconButton(
                           icon: const Icon(Icons.refresh, color: Colors.white),
                           style: ButtonStyle(
-                            backgroundColor: MaterialStateProperty.all(
+                            backgroundColor: WidgetStateProperty.all(
                               AppColors.darkBlue,
                             ),
                           ),

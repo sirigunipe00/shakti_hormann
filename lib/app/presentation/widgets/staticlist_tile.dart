@@ -15,13 +15,20 @@ mixin StatusModeSelectionMixin {
       case PageMode2.gateexit:
       case PageMode2.proofOfDelivery:
       case PageMode2.gateManagement:
-      case PageMode2.storageAllocation:
-      case PageMode2.hardwarePackaging:
-      case PageMode2.zoneTransfer:
-      case PageMode2.framePacking:
+      
+      
+      
+      
       case PageMode2.shutterPacking:
+      case PageMode2.framePacking:
       
         filters = ['Draft', 'Submitted', 'All'];
+        break;
+        case PageMode2.storageAllocation:
+        case PageMode2.zoneTransfer:
+        case PageMode2.palletCreation:
+        case PageMode2.hardwarePackaging:
+        filters = ['Draft'];
         break;
       case PageMode2.logisticRequest:
         filters = [

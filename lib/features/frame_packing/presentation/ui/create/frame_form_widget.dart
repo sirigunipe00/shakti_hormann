@@ -5,6 +5,7 @@ import 'package:shakti_hormann/features/frame_packing/presentation/bloc/bloc_pro
 import 'package:shakti_hormann/features/frame_packing/presentation/bloc/create_frame_cubit.dart/create_frame_cubit.dart';
 import 'package:shakti_hormann/features/frame_packing/presentation/ui/create/frame_scan_page.dart';
 import 'package:shakti_hormann/features/frame_packing/presentation/ui/widget/frame_lines_widget.dart';
+import 'package:shakti_hormann/features/logistic_request/model/sales_order_form.dart';
 import 'package:shakti_hormann/features/shutter_packing/presentation/ui/widget/border_painter.dart';
 import 'package:shakti_hormann/widgets/inputs/new_upload_photo_widget.dart';
 import 'package:shakti_hormann/widgets/sectionheader.dart';
@@ -18,6 +19,7 @@ class FrameFormWidget extends StatefulWidget {
 
 class __FrameFormWidgetState extends State<FrameFormWidget> {
   final ScrollController _scrollController = ScrollController();
+  SalesOrderForm? invoiceform;
 
   @override
   void dispose() {
@@ -30,6 +32,7 @@ class __FrameFormWidgetState extends State<FrameFormWidget> {
     final formState = context.watch<CreateFrameCubit>().state;
     final isCompleted = formState.view == FrameView.completed;
     final newform = formState.form;
+    // final status = newform.docStatus;
 
     return MultiBlocListener(
       listeners: [
@@ -54,6 +57,98 @@ class __FrameFormWidgetState extends State<FrameFormWidget> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // const SectionHeader(
+            //   title: 'SO Details',
+            //   assetIcon: 'assets/images/palleticon.svg',
+            // ),
+            // Container(
+            //     padding: const EdgeInsets.only( left: 12, right: 12,bottom: 8,top: 8),
+            //     width: MediaQuery.of(context).size.width,
+            //     // margin: const EdgeInsets.symmetric(horizontal: 18),
+            //     decoration: BoxDecoration(
+            //       color: Colors.white,
+            //       borderRadius: BorderRadius.circular(12),
+            //       border: Border.all(color: Colors.grey.shade300),
+            //     ),
+            // child: BlocBuilder<SalesOrderList, SalesOrderState>(
+            //       builder: (_, state) {
+            //         final allData = state.maybeWhen(
+            //           orElse: () => <SalesOrderForm>[],
+            //           success: (data) => data,
+            //         );
+
+            //         final names = allData.toList();
+
+            //         return SearchDropDownList<SalesOrderForm>(
+            //           title: 'Sales Order No.',
+            //           hint: 'Select Order No',
+            //           key: UniqueKey(),
+            //           color: AppColors.black,
+            //           items: names,
+            //           readOnly: status == 1,
+            //           defaultSelection: invoiceform,
+            //           isloading: state.isLoading,
+            //           futureRequest: (query) async {
+            //             if (query.isEmpty) return names;
+
+            //             return names.where((item) {
+            //               final orderNo = item.name?.toLowerCase() ?? '';
+            //               final customer =
+            //                   item.customerName?.toLowerCase() ?? '';
+            //               final search = query.toLowerCase();
+
+            //               return orderNo.contains(search) ||
+            //                   customer.contains(search);
+            //             }).toList();
+            //           },
+            //           headerBuilder:
+            //               (_, item, __) => Column(
+            //                 crossAxisAlignment: CrossAxisAlignment.start,
+            //                 children: [
+            //                   Text(
+            //                     item.name ?? '',
+            //                     style: const TextStyle(
+            //                       fontWeight: FontWeight.bold,
+            //                     ),
+            //                   ),
+            //                 ],
+            //               ),
+            //           listItemBuilder:
+            //               (_, item, __, ___) => Column(
+            //                 crossAxisAlignment: CrossAxisAlignment.start,
+            //                 children: [
+            //                   Text(
+            //                     'Sales Invoice No: ${item.name ?? ''}',
+            //                     style: const TextStyle(
+            //                       fontWeight: FontWeight.bold,
+            //                     ),
+            //                   ),
+            //                   // if (item.customerName != null)
+            //                   //   Text('Customer Name : ${item.customerName}'),
+            //                   // Text('Order Date: ${(item.orderDate ?? '')} '),
+
+            //                   // const Divider(height: 8),
+            //                 ],
+            //               ),
+            //           onSelected: (selected) {
+            //             setState(() {
+            //               invoiceform = selected;
+            //             });
+            //             context.cubit<CreateFrameCubit>().onValueChanged(
+            //               // salesInvoice: selected.name,
+            //               // plantName: selected.plantName,
+            //               // salesInvoiceDate: selected.orderDate,
+            //               // customerName: selected.customerName,
+            //             );
+            //           },
+
+            //           focusNode: FocusNode(),
+            //         );
+            //       },
+            //     )
+            // ),
+            // const SizedBox(height: 10,),
+
             if(!isCompleted)...[
             Row(
               children: [

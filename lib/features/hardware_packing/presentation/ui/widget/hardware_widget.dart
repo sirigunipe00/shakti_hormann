@@ -1,6 +1,7 @@
+import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/material.dart';
 import 'package:shakti_hormann/core/core.dart';
-import 'package:shakti_hormann/features/gate_management/model/gate_management_form.dart';
+import 'package:shakti_hormann/features/hardware_packing/model/hardware_packing.dart';
 import 'package:shakti_hormann/widgets/doc_status_widget.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/styles/app_text_styles.dart';
@@ -9,11 +10,27 @@ import 'package:shakti_hormann/widgets/spaced_column.dart';
 class HardwareWidget extends StatelessWidget {
   const HardwareWidget({
     super.key,
-    required this.gateEntry,
+    required this.hardware,
     required this.onTap,
   });
-  final GateManagementForm gateEntry;
+  final HardwarePacking hardware;
   final VoidCallback onTap;
+  String get _palletDisplayNumber {
+    final raw = hardware.name;
+    if (raw == null || raw.isEmpty) return '---';
+
+    final digits =
+        RegExp(r'\d+').allMatches(raw).map((m) => m.group(0)!).toList();
+    if (digits.isEmpty) {
+      return raw.substring(0, raw.length.clamp(0, 3)).toUpperCase();
+    }
+
+    final last = digits.last;
+    return last.length >= 3
+        ? last.substring(last.length - 3)
+        : last.padLeft(3, '0');
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -36,21 +53,22 @@ class HardwareWidget extends StatelessWidget {
                   width: 70,
                   height: 70,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFAB94FF).withValues(alpha: 0.30),
+                    color: const Color(0xFF2957A4).withValues(alpha: 0.10),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  alignment: Alignment.center,
-                  child: const Text(
-                    'QL',
-                    style: TextStyle(
-                      fontFamily: 'Urbanist',
-                      fontSize: 20,
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFFAB94FF),
+                  child: Center(
+                    child: Text(
+                      _palletDisplayNumber,
+                      style: const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF2957A4),
+                        letterSpacing: 1.5,
+                      ),
                     ),
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 10),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -63,7 +81,7 @@ class HardwareWidget extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                gateEntry.name ?? '',
+                                hardware.name ?? '',
                                 style: AppTextStyles.titleLarge(
                                   context,
                                 ).copyWith(
@@ -71,26 +89,33 @@ class HardwareWidget extends StatelessWidget {
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              const SizedBox(height: 5),
+                              const SizedBox(height: 10),
                               Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
                                   Text(
-                                    gateEntry.driverMobileNo ?? '',
+                                    'Order No : ${hardware.salesOrderNo}',
                                     style: const TextStyle(
-                                      color: AppColors.grey,
+                                      color: Colors.black,
                                       fontWeight: FontWeight.normal,
                                       letterSpacing: 0,
                                     ),
                                   ),
+                                  const SizedBox(width: 50),
+                                  const Icon(
+                                    Icons.calendar_today,
+                                    size: 14,
+                                    color: Color(0xFF163A6B),
+                                  ),
+                                  const SizedBox(width: 4),
                                   Text(
-                                    gateEntry.vehicleNo ?? '',
-                                    style: const TextStyle(
-                                      color: AppColors.grey,
-                                      fontWeight: FontWeight.normal,
-                                      letterSpacing: 0,
+                                    DFU.ddMMyyyyFromStr(
+                                      hardware.creation ?? '',
                                     ),
+                                    style: AppTextStyles.titleMedium(
+                                      context,
+                                      const Color(0xFF163A6B),
+                                    ).copyWith(color: const Color(0xFF163A6B)),
                                   ),
                                 ],
                               ),
@@ -98,38 +123,36 @@ class HardwareWidget extends StatelessWidget {
                           ),
                         ],
                       ),
-
-                      const SizedBox(height: 5),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            children: [
-                              const Icon(
-                                Icons.calendar_today,
-                                size: 14,
-                                color: Color(0xFF163A6B),
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                DFU.ddMMyyyyFromStr(
-                                  gateEntry.gateeEntrydate ?? '',
-                                ),
-                                style: AppTextStyles.titleMedium(
-                                  context,
-                                  const Color(0xFF163A6B),
-                                ).copyWith(color: const Color(0xFF163A6B)),
-                              ),
-                            ],
-                          ),
-                          DocStatusWidget(
-                            status: StringUtils.docStatus(
-                              gateEntry.docStatus ?? 0,
-                            ),
-                          ),
-                        ],
-                      ),
                     ],
+                  ),
+                ),
+              ],
+            ),
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 4.0),
+              child: DottedLine(
+                direction: Axis.horizontal,
+                lineLength: double.infinity,
+                lineThickness: 0.5,
+                dashLength: 6.0,
+                dashColor: Color.fromARGB(255, 184, 184, 192),
+                dashGapLength: 4.0,
+              ),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Box Count : ${hardware.boxCount}',
+                  style: const TextStyle(
+                    color: Colors.orange,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                  ),
+                ),
+                DocStatusWidget(
+                  status: StringUtils.framePackingStatus(
+                    hardware.docStatus ?? 0,
                   ),
                 ),
               ],

@@ -57,6 +57,10 @@ import '../../features/hardware_packing/data/hardware_repo.dart' as _i1009;
 import '../../features/hardware_packing/data/hardware_repo_impl.dart' as _i989;
 import '../../features/hardware_packing/presentation/bloc/bloc_provider.dart'
     as _i574;
+import '../../features/hardware_packing/presentation/bloc/create_hardware_cubit/create_hardware_cubit.dart'
+    as _i911;
+import '../../features/hardware_packing/presentation/bloc/create_hardware_cubit/hardware_items_cubit.dart'
+    as _i28;
 import '../../features/loading_confirmation/data/loading_cnfm_repo.dart'
     as _i66;
 import '../../features/loading_confirmation/data/loading_cnfm_repoimpl.dart'
@@ -73,6 +77,10 @@ import '../../features/logistic_request/presentation/bloc/bloc_provider.dart'
     as _i614;
 import '../../features/logistic_request/presentation/bloc/create_lr_cubit/logistic_planning_cubit.dart'
     as _i714;
+import '../../features/pallet_creation/data/pallet_repo.dart' as _i1;
+import '../../features/pallet_creation/data/pallet_repo_impl.dart' as _i876;
+import '../../features/pallet_creation/presentation/bloc/bloc_provider.dart'
+    as _i29;
 import '../../features/proof_of_delivery/data/pod_repo.dart' as _i25;
 import '../../features/proof_of_delivery/data/pod_repo_impl.dart' as _i690;
 import '../../features/proof_of_delivery/presentation/bloc/bloc_provider.dart'
@@ -97,6 +105,8 @@ import '../../features/storage_allocation/data/storage_repo.dart' as _i791;
 import '../../features/storage_allocation/data/storage_repo_impl.dart' as _i99;
 import '../../features/storage_allocation/presentation/bloc/bloc_provider.dart'
     as _i708;
+import '../../features/storage_allocation/presentation/bloc/create_storage_cubit/create_storage_cubit.dart'
+    as _i8;
 import '../../features/transport_confirmation/data/transport_confrimation_repo.dart'
     as _i271;
 import '../../features/transport_confirmation/data/transport_confrimation_repoimpl.dart'
@@ -117,6 +127,8 @@ import '../../features/zone_transfer/data/zone_repo.dart' as _i710;
 import '../../features/zone_transfer/data/zone_repo_impl.dart' as _i981;
 import '../../features/zone_transfer/presentation/bloc/bloc_provider.dart'
     as _i601;
+import '../../features/zone_transfer/presentation/bloc/create_zone_cubit/create_zone_cubit.dart'
+    as _i327;
 import '../core.dart' as _i351;
 import '../local_storage/key_vale_storage.dart' as _i1012;
 import '../network/api_client.dart' as _i557;
@@ -186,6 +198,15 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i574.HardwareBlocProvider>(
       () => _i574.HardwareBlocProvider(gh<_i1009.HardWareRepo>()),
     );
+    gh.factory<_i911.CreateHardwareCubit>(
+      () => _i911.CreateHardwareCubit(gh<_i1009.HardWareRepo>()),
+    );
+    gh.factory<_i28.HardwarePackingItemsCubit>(
+      () => _i28.HardwarePackingItemsCubit(gh<_i1009.HardWareRepo>()),
+    );
+    gh.lazySingleton<_i1.PalletRepo>(
+      () => _i876.PalletRepoImpl(gh<_i351.ApiClient>()),
+    );
     gh.lazySingleton<_i25.ProofOfDeliveryRepo>(
       () => _i690.PodRepoImpl(gh<_i351.ApiClient>()),
     );
@@ -247,8 +268,14 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i820.AppRepository>(
       () => _i820.AppRepository(gh<_i351.ApiClient>(), gh<_i346.AppVersion>()),
     );
+    gh.factory<_i8.CreateStorageCubit>(
+      () => _i8.CreateStorageCubit(gh<_i791.StorageRepo>()),
+    );
     gh.lazySingleton<_i708.StorageBlocProvider>(
       () => _i708.StorageBlocProvider(gh<_i791.StorageRepo>()),
+    );
+    gh.lazySingleton<_i29.PalletBlocProvider>(
+      () => _i29.PalletBlocProvider(gh<_i1.PalletRepo>()),
     );
     gh.lazySingleton<_i710.ZoneRepo>(
       () => _i981.ZoneRepoImp(gh<_i351.ApiClient>()),
@@ -267,6 +294,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i601.ZoneBlocProvider>(
       () => _i601.ZoneBlocProvider(gh<_i710.ZoneRepo>()),
+    );
+    gh.factory<_i327.CreateZoneCubit>(
+      () => _i327.CreateZoneCubit(gh<_i710.ZoneRepo>()),
     );
     gh.factory<_i297.CreateGateExitCubit>(
       () => _i297.CreateGateExitCubit(gh<_i495.GateExitRepo>()),

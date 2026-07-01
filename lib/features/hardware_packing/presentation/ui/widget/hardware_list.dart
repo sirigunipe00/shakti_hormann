@@ -3,10 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shakti_hormann/app/presentation/widgets/app_page_view2.dart';
 import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/core/model/page_view_filters.dart';
-import 'package:shakti_hormann/features/frame_packing/model/frame_packing.dart';
-import 'package:shakti_hormann/features/frame_packing/presentation/bloc/bloc_provider.dart';
-import 'package:shakti_hormann/features/frame_packing/presentation/ui/widget/frame_widget.dart';
+import 'package:shakti_hormann/features/hardware_packing/model/hardware_packing.dart';
+import 'package:shakti_hormann/features/hardware_packing/presentation/bloc/bloc_provider.dart';
 import 'package:shakti_hormann/features/hardware_packing/presentation/bloc/hardware_filter_cubit.dart';
+import 'package:shakti_hormann/features/hardware_packing/presentation/ui/widget/hardware_widget.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/widgets/infinite_list_widget.dart';
 
@@ -45,15 +45,15 @@ class _HardwareListScrnState extends State<HardwareListScrn> {
         onRefresh: () {
           final filters = context.read<HardWareFilterCubit>().state;
 
-          return context.cubit<FrameCubit>().fetchInitial(
+          return context.cubit<HardwareCubit>().fetchInitial(
             Pair(StringUtils.docStatusInt(filters.status), filters.query),
           );
         },
         child: BlocListener<HardWareFilterCubit, PageViewFilters>(
           listener: (_, state) => _fetchInital(context),
-          child: InfiniteListViewWidget<FrameCubit, FramePacking>(
-            childBuilder: (context, entry) => FrameWidget(
-              frame: entry,
+          child: InfiniteListViewWidget<HardwareCubit, HardwarePacking>(
+            childBuilder: (context, entry) => HardwareWidget(
+              hardware: entry as dynamic,
               onTap: () async {
                       final refresh = await AppRoute.newHardwarePackaging.push<bool?>(
                         context,
@@ -67,7 +67,7 @@ class _HardwareListScrnState extends State<HardwareListScrn> {
             ),
             fetchInitial: () => _fetchInital(context),
             fetchMore: () => fetchMore(context),
-            emptyListText: 'No Storage Allocation Found.',
+            emptyListText: 'No Hardware Packing Found.',
           ),
         ),
       ),
@@ -76,14 +76,14 @@ class _HardwareListScrnState extends State<HardwareListScrn> {
 
   void _fetchInital(BuildContext context) {
     final filters = context.read<HardWareFilterCubit>().state;
-    context.cubit<FrameCubit>().fetchInitial(
+    context.cubit<HardwareCubit>().fetchInitial(
         Pair(StringUtils.docStatusInt(filters.status), filters.query));
   }
 
   void fetchMore(BuildContext context) {
     final filters = context.read<HardWareFilterCubit>().state;
 
-    context.cubit<FrameCubit>().fetchMore(
+    context.cubit<HardwareCubit>().fetchMore(
         Pair(StringUtils.docStatusInt(filters.status), filters.query));
   }
 }

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shakti_hormann/core/core.dart';
-import 'package:shakti_hormann/features/frame_packing/presentation/bloc/create_frame_cubit.dart/create_frame_cubit.dart';
 import 'package:shakti_hormann/features/frame_packing/presentation/ui/create/frame_scan_page.dart';
 import 'package:shakti_hormann/features/shutter_packing/presentation/ui/widget/border_painter.dart';
+import 'package:shakti_hormann/features/zone_transfer/presentation/bloc/create_zone_cubit/create_zone_cubit.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/widgets/input_filed.dart';
 import 'package:shakti_hormann/widgets/inputs/new_upload_photo_widget.dart';
@@ -29,13 +29,13 @@ class __ZoneFormWidgetState extends State<ZoneFormWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final formState = context.watch<CreateFrameCubit>().state;
-    final isCompleted = formState.view == FrameView.completed;
+    final formState = context.watch<CreateZoneCubit>().state;
+    final isCompleted = formState.view == ZoneView.completed;
     final newform = formState.form;
 
     return MultiBlocListener(
       listeners: [
-        BlocListener<CreateFrameCubit, CreateFrameState>(
+        BlocListener<CreateZoneCubit, CreateZoneState>(
           listenWhen:
               (previous, current) =>
                   previous.error?.status != current.error?.status,
@@ -55,15 +55,15 @@ class __ZoneFormWidgetState extends State<ZoneFormWidget> {
                   child: _ScanCard(
                     icon: Icons.qr_code_scanner,
                     label: 'Scan pallet / Box Qr',
-                    onTap: () => _onScanSticker(context),
+                    onTap: () => _onScanSticker(context,isZoneScan: false),
                   ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: _ScanCard(
                     icon: Icons.qr_code_scanner,
-                    label: 'Scan New\nZone Qr',
-                    onTap: () => _onScanSticker(context),
+                    label: 'Scan New Zone Qr',
+                    onTap: () => _onScanSticker(context,isZoneScan: true),
                   ),
                 ),
               ],
@@ -90,13 +90,13 @@ class __ZoneFormWidgetState extends State<ZoneFormWidget> {
                   children: [
                    NewUploadPhotoWidget(
                       fileName: 'zone_icon',
-                      imageUrl: newform.palletPhoto,
+                      imageUrl: newform.locationPhoto,
                       title: 'New Zone Image',
                       isRequired: true,
                       isReadOnly: isCompleted,
                       onFileCapture: (file) {
-                        context.cubit<CreateFrameCubit>().onValueChanged(
-                          palletPhoto: file,
+                        context.cubit<CreateZoneCubit>().onValueChanged(
+                          zonePhoto: file,
                         );
                       },
                     ),
@@ -125,56 +125,56 @@ class __ZoneFormWidgetState extends State<ZoneFormWidget> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     InputField(
-                      readOnly: isCompleted,
-                      initialValue: newform.palletNo,
+                      readOnly: true,
+                      initialValue: newform.palletBoxQr,
                       title: 'Pallet No',
                       hintText: 'Scan to add details',
                       isRequired: false,
                       borderColor: AppColors.grey,
                       onChanged: (p0) {
-                        context.cubit<CreateFrameCubit>().onValueChanged(
+                        context.cubit<CreateZoneCubit>().onValueChanged(
                           palletNo: p0,
                         );
                       },
                       focusNode: focusNodes.elementAt(13),
                     ),
                      InputField(
-                      readOnly: isCompleted,
-                      initialValue: newform.palletNo,
-                      title: 'No of Frames',
+                      readOnly: true,
+                      initialValue: newform.totalQty.toString(),
+                      title: 'Total Quantity',
                       hintText: 'Scan to add details',
                       isRequired: false,
                       borderColor: AppColors.grey,
                       onChanged: (p0) {
-                        context.cubit<CreateFrameCubit>().onValueChanged(
-                          palletNo: p0,
+                        context.cubit<CreateZoneCubit>().onValueChanged(
+                          totalQty: int.tryParse(p0),
                         );
                       },
                       focusNode: focusNodes.elementAt(13),
                     ),
                      InputField(
-                      readOnly: isCompleted,
-                      initialValue: newform.palletNo,
+                      readOnly: true,
+                      initialValue: newform.salesOrders,
                       title: 'Sales Order No',
                       hintText: 'Scan to add details',
                       isRequired: false,
                       borderColor: AppColors.grey,
                       onChanged: (p0) {
-                        context.cubit<CreateFrameCubit>().onValueChanged(
-                          palletNo: p0,
+                        context.cubit<CreateZoneCubit>().onValueChanged(
+                          salesOrders: p0,
                         );
                       },
                       focusNode: focusNodes.elementAt(13),
                     ), InputField(
-                      readOnly: isCompleted,
-                      initialValue: newform.palletNo,
+                      readOnly: true,
+                      initialValue: newform.oldZone,
                       title: 'Old Zone No',
                       hintText: 'Scan to add details',
                       isRequired: false,
                       borderColor: AppColors.grey,
                       onChanged: (p0) {
-                        context.cubit<CreateFrameCubit>().onValueChanged(
-                          palletNo: p0,
+                        context.cubit<CreateZoneCubit>().onValueChanged(
+                          oldzone: p0,
                         );
                       },
                       focusNode: focusNodes.elementAt(13),
@@ -203,15 +203,15 @@ class __ZoneFormWidgetState extends State<ZoneFormWidget> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     InputField(
-                      readOnly: isCompleted,
-                      initialValue: newform.palletNo,
+                      readOnly: true,
+                      initialValue: newform.newzoneQr,
                       title: 'New Zone No',
                       hintText: 'Scan to add details',
                       isRequired: false,
                       borderColor: AppColors.grey,
                       onChanged: (p0) {
-                        context.cubit<CreateFrameCubit>().onValueChanged(
-                          palletNo: p0,
+                        context.cubit<CreateZoneCubit>().onValueChanged(
+                          newzoneQr: p0,
                         );
                       },
                       focusNode: focusNodes.elementAt(13),
@@ -227,14 +227,24 @@ class __ZoneFormWidgetState extends State<ZoneFormWidget> {
     );
   }
 
-  Future<void> _onScanSticker(BuildContext context) async {
+  Future<void> _onScanSticker(BuildContext context,
+  {required bool isZoneScan,}) async {
+    if (context.read<CreateZoneCubit>().state.view ==
+        ZoneView.completed) {
+      return;
+    }
     final raw = await Navigator.of(
       context,
     ).push<String>(MaterialPageRoute(builder: (_) => const ScanFramePage()));
 
     if (raw == null || !context.mounted) return;
-    context.cubit<CreateFrameCubit>().onQrScanned(raw);
-  }
+
+    if (isZoneScan) {
+      context.cubit<CreateZoneCubit>().onValueChanged(newzoneQr: raw);
+    } else {
+      context.cubit<CreateZoneCubit>().onQrScanned(raw);
+    }
+}
 }
 
 class _ScanCard extends StatelessWidget {

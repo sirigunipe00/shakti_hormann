@@ -38,7 +38,7 @@ class _ScanFramePageState extends State<ScanFramePage> {
       appBar: AppBar(
         backgroundColor: const Color(0xFF1A3C6B),
         foregroundColor: Colors.white,
-        title: const Text('Scan Shutter Sticker'),
+        title: const Text('Scan Sticker'),
         actions: [
           IconButton(
             icon: const Icon(Icons.flash_on),
@@ -85,7 +85,7 @@ class _ScanFramePageState extends State<ScanFramePage> {
             child: Padding(
               padding: EdgeInsets.only(bottom: 80),
               child: Text(
-                'Point camera at the shutter sticker QR code',
+                'Point camera at the sticker QR code',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 14,

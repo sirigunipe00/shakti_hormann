@@ -30,7 +30,7 @@ class _NewFrameState extends State<NewFrame> {
       appBar:
           status == null
               ? SimpleAppBar(
-                title: 'New Shutter Packing',
+                title: 'New Frame Packing',
                 actionButton:
                     BlocBuilder<CreateFrameCubit, CreateFrameState>(
                       builder: (context, state) {

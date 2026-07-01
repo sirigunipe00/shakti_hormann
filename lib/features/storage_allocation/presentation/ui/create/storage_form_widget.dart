@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shakti_hormann/core/core.dart';
-import 'package:shakti_hormann/features/frame_packing/presentation/bloc/create_frame_cubit.dart/create_frame_cubit.dart';
 import 'package:shakti_hormann/features/frame_packing/presentation/ui/create/frame_scan_page.dart';
 import 'package:shakti_hormann/features/shutter_packing/presentation/ui/widget/border_painter.dart';
+import 'package:shakti_hormann/features/storage_allocation/presentation/bloc/create_storage_cubit/create_storage_cubit.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/widgets/input_filed.dart';
 import 'package:shakti_hormann/widgets/inputs/new_upload_photo_widget.dart';
@@ -29,45 +29,45 @@ class __StorageFormWidgetState extends State<StorageFormWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final formState = context.watch<CreateFrameCubit>().state;
-    final isCompleted = formState.view == FrameView.completed;
+    final formState = context.watch<CreateStorageCubit>().state;
+    final isCompleted = formState.view == StorageView.completed;
     final newform = formState.form;
 
     return MultiBlocListener(
       listeners: [
-        BlocListener<CreateFrameCubit, CreateFrameState>(
+        BlocListener<CreateStorageCubit, CreateStorageState>(
           listenWhen:
               (previous, current) =>
                   previous.error?.status != current.error?.status,
           listener: (_, state) async {},
         ),
-        ],
+      ],
       child: SingleChildScrollView(
         controller: _scrollController,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if(!isCompleted)...[
-            Row(
-              children: [
-                Expanded(
-                  child: _ScanCard(
-                    icon: Icons.qr_code_scanner,
-                    label: 'Scan Pallet / Box Qr',
-                    onTap: () => _onScanSticker(context),
+            if (!isCompleted) ...[
+              Row(
+                children: [
+                  Expanded(
+                    child: _ScanCard(
+                      icon: Icons.qr_code_scanner,
+                      label: 'Scan Pallet / Box Qr',
+                      onTap: () => _onScanSticker(context, isZoneScan: false),
+                    ),
                   ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _ScanCard(
-                    icon: Icons.qr_code_scanner,
-                    label: 'Scan Zone Qr',
-                    onTap: () => _onScanSticker(context),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _ScanCard(
+                      icon: Icons.qr_code_scanner,
+                      label: 'Scan Zone Qr',
+                      onTap: () => _onScanSticker(context, isZoneScan: true),
+                    ),
                   ),
-                ),
-              ],
-            ),
+                ],
+              ),
             ],
 
             const SizedBox(height: 20),
@@ -88,15 +88,15 @@ class __StorageFormWidgetState extends State<StorageFormWidget> {
                 ),
                 child: Column(
                   children: [
-                   NewUploadPhotoWidget(
+                    NewUploadPhotoWidget(
                       fileName: 'zone_icon',
-                      imageUrl: newform.palletPhoto,
+                      imageUrl: newform.locationPhoto,
                       title: 'Zone Image',
                       isRequired: true,
                       isReadOnly: isCompleted,
                       onFileCapture: (file) {
-                        context.cubit<CreateFrameCubit>().onValueChanged(
-                          palletPhoto: file,
+                        context.cubit<CreateStorageCubit>().onValueChanged(
+                          zonePhoto: file,
                         );
                       },
                     ),
@@ -111,116 +111,125 @@ class __StorageFormWidgetState extends State<StorageFormWidget> {
               title: 'Pallet Details',
               assetIcon: 'assets/images/palleticon.svg',
             ),
-             Container(
-                padding: const EdgeInsets.only(top: 12, left: 12, right: 12),
-                width: MediaQuery.of(context).size.width,
-                margin: const EdgeInsets.symmetric(horizontal: 2),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.grey.shade300),
-                ),
-                child: SpacedColumn(
-                  defaultHeight: 6,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    InputField(
-                      readOnly: isCompleted,
-                      initialValue: newform.palletNo,
-                      title: 'Pallet No',
-                      hintText: 'Scan to add details',
-                      isRequired: false,
-                      borderColor: AppColors.grey,
-                      onChanged: (p0) {
-                        context.cubit<CreateFrameCubit>().onValueChanged(
-                          palletNo: p0,
-                        );
-                      },
-                      focusNode: focusNodes.elementAt(13),
-                    ),
-                     InputField(
-                      readOnly: isCompleted,
-                      initialValue: newform.palletNo,
-                      title: 'No of Frames',
-                      hintText: 'Scan to add details',
-                      isRequired: false,
-                      borderColor: AppColors.grey,
-                      onChanged: (p0) {
-                        context.cubit<CreateFrameCubit>().onValueChanged(
-                          palletNo: p0,
-                        );
-                      },
-                      focusNode: focusNodes.elementAt(13),
-                    ),
-                     InputField(
-                      readOnly: isCompleted,
-                      initialValue: newform.palletNo,
-                      title: 'Sales Order No',
-                      hintText: 'Scan to add details',
-                      isRequired: false,
-                      borderColor: AppColors.grey,
-                      onChanged: (p0) {
-                        context.cubit<CreateFrameCubit>().onValueChanged(
-                          palletNo: p0,
-                        );
-                      },
-                      focusNode: focusNodes.elementAt(13),
-                    ),
-
-                  ],
-                ),
+            Container(
+              padding: const EdgeInsets.only(top: 12, left: 12, right: 12),
+              width: MediaQuery.of(context).size.width,
+              margin: const EdgeInsets.symmetric(horizontal: 2),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.grey.shade300),
               ),
-              const SizedBox(height: 20),
+              child: SpacedColumn(
+                defaultHeight: 6,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  InputField(
+                    readOnly: true,
+                    initialValue: newform.palletBoxQr,
+                    title: 'Pallet No',
+                    hintText: 'Scan to add details',
+                    isRequired: false,
+                    borderColor: AppColors.grey,
+                    onChanged: (p0) {
+                      context.cubit<CreateStorageCubit>().onValueChanged(
+                        palletNo: p0,
+                      );
+                    },
+                    focusNode: focusNodes.elementAt(13),
+                  ),
+                  InputField(
+                    readOnly: true,
+                    initialValue: newform.totalQty.toString(),
+                    title: 'Total Quantity',
+                    hintText: 'Scan to add details',
+                    isRequired: false,
+                    borderColor: AppColors.grey,
+                    onChanged: (p0) {
+                      context.cubit<CreateStorageCubit>().onValueChanged(
+                        totalQty: int.tryParse(p0),
+                      );
+                    },
+                    focusNode: focusNodes.elementAt(13),
+                  ),
+                  InputField(
+                    readOnly: true,
+                    initialValue: newform.salesOrders,
+                    title: 'Sales Order No',
+                    hintText: 'Scan to add details',
+                    isRequired: false,
+                    borderColor: AppColors.grey,
+                    onChanged: (p0) {
+                      context.cubit<CreateStorageCubit>().onValueChanged(
+                        salesOrders: p0,
+                      );
+                    },
+                    focusNode: focusNodes.elementAt(13),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
 
             const SectionHeader(
               title: 'Zone Details',
               assetIcon: 'assets/images/zone_icon.svg',
             ),
             Container(
-                padding: const EdgeInsets.only(top: 12, left: 12, right: 12),
-                width: MediaQuery.of(context).size.width,
-                margin: const EdgeInsets.symmetric(horizontal: 2),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.grey.shade300),
-                ),
-                child: SpacedColumn(
-                  defaultHeight: 6,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    InputField(
-                      readOnly: isCompleted,
-                      initialValue: newform.palletNo,
-                      title: 'Zone No',
-                      hintText: 'Scan to add details',
-                      isRequired: false,
-                      borderColor: AppColors.grey,
-                      onChanged: (p0) {
-                        context.cubit<CreateFrameCubit>().onValueChanged(
-                          palletNo: p0,
-                        );
-                      },
-                      focusNode: focusNodes.elementAt(13),
-                    )
-
-                  ],
-                ),
+              padding: const EdgeInsets.only(top: 12, left: 12, right: 12),
+              width: MediaQuery.of(context).size.width,
+              margin: const EdgeInsets.symmetric(horizontal: 2),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.grey.shade300),
               ),
-
-            ],
+              child: SpacedColumn(
+                defaultHeight: 6,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  InputField(
+                    readOnly: true,
+                    initialValue: newform.zoneQr,
+                    title: 'Zone No',
+                    hintText: 'Scan to add details',
+                    isRequired: false,
+                    borderColor: AppColors.grey,
+                    onChanged: (p0) {
+                      context.cubit<CreateStorageCubit>().onValueChanged(
+                        zoneQr: p0,
+                      );
+                    },
+                    focusNode: focusNodes.elementAt(13),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Future<void> _onScanSticker(BuildContext context) async {
+  Future<void> _onScanSticker(
+    BuildContext context, {
+    required bool isZoneScan,
+  }) async {
+    if (context.read<CreateStorageCubit>().state.view ==
+        StorageView.completed) {
+      return;
+    }
     final raw = await Navigator.of(
       context,
     ).push<String>(MaterialPageRoute(builder: (_) => const ScanFramePage()));
 
     if (raw == null || !context.mounted) return;
-    context.cubit<CreateFrameCubit>().onQrScanned(raw);
+
+    if (isZoneScan) {
+      context.cubit<CreateStorageCubit>().onValueChanged(zoneQr: raw);
+    } else {
+      context.cubit<CreateStorageCubit>().onQrScanned(raw);
+    }
   }
 }
 

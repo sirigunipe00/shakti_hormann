@@ -18,10 +18,12 @@ enum PageMode2 {
   proofOfDelivery('Proof Of Delivery'),
   gateManagement('Gate Management'),
   storageAllocation('Storage Allocation'),
-  hardwarePackaging('Hardware Packaging'),
+  hardwarePackaging('HardWare Packing'),
   zoneTransfer('Zone Transfer'),
   shutterPacking('Shutter Packing'),
-  framePacking('Frame Packing');
+  framePacking('Frame Packing'),
+  palletCreation('Pallet Creation');
+
 
   const PageMode2(this.name);
 
@@ -69,7 +71,8 @@ class _AppPageView2State<T extends PageViewFiltersCubit>
     PageMode2.hardwarePackaging => 'Search HP',
     PageMode2.zoneTransfer => 'Search ZT',
     PageMode2.framePacking => 'Search Frame',
-    PageMode2.shutterPacking => 'Search Shutter'
+    PageMode2.shutterPacking => 'Search Shutter',
+    PageMode2.palletCreation => 'Serach SO'
   };
 
   Color get bgColor => switch (widget.mode) {
@@ -86,6 +89,7 @@ class _AppPageView2State<T extends PageViewFiltersCubit>
     PageMode2.zoneTransfer => AppColors.white,
     PageMode2.framePacking => AppColors.white,
     PageMode2.shutterPacking => AppColors.white,
+    PageMode2.palletCreation => AppColors.white
   };
 
   @override
@@ -97,12 +101,19 @@ class _AppPageView2State<T extends PageViewFiltersCubit>
       case PageMode2.gateexit:
       case PageMode2.proofOfDelivery:
       case PageMode2.gateManagement:
-      case PageMode2.storageAllocation:
-      case PageMode2.hardwarePackaging:
-      case PageMode2.zoneTransfer:
       case PageMode2.framePacking:
+      
+
+      
       case PageMode2.shutterPacking:
         filters = ['Draft', 'Submitted', 'All'];
+        break;
+        case PageMode2.storageAllocation:
+        case PageMode2.zoneTransfer:
+        case PageMode2.palletCreation:
+        case PageMode2.hardwarePackaging:
+
+        filters = ['Completed'];
         break;
 
       case PageMode2.logisticRequest:

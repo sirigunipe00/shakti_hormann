@@ -1,8 +1,13 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shakti_hormann/core/core.dart';
-import 'package:shakti_hormann/features/frame_packing/presentation/bloc/create_frame_cubit.dart/create_frame_cubit.dart';
-import 'package:shakti_hormann/features/frame_packing/presentation/ui/create/frame_scan_page.dart';
+import 'package:shakti_hormann/features/hardware_packing/model/hardware_item.dart';
+import 'package:shakti_hormann/features/hardware_packing/presentation/bloc/bloc_provider.dart';
+import 'package:shakti_hormann/features/hardware_packing/presentation/bloc/create_hardware_cubit/create_hardware_cubit.dart';
+import 'package:shakti_hormann/features/hardware_packing/presentation/bloc/create_hardware_cubit/hardware_items_cubit.dart';
+import 'package:shakti_hormann/features/hardware_packing/presentation/ui/widget/hardware_item_widget.dart';
+import 'package:shakti_hormann/features/hardware_packing/presentation/ui/widget/scan_page.dart';
 import 'package:shakti_hormann/features/shutter_packing/presentation/ui/widget/border_painter.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/widgets/input_filed.dart';
@@ -28,37 +33,74 @@ class __HardwareFormWidgetState extends State<HardwareFormWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final formState = context.watch<CreateFrameCubit>().state;
-    final isCompleted = formState.view == FrameView.completed;
+    final formState = context.watch<CreateHardwareCubit>().state;
+    final isCompleted = formState.view == HardwareView.completed;
     final newform = formState.form;
+    $logger.devLog('newform$newform');
 
     return MultiBlocListener(
       listeners: [
-        BlocListener<CreateFrameCubit, CreateFrameState>(
+        BlocListener<CreateHardwareCubit, CreateHardwareState>(
           listenWhen:
               (previous, current) =>
                   previous.error?.status != current.error?.status,
           listener: (_, state) async {},
         ),
-        ],
+        BlocListener<HardwareItemsCubit, HardwareItemsState>(
+          listener: (_, state) {
+            state.maybeWhen(
+              orElse: () {},
+              success: context.cubit<CreateHardwareCubit>().addAllLines,
+            );
+          },
+        ),
+        BlocListener<HardwarePackingItemsCubit, HardwarePackingItemsState>(
+          listener: (context, state) {
+            if (!state.isSuccess || state.response == null) return;
+
+            final response = state.response!;
+
+            context.read<CreateHardwareCubit>().onValueChanged(
+              mesSystem: response.mesBarCode,
+              salesOrderNo: response.orderNumber,
+              captueDate: response.printDate,
+              boxCount: int.tryParse(response.box?.split('/').first ?? '0'),
+            );
+
+            final items =
+                response.items.map((e) {
+                  return HardwareItem(
+                    slNO: e.slNO?.toString(),
+                    materialCode: e.materialCode,
+                    productName: e.productName,
+                    qtySticker: e.qtySticker,
+                    uom: e.uom,
+                    mesStickerImage: response.mesStickerImage,
+                  );
+                }).toList();
+
+            context.read<CreateHardwareCubit>().updateHardwareItems(items);
+          },
+        ),
+      ],
       child: SingleChildScrollView(
         controller: _scrollController,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if(!isCompleted)...[
-            Row(
-              children: [
-                Expanded(
-                  child: _ScanCard(
-                    icon: Icons.qr_code_scanner,
-                    label: 'Scan MES Sticker',
-                    onTap: () => _onScanSticker(context),
+            if (!isCompleted) ...[
+              Row(
+                children: [
+                  Expanded(
+                    child: _ScanCard(
+                      icon: Icons.camera_alt,
+                      label: 'Capture MES Sticker',
+                      onTap: () => _captureSticker(context),
+                    ),
                   ),
-                ),
-              ],
-            ),
+                ],
+              ),
             ],
 
             const SizedBox(height: 20),
@@ -67,86 +109,101 @@ class __HardwareFormWidgetState extends State<HardwareFormWidget> {
               title: 'QR Details',
               assetIcon: 'assets/images/qr.svg',
             ),
-             Container(
-                padding: const EdgeInsets.only(top: 12, left: 12, right: 12),
-                width: MediaQuery.of(context).size.width,
-                margin: const EdgeInsets.symmetric(horizontal: 2),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.grey.shade300),
-                ),
-                child: SpacedColumn(
-                  defaultHeight: 6,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    InputField(
-                      readOnly: isCompleted,
-                      initialValue: newform.palletNo,
-                      title: 'Pallet No',
-                      hintText: 'Scan to add details',
-                      isRequired: false,
-                      borderColor: AppColors.grey,
-                      onChanged: (p0) {
-                        context.cubit<CreateFrameCubit>().onValueChanged(
-                          palletNo: p0,
-                        );
-                      },
-                      focusNode: focusNodes.elementAt(13),
-                    ),
-                    
-                     InputField(
-                      readOnly: isCompleted,
-                      initialValue: newform.palletNo,
-                      title: 'Sales Order No',
-                      hintText: 'Scan to add details',
-                      isRequired: false,
-                      borderColor: AppColors.grey,
-                      onChanged: (p0) {
-                        context.cubit<CreateFrameCubit>().onValueChanged(
-                          palletNo: p0,
-                        );
-                      },
-                      focusNode: focusNodes.elementAt(13),
-                    ),
-                     InputField(
-                      readOnly: isCompleted,
-                      initialValue: newform.palletNo,
-                      title: 'Print Date',
-                      hintText: 'Scan to add details',
-                      isRequired: false,
-                      borderColor: AppColors.grey,
-                      onChanged: (p0) {
-                        context.cubit<CreateFrameCubit>().onValueChanged(
-                          palletNo: p0,
-                        );
-                      },
-                      focusNode: focusNodes.elementAt(13),
-                    ),
-
-                  ],
-                ),
+            Container(
+              padding: const EdgeInsets.only(top: 12, left: 12, right: 12),
+              width: MediaQuery.of(context).size.width,
+              margin: const EdgeInsets.symmetric(horizontal: 2),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.grey.shade300),
               ),
-              const SizedBox(height: 20),
+              child: SpacedColumn(
+                defaultHeight: 6,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  InputField(
+                    readOnly: isCompleted,
+                    initialValue: newform.mesSystem,
+                    title: 'MSE System No',
+                    hintText: 'Scan to add details',
+                    isRequired: false,
+                    borderColor: AppColors.grey,
+                    onChanged: (p0) {
+                      context.cubit<CreateHardwareCubit>().onValueChanged(
+                        mesSystem: p0,
+                      );
+                    },
+                    focusNode: focusNodes.elementAt(13),
+                  ),
+                  InputField(
+                    readOnly: isCompleted,
+                    initialValue: newform.salesOrderNo,
+                    title: 'Sales Order No',
+                    hintText: 'Scan to add details',
+                    isRequired: false,
+                    borderColor: AppColors.grey,
+                    onChanged: (p0) {
+                      context.cubit<CreateHardwareCubit>().onValueChanged(
+                        salesOrderNo: p0,
+                      );
+                    },
+                    focusNode: focusNodes.elementAt(14),
+                  ),
+                  InputField(
+                    key: UniqueKey(),
+                    readOnly: isCompleted,
+                    initialValue:
+                        (newform.captueDate != null &&
+                                newform.captueDate!.contains('.'))
+                            ? newform.captueDate
+                            : DFU.ddMMyyyyFromStr(
+                              newform.captueDate.toString(),
+                            ),
+                    title: 'Print Date',
+                    hintText: 'Scan to add details',
+                    isRequired: false,
+                    borderColor: AppColors.grey,
+                    onChanged: (p0) {
+                      context.cubit<CreateHardwareCubit>().onValueChanged(
+                        captueDate: p0,
+                      );
+                    },
+                    focusNode: focusNodes.elementAt(15),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
 
             const SectionHeader(
               title: 'Item Loaded',
               assetIcon: 'assets/images/vehicleinvoicicon.svg',
             ),
-            
-            ],
+            HardwareItemWidget(
+              items: formState.lines,
+              isCompleted: isCompleted,
+              onDelete: (slNo) {
+                context.read<CreateHardwareCubit>();
+              },
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Future<void> _onScanSticker(BuildContext context) async {
-    final raw = await Navigator.of(
+  Future<void> _captureSticker(BuildContext context) async {
+    final imageFile = await Navigator.push<File>(
       context,
-    ).push<String>(MaterialPageRoute(builder: (_) => const ScanFramePage()));
+      MaterialPageRoute(builder: (_) => const ScanHardWarePage()),
+    );
 
-    if (raw == null || !context.mounted) return;
-    context.cubit<CreateFrameCubit>().onQrScanned(raw);
+    if (imageFile == null) return;
+    if (context.mounted) {
+      context.read<CreateHardwareCubit>().onValueChanged(mesImage: imageFile);
+      context.read<HardwarePackingItemsCubit>().fetchHardwareItems(imageFile);
+    }
   }
 }
 
@@ -156,6 +213,7 @@ class _ScanCard extends StatelessWidget {
     required this.label,
     required this.onTap,
   });
+
   final IconData icon;
   final String label;
   final VoidCallback onTap;

@@ -1,6 +1,7 @@
+import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/material.dart';
 import 'package:shakti_hormann/core/core.dart';
-import 'package:shakti_hormann/features/gate_management/model/gate_management_form.dart';
+import 'package:shakti_hormann/features/storage_allocation/model/storage.dart';
 import 'package:shakti_hormann/widgets/doc_status_widget.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/styles/app_text_styles.dart';
@@ -12,8 +13,24 @@ class StorageWidget extends StatelessWidget {
     required this.gateEntry,
     required this.onTap,
   });
-  final GateManagementForm gateEntry;
+  final Storage gateEntry;
   final VoidCallback onTap;
+  String get _palletDisplayNumber {
+    final raw = gateEntry.name;
+    if (raw == null || raw.isEmpty) return '---';
+
+    final digits =
+        RegExp(r'\d+').allMatches(raw).map((m) => m.group(0)!).toList();
+    if (digits.isEmpty) {
+      return raw.substring(0, raw.length.clamp(0, 3)).toUpperCase();
+    }
+
+    final last = digits.last;
+    return last.length >= 3
+        ? last.substring(last.length - 3)
+        : last.padLeft(3, '0');
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -36,17 +53,18 @@ class StorageWidget extends StatelessWidget {
                   width: 70,
                   height: 70,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFAB94FF).withValues(alpha: 0.30),
+                    color: const Color(0xFF2957A4).withValues(alpha: 0.10),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  alignment: Alignment.center,
-                  child: const Text(
-                    'QL',
-                    style: TextStyle(
-                      fontFamily: 'Urbanist',
-                      fontSize: 20,
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFFAB94FF),
+                  child: Center(
+                    child: Text(
+                      _palletDisplayNumber,
+                      style: const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF2957A4),
+                        letterSpacing: 1.5,
+                      ),
                     ),
                   ),
                 ),
@@ -77,18 +95,10 @@ class StorageWidget extends StatelessWidget {
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    gateEntry.driverMobileNo ?? '',
+                                    'Total Qty : ${gateEntry.totalQty.toString()}',
                                     style: const TextStyle(
                                       color: AppColors.grey,
-                                      fontWeight: FontWeight.normal,
-                                      letterSpacing: 0,
-                                    ),
-                                  ),
-                                  Text(
-                                    gateEntry.vehicleNo ?? '',
-                                    style: const TextStyle(
-                                      color: AppColors.grey,
-                                      fontWeight: FontWeight.normal,
+                                      fontWeight: FontWeight.bold,
                                       letterSpacing: 0,
                                     ),
                                   ),
@@ -112,9 +122,7 @@ class StorageWidget extends StatelessWidget {
                               ),
                               const SizedBox(width: 4),
                               Text(
-                                DFU.ddMMyyyyFromStr(
-                                  gateEntry.gateeEntrydate ?? '',
-                                ),
+                                DFU.ddMMyyyyFromStr(gateEntry.creation ?? ''),
                                 style: AppTextStyles.titleMedium(
                                   context,
                                   const Color(0xFF163A6B),
@@ -122,14 +130,39 @@ class StorageWidget extends StatelessWidget {
                               ),
                             ],
                           ),
+
                           DocStatusWidget(
-                            status: StringUtils.docStatus(
+                            status: StringUtils.framePackingStatus(
                               gateEntry.docStatus ?? 0,
                             ),
                           ),
                         ],
                       ),
                     ],
+                  ),
+                ),
+              ],
+            ),
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 4.0),
+              child: DottedLine(
+                direction: Axis.horizontal,
+                lineLength: double.infinity,
+                lineThickness: 0.5,
+                dashLength: 6.0,
+                dashColor: Color.fromARGB(255, 184, 184, 192),
+                dashGapLength: 4.0,
+              ),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Text(
+                  gateEntry.salesOrders ?? '',
+                  style: const TextStyle(
+                    color: Colors.orange,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0,
                   ),
                 ),
               ],

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shakti_hormann/core/core.dart';
-import 'package:shakti_hormann/features/frame_packing/presentation/bloc/bloc_provider.dart';
-import 'package:shakti_hormann/features/frame_packing/presentation/bloc/create_frame_cubit.dart/create_frame_cubit.dart';
-import 'package:shakti_hormann/features/frame_packing/presentation/bloc/frame_fliter_cubit.dart';
+import 'package:shakti_hormann/features/hardware_packing/presentation/bloc/bloc_provider.dart';
+import 'package:shakti_hormann/features/hardware_packing/presentation/bloc/create_hardware_cubit/create_hardware_cubit.dart';
+import 'package:shakti_hormann/features/hardware_packing/presentation/bloc/create_hardware_cubit/hardware_items_cubit.dart';
+import 'package:shakti_hormann/features/hardware_packing/presentation/bloc/hardware_filter_cubit.dart';
 import 'package:shakti_hormann/features/hardware_packing/presentation/ui/create/hardware_form_widget.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/widgets/buttons/app_btn.dart';
@@ -21,7 +22,7 @@ class NewHardware extends StatefulWidget {
 class _NewHardwareState extends State<NewHardware> {
   @override
   Widget build(BuildContext context) {
-    final gateEntryState = context.read<CreateFrameCubit>().state;
+    final gateEntryState = context.read<CreateHardwareCubit>().state;
     final newform = gateEntryState.form;
     final status = newform.docStatus;
     final name = newform.name;
@@ -31,13 +32,20 @@ class _NewHardwareState extends State<NewHardware> {
           status == null
               ? SimpleAppBar(
                 title: 'New HardWare Packing',
-                actionButton:
-                    BlocBuilder<CreateFrameCubit, CreateFrameState>(
-                      builder: (context, state) {
+                actionButton: BlocBuilder<
+                  CreateHardwareCubit,
+                  CreateHardwareState
+                >(
+                  builder: (context, createState) {
+                    return BlocBuilder<
+                      HardwarePackingItemsCubit,
+                      HardwarePackingItemsState
+                    >(
+                      builder: (context, hardwareState) {
                         return AppButton(
                           borderColor: Colors.grey,
                           bgColor:
-                              state.view == FrameView.create
+                              createState.view == HardwareView.create
                                   ? const Color.fromARGB(255, 250, 193, 47)
                                   : AppColors.green,
                           textStyle: const TextStyle(
@@ -45,14 +53,23 @@ class _NewHardwareState extends State<NewHardware> {
                             fontWeight: FontWeight.bold,
                             fontSize: 15,
                           ),
-                          isLoading: state.isLoading,
-                          label: state.view.toName(),
-                          onPressed: () {
-                            context.cubit<CreateFrameCubit>().save();
-                          },
+
+                          isLoading:
+                              createState.isLoading || hardwareState.isLoading,
+
+                          label: createState.view.toName(),
+
+                          onPressed:
+                              hardwareState.isLoading
+                                  ? null
+                                  : () {
+                                    context.read<CreateHardwareCubit>().save();
+                                  },
                         );
                       },
-                    ),
+                    );
+                  },
+                ),
               )
               : TitleStatusAppBar(
                     title: '  $name',
@@ -61,27 +78,51 @@ class _NewHardwareState extends State<NewHardware> {
                     pageMode: PageMode2.hardwarePacking,
                     onSubmit: () {},
                     onReject: () {},
+                    showRejectButton: false,
                     actionButton:
-                        (status == 1 && !gateEntryState.isModified)
+                        gateEntryState.view == HardwareView.completed
                             ? null
-                            : BlocBuilder<CreateFrameCubit,CreateFrameState>(
-                              builder: (context, state) {
-                                return AppButton(
-                                  borderColor: Colors.grey,
-                                  isLoading: state.isLoading,
-                                  label:
-                                      state.newLines.isNotEmpty 
-                                          ? 'Update'
-                                          : 'Submit',
-                                  onPressed: () {
-                                    context.cubit<CreateFrameCubit>().save();
+                            : BlocBuilder<
+                              CreateHardwareCubit,
+                              CreateHardwareState
+                            >(
+                              builder: (context, createState) {
+                                return BlocBuilder<
+                                  HardwarePackingItemsCubit,
+                                  HardwarePackingItemsState
+                                >(
+                                  builder: (context, hardwareState) {
+                                    return AppButton(
+                                      borderColor: Colors.grey,
+
+                                      textStyle: const TextStyle(
+                                        color: AppColors.darkBlue,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 15,
+                                      ),
+
+                                      isLoading:
+                                          createState.isLoading ||
+                                          hardwareState.isLoading,
+
+                                      label: createState.view.toName(),
+
+                                      onPressed:
+                                          hardwareState.isLoading
+                                              ? null
+                                              : () {
+                                                context
+                                                    .read<CreateHardwareCubit>()
+                                                    .save();
+                                              },
+                                    );
                                   },
                                 );
                               },
                             ),
                   )
                   as PreferredSizeWidget,
-      body: BlocListener<CreateFrameCubit, CreateFrameState>(
+      body: BlocListener<CreateHardwareCubit, CreateHardwareState>(
         listener: (_, state) async {
           if (state.isSuccess && state.successMsg.isNotNull) {
             AppDialog.showSuccessDialog(
@@ -92,10 +133,11 @@ class _NewHardwareState extends State<NewHardware> {
             ).then((_) {
               final docName = state.form.name;
               if (!context.mounted) return;
-              context.cubit<CreateFrameCubit>().errorHandled();
-              context.cubit<FrameLinesCubit>().request(docName);
-              final gateEntryFilters = context.read<FrameFliterCubit>().state;
-              context.cubit<FrameCubit>().fetchInitial(
+              context.cubit<CreateHardwareCubit>().errorHandled();
+              context.cubit<HardwareItemsCubit>().request(docName);
+              final gateEntryFilters =
+                  context.read<HardWareFilterCubit>().state;
+              context.cubit<HardwareCubit>().fetchInitial(
                 Pair(
                   StringUtils.docStatusInt(gateEntryFilters.status),
                   gateEntryFilters.query,
@@ -113,7 +155,7 @@ class _NewHardwareState extends State<NewHardware> {
               onTapDismiss: context.exit,
             );
             if (!context.mounted) return;
-            context.cubit<CreateFrameCubit>().errorHandled();
+            context.cubit<CreateHardwareCubit>().errorHandled();
           }
         },
         child: HardwareFormWidget(key: ValueKey(status)),

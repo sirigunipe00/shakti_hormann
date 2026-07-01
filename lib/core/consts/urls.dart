@@ -66,4 +66,10 @@ class Urls {
   static final updateFrame = '$cusWs/shaktihormann.p2_api.update_frame_packing';
   static final submitFrame =  '$cusWs/shaktihormann.p2_api.submit_frame_packing';
 
+  static final storageAllocation = '$cusWs/shaktihormann.p2_api.create_storage_zone';
+  static final getSales = '$cusWs/shaktihormann.p2_api.get_pallet_sales_orders';
+  static final zoneTransfer = '$cusWs/shaktihormann.p2_api.create_zone_transfer';
+
+  static final createHardware = '$cusWs/shaktihormann.p2_api.create_hardware_packing';
+  static final getMesValues = '$cusWs/shaktihormann.p2_api.extract_packing_label_api';
 }

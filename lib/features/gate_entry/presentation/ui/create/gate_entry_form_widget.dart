@@ -350,13 +350,11 @@ class _GateEntryFormWidgetState extends State<GateEntryFormWidget> {
                                   final scanResult = await Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder:
-                                          (context) =>
-                                              const SimpleBarcodeScannerPage(
-                                                scanType: ScanType.qr,
-                                                appBarTitle: 'Scan IRN QR',
-                                                isShowFlashIcon: true,
-                                              ),
+                                      builder: (context) => const SimpleBarcodeScannerPage(
+                                        scanType: ScanType.qr,
+                                        appBarTitle: 'Scan IRN QR',
+                                        isShowFlashIcon: true,
+                                      ),
                                     ),
                                   );
                                   if (scanResult != null) {
@@ -478,10 +476,7 @@ class _GateEntryFormWidgetState extends State<GateEntryFormWidget> {
                       vertical: 16.0,
                       horizontal: 8.0,
                     ),
-                    child: BlocBuilder<
-                      CreateGateEntryCubit,
-                      CreateGateEntryState
-                    >(
+                    child: BlocBuilder<CreateGateEntryCubit,CreateGateEntryState>(
                       builder: (context, state) {
                         final newform = state.form;
                         return Column(

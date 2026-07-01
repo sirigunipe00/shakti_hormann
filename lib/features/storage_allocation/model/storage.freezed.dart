@@ -21,6 +21,7 @@ Storage _$StorageFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$Storage {
+  String? get status => throw _privateConstructorUsedError;
   @JsonKey(name: 'name')
   String? get name => throw _privateConstructorUsedError;
   @JsonKey(name: 'stored_by')
@@ -31,6 +32,16 @@ mixin _$Storage {
   String? get remarks => throw _privateConstructorUsedError;
   @JsonKey(name: 'location_photo')
   String? get locationPhoto => throw _privateConstructorUsedError;
+  @JsonKey(name: 'docstatus')
+  int? get docStatus => throw _privateConstructorUsedError;
+  @JsonKey(name: 'sales_order')
+  String? get salesOrders => throw _privateConstructorUsedError;
+  @JsonKey(name: 'zone_name')
+  String? get zoneName => throw _privateConstructorUsedError;
+  @JsonKey(name: 'total_qty')
+  int? get totalQty => throw _privateConstructorUsedError;
+  @JsonKey(name: 'creation')
+  String? get creation => throw _privateConstructorUsedError;
   @JsonKey(
     includeFromJson: true,
     includeToJson: false,
@@ -58,11 +69,17 @@ abstract class $StorageCopyWith<$Res> {
       _$StorageCopyWithImpl<$Res, Storage>;
   @useResult
   $Res call({
+    String? status,
     @JsonKey(name: 'name') String? name,
     @JsonKey(name: 'stored_by') String? storedBy,
     @JsonKey(name: 'storage_timestamp') String? storageTimeStamp,
     @JsonKey(name: 'remarks') String? remarks,
     @JsonKey(name: 'location_photo') String? locationPhoto,
+    @JsonKey(name: 'docstatus') int? docStatus,
+    @JsonKey(name: 'sales_order') String? salesOrders,
+    @JsonKey(name: 'zone_name') String? zoneName,
+    @JsonKey(name: 'total_qty') int? totalQty,
+    @JsonKey(name: 'creation') String? creation,
     @JsonKey(
       includeFromJson: true,
       includeToJson: false,
@@ -90,17 +107,28 @@ class _$StorageCopyWithImpl<$Res, $Val extends Storage>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
+    Object? status = freezed,
     Object? name = freezed,
     Object? storedBy = freezed,
     Object? storageTimeStamp = freezed,
     Object? remarks = freezed,
     Object? locationPhoto = freezed,
+    Object? docStatus = freezed,
+    Object? salesOrders = freezed,
+    Object? zoneName = freezed,
+    Object? totalQty = freezed,
+    Object? creation = freezed,
     Object? locationPhotoImg = freezed,
     Object? zoneQr = freezed,
     Object? palletBoxQr = freezed,
   }) {
     return _then(
       _value.copyWith(
+            status:
+                freezed == status
+                    ? _value.status
+                    : status // ignore: cast_nullable_to_non_nullable
+                        as String?,
             name:
                 freezed == name
                     ? _value.name
@@ -125,6 +153,31 @@ class _$StorageCopyWithImpl<$Res, $Val extends Storage>
                 freezed == locationPhoto
                     ? _value.locationPhoto
                     : locationPhoto // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            docStatus:
+                freezed == docStatus
+                    ? _value.docStatus
+                    : docStatus // ignore: cast_nullable_to_non_nullable
+                        as int?,
+            salesOrders:
+                freezed == salesOrders
+                    ? _value.salesOrders
+                    : salesOrders // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            zoneName:
+                freezed == zoneName
+                    ? _value.zoneName
+                    : zoneName // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            totalQty:
+                freezed == totalQty
+                    ? _value.totalQty
+                    : totalQty // ignore: cast_nullable_to_non_nullable
+                        as int?,
+            creation:
+                freezed == creation
+                    ? _value.creation
+                    : creation // ignore: cast_nullable_to_non_nullable
                         as String?,
             locationPhotoImg:
                 freezed == locationPhotoImg
@@ -156,11 +209,17 @@ abstract class _$$StorageImplCopyWith<$Res> implements $StorageCopyWith<$Res> {
   @override
   @useResult
   $Res call({
+    String? status,
     @JsonKey(name: 'name') String? name,
     @JsonKey(name: 'stored_by') String? storedBy,
     @JsonKey(name: 'storage_timestamp') String? storageTimeStamp,
     @JsonKey(name: 'remarks') String? remarks,
     @JsonKey(name: 'location_photo') String? locationPhoto,
+    @JsonKey(name: 'docstatus') int? docStatus,
+    @JsonKey(name: 'sales_order') String? salesOrders,
+    @JsonKey(name: 'zone_name') String? zoneName,
+    @JsonKey(name: 'total_qty') int? totalQty,
+    @JsonKey(name: 'creation') String? creation,
     @JsonKey(
       includeFromJson: true,
       includeToJson: false,
@@ -187,17 +246,28 @@ class __$$StorageImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
+    Object? status = freezed,
     Object? name = freezed,
     Object? storedBy = freezed,
     Object? storageTimeStamp = freezed,
     Object? remarks = freezed,
     Object? locationPhoto = freezed,
+    Object? docStatus = freezed,
+    Object? salesOrders = freezed,
+    Object? zoneName = freezed,
+    Object? totalQty = freezed,
+    Object? creation = freezed,
     Object? locationPhotoImg = freezed,
     Object? zoneQr = freezed,
     Object? palletBoxQr = freezed,
   }) {
     return _then(
       _$StorageImpl(
+        status:
+            freezed == status
+                ? _value.status
+                : status // ignore: cast_nullable_to_non_nullable
+                    as String?,
         name:
             freezed == name
                 ? _value.name
@@ -223,6 +293,31 @@ class __$$StorageImplCopyWithImpl<$Res>
                 ? _value.locationPhoto
                 : locationPhoto // ignore: cast_nullable_to_non_nullable
                     as String?,
+        docStatus:
+            freezed == docStatus
+                ? _value.docStatus
+                : docStatus // ignore: cast_nullable_to_non_nullable
+                    as int?,
+        salesOrders:
+            freezed == salesOrders
+                ? _value.salesOrders
+                : salesOrders // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        zoneName:
+            freezed == zoneName
+                ? _value.zoneName
+                : zoneName // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        totalQty:
+            freezed == totalQty
+                ? _value.totalQty
+                : totalQty // ignore: cast_nullable_to_non_nullable
+                    as int?,
+        creation:
+            freezed == creation
+                ? _value.creation
+                : creation // ignore: cast_nullable_to_non_nullable
+                    as String?,
         locationPhotoImg:
             freezed == locationPhotoImg
                 ? _value.locationPhotoImg
@@ -247,11 +342,17 @@ class __$$StorageImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$StorageImpl implements _Storage {
   const _$StorageImpl({
+    this.status,
     @JsonKey(name: 'name') this.name,
     @JsonKey(name: 'stored_by') this.storedBy,
     @JsonKey(name: 'storage_timestamp') this.storageTimeStamp,
     @JsonKey(name: 'remarks') this.remarks,
     @JsonKey(name: 'location_photo') this.locationPhoto,
+    @JsonKey(name: 'docstatus') this.docStatus,
+    @JsonKey(name: 'sales_order') this.salesOrders,
+    @JsonKey(name: 'zone_name') this.zoneName,
+    @JsonKey(name: 'total_qty') this.totalQty,
+    @JsonKey(name: 'creation') this.creation,
     @JsonKey(
       includeFromJson: true,
       includeToJson: false,
@@ -267,6 +368,8 @@ class _$StorageImpl implements _Storage {
       _$$StorageImplFromJson(json);
 
   @override
+  final String? status;
+  @override
   @JsonKey(name: 'name')
   final String? name;
   @override
@@ -281,6 +384,21 @@ class _$StorageImpl implements _Storage {
   @override
   @JsonKey(name: 'location_photo')
   final String? locationPhoto;
+  @override
+  @JsonKey(name: 'docstatus')
+  final int? docStatus;
+  @override
+  @JsonKey(name: 'sales_order')
+  final String? salesOrders;
+  @override
+  @JsonKey(name: 'zone_name')
+  final String? zoneName;
+  @override
+  @JsonKey(name: 'total_qty')
+  final int? totalQty;
+  @override
+  @JsonKey(name: 'creation')
+  final String? creation;
   @override
   @JsonKey(
     includeFromJson: true,
@@ -298,7 +416,7 @@ class _$StorageImpl implements _Storage {
 
   @override
   String toString() {
-    return 'Storage(name: $name, storedBy: $storedBy, storageTimeStamp: $storageTimeStamp, remarks: $remarks, locationPhoto: $locationPhoto, locationPhotoImg: $locationPhotoImg, zoneQr: $zoneQr, palletBoxQr: $palletBoxQr)';
+    return 'Storage(status: $status, name: $name, storedBy: $storedBy, storageTimeStamp: $storageTimeStamp, remarks: $remarks, locationPhoto: $locationPhoto, docStatus: $docStatus, salesOrders: $salesOrders, zoneName: $zoneName, totalQty: $totalQty, creation: $creation, locationPhotoImg: $locationPhotoImg, zoneQr: $zoneQr, palletBoxQr: $palletBoxQr)';
   }
 
   @override
@@ -306,6 +424,7 @@ class _$StorageImpl implements _Storage {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$StorageImpl &&
+            (identical(other.status, status) || other.status == status) &&
             (identical(other.name, name) || other.name == name) &&
             (identical(other.storedBy, storedBy) ||
                 other.storedBy == storedBy) &&
@@ -314,6 +433,16 @@ class _$StorageImpl implements _Storage {
             (identical(other.remarks, remarks) || other.remarks == remarks) &&
             (identical(other.locationPhoto, locationPhoto) ||
                 other.locationPhoto == locationPhoto) &&
+            (identical(other.docStatus, docStatus) ||
+                other.docStatus == docStatus) &&
+            (identical(other.salesOrders, salesOrders) ||
+                other.salesOrders == salesOrders) &&
+            (identical(other.zoneName, zoneName) ||
+                other.zoneName == zoneName) &&
+            (identical(other.totalQty, totalQty) ||
+                other.totalQty == totalQty) &&
+            (identical(other.creation, creation) ||
+                other.creation == creation) &&
             (identical(other.locationPhotoImg, locationPhotoImg) ||
                 other.locationPhotoImg == locationPhotoImg) &&
             (identical(other.zoneQr, zoneQr) || other.zoneQr == zoneQr) &&
@@ -325,11 +454,17 @@ class _$StorageImpl implements _Storage {
   @override
   int get hashCode => Object.hash(
     runtimeType,
+    status,
     name,
     storedBy,
     storageTimeStamp,
     remarks,
     locationPhoto,
+    docStatus,
+    salesOrders,
+    zoneName,
+    totalQty,
+    creation,
     locationPhotoImg,
     zoneQr,
     palletBoxQr,
@@ -351,11 +486,17 @@ class _$StorageImpl implements _Storage {
 
 abstract class _Storage implements Storage {
   const factory _Storage({
+    final String? status,
     @JsonKey(name: 'name') final String? name,
     @JsonKey(name: 'stored_by') final String? storedBy,
     @JsonKey(name: 'storage_timestamp') final String? storageTimeStamp,
     @JsonKey(name: 'remarks') final String? remarks,
     @JsonKey(name: 'location_photo') final String? locationPhoto,
+    @JsonKey(name: 'docstatus') final int? docStatus,
+    @JsonKey(name: 'sales_order') final String? salesOrders,
+    @JsonKey(name: 'zone_name') final String? zoneName,
+    @JsonKey(name: 'total_qty') final int? totalQty,
+    @JsonKey(name: 'creation') final String? creation,
     @JsonKey(
       includeFromJson: true,
       includeToJson: false,
@@ -369,6 +510,8 @@ abstract class _Storage implements Storage {
 
   factory _Storage.fromJson(Map<String, dynamic> json) = _$StorageImpl.fromJson;
 
+  @override
+  String? get status;
   @override
   @JsonKey(name: 'name')
   String? get name;
@@ -384,6 +527,21 @@ abstract class _Storage implements Storage {
   @override
   @JsonKey(name: 'location_photo')
   String? get locationPhoto;
+  @override
+  @JsonKey(name: 'docstatus')
+  int? get docStatus;
+  @override
+  @JsonKey(name: 'sales_order')
+  String? get salesOrders;
+  @override
+  @JsonKey(name: 'zone_name')
+  String? get zoneName;
+  @override
+  @JsonKey(name: 'total_qty')
+  int? get totalQty;
+  @override
+  @JsonKey(name: 'creation')
+  String? get creation;
   @override
   @JsonKey(
     includeFromJson: true,

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shakti_hormann/core/core.dart';
-import 'package:shakti_hormann/features/frame_packing/presentation/bloc/bloc_provider.dart';
-import 'package:shakti_hormann/features/frame_packing/presentation/bloc/create_frame_cubit.dart/create_frame_cubit.dart';
-import 'package:shakti_hormann/features/frame_packing/presentation/bloc/frame_fliter_cubit.dart';
+import 'package:shakti_hormann/features/zone_transfer/presentation/bloc/bloc_provider.dart';
+import 'package:shakti_hormann/features/zone_transfer/presentation/bloc/create_zone_cubit/create_zone_cubit.dart';
+import 'package:shakti_hormann/features/zone_transfer/presentation/bloc/zone_filter_cubit.dart';
 import 'package:shakti_hormann/features/zone_transfer/presentation/ui/create/zone_form_widget.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/widgets/buttons/app_btn.dart';
@@ -21,7 +21,7 @@ class NewZone extends StatefulWidget {
 class _NewZoneState extends State<NewZone> {
   @override
   Widget build(BuildContext context) {
-    final gateEntryState = context.read<CreateFrameCubit>().state;
+    final gateEntryState = context.read<CreateZoneCubit>().state;
     final newform = gateEntryState.form;
     final status = newform.docStatus;
     final name = newform.name;
@@ -32,12 +32,12 @@ class _NewZoneState extends State<NewZone> {
               ? SimpleAppBar(
                 title: 'New Zone Transfer',
                 actionButton:
-                    BlocBuilder<CreateFrameCubit, CreateFrameState>(
+                    BlocBuilder<CreateZoneCubit, CreateZoneState>(
                       builder: (context, state) {
                         return AppButton(
                           borderColor: Colors.grey,
                           bgColor:
-                              state.view == FrameView.create
+                              state.view == ZoneView.create
                                   ? const Color.fromARGB(255, 250, 193, 47)
                                   : AppColors.green,
                           textStyle: const TextStyle(
@@ -48,7 +48,7 @@ class _NewZoneState extends State<NewZone> {
                           isLoading: state.isLoading,
                           label: state.view.toName(),
                           onPressed: () {
-                            context.cubit<CreateFrameCubit>().save();
+                            context.cubit<CreateZoneCubit>().save();
                           },
                         );
                       },
@@ -61,27 +61,28 @@ class _NewZoneState extends State<NewZone> {
                     pageMode: PageMode2.zoneTransfer,
                     onSubmit: () {},
                     onReject: () {},
+                    showRejectButton: false,
                     actionButton:
-                        (status == 1 && !gateEntryState.isModified)
+                        gateEntryState.view == ZoneView.completed
                             ? null
-                            : BlocBuilder<CreateFrameCubit,CreateFrameState>(
+                            : BlocBuilder<
+                              CreateZoneCubit,
+                              CreateZoneState
+                            >(
                               builder: (context, state) {
                                 return AppButton(
                                   borderColor: Colors.grey,
                                   isLoading: state.isLoading,
-                                  label:
-                                      state.newLines.isNotEmpty 
-                                          ? 'Update'
-                                          : 'Submit',
+                                  label: 'Save',
                                   onPressed: () {
-                                    context.cubit<CreateFrameCubit>().save();
+                                    context.cubit<CreateZoneCubit>().save();
                                   },
                                 );
                               },
                             ),
                   )
                   as PreferredSizeWidget,
-      body: BlocListener<CreateFrameCubit, CreateFrameState>(
+      body: BlocListener<CreateZoneCubit, CreateZoneState>(
         listener: (_, state) async {
           if (state.isSuccess && state.successMsg.isNotNull) {
             AppDialog.showSuccessDialog(
@@ -90,12 +91,12 @@ class _NewZoneState extends State<NewZone> {
               content: state.successMsg.valueOrEmpty,
               onTapDismiss: context.exit,
             ).then((_) {
-              final docName = state.form.name;
+              // final docName = state.form.name;
               if (!context.mounted) return;
-              context.cubit<CreateFrameCubit>().errorHandled();
-              context.cubit<FrameLinesCubit>().request(docName);
-              final gateEntryFilters = context.read<FrameFliterCubit>().state;
-              context.cubit<FrameCubit>().fetchInitial(
+              context.cubit<CreateZoneCubit>().errorHandled();
+              // context.cubit<FrameLinesCubit>().request(docName);
+              final gateEntryFilters = context.read<ZoneFilterCubit>().state;
+              context.cubit<ZoneCubit>().fetchInitial(
                 Pair(
                   StringUtils.docStatusInt(gateEntryFilters.status),
                   gateEntryFilters.query,
@@ -113,7 +114,7 @@ class _NewZoneState extends State<NewZone> {
               onTapDismiss: context.exit,
             );
             if (!context.mounted) return;
-            context.cubit<CreateFrameCubit>().errorHandled();
+            context.cubit<CreateZoneCubit>().errorHandled();
           }
         },
         child: ZoneFormWidget(key: ValueKey(status)),

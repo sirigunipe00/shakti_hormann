@@ -10,7 +10,7 @@ class DocStatusWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 50, 
+      width: 60, 
       height: 20, 
       alignment: Alignment.center, 
       decoration: BoxDecoration(
@@ -37,12 +37,14 @@ class DocStatusWidget extends StatelessWidget {
     'Submitted' => const Color(0xFFEAFFF6),
     'Draft' => const Color(0xFFE3F2FE),
     'Rejected' => const Color(0xFFC16D67),
+    'Completed' => const Color(0xFFEAFFF6),
     'Reported' => const Color(0xFFEAFFF6),
     String() => const Color.fromARGB(255, 254, 254, 254),
   };
 
   Color toTextColor() => switch (status.trim()) {
     'Submitted' => const Color(0xFF35C285),
+    'Completed' => const Color(0xFF35C285),
     'Draft' => const Color(0xFF0087FF),
     'Rejected' => const Color(0xFFFFE2DA),
     'Reported' => const Color(0xFF0087FF),

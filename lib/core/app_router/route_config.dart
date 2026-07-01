@@ -32,7 +32,10 @@ import 'package:shakti_hormann/features/gate_management/presentation/bloc/bloc_p
 import 'package:shakti_hormann/features/gate_management/presentation/bloc/create_gate_management_cubit.dart/gate_management_cubit.dart';
 import 'package:shakti_hormann/features/gate_management/presentation/ui/create/new_gate_management.dart';
 import 'package:shakti_hormann/features/gate_management/presentation/ui/widget/gate_management_list.dart';
+import 'package:shakti_hormann/features/hardware_packing/model/hardware_packing.dart';
 import 'package:shakti_hormann/features/hardware_packing/presentation/bloc/bloc_provider.dart';
+import 'package:shakti_hormann/features/hardware_packing/presentation/bloc/create_hardware_cubit/create_hardware_cubit.dart';
+import 'package:shakti_hormann/features/hardware_packing/presentation/bloc/create_hardware_cubit/hardware_items_cubit.dart';
 import 'package:shakti_hormann/features/hardware_packing/presentation/ui/create/new_hardware.dart';
 import 'package:shakti_hormann/features/hardware_packing/presentation/ui/widget/hardware_list.dart';
 import 'package:shakti_hormann/features/loading_confirmation/model/loading_cnfm.dart';
@@ -45,6 +48,9 @@ import 'package:shakti_hormann/features/logistic_request/presentation/bloc/bloc_
 import 'package:shakti_hormann/features/logistic_request/presentation/bloc/create_lr_cubit/logistic_planning_cubit.dart';
 import 'package:shakti_hormann/features/logistic_request/presentation/ui/create/new_logistic_request.dart';
 import 'package:shakti_hormann/features/logistic_request/presentation/ui/widgets/logistic_request_list.dart';
+import 'package:shakti_hormann/features/pallet_creation/presentation/bloc/bloc_provider.dart';
+import 'package:shakti_hormann/features/pallet_creation/presentation/ui/create/new_pallet.dart';
+import 'package:shakti_hormann/features/pallet_creation/presentation/ui/widget/pallet_list.dart';
 import 'package:shakti_hormann/features/proof_of_delivery/model/proof_of_delivery.dart';
 import 'package:shakti_hormann/features/proof_of_delivery/presentation/bloc/bloc_provider.dart';
 import 'package:shakti_hormann/features/proof_of_delivery/presentation/bloc/create_pd_cubit/create_pod_cubit.dart';
@@ -57,7 +63,9 @@ import 'package:shakti_hormann/features/shutter_packing/presentation/bloc/bloc_p
 import 'package:shakti_hormann/features/shutter_packing/presentation/bloc/create_shutter_cubit.dart/create_shutter_cubit.dart';
 import 'package:shakti_hormann/features/shutter_packing/presentation/ui/create/new_shutter.dart';
 import 'package:shakti_hormann/features/shutter_packing/presentation/ui/widget/shutter_list.dart';
+import 'package:shakti_hormann/features/storage_allocation/model/storage.dart';
 import 'package:shakti_hormann/features/storage_allocation/presentation/bloc/bloc_provider.dart';
+import 'package:shakti_hormann/features/storage_allocation/presentation/bloc/create_storage_cubit/create_storage_cubit.dart';
 import 'package:shakti_hormann/features/storage_allocation/presentation/ui/create/new_storage.dart';
 import 'package:shakti_hormann/features/storage_allocation/presentation/ui/widget/storage_list.dart';
 import 'package:shakti_hormann/features/transport_confirmation/model/transport_confirmation_form.dart';
@@ -70,7 +78,9 @@ import 'package:shakti_hormann/features/vehicle_reporting/presentation/bloc/bloc
 import 'package:shakti_hormann/features/vehicle_reporting/presentation/bloc/create_vr_cubit/create_vehicle_cubit.dart';
 import 'package:shakti_hormann/features/vehicle_reporting/presentation/ui/create/new_vehicle_reporting.dart';
 import 'package:shakti_hormann/features/vehicle_reporting/presentation/ui/widgets/vehicle_reporting_list.dart';
+import 'package:shakti_hormann/features/zone_transfer/model/zone_transfer.dart';
 import 'package:shakti_hormann/features/zone_transfer/presentation/bloc/bloc_provider.dart';
+import 'package:shakti_hormann/features/zone_transfer/presentation/bloc/create_zone_cubit/create_zone_cubit.dart';
 import 'package:shakti_hormann/features/zone_transfer/presentation/ui/create/new_zone.dart';
 import 'package:shakti_hormann/features/zone_transfer/presentation/ui/widget/zone_list.dart';
 import 'package:shakti_hormann/widgets/dailogs/app_dialogs.dart';
@@ -130,19 +140,20 @@ class AppRouterConfig {
                     ),
                 routes: [
                   GoRoute(
-                    
                     path: _getPath(AppRoute.notifications),
-                    
-                    // final form = state.extra as Notif?;
-                    builder: (ctxt, state) => MultiBlocProvider(providers: [
-                      BlocProvider(
-                        create:
-                            (_) =>
-                                NotificationBlocProvider.get()
-                                    .fetchNotifications()..request(),
-                      ),
-                    ],
-                    child: const NotificationListScreen()),
+                    builder:
+                        (ctxt, state) => MultiBlocProvider(
+                          providers: [
+                            BlocProvider(
+                              create:
+                                  (_) =>
+                                      NotificationBlocProvider.get()
+                                          .fetchNotifications()
+                                        ..request(),
+                            ),
+                          ],
+                          child: const NotificationListScreen(),
+                        ),
                   ),
                   GoRoute(
                     path: _getPath(AppRoute.gateEntry),
@@ -250,13 +261,11 @@ class AppRouterConfig {
                                             .salesInvoiceList()
                                           ..request(''),
                               ),
-                               BlocProvider(
+                              BlocProvider(
                                 create:
                                     (_) =>
-                                        GateExitBlocProvider.get()
-                                            .getSales()
+                                        GateExitBlocProvider.get().getSales()
                                           ..request(form?.name ?? ''),
-                                          
                               ),
                               BlocProvider(
                                 create:
@@ -277,7 +286,7 @@ class AppRouterConfig {
                       final filters = Triple(
                         StringUtils.docStatuslogistic('Draft'),
                         null,
-                        null
+                        null,
                       );
                       return BlocProvider(
                         create:
@@ -482,8 +491,6 @@ class AppRouterConfig {
                         builder: (_, state) {
                           final blocprovider = LoadingCnfmBlocProvider.get();
                           final form = state.extra as LoadingCnfmForm;
-                          // final forms = state.extra as LogisticModel;
-                          $logger.devLog('.....$form');
                           return MultiBlocProvider(
                             providers: [
                               BlocProvider(
@@ -548,7 +555,6 @@ class AppRouterConfig {
                                     $sl.get<CreatePodCubit>()
                                       ..initDetails(form),
                           ),
-                        
                         ],
                         child: const PodListScrn(),
                       );
@@ -608,7 +614,8 @@ class AppRouterConfig {
                       return BlocProvider(
                         create:
                             (context) =>
-                                GateManagementBlocProvider.get().fetchGateManagements()
+                                GateManagementBlocProvider.get()
+                                    .fetchGateManagements()
                                   ..fetchInitial(filters),
                         child: const GateManagementList(),
                       );
@@ -626,38 +633,16 @@ class AppRouterConfig {
                           );
                         },
                         builder: (_, state) {
-                          final gateEntryForm = state.extra as GateManagementForm?;
+                          final gateEntryForm =
+                              state.extra as GateManagementForm?;
                           return MultiBlocProvider(
                             providers: [
-                              // BlocProvider(
-                              //   create:
-                              //       (_) =>
-                              //           GateEntryBlocProvider.get()
-                              //               .purchaseOrderList()
-                              //             ..request(''),
-                              // ),
-                              // BlocProvider(
-                              //   create:
-                              //       (_) =>
-                              //           GateEntryBlocProvider.get()
-                              //               .gateNumberList()
-                              //             ..request(''),
-                              // ),
-                              
                               BlocProvider(
                                 create:
                                     (_) =>
                                         $sl.get<CreateGateManagementCubit>()
                                           ..initDetails(gateEntryForm),
                               ),
-
-                              // BlocProvider(
-                              //   create:
-                              //       (_) =>
-                              //           GateEntryBlocProvider.get()
-                              //               .getPurchase()
-                              //             ..request(gateEntryForm?.name ?? ''),
-                              // ),
                             ],
                             child: const NewGateManagement(),
                           );
@@ -665,7 +650,7 @@ class AppRouterConfig {
                       ),
                     ],
                   ),
-                   GoRoute(
+                  GoRoute(
                     path: _getPath(AppRoute.storageAllocation),
                     builder: (ctxt, state) {
                       final filters = Pair(
@@ -684,7 +669,7 @@ class AppRouterConfig {
                       GoRoute(
                         path: _getPath(AppRoute.newStorageAllocation),
                         onExit: (context, state) async {
-                          final form = state.extra as GateManagementForm?;
+                          final form = state.extra as Storage?;
                           final formStatus =
                               form?.docStatus == 1 ? 'Submitted' : 'Draft';
                           return await _promptConf(
@@ -693,21 +678,20 @@ class AppRouterConfig {
                           );
                         },
                         builder: (_, state) {
-                          final storageForm = state.extra as GateManagementForm?;
+                          final storageForm = state.extra as Storage?;
                           final blocprovider = StorageBlocProvider.get();
                           return MultiBlocProvider(
                             providers: [
                               BlocProvider(
-                                create:
-                                    (_) => blocprovider.fetchStorage(),
+                                create: (_) => blocprovider.fetchStorage(),
                               ),
                               BlocProvider(
                                 create:
                                     (_) =>
-                                        $sl.get<CreateFrameCubit>()
+                                        $sl.get<CreateStorageCubit>()
                                           ..initDetails(storageForm),
                               ),
-                              ],
+                            ],
                             child: const NewStorage(),
                           );
                         },
@@ -733,7 +717,7 @@ class AppRouterConfig {
                       GoRoute(
                         path: _getPath(AppRoute.newHardwarePackaging),
                         onExit: (context, state) async {
-                          final form = state.extra as GateManagementForm?;
+                          final form = state.extra as HardwarePacking?;
                           final formStatus =
                               form?.docStatus == 1 ? 'Submitted' : 'Draft';
                           return await _promptConf(
@@ -742,28 +726,37 @@ class AppRouterConfig {
                           );
                         },
                         builder: (_, state) {
-                          final hardwareForm = state.extra as GateManagementForm?;
+                          final hardwareForm = state.extra as HardwarePacking?;
                           final blocprovider = HardwareBlocProvider.get();
                           return MultiBlocProvider(
                             providers: [
                               BlocProvider(
-                                create:
-                                    (_) => blocprovider.fetchHardware(),
+                                create: (_) => blocprovider.fetchHardware(),
                               ),
                               BlocProvider(
                                 create:
                                     (_) =>
-                                        $sl.get<CreateFrameCubit>()
+                                        blocprovider.getItemsLines()
+                                          ..request(hardwareForm?.name),
+                              ),
+                              BlocProvider(
+                                create:
+                                    (_) =>
+                                        $sl.get<CreateHardwareCubit>()
                                           ..initDetails(hardwareForm),
                               ),
-                              ],
+                              BlocProvider(
+                                create:
+                                    (_) => $sl.get<HardwarePackingItemsCubit>(),
+                              ),
+                            ],
                             child: const NewHardware(),
                           );
                         },
                       ),
                     ],
                   ),
-                    GoRoute(
+                  GoRoute(
                     path: _getPath(AppRoute.zoneTransfer),
                     builder: (ctxt, state) {
                       final filters = Pair(
@@ -782,7 +775,7 @@ class AppRouterConfig {
                       GoRoute(
                         path: _getPath(AppRoute.newZoneTransfer),
                         onExit: (context, state) async {
-                          final form = state.extra as GateManagementForm?;
+                          final form = state.extra as ZoneTransfer?;
                           final formStatus =
                               form?.docStatus == 1 ? 'Submitted' : 'Draft';
                           return await _promptConf(
@@ -791,26 +784,24 @@ class AppRouterConfig {
                           );
                         },
                         builder: (_, state) {
-                          final zoneForm = state.extra as GateManagementForm?;
+                          final zoneForm = state.extra as ZoneTransfer?;
                           final blocprovider = ZoneBlocProvider.get();
                           return MultiBlocProvider(
                             providers: [
                               BlocProvider(
-                                create:
-                                    (_) => blocprovider.fetchZone(),
+                                create: (_) => blocprovider.fetchZone(),
                               ),
                               BlocProvider(
                                 create:
                                     (_) =>
-                                        $sl.get<CreateFrameCubit>()
+                                        $sl.get<CreateZoneCubit>()
                                           ..initDetails(zoneForm),
                               ),
-                              ],
+                            ],
                             child: const NewZone(),
                           );
                         },
                       ),
-                      
                     ],
                   ),
                   GoRoute(
@@ -846,12 +837,13 @@ class AppRouterConfig {
                           return MultiBlocProvider(
                             providers: [
                               BlocProvider(
-                                create:
-                                    (_) => blocprovider.fetchShutter(),
+                                create: (_) => blocprovider.fetchShutter(),
                               ),
                               BlocProvider(
                                 create:
-                                    (_) => blocprovider.getShutterLines()..request(shutter?.name ?? ''),
+                                    (_) =>
+                                        blocprovider.getShutterLines()
+                                          ..request(shutter?.name ?? ''),
                               ),
                               BlocProvider(
                                 create:
@@ -859,12 +851,11 @@ class AppRouterConfig {
                                         $sl.get<CreateShutterCubit>()
                                           ..initDetails(shutter),
                               ),
-                              ],
+                            ],
                             child: const NewShutter(),
                           );
                         },
                       ),
-                      
                     ],
                   ),
                   GoRoute(
@@ -900,12 +891,20 @@ class AppRouterConfig {
                           return MultiBlocProvider(
                             providers: [
                               BlocProvider(
-                                create:
-                                    (_) => blocprovider.fetchFrames(),
+                                create: (_) => blocprovider.fetchFrames(),
                               ),
                               BlocProvider(
                                 create:
-                                    (_) => blocprovider.getFrameLines()..request(frame?.name ?? ''),
+                                    (_) =>
+                                        LogisticPlanningBlocProvider.get()
+                                            .salesOrderList()
+                                          ..request(''),
+                              ),
+                              BlocProvider(
+                                create:
+                                    (_) =>
+                                        blocprovider.getFrameLines()
+                                          ..request(frame?.name ?? ''),
                               ),
                               BlocProvider(
                                 create:
@@ -913,12 +912,60 @@ class AppRouterConfig {
                                         $sl.get<CreateFrameCubit>()
                                           ..initDetails(frame),
                               ),
-                              ],
+                            ],
                             child: const NewFrame(),
                           );
                         },
                       ),
-                      
+                    ],
+                  ),
+                  GoRoute(
+                    path: _getPath(AppRoute.palletCreation),
+                    builder: (ctxt, state) {
+                      final filters = Pair(
+                        StringUtils.docStatusInt('Draft'),
+                        null,
+                      );
+                      return BlocProvider(
+                        create:
+                            (context) =>
+                                PalletBlocProvider.get().getPallet()
+                                  ..fetchInitial(filters),
+                        child: const PalletList(),
+                      );
+                    },
+                    routes: [
+                      GoRoute(
+                        path: _getPath(AppRoute.newPalletCreation),
+                        onExit: (context, state) async {
+                          final form = state.extra as ZoneTransfer?;
+                          final formStatus =
+                              form?.docStatus == 1 ? 'Submitted' : 'Draft';
+                          return await _promptConf(
+                            context,
+                            formStatus: formStatus,
+                          );
+                        },
+                        builder: (_, state) {
+                          final frame = state.extra as ZoneTransfer?;
+                          final blocprovider = PalletBlocProvider.get();
+                          return MultiBlocProvider(
+                            providers: [
+                              BlocProvider(
+                                create: (_) => blocprovider.getPallet(),
+                              ),
+
+                              BlocProvider(
+                                create:
+                                    (_) =>
+                                        $sl.get<CreateZoneCubit>()
+                                          ..initDetails(frame),
+                              ),
+                            ],
+                            child: const NewPallet(),
+                          );
+                        },
+                      ),
                     ],
                   ),
                 ],
