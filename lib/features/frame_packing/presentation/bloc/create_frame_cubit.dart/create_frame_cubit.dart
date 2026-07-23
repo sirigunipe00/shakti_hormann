@@ -8,6 +8,7 @@ import 'package:shakti_hormann/features/frame_packing/data/frame_packing_repo.da
 import 'package:shakti_hormann/features/frame_packing/model/frame_lines.dart';
 import 'package:shakti_hormann/features/frame_packing/model/frame_packing.dart';
 
+
 part 'create_frame_cubit.freezed.dart';
 
 enum FrameView { create, edit, completed }
@@ -19,6 +20,40 @@ extension ActionType on FrameView {
       FrameView.edit => isModified ? 'Update' : 'Submit',
       FrameView.completed => 'Submitted',
     };
+  }
+}
+class _ParsedShutterQr {
+  _ParsedShutterQr({
+    required this.salesOrder,
+    required this.itemIndex,
+    required this.seqNo,
+    required this.totalQty,
+  });
+
+  final String salesOrder;
+  final String itemIndex;
+  final int seqNo;
+  final int totalQty;
+
+  String get groupKey => salesOrder;
+
+  static _ParsedShutterQr? tryParse(String raw) {
+    final cleaned = raw.replaceAll(RegExp(r'\s+'), '').trim();
+    final parts = cleaned.split('/').where((e) => e.isNotEmpty).toList();
+
+    if (parts.length < 5) return null;
+
+    final seqNo = int.tryParse(parts[3]);
+    final totalQty = int.tryParse(parts[4]);
+    if (seqNo == null || seqNo <= 0) return null;
+    if (totalQty == null || totalQty <= 0) return null;
+
+    return _ParsedShutterQr(
+      salesOrder: parts[0],
+      itemIndex: parts[1],
+      seqNo: seqNo,
+      totalQty: totalQty,
+    );
   }
 }
 
@@ -41,6 +76,8 @@ class CreateFrameCubit extends AppBaseCubit<CreateFrameState> {
     int? palletQrPrinted,
     int? totalUnitsOnPallet,
     int? totalBoxesOnPallet,
+    String? salesOrder,
+    String? palletCode,
     String? remarks,
     File? palletPhoto,
   }) {
@@ -54,6 +91,8 @@ class CreateFrameCubit extends AppBaseCubit<CreateFrameState> {
       creation: creation ?? form.creation,
       docStatus: docStatus ?? form.docStatus,
       modified: modified ?? form.modified,
+      salesOrder: salesOrder?? form.salesOrder,
+      palletCode: palletCode ?? form.palletCode,
       modifiedBy: modifiedBy ?? form.modifiedBy,
       packingDate: packingDate ?? form.packingDate,
       shift: shift ?? form.shift,
@@ -81,6 +120,8 @@ class CreateFrameCubit extends AppBaseCubit<CreateFrameState> {
         packingDate: entry.packingDate,
         shift: entry.shift,
         operator: entry.operator,
+        salesOrder: entry.salesOrder,
+        palletCode: entry.palletCode,
         palletNo: entry.palletNo,
         palletPhoto: entry.palletPhoto,
         totalUnitsOnPallet: entry.totalUnitsOnPallet,
@@ -105,25 +146,128 @@ class CreateFrameCubit extends AppBaseCubit<CreateFrameState> {
       );
     }
     if (entry == null) return;
+    if (entry is FramePacking && entry.salesOrder?.isNotEmpty == true) {
+      getPalletCodes(entry.salesOrder!);
+    }
   }
 
   void addAllLines(List<FrameLines> lines) {
     emitSafeState(state.copyWith(lines: lines));
   }
+  Future<void> getPalletCodes(String salesOrder) async {
+  emitSafeState(state.copyWith(isLoading: true));
+
+  final result = await repo.getFramePalletCode(salesOrder);
+
+  result.fold(
+    (failure) {
+      emitSafeState(
+        state.copyWith(
+          isLoading: false,
+          error: failure,
+        ),
+      );
+    },
+    (codes) {
+      emitSafeState(
+        state.copyWith(
+          isLoading: false,
+          palletCodes: codes,
+        ),
+      );
+    },
+  );
+}
+Future<bool> printSticker() async {
+  final docName = state.form.name;
+  if (docName == null || docName.isEmpty) {
+    _emitError(const Pair('No document found to print.', null));
+    return false;
+  }
+
+  emitSafeState(state.copyWith(isPrinting: true));
+
+  final response = await repo.printFrameSticker(docName);
+
+  return response.fold(
+    (failure) {
+      emitSafeState(
+        state.copyWith(
+          isPrinting: false,
+          error: failure,
+        ),
+      );
+      return false;
+    },
+    (message) {
+      shouldAskForConfirmation.value = false;
+      emitSafeState(
+        state.copyWith(
+          isPrinting: false,
+          printSuccessMsg: message,
+          form: state.form.copyWith(
+            palletQrPrinted: 1,
+            docStatus: 0
+          ),
+          isModified: false,
+        ),
+      );
+      return true;
+    },
+  );
+}
+void printHandled() {
+  emitSafeState(state.copyWith(printSuccessMsg: null));
+}
 
   Future<void> onQrScanned(String rawQr, {String? imagePath}) async {
-    final cleaned = rawQr.replaceAll(RegExp(r'\s+'), '').trim();
+     final parsed = _ParsedShutterQr.tryParse(rawQr);
+  if (parsed == null) {
+    _emitError(Pair('Invalid QR format: $rawQr', null));
+    return;
+  }
 
-    final parts = cleaned.split('/').where((e) => e.isNotEmpty).toList();
+  final salesOrder = parsed.salesOrder;
+  final itemIndex = parsed.itemIndex;
+  final totalQty = parsed.totalQty;
+  final seqNo = parsed.seqNo;
+  final scannedSeqNos = state.lines
+      .map((line) {
+        final existing = line.shutterBarcodeQr == null
+            ? null
+            : _ParsedShutterQr.tryParse(line.shutterBarcodeQr!);
+        if (existing == null || existing.groupKey != parsed.groupKey) {
+          return null;
+        }
+        return existing.seqNo;
+      })
+      .whereType<int>()
+      .toSet();
 
-    if (parts.length < 5) {
-      _emitError(Pair('Invalid QR format: $cleaned', null));
-      return;
-    }
-    final salesOrder = parts[0];
-    final itemIndex = parts[1];
+  if (scannedSeqNos.contains(seqNo)) {
+    _emitError(
+      Pair('Frame $seqNo of $totalQty has already been scanned.', null),
+    );
+    return;
+  }
 
-    emitSafeState(state.copyWith(isLoading: true));
+  final expectedNext = scannedSeqNos.length + 1;
+  if (seqNo != expectedNext) {
+    _emitError(
+      Pair(
+        'Expected frame $expectedNext of $totalQty, but scanned $seqNo. Please scan in order.',
+        null,
+      ),
+    );
+    return;
+  }
+
+  if (scannedSeqNos.length >= totalQty) {
+    _emitError(
+      Pair('Maximum quantity of $totalQty already scanned for this item.', null),
+    );
+    return;
+  }
 
     final result = await repo.fetchItems(salesOrder, itemIndex);
 
@@ -263,6 +407,46 @@ class CreateFrameCubit extends AppBaseCubit<CreateFrameState> {
     );
     emitSafeState(state.copyWith(error: failure, isLoading: false));
   }
+Future<void> freezeFrameQuantity() async {
+  emitSafeState(state.copyWith(isFreezing: true));
+
+  final response = await repo.createFrame(
+    state.form,
+    state.lines,
+  );
+
+  response.fold(
+    (failure) {
+      emitSafeState(
+        state.copyWith(
+          isFreezing: false,
+          error: failure,
+        ),
+      );
+    },
+    (result) {
+      final form = state.form.copyWith(
+        name: result.second,
+        status: 'Draft',
+      );
+
+      emitSafeState(
+        state.copyWith(
+          form: form,
+          isFreezing: false,
+          isFrozen: true,
+          isModified: false,
+          newLines: [],
+          freezeSuccessMsg: 'Quantity frozen successfully.',
+        ),
+      );
+    },
+  );
+}
+  void freezeHandled() {
+    emitSafeState(state.copyWith(freezeSuccessMsg: null));
+  }
+
 
   void errorHandled() {
     emitSafeState(
@@ -296,8 +480,15 @@ class CreateFrameState with _$CreateFrameState {
     required List<FrameLines> lines,
     required bool isSuccess,
     @Default([]) List<FrameLines> newLines,
+    @Default([]) List<String> palletCodes,
     required FrameView view,
+    @Default(false) bool isPrinting,    
+    String? printSuccessMsg, 
     @Default(false) bool isModified,
+    @Default(false) bool isFreezing,
+    @Default(false) bool isFrozen,
+
+    String? freezeSuccessMsg,
 
     String? successMsg,
     Failure? error,

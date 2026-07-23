@@ -48,7 +48,9 @@ import 'package:shakti_hormann/features/logistic_request/presentation/bloc/bloc_
 import 'package:shakti_hormann/features/logistic_request/presentation/bloc/create_lr_cubit/logistic_planning_cubit.dart';
 import 'package:shakti_hormann/features/logistic_request/presentation/ui/create/new_logistic_request.dart';
 import 'package:shakti_hormann/features/logistic_request/presentation/ui/widgets/logistic_request_list.dart';
+import 'package:shakti_hormann/features/pallet_creation/model/pallet_model.dart';
 import 'package:shakti_hormann/features/pallet_creation/presentation/bloc/bloc_provider.dart';
+import 'package:shakti_hormann/features/pallet_creation/presentation/bloc/create_pallet_cubit.dart/create_pallet_cubit.dart';
 import 'package:shakti_hormann/features/pallet_creation/presentation/ui/create/new_pallet.dart';
 import 'package:shakti_hormann/features/pallet_creation/presentation/ui/widget/pallet_list.dart';
 import 'package:shakti_hormann/features/proof_of_delivery/model/proof_of_delivery.dart';
@@ -78,10 +80,13 @@ import 'package:shakti_hormann/features/vehicle_reporting/presentation/bloc/bloc
 import 'package:shakti_hormann/features/vehicle_reporting/presentation/bloc/create_vr_cubit/create_vehicle_cubit.dart';
 import 'package:shakti_hormann/features/vehicle_reporting/presentation/ui/create/new_vehicle_reporting.dart';
 import 'package:shakti_hormann/features/vehicle_reporting/presentation/ui/widgets/vehicle_reporting_list.dart';
+import 'package:shakti_hormann/features/vision_panel/model/vision_model.dart';
+import 'package:shakti_hormann/features/vision_panel/presentation/bloc/bloc_provider.dart';
+import 'package:shakti_hormann/features/vision_panel/presentation/ui/new_vision.dart';
+import 'package:shakti_hormann/features/vision_panel/presentation/ui/vision_panel_list.dart';
 import 'package:shakti_hormann/features/zone_transfer/model/zone_transfer.dart';
 import 'package:shakti_hormann/features/zone_transfer/presentation/bloc/bloc_provider.dart';
 import 'package:shakti_hormann/features/zone_transfer/presentation/bloc/create_zone_cubit/create_zone_cubit.dart';
-import 'package:shakti_hormann/features/zone_transfer/presentation/ui/create/new_zone.dart';
 import 'package:shakti_hormann/features/zone_transfer/presentation/ui/widget/zone_list.dart';
 import 'package:shakti_hormann/widgets/dailogs/app_dialogs.dart';
 
@@ -679,11 +684,12 @@ class AppRouterConfig {
                         },
                         builder: (_, state) {
                           final storageForm = state.extra as Storage?;
-                          final blocprovider = StorageBlocProvider.get();
+                          final storageBloc = StorageBlocProvider.get();
+                          final zoneBloc = ZoneBlocProvider.get();
                           return MultiBlocProvider(
                             providers: [
                               BlocProvider(
-                                create: (_) => blocprovider.fetchStorage(),
+                                create: (_) => storageBloc.fetchStorage(),
                               ),
                               BlocProvider(
                                 create:
@@ -691,10 +697,35 @@ class AppRouterConfig {
                                         $sl.get<CreateStorageCubit>()
                                           ..initDetails(storageForm),
                               ),
+                              BlocProvider(create: (_) => zoneBloc.fetchZone()),
+                              BlocProvider(
+                                create:
+                                    (_) =>
+                                        $sl.get<CreateZoneCubit>()
+                                          ..initDetails(null),
+                              ),
                             ],
-                            child: const NewStorage(),
+                            child: const NewEntry(),
                           );
                         },
+                        // builder: (_, state) {
+                        //   final storageForm = state.extra as Storage?;
+                        //   final blocprovider = StorageBlocProvider.get();
+                        //   return MultiBlocProvider(
+                        //     providers: [
+                        //       BlocProvider(
+                        //         create: (_) => blocprovider.fetchStorage(),
+                        //       ),
+                        //       BlocProvider(
+                        //         create:
+                        //             (_) =>
+                        //                 $sl.get<CreateStorageCubit>()
+                        //                   ..initDetails(storageForm),
+                        //       ),
+                        //     ],
+                        //     child: const NewStorage(),
+                        //   );
+                        // },
                       ),
                     ],
                   ),
@@ -775,7 +806,8 @@ class AppRouterConfig {
                       GoRoute(
                         path: _getPath(AppRoute.newZoneTransfer),
                         onExit: (context, state) async {
-                          final form = state.extra as ZoneTransfer?;
+                          final extra = state.extra;
+                          final form = extra is ZoneTransfer ? extra : null;
                           final formStatus =
                               form?.docStatus == 1 ? 'Submitted' : 'Draft';
                           return await _promptConf(
@@ -783,24 +815,89 @@ class AppRouterConfig {
                             formStatus: formStatus,
                           );
                         },
+                        // onExit: (context, state) async {
+                        //   final form = state.extra as ZoneTransfer?? extra : null;
+                        //   final formStatus =
+                        //       form?.docStatus == 1 ? 'Submitted' : 'Draft';
+                        //   return await _promptConf(
+                        //     context,
+                        //     formStatus: formStatus,
+                        //   );
+                        // },
                         builder: (_, state) {
-                          final zoneForm = state.extra as ZoneTransfer?;
+                          final extra = state.extra;
+                          final zoneForm = extra is ZoneTransfer ? extra : null;
+                          final moveFromStorage =
+                              extra is Storage ? extra : null;
                           final blocprovider = ZoneBlocProvider.get();
+
                           return MultiBlocProvider(
                             providers: [
                               BlocProvider(
                                 create: (_) => blocprovider.fetchZone(),
                               ),
                               BlocProvider(
-                                create:
-                                    (_) =>
-                                        $sl.get<CreateZoneCubit>()
-                                          ..initDetails(zoneForm),
+                                create: (_) => $sl.get<CreateStorageCubit>(),
+                              ),
+                              BlocProvider(
+                                create: (_) {
+                                  final cubit = $sl.get<CreateZoneCubit>();
+                                  if (zoneForm != null) {
+                                    cubit.initDetails(zoneForm);
+                                  } else if (moveFromStorage != null) {
+                                    cubit.initFromStorage(moveFromStorage);
+                                  }
+                                  return cubit;
+                                },
                               ),
                             ],
-                            child: const NewZone(),
+                            child: const NewEntry(),
                           );
                         },
+                        // builder: (_, state) {
+                        //   final zoneForm = state.extra as ZoneTransfer?;
+                        //   final zoneBloc = ZoneBlocProvider.get();
+                        //   final storageBloc = StorageBlocProvider.get();
+                        //   return MultiBlocProvider(
+                        //     providers: [
+                        //       BlocProvider(create: (_) => zoneBloc.fetchZone()),
+                        //       BlocProvider(
+                        //         create:
+                        //             (_) =>
+                        //                 $sl.get<CreateZoneCubit>()
+                        //                   ..initDetails(zoneForm),
+                        //       ),
+                        //       BlocProvider(
+                        //         create: (_) => storageBloc.fetchStorage(),
+                        //       ),
+                        //       BlocProvider(
+                        //         create:
+                        //             (_) =>
+                        //                 $sl.get<CreateStorageCubit>()
+                        //                   ..initDetails(null),
+                        //       ),
+                        //     ],
+                        //     child: const NewEntry(),
+                        //   );
+                        // },
+                        // builder: (_, state) {
+                        //   final zoneForm = state.extra as ZoneTransfer?;
+                        //   final blocprovider = ZoneBlocProvider.get();
+                        //   return MultiBlocProvider(
+                        //     providers: [
+                        //       BlocProvider(
+                        //         create: (_) => blocprovider.fetchZone(),
+                        //       ),
+                        //       BlocProvider(
+                        //         create:
+                        //             (_) =>
+                        //                 $sl.get<CreateZoneCubit>()
+                        //                   ..initDetails(zoneForm),
+                        //       ),
+                        //     ],
+                        //     child: const NewZone(),
+                        //   );
+                        // },
                       ),
                     ],
                   ),
@@ -808,7 +905,7 @@ class AppRouterConfig {
                     path: _getPath(AppRoute.shutterPackaging),
                     builder: (ctxt, state) {
                       final filters = Pair(
-                        StringUtils.docStatusInt('Draft'),
+                        StringUtils.docStatusInt('Submitted'),
                         null,
                       );
                       return BlocProvider(
@@ -842,6 +939,16 @@ class AppRouterConfig {
                               BlocProvider(
                                 create:
                                     (_) =>
+                                        ShutterBlocProvider.get()
+                                            .getSales()
+                                          ..request(''),
+                              ),
+                              BlocProvider(
+                                create: (_) => blocprovider.getPalletSize()..request(),
+                              ),
+                              BlocProvider(
+                                create:
+                                    (_) =>
                                         blocprovider.getShutterLines()
                                           ..request(shutter?.name ?? ''),
                               ),
@@ -862,7 +969,7 @@ class AppRouterConfig {
                     path: _getPath(AppRoute.framePackaging),
                     builder: (ctxt, state) {
                       final filters = Pair(
-                        StringUtils.docStatusInt('Draft'),
+                        StringUtils.docStatusInt('Submitted'),
                         null,
                       );
                       return BlocProvider(
@@ -894,10 +1001,13 @@ class AppRouterConfig {
                                 create: (_) => blocprovider.fetchFrames(),
                               ),
                               BlocProvider(
+                                create: (_) => blocprovider.fetchPalletSize()..request(),
+                              ),
+                              BlocProvider(
                                 create:
                                     (_) =>
-                                        LogisticPlanningBlocProvider.get()
-                                            .salesOrderList()
+                                        ShutterBlocProvider.get()
+                                            .getSales()
                                           ..request(''),
                               ),
                               BlocProvider(
@@ -938,7 +1048,7 @@ class AppRouterConfig {
                       GoRoute(
                         path: _getPath(AppRoute.newPalletCreation),
                         onExit: (context, state) async {
-                          final form = state.extra as ZoneTransfer?;
+                          final form = state.extra as PalletModel?;
                           final formStatus =
                               form?.docStatus == 1 ? 'Submitted' : 'Draft';
                           return await _promptConf(
@@ -947,22 +1057,95 @@ class AppRouterConfig {
                           );
                         },
                         builder: (_, state) {
-                          final frame = state.extra as ZoneTransfer?;
+                          final frame = state.extra as PalletModel?;
                           final blocprovider = PalletBlocProvider.get();
                           return MultiBlocProvider(
                             providers: [
                               BlocProvider(
                                 create: (_) => blocprovider.getPallet(),
                               ),
-
+                               BlocProvider(
+                                create: (_) => blocprovider.getPalletItems()..request(frame?.name ?? ''),
+                              ),
                               BlocProvider(
                                 create:
                                     (_) =>
-                                        $sl.get<CreateZoneCubit>()
+                                        PalletBlocProvider.get()
+                                            .saleOrder()
+                                          ..request(''),
+                              ),
+                              BlocProvider(
+                                create:
+                                    (_) =>
+                                        $sl.get<CreatePalletCubit>()
                                           ..initDetails(frame),
                               ),
                             ],
                             child: const NewPallet(),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                  GoRoute(
+                    path: _getPath(AppRoute.visionPanel),
+                    builder: (ctxt, state) {
+                      final filters = Pair(
+                        StringUtils.docStatusInt('Submitted'),
+                        null,
+                      );
+                      return BlocProvider(
+                        create:
+                            (context) =>
+                                VisionPanelBlocProvider.get().fetchVision()
+                                  ..fetchInitial(filters),
+                        child: const VisionPanelList(),
+                      );
+                    },
+                    routes: [
+                      GoRoute(
+                        path: _getPath(AppRoute.newvisionPanel),
+                        onExit: (context, state) async {
+                          final form = state.extra as VisionModel?;
+                          final formStatus =
+                              form?.docStatus == 1 ? 'Submitted' : 'Draft';
+                          return await _promptConf(
+                            context,
+                            formStatus: formStatus,
+                          );
+                        },
+                        builder: (_, state) {
+                          final shutter = state.extra as VisionModel?;
+                          final blocprovider = VisionPanelBlocProvider.get();
+                          return MultiBlocProvider(
+                            providers: [
+                              BlocProvider(
+                                create: (_) => blocprovider.fetchVision(),
+                              ),
+                              BlocProvider(
+                                create:
+                                    (_) =>
+                                        VisionPanelBlocProvider.get()
+                                            .getVisionLines()
+                                          ..request(shutter?.name),
+                              ),
+                              // BlocProvider(
+                              //   create: (_) => blocprovider.getPalletSize()..request(),
+                              // ),
+                              // BlocProvider(
+                              //   create:
+                              //       (_) =>
+                              //           blocprovider.getShutterLines()
+                              //             ..request(shutter?.name ?? ''),
+                              // ),
+                              BlocProvider(
+                                create:
+                                    (_) =>
+                                        $sl.get<CreateVehicleCubit>()
+                                          ..initDetails(shutter),
+                              ),
+                            ],
+                            child: const NewVision(),
                           );
                         },
                       ),

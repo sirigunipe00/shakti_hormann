@@ -19,7 +19,8 @@ enum PageMode2 {
   zoneTransfer('Zone Transfer'),
   shutterPacking('Shutter Packing'),
   framePacking('Frame Packing'),
-  palletCreation('Pallet Creation');
+  palletCreation('Pallet Creation'),
+  visionPanel('Vision Panel');
 
 
   const PageMode2(this.name);

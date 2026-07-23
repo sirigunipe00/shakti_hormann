@@ -59,12 +59,47 @@ class __HardwareFormWidgetState extends State<HardwareFormWidget> {
             if (!state.isSuccess || state.response == null) return;
 
             final response = state.response!;
+            final cubit = context.read<CreateHardwareCubit>();
+            final form = cubit.state.form;
+
+            final boxParts = response.box?.split('/');
+            final boxCurrent =
+                (boxParts != null && boxParts.length == 2)
+                    ? int.tryParse(boxParts[0].trim())
+                    : null;
+            final boxTotal =
+                (boxParts != null && boxParts.length == 2)
+                    ? int.tryParse(boxParts[1].trim())
+                    : null;
+
+            if (boxCurrent == null || boxTotal == null) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Could not read box count from sticker.'),
+                ),
+              );
+              return;
+            }
+
+            final alreadyScanned = form.scannedBoxNumbers;
+            if (alreadyScanned.length >= boxTotal) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    'All $boxTotal boxes for this order are already scanned.',
+                  ),
+                ),
+              );
+              return;
+            }
 
             context.read<CreateHardwareCubit>().onValueChanged(
               mesSystem: response.mesBarCode,
               salesOrderNo: response.orderNumber,
               captueDate: response.printDate,
               boxCount: int.tryParse(response.box?.split('/').first ?? '0'),
+              totalBoxCount: boxTotal,
+              scannedBoxNumbers: [...alreadyScanned, boxCurrent],
             );
 
             final items =
@@ -79,7 +114,8 @@ class __HardwareFormWidgetState extends State<HardwareFormWidget> {
                   );
                 }).toList();
 
-            context.read<CreateHardwareCubit>().updateHardwareItems(items);
+            // context.read<CreateHardwareCubit>().updateHardwareItems(items);
+            context.read<CreateHardwareCubit>().addHardwareItems(items);
           },
         ),
       ],

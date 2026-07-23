@@ -17,12 +17,13 @@ enum PageMode2 {
   loadingConfirmation('Dispatch Loading'),
   proofOfDelivery('Proof Of Delivery'),
   gateManagement('Gate Management'),
-  storageAllocation('Storage Allocation'),
+  storageAllocation('Storage / Zone Allocation'),
   hardwarePackaging('HardWare Packing'),
   zoneTransfer('Zone Transfer'),
   shutterPacking('Shutter Packing'),
   framePacking('Frame Packing'),
-  palletCreation('Pallet Creation');
+  palletCreation('Pallet Creation'),
+  visionPanel('Accessories Packing');
 
 
   const PageMode2(this.name);
@@ -72,7 +73,8 @@ class _AppPageView2State<T extends PageViewFiltersCubit>
     PageMode2.zoneTransfer => 'Search ZT',
     PageMode2.framePacking => 'Search Frame',
     PageMode2.shutterPacking => 'Search Shutter',
-    PageMode2.palletCreation => 'Serach SO'
+    PageMode2.palletCreation => 'Serach SO',
+    PageMode2.visionPanel => 'Serach VP',
   };
 
   Color get bgColor => switch (widget.mode) {
@@ -89,7 +91,8 @@ class _AppPageView2State<T extends PageViewFiltersCubit>
     PageMode2.zoneTransfer => AppColors.white,
     PageMode2.framePacking => AppColors.white,
     PageMode2.shutterPacking => AppColors.white,
-    PageMode2.palletCreation => AppColors.white
+    PageMode2.palletCreation => AppColors.white,
+    PageMode2.visionPanel => AppColors.white
   };
 
   @override
@@ -101,20 +104,25 @@ class _AppPageView2State<T extends PageViewFiltersCubit>
       case PageMode2.gateexit:
       case PageMode2.proofOfDelivery:
       case PageMode2.gateManagement:
-      case PageMode2.framePacking:
+      
       
 
       
-      case PageMode2.shutterPacking:
+       case PageMode2.palletCreation:
         filters = ['Draft', 'Submitted', 'All'];
         break;
         case PageMode2.storageAllocation:
         case PageMode2.zoneTransfer:
-        case PageMode2.palletCreation:
         case PageMode2.hardwarePackaging:
+        case PageMode2.visionPanel:
 
         filters = ['Completed'];
         break;
+
+       case PageMode2.shutterPacking:
+      case PageMode2.framePacking:
+      filters = ['Submitted'];
+      break;
 
       case PageMode2.logisticRequest:
         filters = [

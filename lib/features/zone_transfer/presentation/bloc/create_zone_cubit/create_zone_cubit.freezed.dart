@@ -21,6 +21,7 @@ mixin _$CreateZoneState {
   bool get isLoading => throw _privateConstructorUsedError;
   bool get isSuccess => throw _privateConstructorUsedError;
   ZoneView get view => throw _privateConstructorUsedError;
+  bool get isMoveFlow => throw _privateConstructorUsedError;
   String? get successMsg => throw _privateConstructorUsedError;
   Failure? get error => throw _privateConstructorUsedError;
 
@@ -43,6 +44,7 @@ abstract class $CreateZoneStateCopyWith<$Res> {
     bool isLoading,
     bool isSuccess,
     ZoneView view,
+    bool isMoveFlow,
     String? successMsg,
     Failure? error,
   });
@@ -70,6 +72,7 @@ class _$CreateZoneStateCopyWithImpl<$Res, $Val extends CreateZoneState>
     Object? isLoading = null,
     Object? isSuccess = null,
     Object? view = null,
+    Object? isMoveFlow = null,
     Object? successMsg = freezed,
     Object? error = freezed,
   }) {
@@ -95,6 +98,11 @@ class _$CreateZoneStateCopyWithImpl<$Res, $Val extends CreateZoneState>
                     ? _value.view
                     : view // ignore: cast_nullable_to_non_nullable
                         as ZoneView,
+            isMoveFlow:
+                null == isMoveFlow
+                    ? _value.isMoveFlow
+                    : isMoveFlow // ignore: cast_nullable_to_non_nullable
+                        as bool,
             successMsg:
                 freezed == successMsg
                     ? _value.successMsg
@@ -149,6 +157,7 @@ abstract class _$$CreateZoneStateImplCopyWith<$Res>
     bool isLoading,
     bool isSuccess,
     ZoneView view,
+    bool isMoveFlow,
     String? successMsg,
     Failure? error,
   });
@@ -177,6 +186,7 @@ class __$$CreateZoneStateImplCopyWithImpl<$Res>
     Object? isLoading = null,
     Object? isSuccess = null,
     Object? view = null,
+    Object? isMoveFlow = null,
     Object? successMsg = freezed,
     Object? error = freezed,
   }) {
@@ -202,6 +212,11 @@ class __$$CreateZoneStateImplCopyWithImpl<$Res>
                 ? _value.view
                 : view // ignore: cast_nullable_to_non_nullable
                     as ZoneView,
+        isMoveFlow:
+            null == isMoveFlow
+                ? _value.isMoveFlow
+                : isMoveFlow // ignore: cast_nullable_to_non_nullable
+                    as bool,
         successMsg:
             freezed == successMsg
                 ? _value.successMsg
@@ -225,6 +240,7 @@ class _$CreateZoneStateImpl implements _CreateZoneState {
     required this.isLoading,
     required this.isSuccess,
     required this.view,
+    this.isMoveFlow = false,
     this.successMsg,
     this.error,
   });
@@ -238,13 +254,16 @@ class _$CreateZoneStateImpl implements _CreateZoneState {
   @override
   final ZoneView view;
   @override
+  @JsonKey()
+  final bool isMoveFlow;
+  @override
   final String? successMsg;
   @override
   final Failure? error;
 
   @override
   String toString() {
-    return 'CreateZoneState(form: $form, isLoading: $isLoading, isSuccess: $isSuccess, view: $view, successMsg: $successMsg, error: $error)';
+    return 'CreateZoneState(form: $form, isLoading: $isLoading, isSuccess: $isSuccess, view: $view, isMoveFlow: $isMoveFlow, successMsg: $successMsg, error: $error)';
   }
 
   @override
@@ -258,6 +277,8 @@ class _$CreateZoneStateImpl implements _CreateZoneState {
             (identical(other.isSuccess, isSuccess) ||
                 other.isSuccess == isSuccess) &&
             (identical(other.view, view) || other.view == view) &&
+            (identical(other.isMoveFlow, isMoveFlow) ||
+                other.isMoveFlow == isMoveFlow) &&
             (identical(other.successMsg, successMsg) ||
                 other.successMsg == successMsg) &&
             (identical(other.error, error) || other.error == error));
@@ -270,6 +291,7 @@ class _$CreateZoneStateImpl implements _CreateZoneState {
     isLoading,
     isSuccess,
     view,
+    isMoveFlow,
     successMsg,
     error,
   );
@@ -292,6 +314,7 @@ abstract class _CreateZoneState implements CreateZoneState {
     required final bool isLoading,
     required final bool isSuccess,
     required final ZoneView view,
+    final bool isMoveFlow,
     final String? successMsg,
     final Failure? error,
   }) = _$CreateZoneStateImpl;
@@ -304,6 +327,8 @@ abstract class _CreateZoneState implements CreateZoneState {
   bool get isSuccess;
   @override
   ZoneView get view;
+  @override
+  bool get isMoveFlow;
   @override
   String? get successMsg;
   @override

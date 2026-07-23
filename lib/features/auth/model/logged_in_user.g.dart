@@ -91,7 +91,7 @@ _$RoleStatusImpl _$$RoleStatusImplFromJson(Map<String, dynamic> json) =>
       showLoadingConfirmation:
           (json['Show Loading Confirmation in Mobile App'] as num?)?.toInt(),
       showpod: (json['Show Proof of Delivery in Mobile App'] as num?)?.toInt(),
-      showgaetManagement:
+      showgateManagement:
           (json['Show Gate Management in Mobile App'] as num?)?.toInt(),
     );
 
@@ -107,5 +107,5 @@ Map<String, dynamic> _$$RoleStatusImplToJson(
   'Show Vehicle Reporting in Mobile App': instance.showVehicleReporting,
   'Show Loading Confirmation in Mobile App': instance.showLoadingConfirmation,
   'Show Proof of Delivery in Mobile App': instance.showpod,
-  'Show Gate Management in Mobile App': instance.showgaetManagement,
+  'Show Gate Management in Mobile App': instance.showgateManagement,
 };

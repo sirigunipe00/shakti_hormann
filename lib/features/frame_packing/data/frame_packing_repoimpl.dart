@@ -11,6 +11,7 @@ import 'package:shakti_hormann/features/frame_packing/data/frame_packing_repo.da
 import 'package:shakti_hormann/features/frame_packing/model/frame_items.dart';
 import 'package:shakti_hormann/features/frame_packing/model/frame_lines.dart';
 import 'package:shakti_hormann/features/frame_packing/model/frame_packing.dart';
+import 'package:shakti_hormann/features/shutter_packing/model/pallet_size.dart';
 
 @LazySingleton(as: FramePackingRepo)
 class FramePackingRepoImpl extends BaseApiRepository
@@ -53,6 +54,92 @@ class FramePackingRepoImpl extends BaseApiRepository
 
     final response = await get(requestConfig);
     return response.process((r) => right(r.data!));
+  }
+  @override
+AsyncValueOf<String> printFrameSticker(String framePackingId) async {
+  final Map<String, dynamic> requestBody = {
+    'shutter_packing_id': framePackingId,
+  };
+
+  final config = RequestConfig(
+    url: Urls.printShutterSticker,
+    parser: (json) {
+      final message = json['message'] as Map<String, dynamic>;
+      final status = message['status'] as int?;
+      final text = message['message'] as String? ?? 'Unknown error';
+      if (status != null && status >= 300) {
+        throw Failure(error: text, title: 'Print Failed', status: status);
+      }
+
+      return text;
+    },
+    body: jsonEncode(requestBody),
+    headers: {HttpHeaders.contentTypeHeader: 'application/json'},
+  );
+
+  $logger.devLog('printShutterSticker requestConfig.....$config');
+
+  final response = await post(config);
+  return response.processAsync((r) async {
+    return right(r.data!);
+  });
+}
+  @override
+AsyncValueOf<List<String>> getFramePalletCode(String salesOrder) async {
+  final config = RequestConfig(
+    url: Urls.getPalletCode,
+    reqParams: {
+      'sales_order': salesOrder,
+      'product_type': 'Frame',
+    },
+    parser: (json) {
+      final data = json['message']['data'] as List;
+
+      return data
+          .map((e) => e['pallet_code'].toString())
+          .toList();
+    },
+    headers: {
+      HttpHeaders.contentTypeHeader: 'application/json',
+    },
+  );
+
+  final response = await get(config);
+
+  return response.processAsync((r) async => right(r.data!));
+}
+    @override
+  AsyncValueOf<List<PalletSize>> fetchPalletSize() async {
+    return await executeSafely(() async {
+      final config = RequestConfig(
+        url: Urls.getList,
+
+        parser: (json) {
+          final data = json['message'];
+          final listdata = data as List<dynamic>;
+          return listdata.map((e) => PalletSize.fromJson(e)).toList();
+        },
+        reqParams: {
+          // 'filters': [
+          //   ['sales_order', '=', name],
+          // ],
+          'limit_start': 0,
+          'limit_page_length': 'None',
+          'oreder_by': 'creat desc',
+          'doctype': 'Pallet Size',
+          // 'parent': 'Pallet',
+          'fields': ['*'],
+        },
+
+        headers: {HttpHeaders.contentTypeHeader: 'application/json'},
+      );
+
+      final response = await get(config);
+      $logger.devLog('response.....$response');
+      return response.processAsync((r) async {
+        return right((r.data!));
+      });
+    });
   }
 
   @override
@@ -116,7 +203,11 @@ class FramePackingRepoImpl extends BaseApiRepository
     final formJson = form.toJson();
     formJson['status'] = 'Draft';
 
-    final Map<String, dynamic> requestBody = {'items': lines};
+    final Map<String, dynamic> requestBody = {
+      'sales_order': form.salesOrder,
+      'pallet_code': form.palletCode,
+
+      'items': lines};
 
     final config = RequestConfig(
       url: Urls.createFrame,

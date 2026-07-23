@@ -24,6 +24,12 @@ mixin _$CreateShutterState {
   List<ShutterLines> get newLines => throw _privateConstructorUsedError;
   ShutterView get view => throw _privateConstructorUsedError;
   bool get isModified => throw _privateConstructorUsedError;
+  bool get isFreezing => throw _privateConstructorUsedError;
+  bool get isFrozen => throw _privateConstructorUsedError;
+  bool get isPrinting => throw _privateConstructorUsedError;
+  List<String> get palletCodes => throw _privateConstructorUsedError;
+  String? get printSuccessMsg => throw _privateConstructorUsedError;
+  String? get freezeSuccessMsg => throw _privateConstructorUsedError;
   String? get successMsg => throw _privateConstructorUsedError;
   Failure? get error => throw _privateConstructorUsedError;
 
@@ -49,6 +55,12 @@ abstract class $CreateShutterStateCopyWith<$Res> {
     List<ShutterLines> newLines,
     ShutterView view,
     bool isModified,
+    bool isFreezing,
+    bool isFrozen,
+    bool isPrinting,
+    List<String> palletCodes,
+    String? printSuccessMsg,
+    String? freezeSuccessMsg,
     String? successMsg,
     Failure? error,
   });
@@ -79,6 +91,12 @@ class _$CreateShutterStateCopyWithImpl<$Res, $Val extends CreateShutterState>
     Object? newLines = null,
     Object? view = null,
     Object? isModified = null,
+    Object? isFreezing = null,
+    Object? isFrozen = null,
+    Object? isPrinting = null,
+    Object? palletCodes = null,
+    Object? printSuccessMsg = freezed,
+    Object? freezeSuccessMsg = freezed,
     Object? successMsg = freezed,
     Object? error = freezed,
   }) {
@@ -119,6 +137,36 @@ class _$CreateShutterStateCopyWithImpl<$Res, $Val extends CreateShutterState>
                     ? _value.isModified
                     : isModified // ignore: cast_nullable_to_non_nullable
                         as bool,
+            isFreezing:
+                null == isFreezing
+                    ? _value.isFreezing
+                    : isFreezing // ignore: cast_nullable_to_non_nullable
+                        as bool,
+            isFrozen:
+                null == isFrozen
+                    ? _value.isFrozen
+                    : isFrozen // ignore: cast_nullable_to_non_nullable
+                        as bool,
+            isPrinting:
+                null == isPrinting
+                    ? _value.isPrinting
+                    : isPrinting // ignore: cast_nullable_to_non_nullable
+                        as bool,
+            palletCodes:
+                null == palletCodes
+                    ? _value.palletCodes
+                    : palletCodes // ignore: cast_nullable_to_non_nullable
+                        as List<String>,
+            printSuccessMsg:
+                freezed == printSuccessMsg
+                    ? _value.printSuccessMsg
+                    : printSuccessMsg // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            freezeSuccessMsg:
+                freezed == freezeSuccessMsg
+                    ? _value.freezeSuccessMsg
+                    : freezeSuccessMsg // ignore: cast_nullable_to_non_nullable
+                        as String?,
             successMsg:
                 freezed == successMsg
                     ? _value.successMsg
@@ -176,6 +224,12 @@ abstract class _$$CreateShutterStateImplCopyWith<$Res>
     List<ShutterLines> newLines,
     ShutterView view,
     bool isModified,
+    bool isFreezing,
+    bool isFrozen,
+    bool isPrinting,
+    List<String> palletCodes,
+    String? printSuccessMsg,
+    String? freezeSuccessMsg,
     String? successMsg,
     Failure? error,
   });
@@ -207,6 +261,12 @@ class __$$CreateShutterStateImplCopyWithImpl<$Res>
     Object? newLines = null,
     Object? view = null,
     Object? isModified = null,
+    Object? isFreezing = null,
+    Object? isFrozen = null,
+    Object? isPrinting = null,
+    Object? palletCodes = null,
+    Object? printSuccessMsg = freezed,
+    Object? freezeSuccessMsg = freezed,
     Object? successMsg = freezed,
     Object? error = freezed,
   }) {
@@ -247,6 +307,36 @@ class __$$CreateShutterStateImplCopyWithImpl<$Res>
                 ? _value.isModified
                 : isModified // ignore: cast_nullable_to_non_nullable
                     as bool,
+        isFreezing:
+            null == isFreezing
+                ? _value.isFreezing
+                : isFreezing // ignore: cast_nullable_to_non_nullable
+                    as bool,
+        isFrozen:
+            null == isFrozen
+                ? _value.isFrozen
+                : isFrozen // ignore: cast_nullable_to_non_nullable
+                    as bool,
+        isPrinting:
+            null == isPrinting
+                ? _value.isPrinting
+                : isPrinting // ignore: cast_nullable_to_non_nullable
+                    as bool,
+        palletCodes:
+            null == palletCodes
+                ? _value._palletCodes
+                : palletCodes // ignore: cast_nullable_to_non_nullable
+                    as List<String>,
+        printSuccessMsg:
+            freezed == printSuccessMsg
+                ? _value.printSuccessMsg
+                : printSuccessMsg // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        freezeSuccessMsg:
+            freezed == freezeSuccessMsg
+                ? _value.freezeSuccessMsg
+                : freezeSuccessMsg // ignore: cast_nullable_to_non_nullable
+                    as String?,
         successMsg:
             freezed == successMsg
                 ? _value.successMsg
@@ -273,10 +363,17 @@ class _$CreateShutterStateImpl implements _CreateShutterState {
     final List<ShutterLines> newLines = const [],
     required this.view,
     this.isModified = false,
+    this.isFreezing = false,
+    this.isFrozen = false,
+    this.isPrinting = false,
+    final List<String> palletCodes = const [],
+    this.printSuccessMsg,
+    this.freezeSuccessMsg,
     this.successMsg,
     this.error,
   }) : _lines = lines,
-       _newLines = newLines;
+       _newLines = newLines,
+       _palletCodes = palletCodes;
 
   @override
   final ShutterPacking form;
@@ -307,13 +404,35 @@ class _$CreateShutterStateImpl implements _CreateShutterState {
   @JsonKey()
   final bool isModified;
   @override
+  @JsonKey()
+  final bool isFreezing;
+  @override
+  @JsonKey()
+  final bool isFrozen;
+  @override
+  @JsonKey()
+  final bool isPrinting;
+  final List<String> _palletCodes;
+  @override
+  @JsonKey()
+  List<String> get palletCodes {
+    if (_palletCodes is EqualUnmodifiableListView) return _palletCodes;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_palletCodes);
+  }
+
+  @override
+  final String? printSuccessMsg;
+  @override
+  final String? freezeSuccessMsg;
+  @override
   final String? successMsg;
   @override
   final Failure? error;
 
   @override
   String toString() {
-    return 'CreateShutterState(form: $form, isLoading: $isLoading, lines: $lines, isSuccess: $isSuccess, newLines: $newLines, view: $view, isModified: $isModified, successMsg: $successMsg, error: $error)';
+    return 'CreateShutterState(form: $form, isLoading: $isLoading, lines: $lines, isSuccess: $isSuccess, newLines: $newLines, view: $view, isModified: $isModified, isFreezing: $isFreezing, isFrozen: $isFrozen, isPrinting: $isPrinting, palletCodes: $palletCodes, printSuccessMsg: $printSuccessMsg, freezeSuccessMsg: $freezeSuccessMsg, successMsg: $successMsg, error: $error)';
   }
 
   @override
@@ -331,6 +450,20 @@ class _$CreateShutterStateImpl implements _CreateShutterState {
             (identical(other.view, view) || other.view == view) &&
             (identical(other.isModified, isModified) ||
                 other.isModified == isModified) &&
+            (identical(other.isFreezing, isFreezing) ||
+                other.isFreezing == isFreezing) &&
+            (identical(other.isFrozen, isFrozen) ||
+                other.isFrozen == isFrozen) &&
+            (identical(other.isPrinting, isPrinting) ||
+                other.isPrinting == isPrinting) &&
+            const DeepCollectionEquality().equals(
+              other._palletCodes,
+              _palletCodes,
+            ) &&
+            (identical(other.printSuccessMsg, printSuccessMsg) ||
+                other.printSuccessMsg == printSuccessMsg) &&
+            (identical(other.freezeSuccessMsg, freezeSuccessMsg) ||
+                other.freezeSuccessMsg == freezeSuccessMsg) &&
             (identical(other.successMsg, successMsg) ||
                 other.successMsg == successMsg) &&
             (identical(other.error, error) || other.error == error));
@@ -346,6 +479,12 @@ class _$CreateShutterStateImpl implements _CreateShutterState {
     const DeepCollectionEquality().hash(_newLines),
     view,
     isModified,
+    isFreezing,
+    isFrozen,
+    isPrinting,
+    const DeepCollectionEquality().hash(_palletCodes),
+    printSuccessMsg,
+    freezeSuccessMsg,
     successMsg,
     error,
   );
@@ -371,6 +510,12 @@ abstract class _CreateShutterState implements CreateShutterState {
     final List<ShutterLines> newLines,
     required final ShutterView view,
     final bool isModified,
+    final bool isFreezing,
+    final bool isFrozen,
+    final bool isPrinting,
+    final List<String> palletCodes,
+    final String? printSuccessMsg,
+    final String? freezeSuccessMsg,
     final String? successMsg,
     final Failure? error,
   }) = _$CreateShutterStateImpl;
@@ -389,6 +534,18 @@ abstract class _CreateShutterState implements CreateShutterState {
   ShutterView get view;
   @override
   bool get isModified;
+  @override
+  bool get isFreezing;
+  @override
+  bool get isFrozen;
+  @override
+  bool get isPrinting;
+  @override
+  List<String> get palletCodes;
+  @override
+  String? get printSuccessMsg;
+  @override
+  String? get freezeSuccessMsg;
   @override
   String? get successMsg;
   @override

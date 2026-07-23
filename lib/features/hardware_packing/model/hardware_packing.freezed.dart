@@ -52,6 +52,10 @@ mixin _$HardwarePacking {
   String? get remarks => throw _privateConstructorUsedError;
   @JsonKey(includeFromJson: false, includeToJson: false)
   File? get mesStickerImage => throw _privateConstructorUsedError;
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  int? get totalBoxCount => throw _privateConstructorUsedError;
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  List<int> get scannedBoxNumbers => throw _privateConstructorUsedError;
 
   /// Serializes this HardwarePacking to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -88,6 +92,9 @@ abstract class $HardwarePackingCopyWith<$Res> {
     @JsonKey(name: 'remarks') String? remarks,
     @JsonKey(includeFromJson: false, includeToJson: false)
     File? mesStickerImage,
+    @JsonKey(includeFromJson: false, includeToJson: false) int? totalBoxCount,
+    @JsonKey(includeFromJson: false, includeToJson: false)
+    List<int> scannedBoxNumbers,
   });
 }
 
@@ -122,6 +129,8 @@ class _$HardwarePackingCopyWithImpl<$Res, $Val extends HardwarePacking>
     Object? mesSystem = freezed,
     Object? remarks = freezed,
     Object? mesStickerImage = freezed,
+    Object? totalBoxCount = freezed,
+    Object? scannedBoxNumbers = null,
   }) {
     return _then(
       _value.copyWith(
@@ -205,6 +214,16 @@ class _$HardwarePackingCopyWithImpl<$Res, $Val extends HardwarePacking>
                     ? _value.mesStickerImage
                     : mesStickerImage // ignore: cast_nullable_to_non_nullable
                         as File?,
+            totalBoxCount:
+                freezed == totalBoxCount
+                    ? _value.totalBoxCount
+                    : totalBoxCount // ignore: cast_nullable_to_non_nullable
+                        as int?,
+            scannedBoxNumbers:
+                null == scannedBoxNumbers
+                    ? _value.scannedBoxNumbers
+                    : scannedBoxNumbers // ignore: cast_nullable_to_non_nullable
+                        as List<int>,
           )
           as $Val,
     );
@@ -238,6 +257,9 @@ abstract class _$$HardwarePackingImplCopyWith<$Res>
     @JsonKey(name: 'remarks') String? remarks,
     @JsonKey(includeFromJson: false, includeToJson: false)
     File? mesStickerImage,
+    @JsonKey(includeFromJson: false, includeToJson: false) int? totalBoxCount,
+    @JsonKey(includeFromJson: false, includeToJson: false)
+    List<int> scannedBoxNumbers,
   });
 }
 
@@ -271,6 +293,8 @@ class __$$HardwarePackingImplCopyWithImpl<$Res>
     Object? mesSystem = freezed,
     Object? remarks = freezed,
     Object? mesStickerImage = freezed,
+    Object? totalBoxCount = freezed,
+    Object? scannedBoxNumbers = null,
   }) {
     return _then(
       _$HardwarePackingImpl(
@@ -354,6 +378,16 @@ class __$$HardwarePackingImplCopyWithImpl<$Res>
                 ? _value.mesStickerImage
                 : mesStickerImage // ignore: cast_nullable_to_non_nullable
                     as File?,
+        totalBoxCount:
+            freezed == totalBoxCount
+                ? _value.totalBoxCount
+                : totalBoxCount // ignore: cast_nullable_to_non_nullable
+                    as int?,
+        scannedBoxNumbers:
+            null == scannedBoxNumbers
+                ? _value._scannedBoxNumbers
+                : scannedBoxNumbers // ignore: cast_nullable_to_non_nullable
+                    as List<int>,
       ),
     );
   }
@@ -379,7 +413,10 @@ class _$HardwarePackingImpl implements _HardwarePacking {
     @JsonKey(name: 'mes_number') this.mesSystem,
     @JsonKey(name: 'remarks') this.remarks,
     @JsonKey(includeFromJson: false, includeToJson: false) this.mesStickerImage,
-  });
+    @JsonKey(includeFromJson: false, includeToJson: false) this.totalBoxCount,
+    @JsonKey(includeFromJson: false, includeToJson: false)
+    final List<int> scannedBoxNumbers = const <int>[],
+  }) : _scannedBoxNumbers = scannedBoxNumbers;
 
   factory _$HardwarePackingImpl.fromJson(Map<String, dynamic> json) =>
       _$$HardwarePackingImplFromJson(json);
@@ -431,10 +468,22 @@ class _$HardwarePackingImpl implements _HardwarePacking {
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
   final File? mesStickerImage;
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  final int? totalBoxCount;
+  final List<int> _scannedBoxNumbers;
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  List<int> get scannedBoxNumbers {
+    if (_scannedBoxNumbers is EqualUnmodifiableListView)
+      return _scannedBoxNumbers;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_scannedBoxNumbers);
+  }
 
   @override
   String toString() {
-    return 'HardwarePacking(status: $status, name: $name, owner: $owner, creation: $creation, modified: $modified, modifiedBy: $modifiedBy, docStatus: $docStatus, idx: $idx, boxCount: $boxCount, salesOrderNo: $salesOrderNo, customerName: $customerName, captueDate: $captueDate, operator: $operator, mesSystem: $mesSystem, remarks: $remarks, mesStickerImage: $mesStickerImage)';
+    return 'HardwarePacking(status: $status, name: $name, owner: $owner, creation: $creation, modified: $modified, modifiedBy: $modifiedBy, docStatus: $docStatus, idx: $idx, boxCount: $boxCount, salesOrderNo: $salesOrderNo, customerName: $customerName, captueDate: $captueDate, operator: $operator, mesSystem: $mesSystem, remarks: $remarks, mesStickerImage: $mesStickerImage, totalBoxCount: $totalBoxCount, scannedBoxNumbers: $scannedBoxNumbers)';
   }
 
   @override
@@ -468,7 +517,13 @@ class _$HardwarePackingImpl implements _HardwarePacking {
                 other.mesSystem == mesSystem) &&
             (identical(other.remarks, remarks) || other.remarks == remarks) &&
             (identical(other.mesStickerImage, mesStickerImage) ||
-                other.mesStickerImage == mesStickerImage));
+                other.mesStickerImage == mesStickerImage) &&
+            (identical(other.totalBoxCount, totalBoxCount) ||
+                other.totalBoxCount == totalBoxCount) &&
+            const DeepCollectionEquality().equals(
+              other._scannedBoxNumbers,
+              _scannedBoxNumbers,
+            ));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -491,6 +546,8 @@ class _$HardwarePackingImpl implements _HardwarePacking {
     mesSystem,
     remarks,
     mesStickerImage,
+    totalBoxCount,
+    const DeepCollectionEquality().hash(_scannedBoxNumbers),
   );
 
   /// Create a copy of HardwarePacking
@@ -529,6 +586,10 @@ abstract class _HardwarePacking implements HardwarePacking {
     @JsonKey(name: 'remarks') final String? remarks,
     @JsonKey(includeFromJson: false, includeToJson: false)
     final File? mesStickerImage,
+    @JsonKey(includeFromJson: false, includeToJson: false)
+    final int? totalBoxCount,
+    @JsonKey(includeFromJson: false, includeToJson: false)
+    final List<int> scannedBoxNumbers,
   }) = _$HardwarePackingImpl;
 
   factory _HardwarePacking.fromJson(Map<String, dynamic> json) =
@@ -581,6 +642,12 @@ abstract class _HardwarePacking implements HardwarePacking {
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
   File? get mesStickerImage;
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  int? get totalBoxCount;
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  List<int> get scannedBoxNumbers;
 
   /// Create a copy of HardwarePacking
   /// with the given fields replaced by the non-null parameter values.

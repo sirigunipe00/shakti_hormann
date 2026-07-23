@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shakti_hormann/app/presentation/widgets/app_page_view2.dart';
 import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/core/model/page_view_filters.dart';
-import 'package:shakti_hormann/features/frame_packing/model/frame_packing.dart';
+import 'package:shakti_hormann/features/pallet_creation/model/pallet_model.dart';
 import 'package:shakti_hormann/features/pallet_creation/presentation/bloc/bloc_provider.dart';
 import 'package:shakti_hormann/features/pallet_creation/presentation/bloc/pallet_filter_cubit.dart';
 import 'package:shakti_hormann/features/pallet_creation/presentation/ui/widget/pallet_widget.dart';
@@ -51,9 +51,9 @@ class _PalletListState extends State<PalletList> {
         },
         child: BlocListener<PalletFilterCubit, PageViewFilters>(
           listener: (_, state) => _fetchInital(context),
-          child: InfiniteListViewWidget<PalletCubit, FramePacking>(
+          child: InfiniteListViewWidget<PalletCubit, PalletModel>(
             childBuilder: (context, entry) => PalletWidget(
-              frame: entry,
+              pallet: entry,
               onTap: () async {
                       final refresh = await AppRoute.newPalletCreation.push<bool?>(
                         context,

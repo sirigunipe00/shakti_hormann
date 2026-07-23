@@ -25,6 +25,10 @@ class HardwarePacking with _$HardwarePacking {
     @JsonKey(name: 'remarks') String? remarks,
     @JsonKey(includeFromJson: false, includeToJson: false)
     File? mesStickerImage,
+    @JsonKey(includeFromJson: false, includeToJson: false) int? totalBoxCount,
+    @Default(<int>[])
+    @JsonKey(includeFromJson: false, includeToJson: false)
+    List<int> scannedBoxNumbers,
   }) = _HardwarePacking;
 
   factory HardwarePacking.fromJson(Map<String, dynamic> json) =>

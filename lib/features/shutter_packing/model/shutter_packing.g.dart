@@ -20,6 +20,8 @@ _$ShutterPackingImpl _$$ShutterPackingImplFromJson(Map<String, dynamic> json) =>
       shift: json['shift'] as String?,
       operator: json['operator'] as String?,
       palletNo: json['pallet_no'] as String?,
+      palletCode: json['pallet_code'] as String?,
+      salesOrder: json['sales_order'] as String?,
       palletPhoto: json['pallet_photo'] as String?,
       palletPhotoImg: toNull(json['palletPhotoImg']),
       totalShuttersOnPallet:
@@ -45,6 +47,8 @@ Map<String, dynamic> _$$ShutterPackingImplToJson(
   'shift': instance.shift,
   'operator': instance.operator,
   'pallet_no': instance.palletNo,
+  'pallet_code': instance.palletCode,
+  'sales_order': instance.salesOrder,
   'pallet_photo': instance.palletPhoto,
   'total_shutters_on_pallet': instance.totalShuttersOnPallet,
   'total_boxes_on_pallet': instance.totalBoxesOnPallet,

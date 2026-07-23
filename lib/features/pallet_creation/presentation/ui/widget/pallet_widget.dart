@@ -2,7 +2,7 @@ import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/material.dart';
 import 'package:shakti_hormann/core/utils/date_format_util.dart';
 import 'package:shakti_hormann/core/utils/string_utils.dart';
-import 'package:shakti_hormann/features/frame_packing/model/frame_packing.dart';
+import 'package:shakti_hormann/features/pallet_creation/model/pallet_model.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/styles/app_text_styles.dart';
 import 'package:shakti_hormann/widgets/doc_status_widget.dart';
@@ -11,15 +11,15 @@ import 'package:shakti_hormann/widgets/spaced_column.dart';
 class PalletWidget extends StatelessWidget {
   const PalletWidget({
     super.key,
-    required this.frame,
+    required this.pallet,
     required this.onTap,
   });
 
-  final FramePacking frame;
+  final PalletModel pallet;
   final VoidCallback onTap;
 
   String get _palletDisplayNumber {
-    final raw = frame.name;
+    final raw = pallet.name;
     if (raw == null || raw.isEmpty) return '---';
 
     final digits = RegExp(r'\d+').allMatches(raw).map((m) => m.group(0)!).toList();
@@ -82,7 +82,7 @@ class PalletWidget extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                frame.name ?? '',
+                                pallet.name ?? '',
                                 style: AppTextStyles.titleLarge(context).copyWith(
                                   color: AppColors.black,
                                   fontWeight: FontWeight.bold,
@@ -90,7 +90,7 @@ class PalletWidget extends StatelessWidget {
                               ),
                               const SizedBox(height: 5),
                               Text(
-                                frame.palletNo ?? '',
+                                pallet.salesOrder ?? '',
                                 style: const TextStyle(
                                   color: AppColors.grey,
                                   fontWeight: FontWeight.normal,
@@ -114,7 +114,7 @@ class PalletWidget extends StatelessWidget {
                               ),
                               const SizedBox(width: 4),
                               Text(
-                                DFU.ddMMyyyyFromStr(frame.packingDate ?? ''),
+                                DFU.ddMMyyyyFromStr(pallet.creationDate ?? ''),
                                 style: const TextStyle(
                                   color: Color(0xFF163A6B),
                                   fontSize: 11,
@@ -146,10 +146,10 @@ class PalletWidget extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Pallets : ${frame.totalUnitsOnPallet} Units',
+                Text('Pallets : ${pallet.noofPallets} Units',
                 style: const TextStyle(color: Colors.orange,fontWeight: FontWeight.bold,fontSize: 15),),
                 DocStatusWidget(
-                  status: StringUtils.framePackingStatus(frame.docStatus ?? 0),
+                  status: StringUtils.docStatus(pallet.docStatus ?? 0),
                 ),
               ],
             ),

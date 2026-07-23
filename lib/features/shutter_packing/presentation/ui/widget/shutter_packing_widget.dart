@@ -90,7 +90,7 @@ class ShutterPackingWidget extends StatelessWidget {
                               ),
                               const SizedBox(height: 5),
                               Text(
-                                shutter.palletNo ?? '',
+                                shutter.palletCode ?? '',
                                 style: const TextStyle(
                                   color: AppColors.grey,
                                   fontWeight: FontWeight.normal,
@@ -149,7 +149,7 @@ class ShutterPackingWidget extends StatelessWidget {
                 Text('Quantity : ${shutter.totalShuttersOnPallet} Units',
                 style: const TextStyle(color: Colors.orange,fontWeight: FontWeight.bold,fontSize: 15),),
                 DocStatusWidget(
-                  status: StringUtils.docStatus(shutter.docStatus ?? 0),
+                  status: StringUtils.framePackingStatus(shutter.docStatus ?? 0),
                 ),
               ],
             ),

@@ -35,6 +35,8 @@ class CreateHardwareCubit extends AppBaseCubit<CreateHardwareState> {
     String? modifiedBy,
     String? modifiedDate,
     String? salesOrderNo,
+     int? totalBoxCount,
+  List<int>? scannedBoxNumbers,
     String? customerName,
     String? captueDate,
     String? operator,
@@ -60,13 +62,22 @@ class CreateHardwareCubit extends AppBaseCubit<CreateHardwareState> {
       operator: operator ?? form.operator,
       mesSystem: mesSystem ?? form.mesSystem,
       boxCount: boxCount ?? form.boxCount,
+      totalBoxCount: totalBoxCount ?? form.totalBoxCount,        
+    scannedBoxNumbers: scannedBoxNumbers ?? form.scannedBoxNumbers,
       remarks: remarks ?? form.remarks,
       mesStickerImage: mesImage ?? form.mesStickerImage,
       );
 
     emitSafeState(state.copyWith(form: newForm,isModified: true));
   }
-
+void addHardwareItems(List<HardwareItem> newItems) {
+  emitSafeState(
+    state.copyWith(
+      lines: [...state.lines, ...newItems],
+      isModified: true,
+    ),
+  );
+}
   void initDetails(Object? entry) async{
     shouldAskForConfirmation.value = false;
     if (entry is HardwarePacking) {

@@ -31,28 +31,27 @@ class _NewFrameState extends State<NewFrame> {
           status == null
               ? SimpleAppBar(
                 title: 'New Frame Packing',
-                actionButton:
-                    BlocBuilder<CreateFrameCubit, CreateFrameState>(
-                      builder: (context, state) {
-                        return AppButton(
-                          borderColor: Colors.grey,
-                          bgColor:
-                              state.view == FrameView.create
-                                  ? const Color.fromARGB(255, 250, 193, 47)
-                                  : AppColors.green,
-                          textStyle: const TextStyle(
-                            color: AppColors.darkBlue,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 15,
-                          ),
-                          isLoading: state.isLoading,
-                          label: state.view.toName(),
-                          onPressed: () {
-                            context.cubit<CreateFrameCubit>().save();
-                          },
-                        );
+                actionButton: BlocBuilder<CreateFrameCubit, CreateFrameState>(
+                  builder: (context, state) {
+                    return AppButton(
+                      borderColor: Colors.grey,
+                      bgColor:
+                          state.view == FrameView.create
+                              ? const Color.fromARGB(255, 250, 193, 47)
+                              : AppColors.green,
+                      textStyle: const TextStyle(
+                        color: AppColors.darkBlue,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                      ),
+                      isLoading: state.isLoading,
+                      label: state.view.toName(),
+                      onPressed: () {
+                        context.cubit<CreateFrameCubit>().save();
                       },
-                    ),
+                    );
+                  },
+                ),
               )
               : TitleStatusAppBar(
                     title: '  $name',
@@ -64,13 +63,13 @@ class _NewFrameState extends State<NewFrame> {
                     actionButton:
                         (status == 1 && !gateEntryState.isModified)
                             ? null
-                            : BlocBuilder<CreateFrameCubit,CreateFrameState>(
+                            : BlocBuilder<CreateFrameCubit, CreateFrameState>(
                               builder: (context, state) {
                                 return AppButton(
                                   borderColor: Colors.grey,
                                   isLoading: state.isLoading,
                                   label:
-                                      state.newLines.isNotEmpty 
+                                      state.newLines.isNotEmpty
                                           ? 'Update'
                                           : 'Submit',
                                   onPressed: () {
@@ -88,7 +87,11 @@ class _NewFrameState extends State<NewFrame> {
               context,
               title: 'Success',
               content: state.successMsg.valueOrEmpty,
-              onTapDismiss: context.exit,
+              onTapDismiss: () {
+                Navigator.of(context, rootNavigator: true).pop();
+                shouldAskForConfirmation.value = false;
+                context.exit();
+              },
             ).then((_) {
               final docName = state.form.name;
               if (!context.mounted) return;

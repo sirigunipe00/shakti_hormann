@@ -44,6 +44,10 @@ mixin _$ShutterPacking {
   String? get operator => throw _privateConstructorUsedError;
   @JsonKey(name: 'pallet_no')
   String? get palletNo => throw _privateConstructorUsedError;
+  @JsonKey(name: 'pallet_code')
+  String? get palletCode => throw _privateConstructorUsedError;
+  @JsonKey(name: 'sales_order')
+  String? get salesOrder => throw _privateConstructorUsedError;
   @JsonKey(name: 'pallet_photo')
   String? get palletPhoto => throw _privateConstructorUsedError;
   @JsonKey(
@@ -96,6 +100,8 @@ abstract class $ShutterPackingCopyWith<$Res> {
     @JsonKey(name: 'shift') String? shift,
     @JsonKey(name: 'operator') String? operator,
     @JsonKey(name: 'pallet_no') String? palletNo,
+    @JsonKey(name: 'pallet_code') String? palletCode,
+    @JsonKey(name: 'sales_order') String? salesOrder,
     @JsonKey(name: 'pallet_photo') String? palletPhoto,
     @JsonKey(
       includeFromJson: true,
@@ -141,6 +147,8 @@ class _$ShutterPackingCopyWithImpl<$Res, $Val extends ShutterPacking>
     Object? shift = freezed,
     Object? operator = freezed,
     Object? palletNo = freezed,
+    Object? palletCode = freezed,
+    Object? salesOrder = freezed,
     Object? palletPhoto = freezed,
     Object? palletPhotoImg = freezed,
     Object? totalShuttersOnPallet = freezed,
@@ -212,6 +220,16 @@ class _$ShutterPackingCopyWithImpl<$Res, $Val extends ShutterPacking>
                     ? _value.palletNo
                     : palletNo // ignore: cast_nullable_to_non_nullable
                         as String?,
+            palletCode:
+                freezed == palletCode
+                    ? _value.palletCode
+                    : palletCode // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            salesOrder:
+                freezed == salesOrder
+                    ? _value.salesOrder
+                    : salesOrder // ignore: cast_nullable_to_non_nullable
+                        as String?,
             palletPhoto:
                 freezed == palletPhoto
                     ? _value.palletPhoto
@@ -280,6 +298,8 @@ abstract class _$$ShutterPackingImplCopyWith<$Res>
     @JsonKey(name: 'shift') String? shift,
     @JsonKey(name: 'operator') String? operator,
     @JsonKey(name: 'pallet_no') String? palletNo,
+    @JsonKey(name: 'pallet_code') String? palletCode,
+    @JsonKey(name: 'sales_order') String? salesOrder,
     @JsonKey(name: 'pallet_photo') String? palletPhoto,
     @JsonKey(
       includeFromJson: true,
@@ -324,6 +344,8 @@ class __$$ShutterPackingImplCopyWithImpl<$Res>
     Object? shift = freezed,
     Object? operator = freezed,
     Object? palletNo = freezed,
+    Object? palletCode = freezed,
+    Object? salesOrder = freezed,
     Object? palletPhoto = freezed,
     Object? palletPhotoImg = freezed,
     Object? totalShuttersOnPallet = freezed,
@@ -395,6 +417,16 @@ class __$$ShutterPackingImplCopyWithImpl<$Res>
                 ? _value.palletNo
                 : palletNo // ignore: cast_nullable_to_non_nullable
                     as String?,
+        palletCode:
+            freezed == palletCode
+                ? _value.palletCode
+                : palletCode // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        salesOrder:
+            freezed == salesOrder
+                ? _value.salesOrder
+                : salesOrder // ignore: cast_nullable_to_non_nullable
+                    as String?,
         palletPhoto:
             freezed == palletPhoto
                 ? _value.palletPhoto
@@ -456,6 +488,8 @@ class _$ShutterPackingImpl implements _ShutterPacking {
     @JsonKey(name: 'shift') this.shift,
     @JsonKey(name: 'operator') this.operator,
     @JsonKey(name: 'pallet_no') this.palletNo,
+    @JsonKey(name: 'pallet_code') this.palletCode,
+    @JsonKey(name: 'sales_order') this.salesOrder,
     @JsonKey(name: 'pallet_photo') this.palletPhoto,
     @JsonKey(
       includeFromJson: true,
@@ -512,6 +546,12 @@ class _$ShutterPackingImpl implements _ShutterPacking {
   @JsonKey(name: 'pallet_no')
   final String? palletNo;
   @override
+  @JsonKey(name: 'pallet_code')
+  final String? palletCode;
+  @override
+  @JsonKey(name: 'sales_order')
+  final String? salesOrder;
+  @override
   @JsonKey(name: 'pallet_photo')
   final String? palletPhoto;
   @override
@@ -548,7 +588,7 @@ class _$ShutterPackingImpl implements _ShutterPacking {
 
   @override
   String toString() {
-    return 'ShutterPacking(status: $status, name: $name, owner: $owner, creation: $creation, modified: $modified, modifiedBy: $modifiedBy, docStatus: $docStatus, idx: $idx, packingDate: $packingDate, shift: $shift, operator: $operator, palletNo: $palletNo, palletPhoto: $palletPhoto, palletPhotoImg: $palletPhotoImg, totalShuttersOnPallet: $totalShuttersOnPallet, totalBoxesOnPallet: $totalBoxesOnPallet, palletQrPrinted: $palletQrPrinted, remarks: $remarks, amendedFrom: $amendedFrom, deletedLines: $deletedLines)';
+    return 'ShutterPacking(status: $status, name: $name, owner: $owner, creation: $creation, modified: $modified, modifiedBy: $modifiedBy, docStatus: $docStatus, idx: $idx, packingDate: $packingDate, shift: $shift, operator: $operator, palletNo: $palletNo, palletCode: $palletCode, salesOrder: $salesOrder, palletPhoto: $palletPhoto, palletPhotoImg: $palletPhotoImg, totalShuttersOnPallet: $totalShuttersOnPallet, totalBoxesOnPallet: $totalBoxesOnPallet, palletQrPrinted: $palletQrPrinted, remarks: $remarks, amendedFrom: $amendedFrom, deletedLines: $deletedLines)';
   }
 
   @override
@@ -575,6 +615,10 @@ class _$ShutterPackingImpl implements _ShutterPacking {
                 other.operator == operator) &&
             (identical(other.palletNo, palletNo) ||
                 other.palletNo == palletNo) &&
+            (identical(other.palletCode, palletCode) ||
+                other.palletCode == palletCode) &&
+            (identical(other.salesOrder, salesOrder) ||
+                other.salesOrder == salesOrder) &&
             (identical(other.palletPhoto, palletPhoto) ||
                 other.palletPhoto == palletPhoto) &&
             (identical(other.palletPhotoImg, palletPhotoImg) ||
@@ -610,6 +654,8 @@ class _$ShutterPackingImpl implements _ShutterPacking {
     shift,
     operator,
     palletNo,
+    palletCode,
+    salesOrder,
     palletPhoto,
     palletPhotoImg,
     totalShuttersOnPallet,
@@ -651,6 +697,8 @@ abstract class _ShutterPacking implements ShutterPacking {
     @JsonKey(name: 'shift') final String? shift,
     @JsonKey(name: 'operator') final String? operator,
     @JsonKey(name: 'pallet_no') final String? palletNo,
+    @JsonKey(name: 'pallet_code') final String? palletCode,
+    @JsonKey(name: 'sales_order') final String? salesOrder,
     @JsonKey(name: 'pallet_photo') final String? palletPhoto,
     @JsonKey(
       includeFromJson: true,
@@ -706,6 +754,12 @@ abstract class _ShutterPacking implements ShutterPacking {
   @override
   @JsonKey(name: 'pallet_no')
   String? get palletNo;
+  @override
+  @JsonKey(name: 'pallet_code')
+  String? get palletCode;
+  @override
+  @JsonKey(name: 'sales_order')
+  String? get salesOrder;
   @override
   @JsonKey(name: 'pallet_photo')
   String? get palletPhoto;

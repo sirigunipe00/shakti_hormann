@@ -1,4 +1,3 @@
-
 import 'dart:io';
 import 'package:shakti_hormann/core/core.dart';
 import 'package:dartz/dartz.dart';
@@ -17,8 +16,43 @@ extension ActionType on ShutterView {
     return switch (this) {
       ShutterView.create => 'Save',
       ShutterView.edit => isModified ? 'Update' : 'Submit',
-      ShutterView.completed => 'Submitted',
+      ShutterView.completed => 'Submit',
     };
+  }
+}
+
+class _ParsedShutterQr {
+  _ParsedShutterQr({
+    required this.salesOrder,
+    required this.itemIndex,
+    required this.seqNo,
+    required this.totalQty,
+  });
+
+  final String salesOrder;
+  final String itemIndex;
+  final int seqNo;
+  final int totalQty;
+
+  String get groupKey => salesOrder;
+
+  static _ParsedShutterQr? tryParse(String raw) {
+    final cleaned = raw.replaceAll(RegExp(r'\s+'), '').trim();
+    final parts = cleaned.split('/').where((e) => e.isNotEmpty).toList();
+
+    if (parts.length < 5) return null;
+
+    final seqNo = int.tryParse(parts[3]);
+    final totalQty = int.tryParse(parts[4]);
+    if (seqNo == null || seqNo <= 0) return null;
+    if (totalQty == null || totalQty <= 0) return null;
+
+    return _ParsedShutterQr(
+      salesOrder: parts[0],
+      itemIndex: parts[1],
+      seqNo: seqNo,
+      totalQty: totalQty,
+    );
   }
 }
 
@@ -39,6 +73,8 @@ class CreateShutterCubit extends AppBaseCubit<CreateShutterState> {
     String? operator,
     String? palletNo,
     int? palletQrPrinted,
+    String? salesOrder,
+    String? palletCode,
     int? totalShuttersOnPallet,
     int? totalBoxesOnPallet,
     String? remarks,
@@ -59,7 +95,9 @@ class CreateShutterCubit extends AppBaseCubit<CreateShutterState> {
       shift: shift ?? form.shift,
       operator: operator ?? form.operator,
       remarks: remarks ?? form.remarks,
+      salesOrder: salesOrder ?? form.salesOrder,
       palletNo: palletNo ?? form.palletNo,
+      palletCode: palletCode ?? form.palletCode,
       totalShuttersOnPallet:
           totalShuttersOnPallet ?? form.totalShuttersOnPallet,
       totalBoxesOnPallet: totalBoxesOnPallet ?? form.totalBoxesOnPallet,
@@ -87,6 +125,8 @@ class CreateShutterCubit extends AppBaseCubit<CreateShutterState> {
         totalShuttersOnPallet: entry.totalShuttersOnPallet,
         totalBoxesOnPallet: entry.totalBoxesOnPallet,
         palletQrPrinted: entry.palletQrPrinted,
+        salesOrder: entry.salesOrder,
+        palletCode: entry.palletCode,
         creation: entry.creation,
       );
       final status = entry.docStatus;
@@ -107,28 +147,87 @@ class CreateShutterCubit extends AppBaseCubit<CreateShutterState> {
       );
     }
     if (entry == null) return;
+    if (entry is ShutterPacking && entry.salesOrder?.isNotEmpty == true) {
+      getPalletCodes(entry.salesOrder!);
+    }
   }
 
   void addAllLines(List<ShutterLines> lines) {
     emitSafeState(state.copyWith(lines: lines));
   }
 
+  Future<void> getPalletCodes(String salesOrder) async {
+    emitSafeState(state.copyWith(isLoading: true));
+
+    final result = await repo.getShutterPalletCode(salesOrder);
+
+    result.fold(
+      (failure) {
+        emitSafeState(state.copyWith(isLoading: false, error: failure));
+      },
+      (codes) {
+        emitSafeState(state.copyWith(isLoading: false, palletCodes: codes));
+      },
+    );
+  }
+
   Future<void> onQrScanned(String rawQr, {String? imagePath}) async {
-    final cleaned = rawQr.replaceAll(RegExp(r'\s+'), '').trim();
-
-    final parts = cleaned.split('/').where((e) => e.isNotEmpty).toList();
-
-    if (parts.length < 5) {
-      _emitError(Pair('Invalid QR format: $cleaned', null));
+    final parsed = _ParsedShutterQr.tryParse(rawQr);
+    if (parsed == null) {
+      _emitError(Pair('Invalid QR format: $rawQr', null));
       return;
     }
-    final salesOrder = parts[0];
-    final itemIndex = parts[1];
+
+    final salesOrder = parsed.salesOrder;
+    final itemIndex = parsed.itemIndex;
+    final totalQty = parsed.totalQty;
+    final seqNo = parsed.seqNo;
+    final scannedSeqNos =
+        state.lines
+            .map((line) {
+              final existing =
+                  line.shutterBarcodeQr == null
+                      ? null
+                      : _ParsedShutterQr.tryParse(line.shutterBarcodeQr!);
+              if (existing == null || existing.groupKey != parsed.groupKey) {
+                return null;
+              }
+              return existing.seqNo;
+            })
+            .whereType<int>()
+            .toSet();
+
+    if (scannedSeqNos.contains(seqNo)) {
+      _emitError(
+        Pair('Shutter $seqNo of $totalQty has already been scanned.', null),
+      );
+      return;
+    }
+
+    final expectedNext = scannedSeqNos.length + 1;
+    if (seqNo != expectedNext) {
+      _emitError(
+        Pair(
+          'Expected shutter $expectedNext of $totalQty, but scanned $seqNo. Please scan in order.',
+          null,
+        ),
+      );
+      return;
+    }
+
+    if (scannedSeqNos.length >= totalQty) {
+      _emitError(
+        Pair(
+          'Maximum quantity of $totalQty already scanned for this item.',
+          null,
+        ),
+      );
+      return;
+    }
 
     emitSafeState(state.copyWith(isLoading: true));
 
     final result = await repo.fetchItems(salesOrder, itemIndex);
-
     result.fold(
       (failure) =>
           emitSafeState(state.copyWith(isLoading: false, error: failure)),
@@ -173,8 +272,7 @@ class CreateShutterCubit extends AppBaseCubit<CreateShutterState> {
   }
 
   void removeLineAt(int index) {
-    final lines = [...state.lines]
-    ..removeAt(index);
+    final lines = [...state.lines]..removeAt(index);
     emit(state.copyWith(lines: lines, isModified: true));
   }
 
@@ -277,6 +375,75 @@ class CreateShutterCubit extends AppBaseCubit<CreateShutterState> {
     );
   }
 
+  Future<void> freezeQuantity() async {
+    emitSafeState(state.copyWith(isFreezing: true));
+
+    final response = await repo.createShutter(state.form, state.lines);
+
+    response.fold(
+      (failure) {
+        emitSafeState(state.copyWith(isFreezing: false, error: failure));
+      },
+      (result) {
+        final form = state.form.copyWith(
+          name: result.second,
+          status: 'Draft',
+        );
+        shouldAskForConfirmation.value = false;
+
+        emitSafeState(
+          state.copyWith(
+            form: form,
+            isFreezing: false,
+            isFrozen: true,
+            isModified: false,
+            newLines: [],
+            freezeSuccessMsg: 'Quantity frozen successfully.',
+          ),
+        );
+      },
+    );
+  }
+
+  Future<bool> printSticker() async {
+    final docName = state.form.name;
+    if (docName == null || docName.isEmpty) {
+      _emitError(const Pair('No document found to print.', null));
+      return false;
+    }
+
+    emitSafeState(state.copyWith(isPrinting: true));
+
+    final response = await repo.printShutterSticker(docName);
+
+    return response.fold(
+      (failure) {
+        emitSafeState(state.copyWith(isPrinting: false, error: failure));
+        return false;
+      },
+     (message) {
+  shouldAskForConfirmation.value = false;
+  emitSafeState(
+    state.copyWith(
+      isPrinting: false,
+      printSuccessMsg: message,
+      form: state.form.copyWith(palletQrPrinted: 1,docStatus: 0),
+      isModified: false,
+    ),
+  );
+  return true;
+},
+    );
+  }
+
+  void printHandled() {
+    emitSafeState(state.copyWith(printSuccessMsg: null));
+  }
+
+  void freezeHandled() {
+    emitSafeState(state.copyWith(freezeSuccessMsg: null));
+  }
+
   Option<Pair<String, int?>> _validate() {
     final form = state.form;
     final isSubmit = state.view == ShutterView.edit && !state.isModified;
@@ -300,7 +467,12 @@ class CreateShutterState with _$CreateShutterState {
     @Default([]) List<ShutterLines> newLines,
     required ShutterView view,
     @Default(false) bool isModified,
-
+    @Default(false) bool isFreezing,
+    @Default(false) bool isFrozen,
+    @Default(false) bool isPrinting,
+    @Default([]) List<String> palletCodes,
+    String? printSuccessMsg,
+    String? freezeSuccessMsg,
     String? successMsg,
     Failure? error,
   }) = _CreateShutterState;

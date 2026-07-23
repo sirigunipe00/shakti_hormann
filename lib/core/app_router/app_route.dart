@@ -36,6 +36,8 @@ abstract class _AppRoutePaths {
   static const newframePackaging = '/home/framePackaging/newframePackaging';
   static const palletCreation = '/home/palletCreation';
   static const newPalletCreation = '/home/palletCreation/newPallerCreation';
+  static const visionPanel = '/home/visionPanel';
+  static const newvisionPanel = '/home/visionPanel/newvisionPanel';
 }
 
 enum AppRoute {
@@ -72,7 +74,9 @@ enum AppRoute {
   framePackaging(_AppRoutePaths.framePackaging),
   newframePackaging(_AppRoutePaths.newframePackaging),
   palletCreation(_AppRoutePaths.palletCreation),
-  newPalletCreation(_AppRoutePaths.newPalletCreation);
+  newPalletCreation(_AppRoutePaths.newPalletCreation),
+  visionPanel(_AppRoutePaths.visionPanel),
+  newvisionPanel(_AppRoutePaths.newvisionPanel);
 
 
 

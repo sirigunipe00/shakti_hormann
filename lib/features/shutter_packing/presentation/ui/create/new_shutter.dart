@@ -90,7 +90,11 @@ class _NewShutterState extends State<NewShutter> {
               context,
               title: 'Success',
               content: state.successMsg.valueOrEmpty,
-              onTapDismiss: context.exit,
+              onTapDismiss: () {
+    Navigator.of(context, rootNavigator: true).pop(); 
+    shouldAskForConfirmation.value = false;
+    context.exit();
+  },
             ).then((_) {
               final docName = state.form.name;
               if (!context.mounted) return;

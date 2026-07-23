@@ -20,6 +20,8 @@ class FramePacking with _$FramePacking {
     @JsonKey(name: 'shift') String? shift,
     @JsonKey(name: 'operator__packed_by') String? operator,
     @JsonKey(name: 'pallet_no') String? palletNo,
+    @JsonKey(name: 'pallet_code') String? palletCode,
+    @JsonKey(name: 'sales_order') String? salesOrder,
     @JsonKey(name: 'pallet_photo') String? palletPhoto,
     @JsonKey(
       includeFromJson: true,

@@ -22,8 +22,14 @@ mixin _$CreateFrameState {
   List<FrameLines> get lines => throw _privateConstructorUsedError;
   bool get isSuccess => throw _privateConstructorUsedError;
   List<FrameLines> get newLines => throw _privateConstructorUsedError;
+  List<String> get palletCodes => throw _privateConstructorUsedError;
   FrameView get view => throw _privateConstructorUsedError;
+  bool get isPrinting => throw _privateConstructorUsedError;
+  String? get printSuccessMsg => throw _privateConstructorUsedError;
   bool get isModified => throw _privateConstructorUsedError;
+  bool get isFreezing => throw _privateConstructorUsedError;
+  bool get isFrozen => throw _privateConstructorUsedError;
+  String? get freezeSuccessMsg => throw _privateConstructorUsedError;
   String? get successMsg => throw _privateConstructorUsedError;
   Failure? get error => throw _privateConstructorUsedError;
 
@@ -47,8 +53,14 @@ abstract class $CreateFrameStateCopyWith<$Res> {
     List<FrameLines> lines,
     bool isSuccess,
     List<FrameLines> newLines,
+    List<String> palletCodes,
     FrameView view,
+    bool isPrinting,
+    String? printSuccessMsg,
     bool isModified,
+    bool isFreezing,
+    bool isFrozen,
+    String? freezeSuccessMsg,
     String? successMsg,
     Failure? error,
   });
@@ -77,8 +89,14 @@ class _$CreateFrameStateCopyWithImpl<$Res, $Val extends CreateFrameState>
     Object? lines = null,
     Object? isSuccess = null,
     Object? newLines = null,
+    Object? palletCodes = null,
     Object? view = null,
+    Object? isPrinting = null,
+    Object? printSuccessMsg = freezed,
     Object? isModified = null,
+    Object? isFreezing = null,
+    Object? isFrozen = null,
+    Object? freezeSuccessMsg = freezed,
     Object? successMsg = freezed,
     Object? error = freezed,
   }) {
@@ -109,16 +127,46 @@ class _$CreateFrameStateCopyWithImpl<$Res, $Val extends CreateFrameState>
                     ? _value.newLines
                     : newLines // ignore: cast_nullable_to_non_nullable
                         as List<FrameLines>,
+            palletCodes:
+                null == palletCodes
+                    ? _value.palletCodes
+                    : palletCodes // ignore: cast_nullable_to_non_nullable
+                        as List<String>,
             view:
                 null == view
                     ? _value.view
                     : view // ignore: cast_nullable_to_non_nullable
                         as FrameView,
+            isPrinting:
+                null == isPrinting
+                    ? _value.isPrinting
+                    : isPrinting // ignore: cast_nullable_to_non_nullable
+                        as bool,
+            printSuccessMsg:
+                freezed == printSuccessMsg
+                    ? _value.printSuccessMsg
+                    : printSuccessMsg // ignore: cast_nullable_to_non_nullable
+                        as String?,
             isModified:
                 null == isModified
                     ? _value.isModified
                     : isModified // ignore: cast_nullable_to_non_nullable
                         as bool,
+            isFreezing:
+                null == isFreezing
+                    ? _value.isFreezing
+                    : isFreezing // ignore: cast_nullable_to_non_nullable
+                        as bool,
+            isFrozen:
+                null == isFrozen
+                    ? _value.isFrozen
+                    : isFrozen // ignore: cast_nullable_to_non_nullable
+                        as bool,
+            freezeSuccessMsg:
+                freezed == freezeSuccessMsg
+                    ? _value.freezeSuccessMsg
+                    : freezeSuccessMsg // ignore: cast_nullable_to_non_nullable
+                        as String?,
             successMsg:
                 freezed == successMsg
                     ? _value.successMsg
@@ -174,8 +222,14 @@ abstract class _$$CreateFrameStateImplCopyWith<$Res>
     List<FrameLines> lines,
     bool isSuccess,
     List<FrameLines> newLines,
+    List<String> palletCodes,
     FrameView view,
+    bool isPrinting,
+    String? printSuccessMsg,
     bool isModified,
+    bool isFreezing,
+    bool isFrozen,
+    String? freezeSuccessMsg,
     String? successMsg,
     Failure? error,
   });
@@ -205,8 +259,14 @@ class __$$CreateFrameStateImplCopyWithImpl<$Res>
     Object? lines = null,
     Object? isSuccess = null,
     Object? newLines = null,
+    Object? palletCodes = null,
     Object? view = null,
+    Object? isPrinting = null,
+    Object? printSuccessMsg = freezed,
     Object? isModified = null,
+    Object? isFreezing = null,
+    Object? isFrozen = null,
+    Object? freezeSuccessMsg = freezed,
     Object? successMsg = freezed,
     Object? error = freezed,
   }) {
@@ -237,16 +297,46 @@ class __$$CreateFrameStateImplCopyWithImpl<$Res>
                 ? _value._newLines
                 : newLines // ignore: cast_nullable_to_non_nullable
                     as List<FrameLines>,
+        palletCodes:
+            null == palletCodes
+                ? _value._palletCodes
+                : palletCodes // ignore: cast_nullable_to_non_nullable
+                    as List<String>,
         view:
             null == view
                 ? _value.view
                 : view // ignore: cast_nullable_to_non_nullable
                     as FrameView,
+        isPrinting:
+            null == isPrinting
+                ? _value.isPrinting
+                : isPrinting // ignore: cast_nullable_to_non_nullable
+                    as bool,
+        printSuccessMsg:
+            freezed == printSuccessMsg
+                ? _value.printSuccessMsg
+                : printSuccessMsg // ignore: cast_nullable_to_non_nullable
+                    as String?,
         isModified:
             null == isModified
                 ? _value.isModified
                 : isModified // ignore: cast_nullable_to_non_nullable
                     as bool,
+        isFreezing:
+            null == isFreezing
+                ? _value.isFreezing
+                : isFreezing // ignore: cast_nullable_to_non_nullable
+                    as bool,
+        isFrozen:
+            null == isFrozen
+                ? _value.isFrozen
+                : isFrozen // ignore: cast_nullable_to_non_nullable
+                    as bool,
+        freezeSuccessMsg:
+            freezed == freezeSuccessMsg
+                ? _value.freezeSuccessMsg
+                : freezeSuccessMsg // ignore: cast_nullable_to_non_nullable
+                    as String?,
         successMsg:
             freezed == successMsg
                 ? _value.successMsg
@@ -271,12 +361,19 @@ class _$CreateFrameStateImpl implements _CreateFrameState {
     required final List<FrameLines> lines,
     required this.isSuccess,
     final List<FrameLines> newLines = const [],
+    final List<String> palletCodes = const [],
     required this.view,
+    this.isPrinting = false,
+    this.printSuccessMsg,
     this.isModified = false,
+    this.isFreezing = false,
+    this.isFrozen = false,
+    this.freezeSuccessMsg,
     this.successMsg,
     this.error,
   }) : _lines = lines,
-       _newLines = newLines;
+       _newLines = newLines,
+       _palletCodes = palletCodes;
 
   @override
   final FramePacking form;
@@ -301,11 +398,33 @@ class _$CreateFrameStateImpl implements _CreateFrameState {
     return EqualUnmodifiableListView(_newLines);
   }
 
+  final List<String> _palletCodes;
+  @override
+  @JsonKey()
+  List<String> get palletCodes {
+    if (_palletCodes is EqualUnmodifiableListView) return _palletCodes;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_palletCodes);
+  }
+
   @override
   final FrameView view;
   @override
   @JsonKey()
+  final bool isPrinting;
+  @override
+  final String? printSuccessMsg;
+  @override
+  @JsonKey()
   final bool isModified;
+  @override
+  @JsonKey()
+  final bool isFreezing;
+  @override
+  @JsonKey()
+  final bool isFrozen;
+  @override
+  final String? freezeSuccessMsg;
   @override
   final String? successMsg;
   @override
@@ -313,7 +432,7 @@ class _$CreateFrameStateImpl implements _CreateFrameState {
 
   @override
   String toString() {
-    return 'CreateFrameState(form: $form, isLoading: $isLoading, lines: $lines, isSuccess: $isSuccess, newLines: $newLines, view: $view, isModified: $isModified, successMsg: $successMsg, error: $error)';
+    return 'CreateFrameState(form: $form, isLoading: $isLoading, lines: $lines, isSuccess: $isSuccess, newLines: $newLines, palletCodes: $palletCodes, view: $view, isPrinting: $isPrinting, printSuccessMsg: $printSuccessMsg, isModified: $isModified, isFreezing: $isFreezing, isFrozen: $isFrozen, freezeSuccessMsg: $freezeSuccessMsg, successMsg: $successMsg, error: $error)';
   }
 
   @override
@@ -328,9 +447,23 @@ class _$CreateFrameStateImpl implements _CreateFrameState {
             (identical(other.isSuccess, isSuccess) ||
                 other.isSuccess == isSuccess) &&
             const DeepCollectionEquality().equals(other._newLines, _newLines) &&
+            const DeepCollectionEquality().equals(
+              other._palletCodes,
+              _palletCodes,
+            ) &&
             (identical(other.view, view) || other.view == view) &&
+            (identical(other.isPrinting, isPrinting) ||
+                other.isPrinting == isPrinting) &&
+            (identical(other.printSuccessMsg, printSuccessMsg) ||
+                other.printSuccessMsg == printSuccessMsg) &&
             (identical(other.isModified, isModified) ||
                 other.isModified == isModified) &&
+            (identical(other.isFreezing, isFreezing) ||
+                other.isFreezing == isFreezing) &&
+            (identical(other.isFrozen, isFrozen) ||
+                other.isFrozen == isFrozen) &&
+            (identical(other.freezeSuccessMsg, freezeSuccessMsg) ||
+                other.freezeSuccessMsg == freezeSuccessMsg) &&
             (identical(other.successMsg, successMsg) ||
                 other.successMsg == successMsg) &&
             (identical(other.error, error) || other.error == error));
@@ -344,8 +477,14 @@ class _$CreateFrameStateImpl implements _CreateFrameState {
     const DeepCollectionEquality().hash(_lines),
     isSuccess,
     const DeepCollectionEquality().hash(_newLines),
+    const DeepCollectionEquality().hash(_palletCodes),
     view,
+    isPrinting,
+    printSuccessMsg,
     isModified,
+    isFreezing,
+    isFrozen,
+    freezeSuccessMsg,
     successMsg,
     error,
   );
@@ -369,8 +508,14 @@ abstract class _CreateFrameState implements CreateFrameState {
     required final List<FrameLines> lines,
     required final bool isSuccess,
     final List<FrameLines> newLines,
+    final List<String> palletCodes,
     required final FrameView view,
+    final bool isPrinting,
+    final String? printSuccessMsg,
     final bool isModified,
+    final bool isFreezing,
+    final bool isFrozen,
+    final String? freezeSuccessMsg,
     final String? successMsg,
     final Failure? error,
   }) = _$CreateFrameStateImpl;
@@ -386,9 +531,21 @@ abstract class _CreateFrameState implements CreateFrameState {
   @override
   List<FrameLines> get newLines;
   @override
+  List<String> get palletCodes;
+  @override
   FrameView get view;
   @override
+  bool get isPrinting;
+  @override
+  String? get printSuccessMsg;
+  @override
   bool get isModified;
+  @override
+  bool get isFreezing;
+  @override
+  bool get isFrozen;
+  @override
+  String? get freezeSuccessMsg;
   @override
   String? get successMsg;
   @override

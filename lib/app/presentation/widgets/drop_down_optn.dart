@@ -18,6 +18,11 @@ abstract class Dropdownoptions {
     'Others (Remarks)'
    
   ];
+  static const List<String> productType= [
+  'Frame',
+  'Shutter',
+  'Combo'
+  ];
   
   
   static const List<String> gateNumbers= [

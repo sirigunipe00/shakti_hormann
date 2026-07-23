@@ -48,27 +48,50 @@ class __ZoneFormWidgetState extends State<ZoneFormWidget> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if(!isCompleted)...[
-            Row(
-              children: [
-                Expanded(
-                  child: _ScanCard(
-                    icon: Icons.qr_code_scanner,
-                    label: 'Scan pallet / Box Qr',
-                    onTap: () => _onScanSticker(context,isZoneScan: false),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _ScanCard(
-                    icon: Icons.qr_code_scanner,
-                    label: 'Scan New Zone Qr',
-                    onTap: () => _onScanSticker(context,isZoneScan: true),
-                  ),
-                ),
-              ],
-            ),
-            ],
+            if (!isCompleted) ...[
+  Row(
+    children: [
+      if (!formState.isMoveFlow) ...[
+        Expanded(
+          child: _ScanCard(
+            icon: Icons.qr_code_scanner,
+            label: 'Scan pallet / Box Qr',
+            onTap: () => _onScanSticker(context, isZoneScan: false),
+          ),
+        ),
+        const SizedBox(width: 12),
+      ],
+      Expanded(
+        child: _ScanCard(
+          icon: Icons.qr_code_scanner,
+          label: 'Scan New Zone Qr',
+          onTap: () => _onScanSticker(context, isZoneScan: true),
+        ),
+      ),
+    ],
+  ),
+],
+            // if(!isCompleted)...[
+            // Row(
+            //   children: [
+            //     Expanded(
+            //       child: _ScanCard(
+            //         icon: Icons.qr_code_scanner,
+            //         label: 'Scan pallet / Box Qr',
+            //         onTap: () => _onScanSticker(context,isZoneScan: false),
+            //       ),
+            //     ),
+            //     const SizedBox(width: 12),
+            //     Expanded(
+            //       child: _ScanCard(
+            //         icon: Icons.qr_code_scanner,
+            //         label: 'Scan New Zone Qr',
+            //         onTap: () => _onScanSticker(context,isZoneScan: true),
+            //       ),
+            //     ),
+            //   ],
+            // ),
+            // ],
 
             const SizedBox(height: 20),
 

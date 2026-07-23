@@ -3,6 +3,7 @@ import 'package:shakti_hormann/core/core.dart';
 import 'package:dartz/dartz.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
+import 'package:shakti_hormann/features/storage_allocation/model/storage.dart';
 import 'package:shakti_hormann/features/zone_transfer/data/zone_repo.dart';
 import 'package:shakti_hormann/features/zone_transfer/model/zone_transfer.dart';
 
@@ -58,6 +59,17 @@ class CreateZoneCubit extends AppBaseCubit<CreateZoneState> {
 
     emitSafeState(state.copyWith(form: newForm));
   }
+  void initFromStorage(Storage storage) async {
+  shouldAskForConfirmation.value = false;
+  final form = state.form;
+  final updatedForm = form.copyWith(
+    palletBoxQr: storage.palletBoxQr,
+    totalQty: storage.totalQty,
+    salesOrders: storage.salesOrders,
+    oldZone: storage.zoneQr ?? storage.zoneName,
+  );
+  emitSafeState(state.copyWith(form: updatedForm, view: ZoneView.create,isMoveFlow : true));
+}
 
   void initDetails(Object? entry) async {
     shouldAskForConfirmation.value = false;
@@ -203,6 +215,7 @@ class CreateZoneState with _$CreateZoneState {
     required bool isLoading,
     required bool isSuccess,
     required ZoneView view,
+    @Default(false) bool isMoveFlow,
 
     String? successMsg,
     Failure? error,

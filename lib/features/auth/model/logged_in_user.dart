@@ -60,7 +60,7 @@ class RoleStatus with _$RoleStatus {
     @JsonKey(name: 'Show Vehicle Reporting in Mobile App') int? showVehicleReporting,
     @JsonKey(name: 'Show Loading Confirmation in Mobile App') int? showLoadingConfirmation,
     @JsonKey(name: 'Show Proof of Delivery in Mobile App') int? showpod,
-    @JsonKey(name: 'Show Gate Management in Mobile App') int? showgaetManagement,
+    @JsonKey(name: 'Show Gate Management in Mobile App') int? showgateManagement,
   }) = _RoleStatus;
 
   factory RoleStatus.fromJson(Map<String, dynamic> json) =>

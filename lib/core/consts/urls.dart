@@ -72,4 +72,10 @@ class Urls {
 
   static final createHardware = '$cusWs/shaktihormann.p2_api.create_hardware_packing';
   static final getMesValues = '$cusWs/shaktihormann.p2_api.extract_packing_label_api';
+
+  static final createPallet = '$cusWs/shaktihormann.p2_api.create_pallet';
+  static final updatePallet = '$cusWs/shaktihormann.p2_api.update_pallet';
+
+  static final printShutterSticker = '$cusWs/shaktihormann.network_print.print_shutter_pallet_over_network';
+  static final getPalletCode = '$cusWs/shaktihormann.p2_api.get_pallet_codes';
 }

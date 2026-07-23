@@ -81,6 +81,8 @@ import '../../features/pallet_creation/data/pallet_repo.dart' as _i1;
 import '../../features/pallet_creation/data/pallet_repo_impl.dart' as _i876;
 import '../../features/pallet_creation/presentation/bloc/bloc_provider.dart'
     as _i29;
+import '../../features/pallet_creation/presentation/bloc/create_pallet_cubit.dart/create_pallet_cubit.dart'
+    as _i925;
 import '../../features/proof_of_delivery/data/pod_repo.dart' as _i25;
 import '../../features/proof_of_delivery/data/pod_repo_impl.dart' as _i690;
 import '../../features/proof_of_delivery/presentation/bloc/bloc_provider.dart'
@@ -123,6 +125,12 @@ import '../../features/vehicle_reporting/presentation/bloc/bloc_provider.dart'
     as _i429;
 import '../../features/vehicle_reporting/presentation/bloc/create_vr_cubit/create_vehicle_cubit.dart'
     as _i585;
+import '../../features/vision_panel/data/vision_panel_repo.dart' as _i792;
+import '../../features/vision_panel/data/vision_panel_repo_impl.dart' as _i557;
+import '../../features/vision_panel/presentation/bloc/bloc_provider.dart'
+    as _i576;
+import '../../features/vision_panel/presentation/bloc/create_vision_panel/create_vision_panel.dart'
+    as _i789;
 import '../../features/zone_transfer/data/zone_repo.dart' as _i710;
 import '../../features/zone_transfer/data/zone_repo_impl.dart' as _i981;
 import '../../features/zone_transfer/presentation/bloc/bloc_provider.dart'
@@ -198,11 +206,11 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i574.HardwareBlocProvider>(
       () => _i574.HardwareBlocProvider(gh<_i1009.HardWareRepo>()),
     );
-    gh.factory<_i911.CreateHardwareCubit>(
-      () => _i911.CreateHardwareCubit(gh<_i1009.HardWareRepo>()),
-    );
     gh.factory<_i28.HardwarePackingItemsCubit>(
       () => _i28.HardwarePackingItemsCubit(gh<_i1009.HardWareRepo>()),
+    );
+    gh.factory<_i911.CreateHardwareCubit>(
+      () => _i911.CreateHardwareCubit(gh<_i1009.HardWareRepo>()),
     );
     gh.lazySingleton<_i1.PalletRepo>(
       () => _i876.PalletRepoImpl(gh<_i351.ApiClient>()),
@@ -265,8 +273,17 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i1001.NotificationRepo>(
       () => _i601.NoticationRepoImpl(gh<_i351.ApiClient>()),
     );
+    gh.lazySingleton<_i792.VisionPanelRepo>(
+      () => _i557.VisionPanelRepoImpl(gh<_i351.ApiClient>()),
+    );
     gh.lazySingleton<_i820.AppRepository>(
       () => _i820.AppRepository(gh<_i351.ApiClient>(), gh<_i346.AppVersion>()),
+    );
+    gh.factory<_i789.CreateVisionPanelCubit>(
+      () => _i789.CreateVisionPanelCubit(gh<_i792.VisionPanelRepo>()),
+    );
+    gh.lazySingleton<_i576.VisionPanelBlocProvider>(
+      () => _i576.VisionPanelBlocProvider(gh<_i792.VisionPanelRepo>()),
     );
     gh.factory<_i8.CreateStorageCubit>(
       () => _i8.CreateStorageCubit(gh<_i791.StorageRepo>()),
@@ -276,6 +293,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i29.PalletBlocProvider>(
       () => _i29.PalletBlocProvider(gh<_i1.PalletRepo>()),
+    );
+    gh.factory<_i925.CreatePalletCubit>(
+      () => _i925.CreatePalletCubit(gh<_i1.PalletRepo>()),
     );
     gh.lazySingleton<_i710.ZoneRepo>(
       () => _i981.ZoneRepoImp(gh<_i351.ApiClient>()),

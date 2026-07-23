@@ -997,7 +997,7 @@ mixin _$RoleStatus {
   @JsonKey(name: 'Show Proof of Delivery in Mobile App')
   int? get showpod => throw _privateConstructorUsedError;
   @JsonKey(name: 'Show Gate Management in Mobile App')
-  int? get showgaetManagement => throw _privateConstructorUsedError;
+  int? get showgateManagement => throw _privateConstructorUsedError;
 
   /// Serializes this RoleStatus to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -1030,7 +1030,7 @@ abstract class $RoleStatusCopyWith<$Res> {
     int? showLoadingConfirmation,
     @JsonKey(name: 'Show Proof of Delivery in Mobile App') int? showpod,
     @JsonKey(name: 'Show Gate Management in Mobile App')
-    int? showgaetManagement,
+    int? showgateManagement,
   });
 }
 
@@ -1057,7 +1057,7 @@ class _$RoleStatusCopyWithImpl<$Res, $Val extends RoleStatus>
     Object? showVehicleReporting = freezed,
     Object? showLoadingConfirmation = freezed,
     Object? showpod = freezed,
-    Object? showgaetManagement = freezed,
+    Object? showgateManagement = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -1101,10 +1101,10 @@ class _$RoleStatusCopyWithImpl<$Res, $Val extends RoleStatus>
                     ? _value.showpod
                     : showpod // ignore: cast_nullable_to_non_nullable
                         as int?,
-            showgaetManagement:
-                freezed == showgaetManagement
-                    ? _value.showgaetManagement
-                    : showgaetManagement // ignore: cast_nullable_to_non_nullable
+            showgateManagement:
+                freezed == showgateManagement
+                    ? _value.showgateManagement
+                    : showgateManagement // ignore: cast_nullable_to_non_nullable
                         as int?,
           )
           as $Val,
@@ -1135,7 +1135,7 @@ abstract class _$$RoleStatusImplCopyWith<$Res>
     int? showLoadingConfirmation,
     @JsonKey(name: 'Show Proof of Delivery in Mobile App') int? showpod,
     @JsonKey(name: 'Show Gate Management in Mobile App')
-    int? showgaetManagement,
+    int? showgateManagement,
   });
 }
 
@@ -1161,7 +1161,7 @@ class __$$RoleStatusImplCopyWithImpl<$Res>
     Object? showVehicleReporting = freezed,
     Object? showLoadingConfirmation = freezed,
     Object? showpod = freezed,
-    Object? showgaetManagement = freezed,
+    Object? showgateManagement = freezed,
   }) {
     return _then(
       _$RoleStatusImpl(
@@ -1205,10 +1205,10 @@ class __$$RoleStatusImplCopyWithImpl<$Res>
                 ? _value.showpod
                 : showpod // ignore: cast_nullable_to_non_nullable
                     as int?,
-        showgaetManagement:
-            freezed == showgaetManagement
-                ? _value.showgaetManagement
-                : showgaetManagement // ignore: cast_nullable_to_non_nullable
+        showgateManagement:
+            freezed == showgateManagement
+                ? _value.showgateManagement
+                : showgateManagement // ignore: cast_nullable_to_non_nullable
                     as int?,
       ),
     );
@@ -1232,7 +1232,7 @@ class _$RoleStatusImpl extends _RoleStatus {
     this.showLoadingConfirmation,
     @JsonKey(name: 'Show Proof of Delivery in Mobile App') this.showpod,
     @JsonKey(name: 'Show Gate Management in Mobile App')
-    this.showgaetManagement,
+    this.showgateManagement,
   }) : super._();
 
   factory _$RoleStatusImpl.fromJson(Map<String, dynamic> json) =>
@@ -1264,11 +1264,11 @@ class _$RoleStatusImpl extends _RoleStatus {
   final int? showpod;
   @override
   @JsonKey(name: 'Show Gate Management in Mobile App')
-  final int? showgaetManagement;
+  final int? showgateManagement;
 
   @override
   String toString() {
-    return 'RoleStatus(showDashboards: $showDashboards, showGateEntry: $showGateEntry, showGateExit: $showGateExit, showLogisticRequest: $showLogisticRequest, showTransporterConfirmation: $showTransporterConfirmation, showVehicleReporting: $showVehicleReporting, showLoadingConfirmation: $showLoadingConfirmation, showpod: $showpod, showgaetManagement: $showgaetManagement)';
+    return 'RoleStatus(showDashboards: $showDashboards, showGateEntry: $showGateEntry, showGateExit: $showGateExit, showLogisticRequest: $showLogisticRequest, showTransporterConfirmation: $showTransporterConfirmation, showVehicleReporting: $showVehicleReporting, showLoadingConfirmation: $showLoadingConfirmation, showpod: $showpod, showgateManagement: $showgateManagement)';
   }
 
   @override
@@ -1298,8 +1298,8 @@ class _$RoleStatusImpl extends _RoleStatus {
                 ) ||
                 other.showLoadingConfirmation == showLoadingConfirmation) &&
             (identical(other.showpod, showpod) || other.showpod == showpod) &&
-            (identical(other.showgaetManagement, showgaetManagement) ||
-                other.showgaetManagement == showgaetManagement));
+            (identical(other.showgateManagement, showgateManagement) ||
+                other.showgateManagement == showgateManagement));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -1314,7 +1314,7 @@ class _$RoleStatusImpl extends _RoleStatus {
     showVehicleReporting,
     showLoadingConfirmation,
     showpod,
-    showgaetManagement,
+    showgateManagement,
   );
 
   /// Create a copy of RoleStatus
@@ -1346,7 +1346,7 @@ abstract class _RoleStatus extends RoleStatus {
     final int? showLoadingConfirmation,
     @JsonKey(name: 'Show Proof of Delivery in Mobile App') final int? showpod,
     @JsonKey(name: 'Show Gate Management in Mobile App')
-    final int? showgaetManagement,
+    final int? showgateManagement,
   }) = _$RoleStatusImpl;
   const _RoleStatus._() : super._();
 
@@ -1379,7 +1379,7 @@ abstract class _RoleStatus extends RoleStatus {
   int? get showpod;
   @override
   @JsonKey(name: 'Show Gate Management in Mobile App')
-  int? get showgaetManagement;
+  int? get showgateManagement;
 
   /// Create a copy of RoleStatus
   /// with the given fields replaced by the non-null parameter values.

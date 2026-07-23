@@ -98,7 +98,7 @@ class _AppHomePageState extends State<AppHomePage> {
       onTap: (context) {
         AppRoute.gateManagement.push<bool?>(context);
       },
-      permissionSelector: (roleStatus) => roleStatus?.showgaetManagement,
+      permissionSelector: (roleStatus) => roleStatus?.showgateManagement,
     ),
     DashboardItem(
       title: 'Shutter Packaging',
@@ -107,7 +107,7 @@ class _AppHomePageState extends State<AppHomePage> {
       onTap: (context) {
         AppRoute.shutterPackaging.push<bool?>(context);
       },
-      permissionSelector: (roleStatus) => roleStatus?.showgaetManagement,
+      permissionSelector: (roleStatus) => roleStatus?.showgateManagement,
     ),
     DashboardItem(
       title: 'Frame Packaging',
@@ -116,9 +116,8 @@ class _AppHomePageState extends State<AppHomePage> {
       onTap: (context) {
         AppRoute.framePackaging.push<bool?>(context);
       },
-      permissionSelector: (roleStatus) => roleStatus?.showgaetManagement,
+      permissionSelector: (roleStatus) => roleStatus?.showgateManagement,
     ),
-
     DashboardItem(
       title: 'Storage Allocation',
       icon: AppIcons.storage,
@@ -126,16 +125,25 @@ class _AppHomePageState extends State<AppHomePage> {
       onTap: (context) {
         AppRoute.storageAllocation.push<bool?>(context);
       },
-      permissionSelector: (roleStatus) => roleStatus?.showgaetManagement,
+      permissionSelector: (roleStatus) => roleStatus?.showgateManagement,
     ),
-    DashboardItem(
-      title: 'Zone Transfer',
-      icon: AppIcons.zone,
+    // DashboardItem(
+    //   title: 'Zone Transfer',
+    //   icon: AppIcons.zone,
+    //   iconSize: const Size(140, 80),
+    //   onTap: (context) {
+    //     AppRoute.zoneTransfer.push<bool?>(context);
+    //   },
+    //   permissionSelector: (roleStatus) => roleStatus?.showgateManagement,
+    // ),
+     DashboardItem(
+      title: 'Pallet Creation',
+      icon: AppIcons.pallet,
       iconSize: const Size(140, 80),
       onTap: (context) {
-        AppRoute.zoneTransfer.push<bool?>(context);
+        AppRoute.palletCreation.push<bool?>(context);
       },
-      permissionSelector: (roleStatus) => roleStatus?.showgaetManagement,
+      permissionSelector: (roleStatus) => roleStatus?.showgateManagement,
     ),
     DashboardItem(
       title: 'Hardware Packaging',
@@ -144,17 +152,9 @@ class _AppHomePageState extends State<AppHomePage> {
       onTap: (context) {
         AppRoute.hardwarePackaging.push<bool?>(context);
       },
-      permissionSelector: (roleStatus) => roleStatus?.showgaetManagement,
+      permissionSelector: (roleStatus) => roleStatus?.showgateManagement,
     ),
-    DashboardItem(
-      title: 'Pallet Creation',
-      icon: AppIcons.pallet,
-      iconSize: const Size(140, 80),
-      onTap: (context) {
-        AppRoute.palletCreation.push<bool?>(context);
-      },
-      permissionSelector: (roleStatus) => roleStatus?.showgaetManagement,
-    ),
+   
   ];
 
   Widget buildDashboardCard(DashboardItem item) {

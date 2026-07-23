@@ -7,8 +7,10 @@ import 'package:http/http.dart' as http;
 import 'package:injectable/injectable.dart';
 import 'package:path/path.dart' as p;
 import 'package:shakti_hormann/core/core.dart';
+import 'package:shakti_hormann/features/pallet_creation/model/pallet_model.dart';
 import 'package:shakti_hormann/features/shutter_packing/data/shutter_packaging_repo.dart';
 import 'package:shakti_hormann/features/shutter_packing/model/items.dart';
+import 'package:shakti_hormann/features/shutter_packing/model/pallet_size.dart';
 import 'package:shakti_hormann/features/shutter_packing/model/shutter_lines.dart';
 import 'package:shakti_hormann/features/shutter_packing/model/shutter_packing.dart';
 
@@ -53,6 +55,70 @@ class ShutterPackingRepoImpl extends BaseApiRepository
 
     final response = await get(requestConfig);
     return response.process((r) => right(r.data!));
+  }
+
+  @override
+  AsyncValueOf<List<PalletSize>> getPalletSize() async {
+    return await executeSafely(() async {
+      final config = RequestConfig(
+        url: Urls.getList,
+
+        parser: (json) {
+          final data = json['message'];
+          final listdata = data as List<dynamic>;
+          return listdata.map((e) => PalletSize.fromJson(e)).toList();
+        },
+        reqParams: {
+          // 'filters': [
+          //   ['sales_order', '=', name],
+          // ],
+          'limit_start': 0,
+          'limit_page_length': 'None',
+          'oreder_by': 'creat desc',
+          'doctype': 'Pallet Size',
+          // 'parent': 'Pallet',
+          // 'fields': ['*'],
+        },
+
+        headers: {HttpHeaders.contentTypeHeader: 'application/json'},
+      );
+
+      final response = await get(config);
+      $logger.devLog('pallet size.....$response');
+      return response.processAsync((r) async {
+        return right((r.data!));
+      });
+    });
+  }
+    @override
+  AsyncValueOf<List<PalletModel>> getSales() async {
+    return await executeSafely(() async {
+      final reqParams = {
+        'limit_start': 0,
+        'limit_page_length': 'None',
+        'order_by': 'creation desc',
+        'doctype': 'Pallet',
+        'fields': ['sales_order'],
+        // 'filters': jsonEncode(filters),
+      };
+
+      final config = RequestConfig(
+        url: Urls.getList,
+
+        parser: (json) {
+          final data = json['message'];
+          final listdata = data as List<dynamic>;
+          return listdata.map((e) => PalletModel.fromJson(e)).toList();
+        },
+        reqParams: reqParams,
+        headers: {HttpHeaders.contentTypeHeader: 'application/json'},
+      );
+      $logger.devLog('salesinvoice.....$config');
+      final response = await get(config);
+      return response.processAsync((r) async {
+        return right((r.data!));
+      });
+    });
   }
 
   @override
@@ -105,6 +171,59 @@ class ShutterPackingRepoImpl extends BaseApiRepository
     return response.process((r) => right(r.data!));
   }
 
+@override
+AsyncValueOf<String> printShutterSticker(String shutterPackingId) async {
+  final Map<String, dynamic> requestBody = {
+    'docname': shutterPackingId,
+  };
+
+  final config = RequestConfig(
+    url: Urls.printShutterSticker,
+    parser: (json) {
+      final message = json['message'] as Map<String, dynamic>;
+      final status = message['status'] as int?;
+      final text = message['message'] as String? ?? 'Unknown error';
+      if (status != null && status >= 300) {
+        throw Failure(error: text, title: 'Print Failed', status: status);
+      }
+
+      return text;
+    },
+    body: jsonEncode(requestBody),
+    headers: {HttpHeaders.contentTypeHeader: 'application/json'},
+  );
+
+  $logger.devLog('printShutterSticker requestConfig.....$config');
+
+  final response = await post(config);
+  return response.processAsync((r) async {
+    return right(r.data!);
+  });
+}
+@override
+AsyncValueOf<List<String>> getShutterPalletCode(String salesOrder) async {
+  final config = RequestConfig(
+    url: Urls.getPalletCode,
+    reqParams: {
+      'sales_order': salesOrder,
+      'product_type': 'Shutter',
+    },
+    parser: (json) {
+      final data = json['message']['data'] as List;
+
+      return data
+          .map((e) => e['pallet_code'].toString())
+          .toList();
+    },
+    headers: {
+      HttpHeaders.contentTypeHeader: 'application/json',
+    },
+  );
+
+  final response = await get(config);
+
+  return response.processAsync((r) async => right(r.data!));
+}
   @override
   AsyncValueOf<Pair<String, String>> createShutter(
     ShutterPacking form,
@@ -113,7 +232,11 @@ class ShutterPackingRepoImpl extends BaseApiRepository
     final formJson = form.toJson();
     formJson['status'] = 'Draft';
 
-    final Map<String, dynamic> requestBody = {'items': lines};
+    final Map<String, dynamic> requestBody = {
+      'sales_order': form.salesOrder,
+      'pallet_code': form.palletCode,
+      'items': lines,
+    };
 
     final config = RequestConfig(
       url: Urls.createShutter,
@@ -126,7 +249,6 @@ class ShutterPackingRepoImpl extends BaseApiRepository
 
         return Pair(message, docNo);
       },
-
       body: jsonEncode(requestBody),
       headers: {HttpHeaders.contentTypeHeader: 'application/json'},
     );
@@ -146,34 +268,30 @@ class ShutterPackingRepoImpl extends BaseApiRepository
   ) async {
     final formJson = form.toJson();
     formJson['status'] = 'Draft';
-final itemsJson = <Map<String, dynamic>>[];
+    final itemsJson = <Map<String, dynamic>>[];
 
-for (final line in lines) {
-  String? shutterPhotoBase64;
+    for (final line in lines) {
+      String? shutterPhotoBase64;
 
-  if (line.shutterPhotoImg != null) {
-    final compressed =
-        await FlutterImageCompress.compressWithFile(
+      if (line.shutterPhotoImg != null) {
+        final compressed = await FlutterImageCompress.compressWithFile(
           line.shutterPhotoImg!.path,
           quality: 50,
         );
 
-    if (compressed != null) {
-      shutterPhotoBase64 = base64Encode(compressed);
+        if (compressed != null) {
+          shutterPhotoBase64 = base64Encode(compressed);
+        }
+      }
+
+      final json = line.toJson();
+
+      json['shutter_photo'] = shutterPhotoBase64;
+
+      itemsJson.add(json);
     }
-  }
 
-  final json = line.toJson();
-
-  json['shutter_photo'] = shutterPhotoBase64;
-
-  itemsJson.add(json);
-}
-
-final requestBody = {
-  'shutter_packing_id': form.name,
-  'items': itemsJson,
-};
+    final requestBody = {'shutter_packing_id': form.name, 'items': itemsJson};
     final config = RequestConfig(
       url: Urls.updateShutter,
       parser: (json) {
