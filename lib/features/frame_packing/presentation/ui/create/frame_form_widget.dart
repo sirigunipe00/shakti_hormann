@@ -39,10 +39,13 @@ class __FrameFormWidgetState extends State<FrameFormWidget> {
   Widget build(BuildContext context) {
     final formState = context.watch<CreateFrameCubit>().state;
     final isCompleted = formState.view == FrameView.completed;
-    final isFrozen = formState.isFrozen;
-    final isScanningDisabled = isCompleted || isFrozen;
     final newform = formState.form;
-    // final status = newform.docStatus;
+    $logger.devLog('newform$newform');
+    final isPalletPrinted = newform.palletQrPrinted == 1;
+    final isFrozen = formState.isFrozen || isPalletPrinted;
+    final isDocCreated = newform.name != null && newform.name!.isNotEmpty;
+    final isDropdownLocked = isFrozen || isCompleted || isDocCreated;
+    final isScanningDisabled = isCompleted || isFrozen || !isDocCreated;
 
     return MultiBlocListener(
       listeners: [
@@ -79,121 +82,126 @@ class __FrameFormWidgetState extends State<FrameFormWidget> {
                 top: 8,
               ),
               width: MediaQuery.of(context).size.width,
-              // margin: const EdgeInsets.symmetric(horizontal: 18),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: Colors.grey.shade300),
               ),
-              child: BlocBuilder<SalesOrdersCubit, SalesOrderCubitState>(
-                builder: (_, state) {
-                  final allData = state.maybeWhen(
-                    orElse: () => <PalletModel>[],
-                    success: (data) => data,
-                  );
-
-                  final names = allData.toList();
-
-                  return SearchDropDownList<PalletModel>(
-                    title: 'Sales Order No.',
-                    hint: 'Select Order No',
-                    key: ValueKey(newform.salesOrder),
-                    color: AppColors.black,
-                    items: names,
-                    readOnly: isFrozen || isCompleted,
-                    defaultSelection: names.firstWhere(
-                      (g) => g.salesOrder == newform.salesOrder,
-                      orElse: () => const PalletModel(),
-                    ),
-                    isloading: state.isLoading,
-                    futureRequest: (query) async {
-                      if (query.isEmpty) return names;
-                      return names.where((item) {
-                        final orderNo = item.salesOrder?.toLowerCase() ?? '';
-                        final search = query.toLowerCase();
-                        return orderNo.contains(search);
-                      }).toList();
-                    },
-                    headerBuilder:
-                        (_, item, __) => Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              item.salesOrder ?? '',
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                    listItemBuilder:
-                        (_, item, __, ___) => Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Order No: ${item.salesOrder ?? ''}',
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                    onSelected: (selected) {
-                      context.cubit<CreateFrameCubit>().onValueChanged(
-                        salesOrder: selected.salesOrder,
+              child: Column(
+                children: [
+                  BlocBuilder<SalesOrdersCubit, SalesOrderCubitState>(
+                    builder: (_, state) {
+                      final allData = state.maybeWhen(
+                        orElse: () => <PalletModel>[],
+                        success: (data) => data,
                       );
-                      context.cubit<CreateFrameCubit>().getPalletCodes(
-                        selected.salesOrder!,
+
+                      final names = allData.toList();
+
+                      return SearchDropDownList<PalletModel>(
+                        title: 'Sales Order No.',
+                        hint: 'Select Order No',
+                        key: ValueKey(newform.salesOrder),
+                        color: AppColors.black,
+                        items: names,
+                        readOnly: isDropdownLocked,
+                        defaultSelection: names.firstWhere(
+                          (g) => g.salesOrder == newform.salesOrder,
+                          orElse: () => const PalletModel(),
+                        ),
+                        isloading: state.isLoading,
+                        futureRequest: (query) async {
+                          if (query.isEmpty) return names;
+                          return names.where((item) {
+                            final orderNo = item.salesOrder?.toLowerCase() ?? '';
+                            final search = query.toLowerCase();
+                            return orderNo.contains(search);
+                          }).toList();
+                        },
+                        headerBuilder:
+                            (_, item, __) => Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  item.salesOrder ?? '',
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                        listItemBuilder:
+                            (_, item, __, ___) => Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  item.salesOrder ?? '',
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                        onSelected: (selected) {
+                          context.cubit<CreateFrameCubit>().onValueChanged(
+                            salesOrder: selected.salesOrder,
+                          );
+                          context.cubit<CreateFrameCubit>().getPalletCodes(
+                            selected.salesOrder!,
+                          );
+                        },
+                        focusNode: FocusNode(),
                       );
                     },
-                    focusNode: FocusNode(),
-                  );
-                },
+                  ),
+                  const SizedBox(height: 12),
+                  BlocBuilder<CreateFrameCubit, CreateFrameState>(
+  builder: (context, state) {
+    final palletCodes =
+        state.palletCodes.map((e) => PalletCodeModel(name: e)).toList();
+
+    // Fallback: if the saved value isn't in the fetched list yet
+    // (e.g. reopening before getPalletCodes has resolved, or the
+    // API simply doesn't return it), show the stored value directly
+    // instead of falling back to an empty item.
+    final storedCode = state.form.palletCode;
+    final matchInList = palletCodes.any((e) => e.name == storedCode);
+    if (storedCode != null && storedCode.isNotEmpty && !matchInList) {
+      palletCodes.insert(0, PalletCodeModel(name: storedCode));
+    }
+
+    return SearchDropDownList<PalletCodeModel>(
+      title: 'Pallet Select',
+      hint: 'Search Pallet',
+      items: palletCodes,
+      key: ValueKey('${newform.palletCode}_${palletCodes.length}'),
+      readOnly: isDropdownLocked,
+      color: AppColors.black,
+      defaultSelection: palletCodes.firstWhere(
+        (e) => e.name == storedCode,
+        orElse: () => const PalletCodeModel(name: ''),
+      ),
+      futureRequest: (query) async {
+        if (query.isEmpty) return palletCodes;
+        return palletCodes
+            .where((e) => e.name.toLowerCase().contains(query.toLowerCase()))
+            .toList();
+      },
+      headerBuilder: (_, item, __) => Text(item.name),
+      listItemBuilder: (_, item, __, ___) => Text(item.name),
+      onSelected: (selected) {
+        context.read<CreateFrameCubit>().onValueChanged(palletCode: selected.name);
+      },
+    );
+  },
+),
+                ],
               ),
             ),
-            const SizedBox(height: 12),
-            BlocBuilder<CreateFrameCubit, CreateFrameState>(
-              builder: (context, state) {
-                final palletCodes =
-                    state.palletCodes
-                        .map((e) => PalletCodeModel(name: e))
-                        .toList();
 
-                return SearchDropDownList<PalletCodeModel>(
-                  title: 'Pallet Select',
-                  hint: 'Search Pallet',
-                  items: palletCodes,
-                  readOnly: isFrozen || isCompleted,
-                  color: AppColors.black,
-
-                  defaultSelection: palletCodes.firstWhere(
-                    (e) => e.name == state.form.palletCode,
-                    orElse: () => const PalletCodeModel(name: ''),
-                  ),
-
-                  futureRequest: (query) async {
-                    if (query.isEmpty) return palletCodes;
-
-                    return palletCodes.where((e) {
-                      return e.name.toLowerCase().contains(query.toLowerCase());
-                    }).toList();
-                  },
-
-                  headerBuilder: (_, item, __) => Text(item.name),
-
-                  listItemBuilder: (_, item, __, ___) => Text(item.name),
-
-                  onSelected: (selected) {
-                    context.read<CreateFrameCubit>().onValueChanged(
-                      palletCode: selected.name,
-                    );
-                  },
-                );
-              },
-            ),
             const SizedBox(height: 10),
 
-            if (!isCompleted) ...[
+            if (!isCompleted && !isFrozen) ...[
               Row(
                 children: [
                   Expanded(
@@ -221,7 +229,17 @@ class __FrameFormWidgetState extends State<FrameFormWidget> {
                   ),
                 ],
               ),
-              if (isFrozen) ...[
+              if (!isDocCreated) ...[
+                const SizedBox(height: 8),
+                const Text(
+                  'Please save the Sales Order and Pallet Code before scanning.',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Color(0xFF94A3B8),
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+              ] else if (isFrozen) ...[
                 const SizedBox(height: 8),
                 const Text(
                   'Quantity is frozen. Scanning and image upload are disabled.',
@@ -240,32 +258,6 @@ class __FrameFormWidgetState extends State<FrameFormWidget> {
               title: 'Pallet Details',
               assetIcon: 'assets/images/palleticon.svg',
             ),
-            // Container(
-            //   padding: const EdgeInsets.only(
-            //     left: 12,
-            //     right: 12,
-            //     bottom: 8,
-            //     top: 8,
-            //   ),
-            //   width: MediaQuery.of(context).size.width,
-            //   decoration: BoxDecoration(
-            //     color: Colors.white,
-            //     borderRadius: BorderRadius.circular(12),
-            //     border: Border.all(color: Colors.grey.shade300),
-            //   ),
-
-            //   child: InputField(
-            //     readOnly: true,
-            //     title: 'Pallet No',
-            //     hintText: 'Pallet No',
-            //     borderColor: AppColors.grey,
-            //     initialValue: newform.palletCode,
-            //     onChanged:
-            //         (p0) => context.cubit<CreateFrameCubit>().onValueChanged(
-            //           palletNo: p0,
-            //         ),
-            //   ),
-            // ),
 
             DashedBorderBox(
               borderRadius: 12,
@@ -332,9 +324,9 @@ class __FrameFormWidgetState extends State<FrameFormWidget> {
                         );
                       },
                     ),
-                ],
+                  ],
+                ),
               ),
-            ),
             ),
             const SizedBox(height: 20),
 
@@ -349,7 +341,9 @@ class __FrameFormWidgetState extends State<FrameFormWidget> {
             const SizedBox(height: 10),
             BlocBuilder<CreateFrameCubit, CreateFrameState>(
               builder: (context, state) {
-                if (state.isFrozen) {
+                final isPalletPrinted = state.form.palletQrPrinted == 1;
+                final locked = state.isFrozen || isPalletPrinted;
+                if (locked) {
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
@@ -385,7 +379,9 @@ class __FrameFormWidgetState extends State<FrameFormWidget> {
                               label:
                                   newform.palletQrPrinted == 1
                                       ? 'Sticker Printed'
-                                      : 'Print Sticker',
+                                      : (state.isPrinting
+                                          ? 'Printing...'
+                                          : 'Print Sticker'),
                               isDisabled:
                                   state.isPrinting ||
                                   newform.palletQrPrinted == 1,
@@ -396,38 +392,13 @@ class __FrameFormWidgetState extends State<FrameFormWidget> {
                                       : () => _onPrintQr(context),
                             ),
                           ),
-                          // const SizedBox(width: 12),
-                          // Expanded(
-                          //   child: NewUploadPhotoWidget(
-                          //     fileName: 'camera.png',
-                          //     imageUrl: newform.palletPhoto,
-                          //     title: 'Pallet Image',
-                          //     isRequired: true,
-                          //     isReadOnly: newform.palletQrPrinted != 1,
-                          //     onFileCapture: (file) {
-                          //       if (newform.palletQrPrinted != 1) {
-                          //         ScaffoldMessenger.of(context).showSnackBar(
-                          //           const SnackBar(
-                          //             content: Text(
-                          //               'Please print the pallet QR before capturing the pallet image.',
-                          //             ),
-                          //           ),
-                          //         );
-                          //         return;
-                          //       }
-                          //       context
-                          //           .cubit<CreateFrameCubit>()
-                          //           .onValueChanged(palletPhoto: file);
-                          //     },
-                          //   ),
-                          // ),
                         ],
                       ),
                     ],
                   );
                 }
 
-              final hasLines = state.lines.isNotEmpty;
+                final hasLines = state.lines.isNotEmpty;
                 final isSubmitted = newform.docStatus == 1;
                 final canFreeze = hasLines && !state.isFreezing && !isSubmitted;
                 return SizedBox(
@@ -555,9 +526,22 @@ class __FrameFormWidgetState extends State<FrameFormWidget> {
 
     if (confirmed != true || !context.mounted) return;
 
-    context.cubit<CreateFrameCubit>().freezeFrameQuantity();
+    final cubit = context.cubit<CreateFrameCubit>();
+    await cubit.freezeFrameQuantity();
 
     if (!context.mounted) return;
+
+    final error = cubit.state.error;
+    if (error != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(error.error),
+          backgroundColor: Colors.red,
+        ),
+      );
+      cubit.errorHandled();
+      return;
+    }
 
     await AppDialog.showSuccessDialog(
       context,
@@ -565,9 +549,13 @@ class __FrameFormWidgetState extends State<FrameFormWidget> {
       content: 'Please Print the Sticker.',
       onTapDismiss: context.exit,
     );
+
+    if (context.mounted) {
+      cubit.freezeHandled();
+    }
   }
 
-Future<void> _onPrintQr(BuildContext context) async {
+  Future<void> _onPrintQr(BuildContext context) async {
     final cubit = context.cubit<CreateFrameCubit>();
     final success = await cubit.printSticker();
 
@@ -608,7 +596,7 @@ Future<void> _onPrintQr(BuildContext context) async {
   }
 
   Future<void> _onUploadImage(BuildContext context) async {
-    final result = await captureAndDecode();
+    final result = await captureAndDecodeShutterQrMulti(context);
 
     if (!context.mounted) return;
 
@@ -623,8 +611,8 @@ Future<void> _onPrintQr(BuildContext context) async {
     }
 
     context.cubit<CreateFrameCubit>().onQrScanned(
-      result['qr']!,
-      imagePath: result['imagePath'],
+      result['qr'] as String,
+      imagePath: result['imagePaths'] as List<String>,
     );
   }
 }

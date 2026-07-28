@@ -25,8 +25,7 @@ _$FrameLinesImpl _$$FrameLinesImplFromJson(Map<String, dynamic> json) =>
       salesOrder: json['sales_order'] as String?,
       customer: json['customer'] as String?,
       scanTime: json['scan_time'] as String?,
-      shutterPhoto: json['frame_photo'] as String?,
-      shutterPhotoImg: toNull(json['shutterPhotoImg']),
+      shutterPhoto: _photosFromJson(json['frame_photo']),
     );
 
 Map<String, dynamic> _$$FrameLinesImplToJson(_$FrameLinesImpl instance) =>
@@ -48,5 +47,5 @@ Map<String, dynamic> _$$FrameLinesImplToJson(_$FrameLinesImpl instance) =>
       'sales_order': instance.salesOrder,
       'customer': instance.customer,
       'scan_time': instance.scanTime,
-      'frame_photo': instance.shutterPhoto,
+      'frame_photo': _photosToJson(instance.shutterPhoto),
     };

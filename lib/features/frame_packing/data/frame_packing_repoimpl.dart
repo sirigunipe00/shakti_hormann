@@ -11,6 +11,7 @@ import 'package:shakti_hormann/features/frame_packing/data/frame_packing_repo.da
 import 'package:shakti_hormann/features/frame_packing/model/frame_items.dart';
 import 'package:shakti_hormann/features/frame_packing/model/frame_lines.dart';
 import 'package:shakti_hormann/features/frame_packing/model/frame_packing.dart';
+import 'package:shakti_hormann/features/gate_entry/model/attachement.dart';
 import 'package:shakti_hormann/features/shutter_packing/model/pallet_size.dart';
 
 @LazySingleton(as: FramePackingRepo)
@@ -55,10 +56,44 @@ class FramePackingRepoImpl extends BaseApiRepository
     final response = await get(requestConfig);
     return response.process((r) => right(r.data!));
   }
-  @override
+      @override
+  AsyncValueOf<List<AttachementInvoices>> fetchAttachments(
+    String gateEntryId,
+  ) async {
+    return await executeSafely(() async {
+      final filters = [
+        ['attached_to_doctype', '=', 'Frame Packing'],
+        ['attached_to_name', '=', gateEntryId],
+        // ['attached_to_field', '=', 'vendor_invoice_photo'],
+      ];
+
+      final config = RequestConfig(
+        url: Urls.getList,
+        parser: (json) {
+          final data = json['message'] as List<dynamic>;
+          return data.map((e) => AttachementInvoices.fromJson(e)).toList();
+        },
+        reqParams: {
+          'doctype': 'File',
+          'filters': jsonEncode(filters),
+          'fields': jsonEncode([
+            'file_url',
+            'attached_to_doctype',
+            'attached_to_name',
+            'attached_to_field',
+          ]),
+        },
+      );
+
+      final response = await get(config);
+      $logger.devLog('fetchAttachments response.....$response');
+      return response.process((r) => right(r.data!));
+    });
+  }
+@override
 AsyncValueOf<String> printFrameSticker(String framePackingId) async {
   final Map<String, dynamic> requestBody = {
-    'shutter_packing_id': framePackingId,
+    'docname': framePackingId,
   };
 
   final config = RequestConfig(
@@ -70,7 +105,6 @@ AsyncValueOf<String> printFrameSticker(String framePackingId) async {
       if (status != null && status >= 300) {
         throw Failure(error: text, title: 'Print Failed', status: status);
       }
-
       return text;
     },
     body: jsonEncode(requestBody),
@@ -79,10 +113,16 @@ AsyncValueOf<String> printFrameSticker(String framePackingId) async {
 
   $logger.devLog('printShutterSticker requestConfig.....$config');
 
-  final response = await post(config);
-  return response.processAsync((r) async {
-    return right(r.data!);
-  });
+  try {
+    final response = await post(config);
+    return response.processAsync((r) async {
+      return right(r.data!);
+    });
+  } on Failure catch (f) {
+    return left(f);
+  } catch (e) {
+    return left(Failure(error: e.toString(), title: 'Print Failed'));
+  }
 }
   @override
 AsyncValueOf<List<String>> getFramePalletCode(String salesOrder) async {
@@ -195,97 +235,219 @@ AsyncValueOf<List<String>> getFramePalletCode(String salesOrder) async {
     return response.process((r) => right(r.data!));
   }
 
-  @override
-  AsyncValueOf<Pair<String, String>> createFrame(
-    FramePacking form,
-    List<FrameLines> lines,
-  ) async {
-    final formJson = form.toJson();
-    formJson['status'] = 'Draft';
+  // @override
+  // AsyncValueOf<Pair<String, String>> createFrame(
+  //   FramePacking form,
+  //   List<FrameLines> lines,
+  // ) async {
+  //   final formJson = form.toJson();
+  //   formJson['status'] = 'Draft';
 
-    final Map<String, dynamic> requestBody = {
-      'sales_order': form.salesOrder,
-      'pallet_code': form.palletCode,
+  //   final Map<String, dynamic> requestBody = {
+  //     'sales_order': form.salesOrder,
+  //     'pallet_code': form.palletCode,
 
-      'items': lines};
+  //     'items': lines};
 
-    final config = RequestConfig(
-      url: Urls.createFrame,
-      parser: (json) {
-        final message = json['message']['message'] as String;
+  //   final config = RequestConfig(
+  //     url: Urls.createFrame,
+  //     parser: (json) {
+  //       final message = json['message']['message'] as String;
 
-        final data = json['message']['data'] as Map<String, dynamic>;
+  //       final data = json['message']['data'] as Map<String, dynamic>;
 
-        final docNo = data['frame_packing_id'] as String;
+  //       final docNo = data['frame_packing_id'] as String;
 
-        return Pair(message, docNo);
-      },
+  //       return Pair(message, docNo);
+  //     },
 
-      body: jsonEncode(requestBody),
-      headers: {HttpHeaders.contentTypeHeader: 'application/json'},
-    );
+  //     body: jsonEncode(requestBody),
+  //     headers: {HttpHeaders.contentTypeHeader: 'application/json'},
+  //   );
 
-    $logger.devLog('requestConfig.....$config');
+  //   $logger.devLog('requestConfig.....$config');
 
-    final response = await post(config);
-    return response.processAsync((r) async {
-      return right(Pair(r.data!.first, r.data!.second));
-    });
-  }
+  //   final response = await post(config);
+  //   return response.processAsync((r) async {
+  //     return right(Pair(r.data!.first, r.data!.second));
+  //   });
+  // }
+@override
+AsyncValueOf<Pair<String, String>> createFrame(
+  FramePacking form,
+  List<FrameLines> lines,
+) async {
+  final itemsJson = <Map<String, dynamic>>[];
 
-  @override
-  AsyncValueOf<Pair<String, String>> updateFrame(
-    FramePacking form,
-    List<FrameLines> lines,
-  ) async {
-    final formJson = form.toJson();
-    formJson['status'] = 'Draft';
-    final itemsJson = <Map<String, dynamic>>[];
+  for (final line in lines) {
+    List<String>? framePhotoBase64List;
 
-    for (final line in lines) {
-      String? framePhotoBase64;
+    final images = line.shutterPhotoImg; // Change according to your model
 
-      if (line.shutterPhotoImg != null) {
-        final compressed = await safeCompress(line.shutterPhotoImg!);
+    if (images != null && images.isNotEmpty) {
+      framePhotoBase64List = [];
+
+      for (final file in images) {
+        final compressed = await FlutterImageCompress.compressWithFile(
+          file.path,
+          quality: 50,
+        );
 
         if (compressed != null) {
-          framePhotoBase64 = base64Encode(compressed);
-        }
-      } else if (line.shutterPhoto != null) {
-        final bytes = await fetchAndConvertToBase64(line.shutterPhoto!);
-
-        if (bytes != null) {
-          framePhotoBase64 = base64Encode(bytes);
+          framePhotoBase64List.add(base64Encode(compressed));
         }
       }
-
-      final json = line.toJson();
-      json['frame_photo'] = framePhotoBase64;
-
-      itemsJson.add(json);
     }
 
-    final requestBody = {'frame_packing_id': form.name, 'items': itemsJson};
-    final config = RequestConfig(
-      url: Urls.updateFrame,
-      parser: (json) {
-        final data = json['message']['message'] as String;
+    final json = line.toJson();
 
-        return Pair(data, '');
-      },
+    // Replace with the API field name expected by backend
+    json['frame_photo'] = framePhotoBase64List;
 
-      body: jsonEncode(requestBody),
-      headers: {HttpHeaders.contentTypeHeader: 'application/json'},
-    );
-
-    $logger.devLog('requestConfig.....$config');
-
-    final response = await post(config);
-    return response.processAsync((r) async {
-      return right(Pair(r.data!.first, r.data!.second));
-    });
+    itemsJson.add(json);
   }
 
+  final Map<String, dynamic> requestBody = {
+    'sales_order': form.salesOrder,
+    'pallet_code': form.palletCode,
+    'items': itemsJson,
+  };
+
+  final config = RequestConfig(
+    url: Urls.createFrame,
+    parser: (json) {
+      final message = json['message']['message'] as String;
+      final data = json['message']['data'] as Map<String, dynamic>;
+      final docNo = data['frame_packing_id'] as String;
+
+      return Pair(message, docNo);
+    },
+    body: jsonEncode(requestBody),
+    headers: {
+      HttpHeaders.contentTypeHeader: 'application/json',
+    },
+  );
+
+  $logger.devLog('requestConfig.....$config');
+
+  final response = await post(config);
+
+  return response.processAsync((r) async {
+    return right(Pair(r.data!.first, r.data!.second));
+  });
+}
+  // @override
+  // AsyncValueOf<Pair<String, String>> updateFrame(
+  //   FramePacking form,
+  //   List<FrameLines> lines,
+  // ) async {
+  //   final formJson = form.toJson();
+  //   formJson['status'] = 'Draft';
+  //   final itemsJson = <Map<String, dynamic>>[];
+
+  //   for (final line in lines) {
+  //     String? framePhotoBase64;
+
+  //     if (line.shutterPhotoImg != null) {
+  //       final compressed = await safeCompress(line.shutterPhotoImg!);
+
+  //       if (compressed != null) {
+  //         framePhotoBase64 = base64Encode(compressed);
+  //       }
+  //     } else if (line.shutterPhoto != null) {
+  //       final bytes = await fetchAndConvertToBase64(line.shutterPhoto!);
+
+  //       if (bytes != null) {
+  //         framePhotoBase64 = base64Encode(bytes);
+  //       }
+  //     }
+
+  //     final json = line.toJson();
+  //     json['frame_photo'] = framePhotoBase64;
+
+  //     itemsJson.add(json);
+  //   }
+
+  //   final requestBody = {'frame_packing_id': form.name, 'items': itemsJson};
+  //   final config = RequestConfig(
+  //     url: Urls.updateFrame,
+  //     parser: (json) {
+  //       final data = json['message']['message'] as String;
+
+  //       return Pair(data, '');
+  //     },
+
+  //     body: jsonEncode(requestBody),
+  //     headers: {HttpHeaders.contentTypeHeader: 'application/json'},
+  //   );
+
+  //   $logger.devLog('requestConfig.....$config');
+
+  //   final response = await post(config);
+  //   return response.processAsync((r) async {
+  //     return right(Pair(r.data!.first, r.data!.second));
+  //   });
+  // }
+@override
+AsyncValueOf<Pair<String, String>> updateFrame(
+  FramePacking form,
+  List<FrameLines> lines,
+) async {
+  final formJson = form.toJson();
+  formJson['status'] = 'Draft';
+
+  final itemsJson = <Map<String, dynamic>>[];
+
+  for (final line in lines) {
+    List<String>? framePhotoBase64List;
+
+    final images = line.shutterPhotoImg;
+    if (images != null && images.isNotEmpty) {
+      framePhotoBase64List = [];
+
+      for (final file in images) {
+        final compressed = await FlutterImageCompress.compressWithFile(
+          file.path,
+          quality: 50,
+        );
+
+        if (compressed != null) {
+          framePhotoBase64List.add(base64Encode(compressed));
+        }
+      }
+    }
+
+    final json = line.toJson();
+    json['frame_photo'] = framePhotoBase64List;
+
+    itemsJson.add(json);
+  }
+
+  final requestBody = {
+    'frame_packing_id': form.name,
+    'items': itemsJson,
+  };
+
+  final config = RequestConfig(
+    url: Urls.updateFrame,
+    parser: (json) {
+      final data = json['message']['message'] as String;
+      return Pair(data, '');
+    },
+    body: jsonEncode(requestBody),
+    headers: {
+      HttpHeaders.contentTypeHeader: 'application/json',
+    },
+  );
+
+  $logger.devLog('requestConfig.....$config');
+
+  final response = await post(config);
+
+  return response.processAsync((r) async {
+    return right(Pair(r.data!.first, r.data!.second));
+  });
+}
   @override
   AsyncValueOf<Pair<String, String>> submitFrame(FramePacking form) async {
     return await executeSafely(() async {

@@ -20,6 +20,7 @@ _$VisionItemsImpl _$$VisionItemsImplFromJson(Map<String, dynamic> json) =>
       parentType: json['parenttype'] as String?,
       productType: json['product_type'] as String?,
       noOfBoxes: (json['no_of_boxes'] as num?)?.toInt(),
+      printCheck: (json['print_check'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$$VisionItemsImplToJson(_$VisionItemsImpl instance) =>
@@ -36,4 +37,5 @@ Map<String, dynamic> _$$VisionItemsImplToJson(_$VisionItemsImpl instance) =>
       'parenttype': instance.parentType,
       'product_type': instance.productType,
       'no_of_boxes': instance.noOfBoxes,
+      'print_check': instance.printCheck,
     };

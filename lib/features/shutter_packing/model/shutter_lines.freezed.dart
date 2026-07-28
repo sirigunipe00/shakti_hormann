@@ -56,15 +56,14 @@ mixin _$ShutterLines {
   String? get customer => throw _privateConstructorUsedError;
   @JsonKey(name: 'scan_time')
   String? get scanTime => throw _privateConstructorUsedError;
-  @JsonKey(name: 'shutter_photo')
-  String? get shutterPhoto => throw _privateConstructorUsedError;
   @JsonKey(
-    includeFromJson: true,
-    includeToJson: false,
-    toJson: toNull,
-    fromJson: toNull,
+    name: 'shutter_photo',
+    fromJson: _photosFromJson,
+    toJson: _photosToJson,
   )
-  File? get shutterPhotoImg => throw _privateConstructorUsedError;
+  List<String>? get shutterPhoto => throw _privateConstructorUsedError;
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  List<File>? get shutterPhotoImg => throw _privateConstructorUsedError;
 
   /// Serializes this ShutterLines to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -102,14 +101,14 @@ abstract class $ShutterLinesCopyWith<$Res> {
     @JsonKey(name: 'sales_order') String? salesOrder,
     @JsonKey(name: 'customer') String? customer,
     @JsonKey(name: 'scan_time') String? scanTime,
-    @JsonKey(name: 'shutter_photo') String? shutterPhoto,
     @JsonKey(
-      includeFromJson: true,
-      includeToJson: false,
-      toJson: toNull,
-      fromJson: toNull,
+      name: 'shutter_photo',
+      fromJson: _photosFromJson,
+      toJson: _photosToJson,
     )
-    File? shutterPhotoImg,
+    List<String>? shutterPhoto,
+    @JsonKey(includeFromJson: false, includeToJson: false)
+    List<File>? shutterPhotoImg,
   });
 }
 
@@ -245,12 +244,12 @@ class _$ShutterLinesCopyWithImpl<$Res, $Val extends ShutterLines>
                 freezed == shutterPhoto
                     ? _value.shutterPhoto
                     : shutterPhoto // ignore: cast_nullable_to_non_nullable
-                        as String?,
+                        as List<String>?,
             shutterPhotoImg:
                 freezed == shutterPhotoImg
                     ? _value.shutterPhotoImg
                     : shutterPhotoImg // ignore: cast_nullable_to_non_nullable
-                        as File?,
+                        as List<File>?,
           )
           as $Val,
     );
@@ -285,14 +284,14 @@ abstract class _$$ShutterLinesImplCopyWith<$Res>
     @JsonKey(name: 'sales_order') String? salesOrder,
     @JsonKey(name: 'customer') String? customer,
     @JsonKey(name: 'scan_time') String? scanTime,
-    @JsonKey(name: 'shutter_photo') String? shutterPhoto,
     @JsonKey(
-      includeFromJson: true,
-      includeToJson: false,
-      toJson: toNull,
-      fromJson: toNull,
+      name: 'shutter_photo',
+      fromJson: _photosFromJson,
+      toJson: _photosToJson,
     )
-    File? shutterPhotoImg,
+    List<String>? shutterPhoto,
+    @JsonKey(includeFromJson: false, includeToJson: false)
+    List<File>? shutterPhotoImg,
   });
 }
 
@@ -425,14 +424,14 @@ class __$$ShutterLinesImplCopyWithImpl<$Res>
                     as String?,
         shutterPhoto:
             freezed == shutterPhoto
-                ? _value.shutterPhoto
+                ? _value._shutterPhoto
                 : shutterPhoto // ignore: cast_nullable_to_non_nullable
-                    as String?,
+                    as List<String>?,
         shutterPhotoImg:
             freezed == shutterPhotoImg
-                ? _value.shutterPhotoImg
+                ? _value._shutterPhotoImg
                 : shutterPhotoImg // ignore: cast_nullable_to_non_nullable
-                    as File?,
+                    as List<File>?,
       ),
     );
   }
@@ -460,15 +459,16 @@ class _$ShutterLinesImpl implements _ShutterLines {
     @JsonKey(name: 'sales_order') this.salesOrder,
     @JsonKey(name: 'customer') this.customer,
     @JsonKey(name: 'scan_time') this.scanTime,
-    @JsonKey(name: 'shutter_photo') this.shutterPhoto,
     @JsonKey(
-      includeFromJson: true,
-      includeToJson: false,
-      toJson: toNull,
-      fromJson: toNull,
+      name: 'shutter_photo',
+      fromJson: _photosFromJson,
+      toJson: _photosToJson,
     )
-    this.shutterPhotoImg,
-  });
+    final List<String>? shutterPhoto,
+    @JsonKey(includeFromJson: false, includeToJson: false)
+    final List<File>? shutterPhotoImg,
+  }) : _shutterPhoto = shutterPhoto,
+       _shutterPhotoImg = shutterPhotoImg;
 
   factory _$ShutterLinesImpl.fromJson(Map<String, dynamic> json) =>
       _$$ShutterLinesImplFromJson(json);
@@ -526,17 +526,31 @@ class _$ShutterLinesImpl implements _ShutterLines {
   @override
   @JsonKey(name: 'scan_time')
   final String? scanTime;
-  @override
-  @JsonKey(name: 'shutter_photo')
-  final String? shutterPhoto;
+  final List<String>? _shutterPhoto;
   @override
   @JsonKey(
-    includeFromJson: true,
-    includeToJson: false,
-    toJson: toNull,
-    fromJson: toNull,
+    name: 'shutter_photo',
+    fromJson: _photosFromJson,
+    toJson: _photosToJson,
   )
-  final File? shutterPhotoImg;
+  List<String>? get shutterPhoto {
+    final value = _shutterPhoto;
+    if (value == null) return null;
+    if (_shutterPhoto is EqualUnmodifiableListView) return _shutterPhoto;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(value);
+  }
+
+  final List<File>? _shutterPhotoImg;
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  List<File>? get shutterPhotoImg {
+    final value = _shutterPhotoImg;
+    if (value == null) return null;
+    if (_shutterPhotoImg is EqualUnmodifiableListView) return _shutterPhotoImg;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(value);
+  }
 
   @override
   String toString() {
@@ -580,10 +594,14 @@ class _$ShutterLinesImpl implements _ShutterLines {
                 other.customer == customer) &&
             (identical(other.scanTime, scanTime) ||
                 other.scanTime == scanTime) &&
-            (identical(other.shutterPhoto, shutterPhoto) ||
-                other.shutterPhoto == shutterPhoto) &&
-            (identical(other.shutterPhotoImg, shutterPhotoImg) ||
-                other.shutterPhotoImg == shutterPhotoImg));
+            const DeepCollectionEquality().equals(
+              other._shutterPhoto,
+              _shutterPhoto,
+            ) &&
+            const DeepCollectionEquality().equals(
+              other._shutterPhotoImg,
+              _shutterPhotoImg,
+            ));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -608,8 +626,8 @@ class _$ShutterLinesImpl implements _ShutterLines {
     salesOrder,
     customer,
     scanTime,
-    shutterPhoto,
-    shutterPhotoImg,
+    const DeepCollectionEquality().hash(_shutterPhoto),
+    const DeepCollectionEquality().hash(_shutterPhotoImg),
   ]);
 
   /// Create a copy of ShutterLines
@@ -646,14 +664,14 @@ abstract class _ShutterLines implements ShutterLines {
     @JsonKey(name: 'sales_order') final String? salesOrder,
     @JsonKey(name: 'customer') final String? customer,
     @JsonKey(name: 'scan_time') final String? scanTime,
-    @JsonKey(name: 'shutter_photo') final String? shutterPhoto,
     @JsonKey(
-      includeFromJson: true,
-      includeToJson: false,
-      toJson: toNull,
-      fromJson: toNull,
+      name: 'shutter_photo',
+      fromJson: _photosFromJson,
+      toJson: _photosToJson,
     )
-    final File? shutterPhotoImg,
+    final List<String>? shutterPhoto,
+    @JsonKey(includeFromJson: false, includeToJson: false)
+    final List<File>? shutterPhotoImg,
   }) = _$ShutterLinesImpl;
 
   factory _ShutterLines.fromJson(Map<String, dynamic> json) =
@@ -713,16 +731,15 @@ abstract class _ShutterLines implements ShutterLines {
   @JsonKey(name: 'scan_time')
   String? get scanTime;
   @override
-  @JsonKey(name: 'shutter_photo')
-  String? get shutterPhoto;
-  @override
   @JsonKey(
-    includeFromJson: true,
-    includeToJson: false,
-    toJson: toNull,
-    fromJson: toNull,
+    name: 'shutter_photo',
+    fromJson: _photosFromJson,
+    toJson: _photosToJson,
   )
-  File? get shutterPhotoImg;
+  List<String>? get shutterPhoto;
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  List<File>? get shutterPhotoImg;
 
   /// Create a copy of ShutterLines
   /// with the given fields replaced by the non-null parameter values.

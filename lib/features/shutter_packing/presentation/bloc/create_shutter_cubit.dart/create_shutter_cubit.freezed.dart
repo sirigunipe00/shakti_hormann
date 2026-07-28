@@ -27,10 +27,12 @@ mixin _$CreateShutterState {
   bool get isFreezing => throw _privateConstructorUsedError;
   bool get isFrozen => throw _privateConstructorUsedError;
   bool get isPrinting => throw _privateConstructorUsedError;
+  bool get isCreatingDoc => throw _privateConstructorUsedError;
   List<String> get palletCodes => throw _privateConstructorUsedError;
   String? get printSuccessMsg => throw _privateConstructorUsedError;
   String? get freezeSuccessMsg => throw _privateConstructorUsedError;
   String? get successMsg => throw _privateConstructorUsedError;
+  String? get createSuccessMsg => throw _privateConstructorUsedError;
   Failure? get error => throw _privateConstructorUsedError;
 
   /// Create a copy of CreateShutterState
@@ -58,10 +60,12 @@ abstract class $CreateShutterStateCopyWith<$Res> {
     bool isFreezing,
     bool isFrozen,
     bool isPrinting,
+    bool isCreatingDoc,
     List<String> palletCodes,
     String? printSuccessMsg,
     String? freezeSuccessMsg,
     String? successMsg,
+    String? createSuccessMsg,
     Failure? error,
   });
 
@@ -94,10 +98,12 @@ class _$CreateShutterStateCopyWithImpl<$Res, $Val extends CreateShutterState>
     Object? isFreezing = null,
     Object? isFrozen = null,
     Object? isPrinting = null,
+    Object? isCreatingDoc = null,
     Object? palletCodes = null,
     Object? printSuccessMsg = freezed,
     Object? freezeSuccessMsg = freezed,
     Object? successMsg = freezed,
+    Object? createSuccessMsg = freezed,
     Object? error = freezed,
   }) {
     return _then(
@@ -152,6 +158,11 @@ class _$CreateShutterStateCopyWithImpl<$Res, $Val extends CreateShutterState>
                     ? _value.isPrinting
                     : isPrinting // ignore: cast_nullable_to_non_nullable
                         as bool,
+            isCreatingDoc:
+                null == isCreatingDoc
+                    ? _value.isCreatingDoc
+                    : isCreatingDoc // ignore: cast_nullable_to_non_nullable
+                        as bool,
             palletCodes:
                 null == palletCodes
                     ? _value.palletCodes
@@ -171,6 +182,11 @@ class _$CreateShutterStateCopyWithImpl<$Res, $Val extends CreateShutterState>
                 freezed == successMsg
                     ? _value.successMsg
                     : successMsg // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            createSuccessMsg:
+                freezed == createSuccessMsg
+                    ? _value.createSuccessMsg
+                    : createSuccessMsg // ignore: cast_nullable_to_non_nullable
                         as String?,
             error:
                 freezed == error
@@ -227,10 +243,12 @@ abstract class _$$CreateShutterStateImplCopyWith<$Res>
     bool isFreezing,
     bool isFrozen,
     bool isPrinting,
+    bool isCreatingDoc,
     List<String> palletCodes,
     String? printSuccessMsg,
     String? freezeSuccessMsg,
     String? successMsg,
+    String? createSuccessMsg,
     Failure? error,
   });
 
@@ -264,10 +282,12 @@ class __$$CreateShutterStateImplCopyWithImpl<$Res>
     Object? isFreezing = null,
     Object? isFrozen = null,
     Object? isPrinting = null,
+    Object? isCreatingDoc = null,
     Object? palletCodes = null,
     Object? printSuccessMsg = freezed,
     Object? freezeSuccessMsg = freezed,
     Object? successMsg = freezed,
+    Object? createSuccessMsg = freezed,
     Object? error = freezed,
   }) {
     return _then(
@@ -322,6 +342,11 @@ class __$$CreateShutterStateImplCopyWithImpl<$Res>
                 ? _value.isPrinting
                 : isPrinting // ignore: cast_nullable_to_non_nullable
                     as bool,
+        isCreatingDoc:
+            null == isCreatingDoc
+                ? _value.isCreatingDoc
+                : isCreatingDoc // ignore: cast_nullable_to_non_nullable
+                    as bool,
         palletCodes:
             null == palletCodes
                 ? _value._palletCodes
@@ -341,6 +366,11 @@ class __$$CreateShutterStateImplCopyWithImpl<$Res>
             freezed == successMsg
                 ? _value.successMsg
                 : successMsg // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        createSuccessMsg:
+            freezed == createSuccessMsg
+                ? _value.createSuccessMsg
+                : createSuccessMsg // ignore: cast_nullable_to_non_nullable
                     as String?,
         error:
             freezed == error
@@ -366,10 +396,12 @@ class _$CreateShutterStateImpl implements _CreateShutterState {
     this.isFreezing = false,
     this.isFrozen = false,
     this.isPrinting = false,
+    this.isCreatingDoc = false,
     final List<String> palletCodes = const [],
     this.printSuccessMsg,
     this.freezeSuccessMsg,
     this.successMsg,
+    this.createSuccessMsg,
     this.error,
   }) : _lines = lines,
        _newLines = newLines,
@@ -412,6 +444,9 @@ class _$CreateShutterStateImpl implements _CreateShutterState {
   @override
   @JsonKey()
   final bool isPrinting;
+  @override
+  @JsonKey()
+  final bool isCreatingDoc;
   final List<String> _palletCodes;
   @override
   @JsonKey()
@@ -428,11 +463,13 @@ class _$CreateShutterStateImpl implements _CreateShutterState {
   @override
   final String? successMsg;
   @override
+  final String? createSuccessMsg;
+  @override
   final Failure? error;
 
   @override
   String toString() {
-    return 'CreateShutterState(form: $form, isLoading: $isLoading, lines: $lines, isSuccess: $isSuccess, newLines: $newLines, view: $view, isModified: $isModified, isFreezing: $isFreezing, isFrozen: $isFrozen, isPrinting: $isPrinting, palletCodes: $palletCodes, printSuccessMsg: $printSuccessMsg, freezeSuccessMsg: $freezeSuccessMsg, successMsg: $successMsg, error: $error)';
+    return 'CreateShutterState(form: $form, isLoading: $isLoading, lines: $lines, isSuccess: $isSuccess, newLines: $newLines, view: $view, isModified: $isModified, isFreezing: $isFreezing, isFrozen: $isFrozen, isPrinting: $isPrinting, isCreatingDoc: $isCreatingDoc, palletCodes: $palletCodes, printSuccessMsg: $printSuccessMsg, freezeSuccessMsg: $freezeSuccessMsg, successMsg: $successMsg, createSuccessMsg: $createSuccessMsg, error: $error)';
   }
 
   @override
@@ -456,6 +493,8 @@ class _$CreateShutterStateImpl implements _CreateShutterState {
                 other.isFrozen == isFrozen) &&
             (identical(other.isPrinting, isPrinting) ||
                 other.isPrinting == isPrinting) &&
+            (identical(other.isCreatingDoc, isCreatingDoc) ||
+                other.isCreatingDoc == isCreatingDoc) &&
             const DeepCollectionEquality().equals(
               other._palletCodes,
               _palletCodes,
@@ -466,6 +505,8 @@ class _$CreateShutterStateImpl implements _CreateShutterState {
                 other.freezeSuccessMsg == freezeSuccessMsg) &&
             (identical(other.successMsg, successMsg) ||
                 other.successMsg == successMsg) &&
+            (identical(other.createSuccessMsg, createSuccessMsg) ||
+                other.createSuccessMsg == createSuccessMsg) &&
             (identical(other.error, error) || other.error == error));
   }
 
@@ -482,10 +523,12 @@ class _$CreateShutterStateImpl implements _CreateShutterState {
     isFreezing,
     isFrozen,
     isPrinting,
+    isCreatingDoc,
     const DeepCollectionEquality().hash(_palletCodes),
     printSuccessMsg,
     freezeSuccessMsg,
     successMsg,
+    createSuccessMsg,
     error,
   );
 
@@ -513,10 +556,12 @@ abstract class _CreateShutterState implements CreateShutterState {
     final bool isFreezing,
     final bool isFrozen,
     final bool isPrinting,
+    final bool isCreatingDoc,
     final List<String> palletCodes,
     final String? printSuccessMsg,
     final String? freezeSuccessMsg,
     final String? successMsg,
+    final String? createSuccessMsg,
     final Failure? error,
   }) = _$CreateShutterStateImpl;
 
@@ -541,6 +586,8 @@ abstract class _CreateShutterState implements CreateShutterState {
   @override
   bool get isPrinting;
   @override
+  bool get isCreatingDoc;
+  @override
   List<String> get palletCodes;
   @override
   String? get printSuccessMsg;
@@ -548,6 +595,8 @@ abstract class _CreateShutterState implements CreateShutterState {
   String? get freezeSuccessMsg;
   @override
   String? get successMsg;
+  @override
+  String? get createSuccessMsg;
   @override
   Failure? get error;
 

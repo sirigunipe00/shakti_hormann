@@ -35,6 +35,8 @@ class CreateStorageCubit extends AppBaseCubit<CreateStorageState> {
     String? salesOrders,
     int? totalQty,
     String? zoneQr,
+    int? palletCount,
+    String? oldZone,
     String? palletNo,
     File? zonePhoto,
   }) async {
@@ -52,6 +54,7 @@ class CreateStorageCubit extends AppBaseCubit<CreateStorageState> {
       zoneName: zoneName ?? form.zoneName,
       salesOrders: salesOrders ?? form.salesOrders,
       totalQty: totalQty ?? form.totalQty,
+      oldZone: oldZone ?? form.oldZone,
       zoneQr: zoneQr ?? form.zoneQr,
       palletBoxQr: palletNo ?? form.palletBoxQr,
       locationPhotoImg: zonePhotos,
@@ -76,6 +79,8 @@ class CreateStorageCubit extends AppBaseCubit<CreateStorageState> {
         zoneName: entry.zoneName,
         zoneQr: entry.zoneQr,
         palletBoxQr: entry.palletBoxQr,
+        palletCount: entry.palletCount,
+        oldZone: entry.oldZone
       );
       emitSafeState(
         state.copyWith(form: updatedForm, view: StorageView.completed),

@@ -4,7 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shakti_hormann/app/presentation/widgets/drop_down_optn.dart';
 import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/features/logistic_request/model/sales_order_form.dart';
-import 'package:shakti_hormann/features/logistic_request/presentation/bloc/bloc_provider.dart';
 import 'package:shakti_hormann/features/pallet_creation/model/pallet_items.dart';
 import 'package:shakti_hormann/features/pallet_creation/presentation/bloc/bloc_provider.dart';
 import 'package:shakti_hormann/features/pallet_creation/presentation/bloc/create_pallet_cubit.dart/create_pallet_cubit.dart';
@@ -134,7 +133,7 @@ class __PalletFormWidgetState extends State<PalletFormWidget> {
                                 if (invoiceform == null &&
                                     newform.salesOrder != null &&
                                     names.isNotEmpty) {
-                                  invoiceform = names.firstWhereOrNull(
+                                  invoiceform = names.firstWhere(
                                     (item) => item.name == newform.salesOrder,
                                   );
                                 }
@@ -182,7 +181,7 @@ class __PalletFormWidgetState extends State<PalletFormWidget> {
                                             CrossAxisAlignment.start,
                                         children: [
                                           Text(
-                                            'Invoice No: ${item.name ?? ''}',
+                                            item.name ?? '',
                                             style: const TextStyle(
                                               fontWeight: FontWeight.bold,
                                             ),
@@ -363,15 +362,20 @@ Future<String?> _showPalletSizeSheet(
 
   return showModalBottomSheet<String>(
     context: context,
+    isScrollControlled:
+        true, 
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
     ),
     builder: (sheetContext) {
       return StatefulBuilder(
         builder: (context, setSheetState) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-            child: SingleChildScrollView(
+          return ConstrainedBox(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(context).size.height * 0.75,
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -389,44 +393,69 @@ Future<String?> _showPalletSizeSheet(
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(height: 12),
-                  if (options.length == 1)
-                    const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 16),
-                      child: Text(
-                        'No pallet sizes available. Choose "Others" to enter manually.',
-                        style: TextStyle(color: Colors.grey),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ...options.map((option) {
-                    final isSelected = option == tempSelected;
-                    return InkWell(
-                      onTap: () => setSheetState(() => tempSelected = option),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        decoration: const BoxDecoration(
-                          border: Border(
-                            bottom: BorderSide(color: Color(0xFFE8ECF4)),
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              option,
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: isSelected ? Colors.blue : Colors.black,
+
+                  Flexible(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          if (options.length == 1)
+                            const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 16),
+                              child: Text(
+                                'No pallet sizes available. Choose "Others" to enter manually.',
+                                style: TextStyle(color: Colors.grey),
+                                textAlign: TextAlign.center,
                               ),
                             ),
-                            if (isSelected)
-                              const Icon(Icons.check_circle, color: Colors.blue),
-                          ],
-                        ),
+                          ...options.map((option) {
+                            final isSelected = option == tempSelected;
+                            return InkWell(
+                              onTap:
+                                  () => setSheetState(
+                                    () => tempSelected = option,
+                                  ),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 14,
+                                ),
+                                decoration: const BoxDecoration(
+                                  border: Border(
+                                    bottom: BorderSide(
+                                      color: Color(0xFFE8ECF4),
+                                    ),
+                                  ),
+                                ),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      option,
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        color:
+                                            isSelected
+                                                ? Colors.blue
+                                                : Colors.black,
+                                      ),
+                                    ),
+                                    if (isSelected)
+                                      const Icon(
+                                        Icons.check_circle,
+                                        color: Colors.blue,
+                                      ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          }),
+                        ],
                       ),
-                    );
-                  }),
+                    ),
+                  ),
+
                   const SizedBox(height: 16),
+
                   Row(
                     children: [
                       Expanded(
@@ -473,6 +502,128 @@ Future<String?> _showPalletSizeSheet(
     },
   );
 }
+
+// Future<String?> _showPalletSizeSheet(
+//   BuildContext context,
+//   String? selected,
+//   List<String> palletSizes,
+// ) {
+//   final options = [...palletSizes, 'Others'];
+//   String? tempSelected = selected;
+
+//   return showModalBottomSheet<String>(
+//     context: context,
+//     isScrollControlled: true,
+//     shape: const RoundedRectangleBorder(
+//       borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+//     ),
+//     builder: (sheetContext) {
+//       return StatefulBuilder(
+//         builder: (context, setSheetState) {
+//           return Padding(
+//             padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+//             child: SingleChildScrollView(
+//               child: Column(
+//                 mainAxisSize: MainAxisSize.min,
+//                 children: [
+//                   Container(
+//                     width: 40,
+//                     height: 4,
+//                     margin: const EdgeInsets.only(bottom: 12),
+//                     decoration: BoxDecoration(
+//                       color: Colors.grey.shade300,
+//                       borderRadius: BorderRadius.circular(2),
+//                     ),
+//                   ),
+//                   const Text(
+//                     'Pallet Size',
+//                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+//                   ),
+//                   const SizedBox(height: 12),
+//                   if (options.length == 1)
+//                     const Padding(
+//                       padding: EdgeInsets.symmetric(vertical: 16),
+//                       child: Text(
+//                         'No pallet sizes available. Choose "Others" to enter manually.',
+//                         style: TextStyle(color: Colors.grey),
+//                         textAlign: TextAlign.center,
+//                       ),
+//                     ),
+//                   ...options.map((option) {
+//                     final isSelected = option == tempSelected;
+//                     return InkWell(
+//                       onTap: () => setSheetState(() => tempSelected = option),
+//                       child: Container(
+//                         padding: const EdgeInsets.symmetric(vertical: 14),
+//                         decoration: const BoxDecoration(
+//                           border: Border(
+//                             bottom: BorderSide(color: Color(0xFFE8ECF4)),
+//                           ),
+//                         ),
+//                         child: Row(
+//                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//                           children: [
+//                             Text(
+//                               option,
+//                               style: TextStyle(
+//                                 fontSize: 16,
+//                                 color: isSelected ? Colors.blue : Colors.black,
+//                               ),
+//                             ),
+//                             if (isSelected)
+//                               const Icon(Icons.check_circle, color: Colors.blue),
+//                           ],
+//                         ),
+//                       ),
+//                     );
+//                   }),
+//                   const SizedBox(height: 16),
+//                   Row(
+//                     children: [
+//                       Expanded(
+//                         child: ElevatedButton(
+//                           style: ElevatedButton.styleFrom(
+//                             backgroundColor: const Color(0xFF1E2A5A),
+//                             shape: RoundedRectangleBorder(
+//                               borderRadius: BorderRadius.circular(24),
+//                             ),
+//                             padding: const EdgeInsets.symmetric(vertical: 14),
+//                           ),
+//                           onPressed:
+//                               tempSelected == null
+//                                   ? null
+//                                   : () =>
+//                                       Navigator.pop(sheetContext, tempSelected),
+//                           child: const Text(
+//                             'Select',
+//                             style: TextStyle(color: Colors.white),
+//                           ),
+//                         ),
+//                       ),
+//                       const SizedBox(width: 12),
+//                       Expanded(
+//                         child: OutlinedButton(
+//                           style: OutlinedButton.styleFrom(
+//                             shape: RoundedRectangleBorder(
+//                               borderRadius: BorderRadius.circular(24),
+//                             ),
+//                             padding: const EdgeInsets.symmetric(vertical: 14),
+//                           ),
+//                           onPressed: () => Navigator.pop(sheetContext, null),
+//                           child: const Text('Cancel'),
+//                         ),
+//                       ),
+//                     ],
+//                   ),
+//                 ],
+//               ),
+//             ),
+//           );
+//         },
+//       );
+//     },
+//   );
+// }
 
 Future<PalletItems?> _showPalletDetailsDialog(
   BuildContext context,
@@ -530,21 +681,21 @@ Future<PalletItems?> _showPalletDetailsDialog(
                     Align(
                       alignment: Alignment.centerLeft,
                       child: RichText(
-                        text: TextSpan(
-                          style: const TextStyle(
+                        text: const TextSpan(
+                          style: TextStyle(
                             color: Colors.black,
                             fontWeight: FontWeight.w600,
                           ),
                           children: [
-                            const TextSpan(text: 'No. Of Pallet '),
-                            TextSpan(
-                              text: '(max. up to 50)',
-                              style: TextStyle(
-                                color: Colors.grey.shade500,
-                                fontWeight: FontWeight.normal,
-                                fontSize: 12,
-                              ),
-                            ),
+                            TextSpan(text: 'No. Of Pallet '),
+                            // TextSpan(
+                            //   text: '(max. up to 50)',
+                            //   style: TextStyle(
+                            //     color: Colors.grey.shade500,
+                            //     fontWeight: FontWeight.normal,
+                            //     fontSize: 12,
+                            //   ),
+                            // ),
                           ],
                         ),
                       ),
@@ -681,13 +832,16 @@ Future<PalletItems?> _showPalletDetailsDialog(
                         ),
                       ],
                     ],
-                
+
                     const SizedBox(height: 24),
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.grey.shade400,
+                          backgroundColor:
+                              selectedSize != null
+                                  ? AppColors.darkBlue
+                                  : Colors.grey.shade400,
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(24),
@@ -700,12 +854,6 @@ Future<PalletItems?> _showPalletDetailsDialog(
                           if (noOfPallets == null || noOfPallets <= 0) {
                             setDialogState(
                               () => errorText = 'Enter a valid pallet number',
-                            );
-                            return;
-                          }
-                          if (noOfPallets > 50) {
-                            setDialogState(
-                              () => errorText = 'Max up to 20 pallets allowed',
                             );
                             return;
                           }
@@ -733,7 +881,7 @@ Future<PalletItems?> _showPalletDetailsDialog(
                           } else {
                             finalSize = selectedSize!;
                           }
-                
+
                           Navigator.pop(
                             dialogContext,
                             PalletItems(
@@ -743,9 +891,15 @@ Future<PalletItems?> _showPalletDetailsDialog(
                             ),
                           );
                         },
-                        child: const Text(
+                        child: Text(
                           'Continue',
-                          style: TextStyle(color: Colors.black, fontSize: 16),
+                          style: TextStyle(
+                            color:
+                                selectedSize != null
+                                    ? Colors.white
+                                    : Colors.black,
+                            fontSize: 16,
+                          ),
                         ),
                       ),
                     ),

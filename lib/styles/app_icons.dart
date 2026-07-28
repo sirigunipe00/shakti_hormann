@@ -24,6 +24,8 @@ class AppIcons {
   static const frame = AppIcon('$imagesPath/frame_packing.png');
   static const hardware = AppIcon('$imagesPath/hardware_packaging.svg');
   static const pallet = AppIcon('$imagesPath/pallet.png');
+  static const installation = AppIcon('$imagesPath/installation.png');
+  static const accessories = AppIcon('$imagesPath/accessories.png');
 }
 
 class AppIcon {

@@ -73,41 +73,6 @@ class __StorageFormWidgetState extends State<StorageFormWidget> {
             const SizedBox(height: 20),
 
             const SectionHeader(
-              title: 'Allocated Zone Photo',
-              assetIcon: 'assets/images/phot.svg',
-            ),
-
-            DashedBorderBox(
-              borderRadius: 12,
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Column(
-                  children: [
-                    NewUploadPhotoWidget(
-                      fileName: 'zone_icon',
-                      imageUrl: newform.locationPhoto,
-                      title: 'Zone Image',
-                      isRequired: true,
-                      isReadOnly: isCompleted,
-                      onFileCapture: (file) {
-                        context.cubit<CreateStorageCubit>().onValueChanged(
-                          zonePhoto: file,
-                        );
-                      },
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 20),
-
-            const SectionHeader(
               title: 'Pallet Details',
               assetIcon: 'assets/images/palleticon.svg',
             ),
@@ -166,6 +131,20 @@ class __StorageFormWidgetState extends State<StorageFormWidget> {
                     },
                     focusNode: focusNodes.elementAt(13),
                   ),
+                  InputField(
+                    readOnly: true,
+                    initialValue: newform.palletCount.toString(),
+                    title: 'Pallet Count',
+                    hintText: 'pallet count',
+                    isRequired: false,
+                    borderColor: AppColors.grey,
+                    onChanged: (p0) {
+                      context.cubit<CreateStorageCubit>().onValueChanged(
+                        palletCount: int.parse(p0),
+                      );
+                    },
+                    focusNode: focusNodes.elementAt(13),
+                  ),
                 ],
               ),
             ),
@@ -201,6 +180,53 @@ class __StorageFormWidgetState extends State<StorageFormWidget> {
                       );
                     },
                     focusNode: focusNodes.elementAt(13),
+                  ),
+                  InputField(
+                    readOnly: true,
+                    initialValue: newform.oldZone,
+                    title: 'Old Zone Name',
+                    hintText: 'old zone name',
+                    isRequired: false,
+                    borderColor: AppColors.grey,
+                    onChanged: (p0) {
+                      context.cubit<CreateStorageCubit>().onValueChanged(
+                        oldZone: p0,
+                      );
+                    },
+                    focusNode: focusNodes.elementAt(13),
+                  ),
+
+                  // const SectionHeader(
+                  //   title: 'Allocated Zone Photo',
+                  //   assetIcon: 'assets/images/phot.svg',
+                  // ),
+
+                  DashedBorderBox(
+                    borderRadius: 12,
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Column(
+                        children: [
+                          NewUploadPhotoWidget(
+                            fileName: 'zone_icon',
+                            imageUrl: newform.locationPhoto,
+                            title: 'Zone Image',
+                            isRequired: true,
+                            isReadOnly: isCompleted,
+                            onFileCapture: (file) {
+                              context
+                                  .cubit<CreateStorageCubit>()
+                                  .onValueChanged(zonePhoto: file);
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ],
               ),

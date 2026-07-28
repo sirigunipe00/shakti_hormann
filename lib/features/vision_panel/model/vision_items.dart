@@ -41,6 +41,9 @@ class VisionItems with _$VisionItems {
 
     @JsonKey(name: 'no_of_boxes')
     int? noOfBoxes,
+    @JsonKey(name: 'print_check')
+    int? printCheck,
+    
   }) = _VisionItems;
 
   factory VisionItems.fromJson(Map<String, dynamic> json) =>

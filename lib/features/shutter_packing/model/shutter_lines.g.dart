@@ -26,8 +26,7 @@ _$ShutterLinesImpl _$$ShutterLinesImplFromJson(Map<String, dynamic> json) =>
       salesOrder: json['sales_order'] as String?,
       customer: json['customer'] as String?,
       scanTime: json['scan_time'] as String?,
-      shutterPhoto: json['shutter_photo'] as String?,
-      shutterPhotoImg: toNull(json['shutterPhotoImg']),
+      shutterPhoto: _photosFromJson(json['shutter_photo']),
     );
 
 Map<String, dynamic> _$$ShutterLinesImplToJson(_$ShutterLinesImpl instance) =>
@@ -50,5 +49,5 @@ Map<String, dynamic> _$$ShutterLinesImplToJson(_$ShutterLinesImpl instance) =>
       'sales_order': instance.salesOrder,
       'customer': instance.customer,
       'scan_time': instance.scanTime,
-      'shutter_photo': instance.shutterPhoto,
+      'shutter_photo': _photosToJson(instance.shutterPhoto),
     };

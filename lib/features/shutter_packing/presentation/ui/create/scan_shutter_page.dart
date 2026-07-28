@@ -161,37 +161,285 @@ class _CornerBorderPainter extends CustomPainter {
   bool shouldRepaint(_) => false;
 }
 
-Future<Map<String, String>?> captureAndDecodeShutterQr() async {
-  final picker = ImagePicker();
+// Future<Map<String, String>?> captureAndDecodeShutterQr() async {
+//   final picker = ImagePicker();
 
-  final picked = await picker.pickImage(
-    source: ImageSource.camera,
-    imageQuality: 90,
+//   final picked = await picker.pickImage(
+//     source: ImageSource.camera,
+//     imageQuality: 90,
+//   );
+
+//   if (picked == null) return null;
+
+//   final inputImage = InputImage.fromFile(File(picked.path));
+//   final textRecognizer = TextRecognizer();
+
+//   try {
+//     final result = await textRecognizer.processImage(inputImage);
+//     final fullText = result.text;
+
+//     final normalized = fullText.replaceAll(RegExp(r'\s+'), '');
+
+//     final match = RegExp(
+//       r'(\d+\/\d+\/[A-Z]+\/+\d+\/\d+)',
+//     ).firstMatch(normalized);
+
+//     if (match == null) {
+//       return null;
+//     }
+
+//     final extracted = match.group(0)!;
+
+//     return {'qr': extracted, 'imagePath': picked.path};
+//   } finally {
+//     await textRecognizer.close();
+//   }
+// }
+Future<Map<String, dynamic>?> captureAndDecodeShutterQrMulti(
+  BuildContext context,
+) async {
+  final imagePaths = await Navigator.of(context).push<List<String>>(
+    MaterialPageRoute(builder: (_) => const MultiImageCapturePage()),
   );
 
-  if (picked == null) return null;
+  if (imagePaths == null || imagePaths.isEmpty) return null;
 
-  final inputImage = InputImage.fromFile(File(picked.path));
+  final extracted = await _decodeQrFromImage(imagePaths.first);
+  if (extracted == null) return null;
+
+  return {'qr': extracted, 'imagePaths': imagePaths};
+}
+// Future<String?> _decodeQrFromImage(String imagePath) async {
+//   final inputImage = InputImage.fromFile(File(imagePath));
+//   final textRecognizer = TextRecognizer();
+
+//   try {
+//     final result = await textRecognizer.processImage(inputImage);
+//     final fullText = result.text;
+//     final normalized = fullText.replaceAll(RegExp(r'\s+'), '');
+
+//     // final match = RegExp(
+//     //   r'(\d+\/\d+\/[A-Z]+\/+\d+\/\d+)',
+//     // ).firstMatch(normalized);
+//     final match = RegExp(
+//       r'(\d+\/\d+\/[A-Za-z0-9]+(?:\/\d+){2,}(?:\/[A-Za-z0-9]+)*)',
+//     ).firstMatch(normalized);
+
+//     if (match == null) return null;
+//     return match.group(0)!;
+//   } finally {
+//     await textRecognizer.close();
+//   }
+// }
+Future<String?> _decodeQrFromImage(String imagePath) async {
+  final inputImage = InputImage.fromFile(File(imagePath));
   final textRecognizer = TextRecognizer();
+
+  final pattern = RegExp(
+    r'(\d+\/\d+\/[A-Za-z0-9]+(?:\/\d+){2,}(?:\/[A-Za-z0-9]+)*)',
+  );
 
   try {
     final result = await textRecognizer.processImage(inputImage);
-    final fullText = result.text;
 
-    final normalized = fullText.replaceAll(RegExp(r'\s+'), '');
-
-    final match = RegExp(
-      r'(\d+\/\d+\/[A-Z]+\/+\d+\/\d+)',
-    ).firstMatch(normalized);
-
-    if (match == null) {
-      return null;
+    for (final block in result.blocks) {
+      for (final line in block.lines) {
+        final lineText = line.text.replaceAll(RegExp(r'\s+'), '');
+        final match = pattern.firstMatch(lineText);
+        if (match != null) {
+          return match.group(0);
+        }
+      }
+    }
+    final joinedText = result.blocks
+        .expand((b) => b.lines)
+        .map((l) => l.text.trim())
+        .where((t) => t.isNotEmpty)
+        .join('|');
+    final fallbackMatch = pattern.firstMatch(
+      joinedText.replaceAll(RegExp(r'\s+'), ''),
+    );
+    if (fallbackMatch != null) {
+      return fallbackMatch.group(0);
     }
 
-    final extracted = match.group(0)!;
-
-    return {'qr': extracted, 'imagePath': picked.path};
+    return null;
   } finally {
     await textRecognizer.close();
+  }
+}
+class MultiImageCapturePage extends StatefulWidget {
+  const MultiImageCapturePage({super.key});
+
+  @override
+  State<MultiImageCapturePage> createState() => _MultiImageCapturePageState();
+}
+
+class _MultiImageCapturePageState extends State<MultiImageCapturePage> {
+  final List<String> _capturedPaths = [];
+  bool _isCapturing = false;
+
+  Future<void> _captureOne() async {
+    if (_isCapturing) return;
+    setState(() => _isCapturing = true);
+
+    try {
+      final picker = ImagePicker();
+      final picked = await picker.pickImage(
+        source: ImageSource.camera,
+        imageQuality: 90,
+      );
+      if (picked != null) {
+        setState(() => _capturedPaths.add(picked.path));
+      }
+    } finally {
+      if (mounted) setState(() => _isCapturing = false);
+    }
+  }
+
+  void _removeAt(int index) {
+    setState(() => _capturedPaths.removeAt(index));
+  }
+
+  void _done() {
+    Navigator.of(context).pop(_capturedPaths);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF1A3C6B),
+        foregroundColor: Colors.white,
+        title: Text('Upload Shutter Images (${_capturedPaths.length})'),
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: _capturedPaths.isEmpty
+                ? const Center(
+                    child: Text(
+                      'No photos yet.\nTap "Capture Photo" to take one.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: Color(0xFF64748B)),
+                    ),
+                  )
+                : GridView.builder(
+                    padding: const EdgeInsets.all(12),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3,
+                      crossAxisSpacing: 8,
+                      mainAxisSpacing: 8,
+                    ),
+                    itemCount: _capturedPaths.length,
+                    itemBuilder: (_, index) {
+                      final path = _capturedPaths[index];
+                      return Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Image.file(File(path), fit: BoxFit.cover),
+                          ),
+                          if (index == 0)
+                            Positioned(
+                              left: 4,
+                              top: 4,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 6,
+                                  vertical: 2,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF2563EB),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: const Text(
+                                  'QR',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          Positioned(
+                            right: 2,
+                            top: 2,
+                            child: GestureDetector(
+                              onTap: () => _removeAt(index),
+                              child: Container(
+                                padding: const EdgeInsets.all(2),
+                                decoration: const BoxDecoration(
+                                  color: Colors.black54,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.close,
+                                  size: 16,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+          ),
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: _isCapturing ? null : _captureOne,
+                      icon: const Icon(Icons.camera_alt_outlined),
+                      label: Text(
+                        _capturedPaths.isEmpty
+                            ? 'Capture Photo'
+                            : 'Add Another',
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: const Color(0xFF1A3C6B),
+                        side: const BorderSide(color: Color(0xFF1A3C6B)),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: _capturedPaths.isEmpty ? null : _done,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF2563EB),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      child: const Text(
+                        'Done',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

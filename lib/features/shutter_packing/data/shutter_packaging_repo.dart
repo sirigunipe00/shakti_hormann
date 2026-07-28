@@ -1,5 +1,6 @@
 import 'package:shakti_hormann/core/model/pair.dart';
 import 'package:shakti_hormann/core/utils/typedefs.dart';
+import 'package:shakti_hormann/features/gate_entry/model/attachement.dart';
 import 'package:shakti_hormann/features/pallet_creation/model/pallet_model.dart';
 import 'package:shakti_hormann/features/shutter_packing/model/items.dart';
 import 'package:shakti_hormann/features/shutter_packing/model/pallet_size.dart';
@@ -23,4 +24,5 @@ abstract class ShutterPackingRepo{
   AsyncValueOf<List<PalletModel>> getSales();
   AsyncValueOf<String> printShutterSticker(String shutterPackingId);
   AsyncValueOf<List<String>> getShutterPalletCode(String salesOrder);
+  AsyncValueOf<List<AttachementInvoices>> fetchAttachments(String gateEntryId);
 }

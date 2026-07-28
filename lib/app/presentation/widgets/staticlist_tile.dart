@@ -21,17 +21,22 @@ mixin StatusModeSelectionMixin {
       
       
       case PageMode2.palletCreation:
+       case PageMode2.visionPanel:
+        case PageMode2.shutterPacking:
+        case PageMode2.framePacking:
+        case PageMode2.installation:
+       
       
         filters = ['Draft', 'Submitted', 'All'];
         break;
-        case PageMode2.shutterPacking:
-      case PageMode2.framePacking:
-      filters = ['Submitted'];
-      break;
+       
+      
+      // filters = ['Submitted'];
+      // break;
         case PageMode2.storageAllocation:
         case PageMode2.zoneTransfer:
         case PageMode2.hardwarePackaging:
-        case PageMode2.visionPanel:
+        
         filters = ['Completed'];
         break;
       case PageMode2.logisticRequest:

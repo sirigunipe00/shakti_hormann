@@ -19,6 +19,8 @@ _$StorageImpl _$$StorageImplFromJson(Map<String, dynamic> json) =>
       zoneName: json['zone_name'] as String?,
       totalQty: (json['total_qty'] as num?)?.toInt(),
       creation: json['creation'] as String?,
+      palletCount: (json['pallet_count'] as num?)?.toInt(),
+      oldZone: json['old_zone_name'] as String?,
       locationPhotoImg: toNull(json['locationPhotoImg']),
       zoneQr: json['zone_qr'] as String?,
       palletBoxQr: json['pallet__box_qr_scan'] as String?,
@@ -37,6 +39,8 @@ Map<String, dynamic> _$$StorageImplToJson(_$StorageImpl instance) =>
       'zone_name': instance.zoneName,
       'total_qty': instance.totalQty,
       'creation': instance.creation,
+      'pallet_count': instance.palletCount,
+      'old_zone_name': instance.oldZone,
       'zone_qr': instance.zoneQr,
       'pallet__box_qr_scan': instance.palletBoxQr,
     };

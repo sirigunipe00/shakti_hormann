@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:injectable/injectable.dart';
 import 'package:path/path.dart' as p;
 import 'package:shakti_hormann/core/core.dart';
+import 'package:shakti_hormann/features/gate_entry/model/attachement.dart';
 import 'package:shakti_hormann/features/pallet_creation/model/pallet_model.dart';
 import 'package:shakti_hormann/features/shutter_packing/data/shutter_packaging_repo.dart';
 import 'package:shakti_hormann/features/shutter_packing/model/items.dart';
@@ -90,36 +91,48 @@ class ShutterPackingRepoImpl extends BaseApiRepository
       });
     });
   }
-    @override
-  AsyncValueOf<List<PalletModel>> getSales() async {
-    return await executeSafely(() async {
-      final reqParams = {
-        'limit_start': 0,
-        'limit_page_length': 'None',
-        'order_by': 'creation desc',
-        'doctype': 'Pallet',
-        'fields': ['sales_order'],
-        // 'filters': jsonEncode(filters),
-      };
+   @override
+AsyncValueOf<List<PalletModel>> getSales() async {
+  return await executeSafely(() async {
+    final reqParams = {
+      'limit_start': 0,
+      'limit_page_length': 'None',
+      'order_by': 'creation desc',
+      'doctype': 'Pallet',
+      'fields': jsonEncode(['sales_order']), 
+    };
 
-      final config = RequestConfig(
-        url: Urls.getList,
+    final config = RequestConfig(
+      url: Urls.getList,
+      parser: (json) {
+        final data = json['message'] as List<dynamic>;
 
-        parser: (json) {
-          final data = json['message'];
-          final listdata = data as List<dynamic>;
-          return listdata.map((e) => PalletModel.fromJson(e)).toList();
-        },
-        reqParams: reqParams,
-        headers: {HttpHeaders.contentTypeHeader: 'application/json'},
-      );
-      $logger.devLog('salesinvoice.....$config');
-      final response = await get(config);
-      return response.processAsync((r) async {
-        return right((r.data!));
-      });
+        final seenSalesOrders = <String>{};
+        final uniqueList = <PalletModel>[];
+
+        for (final item in data) {
+          final model = PalletModel.fromJson(item as Map<String, dynamic>);
+          final salesOrder = model.salesOrder?.trim();
+
+          if (salesOrder != null && salesOrder.isNotEmpty && !seenSalesOrders.contains(salesOrder)) {
+            seenSalesOrders.add(salesOrder);
+            uniqueList.add(model);
+          }
+        }
+
+        return uniqueList;
+      },
+      reqParams: reqParams,
+      headers: {HttpHeaders.contentTypeHeader: 'application/json'},
+    );
+
+    $logger.devLog('salesinvoice.....$config');
+    final response = await get(config);
+    return response.processAsync((r) async {
+      return right(r.data!);
     });
-  }
+  });
+}
 
   @override
   AsyncValueOf<List<Items>> fetchItems(String itemName, String index) async {
@@ -224,94 +237,236 @@ AsyncValueOf<List<String>> getShutterPalletCode(String salesOrder) async {
 
   return response.processAsync((r) async => right(r.data!));
 }
-  @override
-  AsyncValueOf<Pair<String, String>> createShutter(
-    ShutterPacking form,
-    List<ShutterLines> lines,
+  // @override
+  // AsyncValueOf<Pair<String, String>> createShutter(
+  //   ShutterPacking form,
+  //   List<ShutterLines> lines,
+  // ) async {
+  //   final formJson = form.toJson();
+  //   formJson['status'] = 'Draft';
+
+  //   final Map<String, dynamic> requestBody = {
+  //     'sales_order': form.salesOrder,
+  //     'pallet_code': form.palletCode,
+  //     'items': lines,
+  //   };
+
+  //   final config = RequestConfig(
+  //     url: Urls.createShutter,
+  //     parser: (json) {
+  //       final message = json['message']['message'] as String;
+
+  //       final data = json['message']['data'] as Map<String, dynamic>;
+
+  //       final docNo = data['shutter_packing_id'] as String;
+
+  //       return Pair(message, docNo);
+  //     },
+  //     body: jsonEncode(requestBody),
+  //     headers: {HttpHeaders.contentTypeHeader: 'application/json'},
+  //   );
+
+  //   $logger.devLog('requestConfig.....$config');
+
+  //   final response = await post(config);
+  //   return response.processAsync((r) async {
+  //     return right(Pair(r.data!.first, r.data!.second));
+  //   });
+  // }
+    @override
+  AsyncValueOf<List<AttachementInvoices>> fetchAttachments(
+    String gateEntryId,
   ) async {
-    final formJson = form.toJson();
-    formJson['status'] = 'Draft';
+    return await executeSafely(() async {
+      final filters = [
+        ['attached_to_doctype', '=', 'Shutter Packing'],
+        ['attached_to_name', '=', gateEntryId],
+        // ['attached_to_field', '=', 'vendor_invoice_photo'],
+      ];
 
-    final Map<String, dynamic> requestBody = {
-      'sales_order': form.salesOrder,
-      'pallet_code': form.palletCode,
-      'items': lines,
-    };
+      final config = RequestConfig(
+        url: Urls.getList,
+        parser: (json) {
+          final data = json['message'] as List<dynamic>;
+          return data.map((e) => AttachementInvoices.fromJson(e)).toList();
+        },
+        reqParams: {
+          'doctype': 'File',
+          'filters': jsonEncode(filters),
+          'fields': jsonEncode([
+            'file_url',
+            'attached_to_doctype',
+            'attached_to_name',
+            'attached_to_field',
+          ]),
+        },
+      );
 
-    final config = RequestConfig(
-      url: Urls.createShutter,
-      parser: (json) {
-        final message = json['message']['message'] as String;
-
-        final data = json['message']['data'] as Map<String, dynamic>;
-
-        final docNo = data['shutter_packing_id'] as String;
-
-        return Pair(message, docNo);
-      },
-      body: jsonEncode(requestBody),
-      headers: {HttpHeaders.contentTypeHeader: 'application/json'},
-    );
-
-    $logger.devLog('requestConfig.....$config');
-
-    final response = await post(config);
-    return response.processAsync((r) async {
-      return right(Pair(r.data!.first, r.data!.second));
+      final response = await get(config);
+      $logger.devLog('fetchAttachments response.....$response');
+      return response.process((r) => right(r.data!));
     });
   }
+@override
+AsyncValueOf<Pair<String, String>> createShutter(
+  ShutterPacking form,
+  List<ShutterLines> lines,
+) async {
+  final itemsJson = <Map<String, dynamic>>[];
 
-  @override
-  AsyncValueOf<Pair<String, String>> updateShutter(
-    ShutterPacking form,
-    List<ShutterLines> lines,
-  ) async {
-    final formJson = form.toJson();
-    formJson['status'] = 'Draft';
-    final itemsJson = <Map<String, dynamic>>[];
-
-    for (final line in lines) {
-      String? shutterPhotoBase64;
-
-      if (line.shutterPhotoImg != null) {
+  for (final line in lines) {
+    List<String>? shutterPhotoBase64List;
+    final images = line.shutterPhotoImg;
+    
+    if (images != null && images.isNotEmpty) {
+      shutterPhotoBase64List = [];
+      for (final file in images) {
+        if (!file.existsSync()) continue;
+        
+        // Downscale target width/height and lower quality to prevent RAM bloat
         final compressed = await FlutterImageCompress.compressWithFile(
-          line.shutterPhotoImg!.path,
-          quality: 50,
+          file.path,
+          minWidth: 1024,
+          minHeight: 1024,
+          quality: 40,
         );
-
+        
         if (compressed != null) {
-          shutterPhotoBase64 = base64Encode(compressed);
+          shutterPhotoBase64List.add(base64Encode(compressed));
         }
       }
-
-      final json = line.toJson();
-
-      json['shutter_photo'] = shutterPhotoBase64;
-
-      itemsJson.add(json);
     }
 
-    final requestBody = {'shutter_packing_id': form.name, 'items': itemsJson};
-    final config = RequestConfig(
-      url: Urls.updateShutter,
-      parser: (json) {
-        final data = json['message']['message'] as String;
-
-        return Pair(data, '');
-      },
-
-      body: jsonEncode(requestBody),
-      headers: {HttpHeaders.contentTypeHeader: 'application/json'},
-    );
-
-    $logger.devLog('requestConfig.....$config');
-
-    final response = await post(config);
-    return response.processAsync((r) async {
-      return right(Pair(r.data!.first, r.data!.second));
-    });
+    final json = line.toJson();
+    json['shutter_photo'] = shutterPhotoBase64List;
+    itemsJson.add(json);
   }
 
+  final Map<String, dynamic> requestBody = {
+    'sales_order': form.salesOrder,
+    'pallet_code': form.palletCode,
+    'items': itemsJson, 
+  };
+
+  final config = RequestConfig(
+    url: Urls.createShutter,
+    parser: (json) {
+      final message = json['message']['message'] as String;
+      final data = json['message']['data'] as Map<String, dynamic>;
+      final docNo = data['shutter_packing_id'] as String;
+      return Pair(message, docNo);
+    },
+    body: jsonEncode(requestBody),
+    headers: {HttpHeaders.contentTypeHeader: 'application/json'},
+  );
+
+  $logger.devLog('requestConfig.....$config');
+
+  final response = await post(config);
+  return response.processAsync((r) async {
+    return right(Pair(r.data!.first, r.data!.second));
+  });
+}
+  // @override
+  // AsyncValueOf<Pair<String, String>> updateShutter(
+  //   ShutterPacking form,
+  //   List<ShutterLines> lines,
+  // ) async {
+  //   final formJson = form.toJson();
+  //   formJson['status'] = 'Draft';
+  //   final itemsJson = <Map<String, dynamic>>[];
+
+  //   for (final line in lines) {
+  //     String? shutterPhotoBase64;
+
+  //     if (line.shutterPhotoImg != null) {
+  //       final compressed = await FlutterImageCompress.compressWithFile(
+  //         line.shutterPhotoImg!.path,
+  //         quality: 50,
+  //       );
+
+  //       if (compressed != null) {
+  //         shutterPhotoBase64 = base64Encode(compressed);
+  //       }
+  //     }
+
+  //     final json = line.toJson();
+
+  //     json['shutter_photo'] = shutterPhotoBase64;
+
+  //     itemsJson.add(json);
+  //   }
+
+  //   final requestBody = {'shutter_packing_id': form.name, 'items': itemsJson};
+  //   final config = RequestConfig(
+  //     url: Urls.updateShutter,
+  //     parser: (json) {
+  //       final data = json['message']['message'] as String;
+
+  //       return Pair(data, '');
+  //     },
+
+  //     body: jsonEncode(requestBody),
+  //     headers: {HttpHeaders.contentTypeHeader: 'application/json'},
+  //   );
+
+  //   $logger.devLog('requestConfig.....$config');
+
+  //   final response = await post(config);
+  //   return response.processAsync((r) async {
+  //     return right(Pair(r.data!.first, r.data!.second));
+  //   });
+  // }
+@override
+AsyncValueOf<Pair<String, String>> updateShutter(
+  ShutterPacking form,
+  List<ShutterLines> lines,
+) async {
+  final formJson = form.toJson();
+  formJson['status'] = 'Draft';
+  final itemsJson = <Map<String, dynamic>>[];
+
+  for (final line in lines) {
+    List<String>? shutterPhotoBase64List;
+
+    final images = line.shutterPhotoImg;
+    if (images != null && images.isNotEmpty) {
+      shutterPhotoBase64List = [];
+      for (final file in images) {
+        final compressed = await FlutterImageCompress.compressWithFile(
+          file.path,
+          quality: 50,
+        );
+        if (compressed != null) {
+          shutterPhotoBase64List.add(base64Encode(compressed));
+        }
+      }
+    }
+
+    final json = line.toJson();
+    json['shutter_photo'] = shutterPhotoBase64List;
+
+    itemsJson.add(json);
+  }
+
+  final requestBody = {'shutter_packing_id': form.name, 'items': itemsJson};
+  final config = RequestConfig(
+    url: Urls.updateShutter,
+    parser: (json) {
+      final data = json['message']['message'] as String;
+      return Pair(data, '');
+    },
+    body: jsonEncode(requestBody),
+    headers: {HttpHeaders.contentTypeHeader: 'application/json'},
+  );
+
+  $logger.devLog('requestConfig.....$config');
+
+  final response = await post(config);
+  return response.processAsync((r) async {
+    return right(Pair(r.data!.first, r.data!.second));
+  });
+}
   @override
   AsyncValueOf<Pair<String, String>> submitShutter(ShutterPacking form) async {
     return await executeSafely(() async {

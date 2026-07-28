@@ -29,8 +29,10 @@ mixin _$CreateFrameState {
   bool get isModified => throw _privateConstructorUsedError;
   bool get isFreezing => throw _privateConstructorUsedError;
   bool get isFrozen => throw _privateConstructorUsedError;
+  bool get isCreatingDoc => throw _privateConstructorUsedError;
   String? get freezeSuccessMsg => throw _privateConstructorUsedError;
   String? get successMsg => throw _privateConstructorUsedError;
+  String? get createSuccessMsg => throw _privateConstructorUsedError;
   Failure? get error => throw _privateConstructorUsedError;
 
   /// Create a copy of CreateFrameState
@@ -60,8 +62,10 @@ abstract class $CreateFrameStateCopyWith<$Res> {
     bool isModified,
     bool isFreezing,
     bool isFrozen,
+    bool isCreatingDoc,
     String? freezeSuccessMsg,
     String? successMsg,
+    String? createSuccessMsg,
     Failure? error,
   });
 
@@ -96,8 +100,10 @@ class _$CreateFrameStateCopyWithImpl<$Res, $Val extends CreateFrameState>
     Object? isModified = null,
     Object? isFreezing = null,
     Object? isFrozen = null,
+    Object? isCreatingDoc = null,
     Object? freezeSuccessMsg = freezed,
     Object? successMsg = freezed,
+    Object? createSuccessMsg = freezed,
     Object? error = freezed,
   }) {
     return _then(
@@ -162,6 +168,11 @@ class _$CreateFrameStateCopyWithImpl<$Res, $Val extends CreateFrameState>
                     ? _value.isFrozen
                     : isFrozen // ignore: cast_nullable_to_non_nullable
                         as bool,
+            isCreatingDoc:
+                null == isCreatingDoc
+                    ? _value.isCreatingDoc
+                    : isCreatingDoc // ignore: cast_nullable_to_non_nullable
+                        as bool,
             freezeSuccessMsg:
                 freezed == freezeSuccessMsg
                     ? _value.freezeSuccessMsg
@@ -171,6 +182,11 @@ class _$CreateFrameStateCopyWithImpl<$Res, $Val extends CreateFrameState>
                 freezed == successMsg
                     ? _value.successMsg
                     : successMsg // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            createSuccessMsg:
+                freezed == createSuccessMsg
+                    ? _value.createSuccessMsg
+                    : createSuccessMsg // ignore: cast_nullable_to_non_nullable
                         as String?,
             error:
                 freezed == error
@@ -229,8 +245,10 @@ abstract class _$$CreateFrameStateImplCopyWith<$Res>
     bool isModified,
     bool isFreezing,
     bool isFrozen,
+    bool isCreatingDoc,
     String? freezeSuccessMsg,
     String? successMsg,
+    String? createSuccessMsg,
     Failure? error,
   });
 
@@ -266,8 +284,10 @@ class __$$CreateFrameStateImplCopyWithImpl<$Res>
     Object? isModified = null,
     Object? isFreezing = null,
     Object? isFrozen = null,
+    Object? isCreatingDoc = null,
     Object? freezeSuccessMsg = freezed,
     Object? successMsg = freezed,
+    Object? createSuccessMsg = freezed,
     Object? error = freezed,
   }) {
     return _then(
@@ -332,6 +352,11 @@ class __$$CreateFrameStateImplCopyWithImpl<$Res>
                 ? _value.isFrozen
                 : isFrozen // ignore: cast_nullable_to_non_nullable
                     as bool,
+        isCreatingDoc:
+            null == isCreatingDoc
+                ? _value.isCreatingDoc
+                : isCreatingDoc // ignore: cast_nullable_to_non_nullable
+                    as bool,
         freezeSuccessMsg:
             freezed == freezeSuccessMsg
                 ? _value.freezeSuccessMsg
@@ -341,6 +366,11 @@ class __$$CreateFrameStateImplCopyWithImpl<$Res>
             freezed == successMsg
                 ? _value.successMsg
                 : successMsg // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        createSuccessMsg:
+            freezed == createSuccessMsg
+                ? _value.createSuccessMsg
+                : createSuccessMsg // ignore: cast_nullable_to_non_nullable
                     as String?,
         error:
             freezed == error
@@ -368,8 +398,10 @@ class _$CreateFrameStateImpl implements _CreateFrameState {
     this.isModified = false,
     this.isFreezing = false,
     this.isFrozen = false,
+    this.isCreatingDoc = false,
     this.freezeSuccessMsg,
     this.successMsg,
+    this.createSuccessMsg,
     this.error,
   }) : _lines = lines,
        _newLines = newLines,
@@ -424,15 +456,20 @@ class _$CreateFrameStateImpl implements _CreateFrameState {
   @JsonKey()
   final bool isFrozen;
   @override
+  @JsonKey()
+  final bool isCreatingDoc;
+  @override
   final String? freezeSuccessMsg;
   @override
   final String? successMsg;
+  @override
+  final String? createSuccessMsg;
   @override
   final Failure? error;
 
   @override
   String toString() {
-    return 'CreateFrameState(form: $form, isLoading: $isLoading, lines: $lines, isSuccess: $isSuccess, newLines: $newLines, palletCodes: $palletCodes, view: $view, isPrinting: $isPrinting, printSuccessMsg: $printSuccessMsg, isModified: $isModified, isFreezing: $isFreezing, isFrozen: $isFrozen, freezeSuccessMsg: $freezeSuccessMsg, successMsg: $successMsg, error: $error)';
+    return 'CreateFrameState(form: $form, isLoading: $isLoading, lines: $lines, isSuccess: $isSuccess, newLines: $newLines, palletCodes: $palletCodes, view: $view, isPrinting: $isPrinting, printSuccessMsg: $printSuccessMsg, isModified: $isModified, isFreezing: $isFreezing, isFrozen: $isFrozen, isCreatingDoc: $isCreatingDoc, freezeSuccessMsg: $freezeSuccessMsg, successMsg: $successMsg, createSuccessMsg: $createSuccessMsg, error: $error)';
   }
 
   @override
@@ -462,10 +499,14 @@ class _$CreateFrameStateImpl implements _CreateFrameState {
                 other.isFreezing == isFreezing) &&
             (identical(other.isFrozen, isFrozen) ||
                 other.isFrozen == isFrozen) &&
+            (identical(other.isCreatingDoc, isCreatingDoc) ||
+                other.isCreatingDoc == isCreatingDoc) &&
             (identical(other.freezeSuccessMsg, freezeSuccessMsg) ||
                 other.freezeSuccessMsg == freezeSuccessMsg) &&
             (identical(other.successMsg, successMsg) ||
                 other.successMsg == successMsg) &&
+            (identical(other.createSuccessMsg, createSuccessMsg) ||
+                other.createSuccessMsg == createSuccessMsg) &&
             (identical(other.error, error) || other.error == error));
   }
 
@@ -484,8 +525,10 @@ class _$CreateFrameStateImpl implements _CreateFrameState {
     isModified,
     isFreezing,
     isFrozen,
+    isCreatingDoc,
     freezeSuccessMsg,
     successMsg,
+    createSuccessMsg,
     error,
   );
 
@@ -515,8 +558,10 @@ abstract class _CreateFrameState implements CreateFrameState {
     final bool isModified,
     final bool isFreezing,
     final bool isFrozen,
+    final bool isCreatingDoc,
     final String? freezeSuccessMsg,
     final String? successMsg,
+    final String? createSuccessMsg,
     final Failure? error,
   }) = _$CreateFrameStateImpl;
 
@@ -545,9 +590,13 @@ abstract class _CreateFrameState implements CreateFrameState {
   @override
   bool get isFrozen;
   @override
+  bool get isCreatingDoc;
+  @override
   String? get freezeSuccessMsg;
   @override
   String? get successMsg;
+  @override
+  String? get createSuccessMsg;
   @override
   Failure? get error;
 

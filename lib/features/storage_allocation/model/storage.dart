@@ -20,6 +20,8 @@ class Storage with _$Storage {
     @JsonKey(name: 'zone_name') String? zoneName,
     @JsonKey(name: 'total_qty') int? totalQty,
     @JsonKey(name: 'creation') String? creation,
+    @JsonKey(name: 'pallet_count') int? palletCount,
+    @JsonKey(name: 'old_zone_name') String? oldZone,
     @JsonKey(
       includeFromJson: true,
       includeToJson: false,

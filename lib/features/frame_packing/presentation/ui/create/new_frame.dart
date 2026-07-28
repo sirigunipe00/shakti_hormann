@@ -21,109 +21,142 @@ class NewFrame extends StatefulWidget {
 class _NewFrameState extends State<NewFrame> {
   @override
   Widget build(BuildContext context) {
-    final gateEntryState = context.read<CreateFrameCubit>().state;
-    final newform = gateEntryState.form;
-    final status = newform.docStatus;
-    final name = newform.name;
-    return Scaffold(
-      backgroundColor: AppColors.white,
-      appBar:
-          status == null
-              ? SimpleAppBar(
-                title: 'New Frame Packing',
-                actionButton: BlocBuilder<CreateFrameCubit, CreateFrameState>(
-                  builder: (context, state) {
-                    return AppButton(
-                      borderColor: Colors.grey,
-                      bgColor:
-                          state.view == FrameView.create
-                              ? const Color.fromARGB(255, 250, 193, 47)
-                              : AppColors.green,
-                      textStyle: const TextStyle(
-                        color: AppColors.darkBlue,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 15,
-                      ),
-                      isLoading: state.isLoading,
-                      label: state.view.toName(),
-                      onPressed: () {
-                        context.cubit<CreateFrameCubit>().save();
-                      },
-                    );
-                  },
-                ),
-              )
-              : TitleStatusAppBar(
-                    title: '  $name',
-                    status: StringUtils.docStatus(status),
-                    textColor: AppColors.white,
-                    pageMode: PageMode2.framePacking,
-                    onSubmit: () {},
-                    onReject: () {},
-                    actionButton:
-                        (status == 1 && !gateEntryState.isModified)
-                            ? null
-                            : BlocBuilder<CreateFrameCubit, CreateFrameState>(
-                              builder: (context, state) {
-                                return AppButton(
-                                  borderColor: Colors.grey,
-                                  isLoading: state.isLoading,
-                                  label:
-                                      state.newLines.isNotEmpty
-                                          ? 'Update'
-                                          : 'Submit',
-                                  onPressed: () {
-                                    context.cubit<CreateFrameCubit>().save();
-                                  },
-                                );
-                              },
+    return BlocBuilder<CreateFrameCubit, CreateFrameState>(
+      builder: (context, gateEntryState) {
+        final gateEntryState = context.read<CreateFrameCubit>().state;
+        final newform = gateEntryState.form;
+        final status = newform.docStatus;
+        final name = newform.name;
+        return Scaffold(
+          backgroundColor: AppColors.white,
+          appBar:
+              status == null
+                  ? SimpleAppBar(
+                    title: 'New Frame Packing',
+                    actionButton: BlocBuilder<CreateFrameCubit,CreateFrameState>(
+                      builder: (context, state) {
+                        final isDocCreated =
+                            state.form.name != null &&
+                            state.form.name!.isNotEmpty;
+                        if (!isDocCreated) {
+                          final canCreate =
+                              (state.form.salesOrder?.isNotEmpty ?? false) &&
+                              (state.form.palletCode?.isNotEmpty ?? false) &&
+                              !state.isCreatingDoc;
+                          return AppButton(
+                            borderColor: Colors.grey,
+                            bgColor:
+                                canCreate
+                                    ? const Color.fromARGB(255, 250, 193, 47)
+                                    : const Color(0xFFCBD5E1),
+                            textStyle: const TextStyle(
+                              color: AppColors.darkBlue,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15,
                             ),
+                            isLoading: state.isLoading,
+                            label: 'Save',
+                            onPressed:
+                                canCreate
+                                    ? () {
+                                      context
+                                          .cubit<CreateFrameCubit>()
+                                          .createDocument();
+                                    }
+                                    : null,
+                          );
+                        }
+                        return const SizedBox.shrink();
+                      },
+                    ),
                   )
-                  as PreferredSizeWidget,
-      body: BlocListener<CreateFrameCubit, CreateFrameState>(
-        listener: (_, state) async {
-          if (state.isSuccess && state.successMsg.isNotNull) {
-            AppDialog.showSuccessDialog(
-              context,
-              title: 'Success',
-              content: state.successMsg.valueOrEmpty,
-              onTapDismiss: () {
-                Navigator.of(context, rootNavigator: true).pop();
-                shouldAskForConfirmation.value = false;
-                context.exit();
-              },
-            ).then((_) {
-              final docName = state.form.name;
-              if (!context.mounted) return;
-              context.cubit<CreateFrameCubit>().errorHandled();
-              context.cubit<FrameLinesCubit>().request(docName);
-              final gateEntryFilters = context.read<FrameFliterCubit>().state;
-              context.cubit<FrameCubit>().fetchInitial(
-                Pair(
-                  StringUtils.docStatusInt(gateEntryFilters.status),
-                  gateEntryFilters.query,
-                ),
-              );
-              Navigator.pop(context, true);
-              setState(() {});
-            });
-          }
-          if (state.error.isNotNull) {
-            await AppDialog.showErrorDialog(
-              context,
-              title: state.error?.title,
-              content: state.error!.error,
-              onTapDismiss: context.exit,
-            );
-            if (!context.mounted) return;
-            context.cubit<CreateFrameCubit>().errorHandled();
-          }
-        },
-        child: BlocProvider(
-          create: (context) => FrameBlocProvider.get().getFrameItems(),
-          child: FrameFormWidget(key: ValueKey(status)),
-        ),
-      ),
+                  : TitleStatusAppBar(
+                        title: '  $name',
+                        status: StringUtils.docStatus(status),
+                        textColor: AppColors.white,
+                        pageMode: PageMode2.framePacking,
+                        onSubmit: () {},
+                        onReject: () {},
+                        actionButton:
+                            (status == 1 && !gateEntryState.isModified)
+                                ? null
+                                : BlocBuilder<CreateFrameCubit,CreateFrameState>(
+                                  builder: (context, state) {
+                                    final isPrinted =
+                                        state.form.palletQrPrinted == 1;
+                                    return AppButton(
+                                      borderColor: Colors.grey,
+                                      bgColor:
+                                          !isPrinted
+                                              ? const Color(0xFFCBD5E1)
+                                              : AppColors.green,
+                                      isLoading: state.isLoading,
+                                      label:
+                                          state.newLines.isNotEmpty
+                                              ? 'Update'
+                                              : 'Submit',
+                                      onPressed:
+                                          isPrinted
+                                              ? () {
+                                                context
+                                                    .cubit<CreateFrameCubit>()
+                                                    .save();
+                                              }
+                                              : null,
+                                    );
+                                  },
+                                ),
+                      )
+                      as PreferredSizeWidget,
+          body: BlocListener<CreateFrameCubit, CreateFrameState>(
+            listener: (_, state) async {
+              if (state.isSuccess && state.successMsg.isNotNull) {
+                AppDialog.showSuccessDialog(
+                  context,
+                  title: 'Success',
+                  content: state.successMsg.valueOrEmpty,
+                  onTapDismiss: () {
+                    Navigator.of(context, rootNavigator: true).pop();
+                  },
+                ).then((_) {
+                  if (!context.mounted) return;
+
+                  final docName = state.form.name;
+                  context.cubit<CreateFrameCubit>().errorHandled();
+                  context.cubit<FrameLinesCubit>().request(docName);
+
+                  final gateEntryFilters =
+                      context.read<FrameFliterCubit>().state;
+                  context.cubit<FrameCubit>().fetchInitial(
+                    Pair(
+                      StringUtils.docStatusInt(gateEntryFilters.status),
+                      gateEntryFilters.query,
+                    ),
+                  );
+
+                  shouldAskForConfirmation.value = false;
+
+                  Navigator.pop(context, true);
+                });
+              }
+              if (state.error.isNotNull) {
+                await AppDialog.showErrorDialog(
+                  context,
+                  title: state.error?.title,
+                  content: state.error!.error,
+                  onTapDismiss: context.exit,
+                );
+                if (!context.mounted) return;
+                context.cubit<CreateFrameCubit>().errorHandled();
+              }
+            },
+            child: BlocProvider(
+              create: (context) => FrameBlocProvider.get().getFrameItems(),
+              child: FrameFormWidget(key: ValueKey(status)),
+            ),
+          ),
+        );
+      },
     );
   }
 }

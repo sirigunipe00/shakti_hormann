@@ -95,38 +95,7 @@ class __ZoneFormWidgetState extends State<ZoneFormWidget> {
 
             const SizedBox(height: 20),
 
-            const SectionHeader(
-              title: 'Allocated New Zone Photo',
-              assetIcon: 'assets/images/phot.svg',
-            ),
-
-            DashedBorderBox(
-              borderRadius: 12,
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Column(
-                  children: [
-                   NewUploadPhotoWidget(
-                      fileName: 'zone_icon',
-                      imageUrl: newform.locationPhoto,
-                      title: 'New Zone Image',
-                      isRequired: true,
-                      isReadOnly: isCompleted,
-                      onFileCapture: (file) {
-                        context.cubit<CreateZoneCubit>().onValueChanged(
-                          zonePhoto: file,
-                        );
-                      },
-                    ),
-                  ],
-                ),
-              ),
-            ),
+            
 
             const SizedBox(height: 20),
 
@@ -238,7 +207,40 @@ class __ZoneFormWidgetState extends State<ZoneFormWidget> {
                         );
                       },
                       focusNode: focusNodes.elementAt(13),
-                    )
+                    ),
+            //          const SectionHeader(
+            //   title: 'Allocated New Zone Photo',
+            //   assetIcon: 'assets/images/phot.svg',
+            // ),
+
+            DashedBorderBox(
+              borderRadius: 12,
+              child: 
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  children: [
+                   NewUploadPhotoWidget(
+                      fileName: 'zone_icon',
+                      imageUrl: newform.locationPhoto,
+                      title: 'New Zone Image',
+                      isRequired: true,
+                      isReadOnly: isCompleted,
+                      onFileCapture: (file) {
+                        context.cubit<CreateZoneCubit>().onValueChanged(
+                          zonePhoto: file,
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ),
 
                   ],
                 ),

@@ -41,6 +41,7 @@ class _AppHomePageState extends State<AppHomePage> {
         AppRoute.gateEntry.push<bool?>(context);
       },
       permissionSelector: (roleStatus) => roleStatus?.showGateEntry,
+      section: DashboardSection.logistics,
     ),
     DashboardItem(
       title: 'Gate Exit',
@@ -49,6 +50,7 @@ class _AppHomePageState extends State<AppHomePage> {
         AppRoute.gatexit.push<bool?>(context);
       },
       permissionSelector: (roleStatus) => roleStatus?.showGateExit,
+      section: DashboardSection.logistics,
     ),
     DashboardItem(
       title: 'Logistic Request',
@@ -57,6 +59,7 @@ class _AppHomePageState extends State<AppHomePage> {
         AppRoute.logisticRequest.push<bool?>(context);
       },
       permissionSelector: (roleStatus) => roleStatus?.showLogisticRequest,
+      section: DashboardSection.logistics,
     ),
     DashboardItem(
       title: 'Transport\nConfirmation',
@@ -66,6 +69,7 @@ class _AppHomePageState extends State<AppHomePage> {
       },
       permissionSelector:
           (roleStatus) => roleStatus?.showTransporterConfirmation,
+      section: DashboardSection.logistics,
     ),
     DashboardItem(
       title: 'Vehicle Reporting\nEntry',
@@ -74,6 +78,7 @@ class _AppHomePageState extends State<AppHomePage> {
         AppRoute.vehcileReporting.push<bool?>(context);
       },
       permissionSelector: (roleStatus) => roleStatus?.showVehicleReporting,
+      section: DashboardSection.logistics,
     ),
     DashboardItem(
       title: 'Dispatch\nLoading',
@@ -82,6 +87,7 @@ class _AppHomePageState extends State<AppHomePage> {
         AppRoute.loadingConfirmation.push<bool?>(context);
       },
       permissionSelector: (roleStatus) => roleStatus?.showLoadingConfirmation,
+      section: DashboardSection.logistics,
     ),
     DashboardItem(
       title: 'Proof Of Delivery',
@@ -90,6 +96,7 @@ class _AppHomePageState extends State<AppHomePage> {
         AppRoute.proofOfDelivery.push<bool?>(context);
       },
       permissionSelector: (roleStatus) => roleStatus?.showpod,
+      section: DashboardSection.logistics,
     ),
     DashboardItem(
       title: 'Gate Management',
@@ -99,6 +106,17 @@ class _AppHomePageState extends State<AppHomePage> {
         AppRoute.gateManagement.push<bool?>(context);
       },
       permissionSelector: (roleStatus) => roleStatus?.showgateManagement,
+      section: DashboardSection.logistics,
+    ),
+    DashboardItem(
+      title: 'Pallet Creation',
+      icon: AppIcons.pallet,
+      iconSize: const Size(140, 80),
+      onTap: (context) {
+        AppRoute.palletCreation.push<bool?>(context);
+      },
+      section: DashboardSection.scanningPackaging,
+      // permissionSelector: (roleStatus) => roleStatus?.showgateManagement,
     ),
     DashboardItem(
       title: 'Shutter Packaging',
@@ -107,7 +125,8 @@ class _AppHomePageState extends State<AppHomePage> {
       onTap: (context) {
         AppRoute.shutterPackaging.push<bool?>(context);
       },
-      permissionSelector: (roleStatus) => roleStatus?.showgateManagement,
+      section: DashboardSection.scanningPackaging,
+      // permissionSelector: (roleStatus) => roleStatus?.showgateManagement,
     ),
     DashboardItem(
       title: 'Frame Packaging',
@@ -116,16 +135,18 @@ class _AppHomePageState extends State<AppHomePage> {
       onTap: (context) {
         AppRoute.framePackaging.push<bool?>(context);
       },
-      permissionSelector: (roleStatus) => roleStatus?.showgateManagement,
+      section: DashboardSection.scanningPackaging,
+      // permissionSelector: (roleStatus) => roleStatus?.showgateManagement,
     ),
     DashboardItem(
-      title: 'Storage Allocation',
+      title: 'Zone / Storage',
       icon: AppIcons.storage,
       iconSize: const Size(140, 80),
       onTap: (context) {
         AppRoute.storageAllocation.push<bool?>(context);
       },
-      permissionSelector: (roleStatus) => roleStatus?.showgateManagement,
+      section: DashboardSection.scanningPackaging,
+      // permissionSelector: (roleStatus) => roleStatus?.showgateManagement,
     ),
     // DashboardItem(
     //   title: 'Zone Transfer',
@@ -136,15 +157,27 @@ class _AppHomePageState extends State<AppHomePage> {
     //   },
     //   permissionSelector: (roleStatus) => roleStatus?.showgateManagement,
     // ),
-     DashboardItem(
-      title: 'Pallet Creation',
-      icon: AppIcons.pallet,
+    DashboardItem(
+      title: 'Installation Packing',
+      icon: AppIcons.installation,
       iconSize: const Size(140, 80),
       onTap: (context) {
-        AppRoute.palletCreation.push<bool?>(context);
+        AppRoute.installation.push<bool?>(context);
       },
-      permissionSelector: (roleStatus) => roleStatus?.showgateManagement,
+      section: DashboardSection.scanningPackaging,
+      // permissionSelector: (roleStatus) => roleStatus?.showgateManagement,
     ),
+    DashboardItem(
+      title: 'Accessories Packing',
+      icon: AppIcons.accessories,
+      iconSize: const Size(140, 80),
+      onTap: (context) {
+        AppRoute.visionPanel.push<bool?>(context);
+      },
+      section: DashboardSection.scanningPackaging,
+      // permissionSelector: (roleStatus) => roleStatus?.showgateManagement,
+    ),
+
     DashboardItem(
       title: 'Hardware Packaging',
       icon: AppIcons.hardware,
@@ -152,9 +185,9 @@ class _AppHomePageState extends State<AppHomePage> {
       onTap: (context) {
         AppRoute.hardwarePackaging.push<bool?>(context);
       },
-      permissionSelector: (roleStatus) => roleStatus?.showgateManagement,
+      section: DashboardSection.scanningPackaging,
+      // permissionSelector: (roleStatus) => roleStatus?.showgateManagement,
     ),
-   
   ];
 
   Widget buildDashboardCard(DashboardItem item) {
@@ -209,8 +242,15 @@ class _AppHomePageState extends State<AppHomePage> {
     }
     final roleStatus = user?.roleStatus;
     final visibleItems =
-        dashboardItems
-            .where((item) => item.permissionSelector(roleStatus) == 1)
+        dashboardItems.where((item) => item.canShow(roleStatus)).toList();
+    final logisticsItems =
+        visibleItems
+            .where((e) => e.section == DashboardSection.logistics)
+            .toList();
+
+    final scanningItems =
+        visibleItems
+            .where((e) => e.section == DashboardSection.scanningPackaging)
             .toList();
     return Scaffold(
       backgroundColor: const Color(0xFFF7F8FA),
@@ -363,7 +403,7 @@ class _AppHomePageState extends State<AppHomePage> {
                         GridView.builder(
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
-                          itemCount: 8,
+                          itemCount: logisticsItems.length,
                           gridDelegate:
                               const SliverGridDelegateWithFixedCrossAxisCount(
                                 crossAxisCount: 2,
@@ -372,7 +412,7 @@ class _AppHomePageState extends State<AppHomePage> {
                                 mainAxisSpacing: 16,
                               ),
                           itemBuilder: (context, index) {
-                            return buildDashboardCard(visibleItems[index]);
+                            return buildDashboardCard(logisticsItems[index]);
                           },
                         ),
                         const SizedBox(height: 20),
@@ -388,7 +428,7 @@ class _AppHomePageState extends State<AppHomePage> {
                         GridView.builder(
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
-                          itemCount: visibleItems.length - 8,
+                          itemCount: scanningItems.length,
                           gridDelegate:
                               const SliverGridDelegateWithFixedCrossAxisCount(
                                 crossAxisCount: 2,
@@ -397,7 +437,7 @@ class _AppHomePageState extends State<AppHomePage> {
                                 mainAxisSpacing: 16,
                               ),
                           itemBuilder: (context, index) {
-                            return buildDashboardCard(visibleItems[index + 8]);
+                            return buildDashboardCard(scanningItems[index]);
                           },
                         ),
                       ],

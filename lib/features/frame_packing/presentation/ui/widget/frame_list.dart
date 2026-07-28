@@ -24,7 +24,7 @@ class _FrameListScrnState extends State<FrameListScrn> {
     @override
   void initState() {
     status = 'Draft';
-    context.read<FrameFliterCubit>().onChangeStatus('Submitted');
+    context.read<FrameFliterCubit>().onChangeStatus('Draft');
     context.read<FrameFliterCubit>().onSearch(null);
     super.initState();
   }

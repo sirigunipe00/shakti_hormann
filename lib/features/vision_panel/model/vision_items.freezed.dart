@@ -45,6 +45,8 @@ mixin _$VisionItems {
   String? get productType => throw _privateConstructorUsedError;
   @JsonKey(name: 'no_of_boxes')
   int? get noOfBoxes => throw _privateConstructorUsedError;
+  @JsonKey(name: 'print_check')
+  int? get printCheck => throw _privateConstructorUsedError;
 
   /// Serializes this VisionItems to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -76,6 +78,7 @@ abstract class $VisionItemsCopyWith<$Res> {
     @JsonKey(name: 'parenttype') String? parentType,
     @JsonKey(name: 'product_type') String? productType,
     @JsonKey(name: 'no_of_boxes') int? noOfBoxes,
+    @JsonKey(name: 'print_check') int? printCheck,
   });
 }
 
@@ -106,6 +109,7 @@ class _$VisionItemsCopyWithImpl<$Res, $Val extends VisionItems>
     Object? parentType = freezed,
     Object? productType = freezed,
     Object? noOfBoxes = freezed,
+    Object? printCheck = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -169,6 +173,11 @@ class _$VisionItemsCopyWithImpl<$Res, $Val extends VisionItems>
                     ? _value.noOfBoxes
                     : noOfBoxes // ignore: cast_nullable_to_non_nullable
                         as int?,
+            printCheck:
+                freezed == printCheck
+                    ? _value.printCheck
+                    : printCheck // ignore: cast_nullable_to_non_nullable
+                        as int?,
           )
           as $Val,
     );
@@ -197,6 +206,7 @@ abstract class _$$VisionItemsImplCopyWith<$Res>
     @JsonKey(name: 'parenttype') String? parentType,
     @JsonKey(name: 'product_type') String? productType,
     @JsonKey(name: 'no_of_boxes') int? noOfBoxes,
+    @JsonKey(name: 'print_check') int? printCheck,
   });
 }
 
@@ -226,6 +236,7 @@ class __$$VisionItemsImplCopyWithImpl<$Res>
     Object? parentType = freezed,
     Object? productType = freezed,
     Object? noOfBoxes = freezed,
+    Object? printCheck = freezed,
   }) {
     return _then(
       _$VisionItemsImpl(
@@ -289,6 +300,11 @@ class __$$VisionItemsImplCopyWithImpl<$Res>
                 ? _value.noOfBoxes
                 : noOfBoxes // ignore: cast_nullable_to_non_nullable
                     as int?,
+        printCheck:
+            freezed == printCheck
+                ? _value.printCheck
+                : printCheck // ignore: cast_nullable_to_non_nullable
+                    as int?,
       ),
     );
   }
@@ -310,6 +326,7 @@ class _$VisionItemsImpl implements _VisionItems {
     @JsonKey(name: 'parenttype') this.parentType,
     @JsonKey(name: 'product_type') this.productType,
     @JsonKey(name: 'no_of_boxes') this.noOfBoxes,
+    @JsonKey(name: 'print_check') this.printCheck,
   });
 
   factory _$VisionItemsImpl.fromJson(Map<String, dynamic> json) =>
@@ -351,10 +368,13 @@ class _$VisionItemsImpl implements _VisionItems {
   @override
   @JsonKey(name: 'no_of_boxes')
   final int? noOfBoxes;
+  @override
+  @JsonKey(name: 'print_check')
+  final int? printCheck;
 
   @override
   String toString() {
-    return 'VisionItems(name: $name, owner: $owner, creation: $creation, modified: $modified, modifiedBy: $modifiedBy, docStatus: $docStatus, idx: $idx, parent: $parent, parentField: $parentField, parentType: $parentType, productType: $productType, noOfBoxes: $noOfBoxes)';
+    return 'VisionItems(name: $name, owner: $owner, creation: $creation, modified: $modified, modifiedBy: $modifiedBy, docStatus: $docStatus, idx: $idx, parent: $parent, parentField: $parentField, parentType: $parentType, productType: $productType, noOfBoxes: $noOfBoxes, printCheck: $printCheck)';
   }
 
   @override
@@ -381,7 +401,9 @@ class _$VisionItemsImpl implements _VisionItems {
             (identical(other.productType, productType) ||
                 other.productType == productType) &&
             (identical(other.noOfBoxes, noOfBoxes) ||
-                other.noOfBoxes == noOfBoxes));
+                other.noOfBoxes == noOfBoxes) &&
+            (identical(other.printCheck, printCheck) ||
+                other.printCheck == printCheck));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -400,6 +422,7 @@ class _$VisionItemsImpl implements _VisionItems {
     parentType,
     productType,
     noOfBoxes,
+    printCheck,
   );
 
   /// Create a copy of VisionItems
@@ -430,6 +453,7 @@ abstract class _VisionItems implements VisionItems {
     @JsonKey(name: 'parenttype') final String? parentType,
     @JsonKey(name: 'product_type') final String? productType,
     @JsonKey(name: 'no_of_boxes') final int? noOfBoxes,
+    @JsonKey(name: 'print_check') final int? printCheck,
   }) = _$VisionItemsImpl;
 
   factory _VisionItems.fromJson(Map<String, dynamic> json) =
@@ -471,6 +495,9 @@ abstract class _VisionItems implements VisionItems {
   @override
   @JsonKey(name: 'no_of_boxes')
   int? get noOfBoxes;
+  @override
+  @JsonKey(name: 'print_check')
+  int? get printCheck;
 
   /// Create a copy of VisionItems
   /// with the given fields replaced by the non-null parameter values.

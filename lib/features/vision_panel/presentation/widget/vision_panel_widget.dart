@@ -149,7 +149,7 @@ class VisionPanelWidget extends StatelessWidget {
                 Text('Quantity : ${vision.totalBoxes} Units',
                 style: const TextStyle(color: Colors.orange,fontWeight: FontWeight.bold,fontSize: 15),),
                 DocStatusWidget(
-                  status: StringUtils.framePackingStatus(vision.docStatus ?? 0),
+                  status: StringUtils.docStatus(vision.docStatus ?? 0),
                 ),
               ],
             ),

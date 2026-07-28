@@ -54,15 +54,14 @@ mixin _$FrameLines {
   String? get customer => throw _privateConstructorUsedError;
   @JsonKey(name: 'scan_time')
   String? get scanTime => throw _privateConstructorUsedError;
-  @JsonKey(name: 'frame_photo')
-  String? get shutterPhoto => throw _privateConstructorUsedError;
   @JsonKey(
-    includeFromJson: true,
-    includeToJson: false,
-    toJson: toNull,
-    fromJson: toNull,
+    name: 'frame_photo',
+    fromJson: _photosFromJson,
+    toJson: _photosToJson,
   )
-  File? get shutterPhotoImg => throw _privateConstructorUsedError;
+  List<String>? get shutterPhoto => throw _privateConstructorUsedError;
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  List<File>? get shutterPhotoImg => throw _privateConstructorUsedError;
 
   /// Serializes this FrameLines to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -99,14 +98,14 @@ abstract class $FrameLinesCopyWith<$Res> {
     @JsonKey(name: 'sales_order') String? salesOrder,
     @JsonKey(name: 'customer') String? customer,
     @JsonKey(name: 'scan_time') String? scanTime,
-    @JsonKey(name: 'frame_photo') String? shutterPhoto,
     @JsonKey(
-      includeFromJson: true,
-      includeToJson: false,
-      toJson: toNull,
-      fromJson: toNull,
+      name: 'frame_photo',
+      fromJson: _photosFromJson,
+      toJson: _photosToJson,
     )
-    File? shutterPhotoImg,
+    List<String>? shutterPhoto,
+    @JsonKey(includeFromJson: false, includeToJson: false)
+    List<File>? shutterPhotoImg,
   });
 }
 
@@ -236,12 +235,12 @@ class _$FrameLinesCopyWithImpl<$Res, $Val extends FrameLines>
                 freezed == shutterPhoto
                     ? _value.shutterPhoto
                     : shutterPhoto // ignore: cast_nullable_to_non_nullable
-                        as String?,
+                        as List<String>?,
             shutterPhotoImg:
                 freezed == shutterPhotoImg
                     ? _value.shutterPhotoImg
                     : shutterPhotoImg // ignore: cast_nullable_to_non_nullable
-                        as File?,
+                        as List<File>?,
           )
           as $Val,
     );
@@ -275,14 +274,14 @@ abstract class _$$FrameLinesImplCopyWith<$Res>
     @JsonKey(name: 'sales_order') String? salesOrder,
     @JsonKey(name: 'customer') String? customer,
     @JsonKey(name: 'scan_time') String? scanTime,
-    @JsonKey(name: 'frame_photo') String? shutterPhoto,
     @JsonKey(
-      includeFromJson: true,
-      includeToJson: false,
-      toJson: toNull,
-      fromJson: toNull,
+      name: 'frame_photo',
+      fromJson: _photosFromJson,
+      toJson: _photosToJson,
     )
-    File? shutterPhotoImg,
+    List<String>? shutterPhoto,
+    @JsonKey(includeFromJson: false, includeToJson: false)
+    List<File>? shutterPhotoImg,
   });
 }
 
@@ -409,14 +408,14 @@ class __$$FrameLinesImplCopyWithImpl<$Res>
                     as String?,
         shutterPhoto:
             freezed == shutterPhoto
-                ? _value.shutterPhoto
+                ? _value._shutterPhoto
                 : shutterPhoto // ignore: cast_nullable_to_non_nullable
-                    as String?,
+                    as List<String>?,
         shutterPhotoImg:
             freezed == shutterPhotoImg
-                ? _value.shutterPhotoImg
+                ? _value._shutterPhotoImg
                 : shutterPhotoImg // ignore: cast_nullable_to_non_nullable
-                    as File?,
+                    as List<File>?,
       ),
     );
   }
@@ -443,15 +442,16 @@ class _$FrameLinesImpl implements _FrameLines {
     @JsonKey(name: 'sales_order') this.salesOrder,
     @JsonKey(name: 'customer') this.customer,
     @JsonKey(name: 'scan_time') this.scanTime,
-    @JsonKey(name: 'frame_photo') this.shutterPhoto,
     @JsonKey(
-      includeFromJson: true,
-      includeToJson: false,
-      toJson: toNull,
-      fromJson: toNull,
+      name: 'frame_photo',
+      fromJson: _photosFromJson,
+      toJson: _photosToJson,
     )
-    this.shutterPhotoImg,
-  });
+    final List<String>? shutterPhoto,
+    @JsonKey(includeFromJson: false, includeToJson: false)
+    final List<File>? shutterPhotoImg,
+  }) : _shutterPhoto = shutterPhoto,
+       _shutterPhotoImg = shutterPhotoImg;
 
   factory _$FrameLinesImpl.fromJson(Map<String, dynamic> json) =>
       _$$FrameLinesImplFromJson(json);
@@ -506,17 +506,31 @@ class _$FrameLinesImpl implements _FrameLines {
   @override
   @JsonKey(name: 'scan_time')
   final String? scanTime;
-  @override
-  @JsonKey(name: 'frame_photo')
-  final String? shutterPhoto;
+  final List<String>? _shutterPhoto;
   @override
   @JsonKey(
-    includeFromJson: true,
-    includeToJson: false,
-    toJson: toNull,
-    fromJson: toNull,
+    name: 'frame_photo',
+    fromJson: _photosFromJson,
+    toJson: _photosToJson,
   )
-  final File? shutterPhotoImg;
+  List<String>? get shutterPhoto {
+    final value = _shutterPhoto;
+    if (value == null) return null;
+    if (_shutterPhoto is EqualUnmodifiableListView) return _shutterPhoto;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(value);
+  }
+
+  final List<File>? _shutterPhotoImg;
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  List<File>? get shutterPhotoImg {
+    final value = _shutterPhotoImg;
+    if (value == null) return null;
+    if (_shutterPhotoImg is EqualUnmodifiableListView) return _shutterPhotoImg;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(value);
+  }
 
   @override
   String toString() {
@@ -558,10 +572,14 @@ class _$FrameLinesImpl implements _FrameLines {
                 other.customer == customer) &&
             (identical(other.scanTime, scanTime) ||
                 other.scanTime == scanTime) &&
-            (identical(other.shutterPhoto, shutterPhoto) ||
-                other.shutterPhoto == shutterPhoto) &&
-            (identical(other.shutterPhotoImg, shutterPhotoImg) ||
-                other.shutterPhotoImg == shutterPhotoImg));
+            const DeepCollectionEquality().equals(
+              other._shutterPhoto,
+              _shutterPhoto,
+            ) &&
+            const DeepCollectionEquality().equals(
+              other._shutterPhotoImg,
+              _shutterPhotoImg,
+            ));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -585,8 +603,8 @@ class _$FrameLinesImpl implements _FrameLines {
     salesOrder,
     customer,
     scanTime,
-    shutterPhoto,
-    shutterPhotoImg,
+    const DeepCollectionEquality().hash(_shutterPhoto),
+    const DeepCollectionEquality().hash(_shutterPhotoImg),
   ]);
 
   /// Create a copy of FrameLines
@@ -622,14 +640,14 @@ abstract class _FrameLines implements FrameLines {
     @JsonKey(name: 'sales_order') final String? salesOrder,
     @JsonKey(name: 'customer') final String? customer,
     @JsonKey(name: 'scan_time') final String? scanTime,
-    @JsonKey(name: 'frame_photo') final String? shutterPhoto,
     @JsonKey(
-      includeFromJson: true,
-      includeToJson: false,
-      toJson: toNull,
-      fromJson: toNull,
+      name: 'frame_photo',
+      fromJson: _photosFromJson,
+      toJson: _photosToJson,
     )
-    final File? shutterPhotoImg,
+    final List<String>? shutterPhoto,
+    @JsonKey(includeFromJson: false, includeToJson: false)
+    final List<File>? shutterPhotoImg,
   }) = _$FrameLinesImpl;
 
   factory _FrameLines.fromJson(Map<String, dynamic> json) =
@@ -686,16 +704,15 @@ abstract class _FrameLines implements FrameLines {
   @JsonKey(name: 'scan_time')
   String? get scanTime;
   @override
-  @JsonKey(name: 'frame_photo')
-  String? get shutterPhoto;
-  @override
   @JsonKey(
-    includeFromJson: true,
-    includeToJson: false,
-    toJson: toNull,
-    fromJson: toNull,
+    name: 'frame_photo',
+    fromJson: _photosFromJson,
+    toJson: _photosToJson,
   )
-  File? get shutterPhotoImg;
+  List<String>? get shutterPhoto;
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  List<File>? get shutterPhotoImg;
 
   /// Create a copy of FrameLines
   /// with the given fields replaced by the non-null parameter values.

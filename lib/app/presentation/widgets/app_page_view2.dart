@@ -23,7 +23,8 @@ enum PageMode2 {
   shutterPacking('Shutter Packing'),
   framePacking('Frame Packing'),
   palletCreation('Pallet Creation'),
-  visionPanel('Accessories Packing');
+  visionPanel('Accessories Packing'),
+  installation('Installation Packing');
 
 
   const PageMode2(this.name);
@@ -75,6 +76,7 @@ class _AppPageView2State<T extends PageViewFiltersCubit>
     PageMode2.shutterPacking => 'Search Shutter',
     PageMode2.palletCreation => 'Serach SO',
     PageMode2.visionPanel => 'Serach VP',
+    PageMode2.installation => 'Serach ID',
   };
 
   Color get bgColor => switch (widget.mode) {
@@ -92,7 +94,8 @@ class _AppPageView2State<T extends PageViewFiltersCubit>
     PageMode2.framePacking => AppColors.white,
     PageMode2.shutterPacking => AppColors.white,
     PageMode2.palletCreation => AppColors.white,
-    PageMode2.visionPanel => AppColors.white
+    PageMode2.visionPanel => AppColors.white,
+    PageMode2.installation => AppColors.white
   };
 
   @override
@@ -109,20 +112,26 @@ class _AppPageView2State<T extends PageViewFiltersCubit>
 
       
        case PageMode2.palletCreation:
+        case PageMode2.visionPanel:
+        case PageMode2.shutterPacking:
+         case PageMode2.framePacking:
+         case PageMode2.installation:
+        
         filters = ['Draft', 'Submitted', 'All'];
         break;
         case PageMode2.storageAllocation:
         case PageMode2.zoneTransfer:
         case PageMode2.hardwarePackaging:
-        case PageMode2.visionPanel:
+        
+       
 
         filters = ['Completed'];
         break;
 
-       case PageMode2.shutterPacking:
-      case PageMode2.framePacking:
-      filters = ['Submitted'];
-      break;
+       
+     
+      // filters = ['Submitted'];
+      // break;
 
       case PageMode2.logisticRequest:
         filters = [

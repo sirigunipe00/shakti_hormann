@@ -78,7 +78,7 @@ class ZoneRepoImp extends BaseApiRepository implements ZoneRepo{
               : base64Encode(zonecompressedBytes)
     };
     final config = RequestConfig(
-      url: Urls.zoneTransfer,
+      url: Urls.storageAllocation,
       parser: (json) {
        final message = json['message']['message'] as String;
 

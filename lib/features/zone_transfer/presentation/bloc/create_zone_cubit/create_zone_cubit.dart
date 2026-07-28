@@ -14,7 +14,7 @@ enum ZoneView { create, completed }
 extension ActionType on ZoneView {
   String toName() {
     return switch (this) {
-      ZoneView.create => 'Allocate',
+      ZoneView.create => 'Transfer',
       ZoneView.completed => 'Submitted',
     };
   }
@@ -194,7 +194,7 @@ Future<void> onQrScanned(String rawQr) async {
   Option<Pair<String, int?>> _validate() {
     final form = state.form;
     if (form.palletBoxQr.isNull || (form.palletBoxQr?.trim().isEmpty ?? true)) {
-      return optionOf(const Pair('Missing Pallet Qr No', 0));
+      return optionOf(const Pair('Missing PalletQr No', 0));
     } else if (form.oldZone.isNull || (form.oldZone?.trim().isEmpty ?? true)) {
       return optionOf(const Pair('Missing Old Zone No', 0));
     }else if (form.newzoneQr.isNull || (form.newzoneQr?.trim().isEmpty ?? true)) {

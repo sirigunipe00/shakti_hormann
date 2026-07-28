@@ -77,5 +77,15 @@ class Urls {
   static final updatePallet = '$cusWs/shaktihormann.p2_api.update_pallet';
 
   static final printShutterSticker = '$cusWs/shaktihormann.network_print.print_shutter_pallet_over_network';
+  static final printinstalltionStciker = '$cusWs/shaktihormann.network_print.print_installation_pallet_over_network';
   static final getPalletCode = '$cusWs/shaktihormann.p2_api.get_pallet_codes';
+
+  static final createVision = '$cusWs/shaktihormann.p2_api.create_vision_panel';
+  static final updateVision = '$cusWs/shaktihormann.p2_api.update_vision_panel';
+  static final submitVision = '$cusWs/shaktihormann.p2_api.submit_vision_panel';
+
+  static final createInstallation = '$cusWs/shaktihormann.p2_api.create_installation_entry';
+  static final updateInstallation = '$cusWs/shaktihormann.p2_api.update_installation_entry';
+  static final submitInstallation = '$cusWs/shaktihormann.p2_api.submit_installation_entry';
+
 }

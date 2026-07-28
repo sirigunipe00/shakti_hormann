@@ -24,7 +24,7 @@ class _ShutterListScrnState extends State<ShutterListScrn> {
     @override
   void initState() {
     status = 'Draft';
-    context.read<ShutterFilterCubit>().onChangeStatus('Submitted');
+    context.read<ShutterFilterCubit>().onChangeStatus('Draft');
     context.read<ShutterFilterCubit>().onSearch(null);
     super.initState();
   }

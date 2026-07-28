@@ -38,6 +38,11 @@ import 'package:shakti_hormann/features/hardware_packing/presentation/bloc/creat
 import 'package:shakti_hormann/features/hardware_packing/presentation/bloc/create_hardware_cubit/hardware_items_cubit.dart';
 import 'package:shakti_hormann/features/hardware_packing/presentation/ui/create/new_hardware.dart';
 import 'package:shakti_hormann/features/hardware_packing/presentation/ui/widget/hardware_list.dart';
+import 'package:shakti_hormann/features/installation/model/installation_model.dart';
+import 'package:shakti_hormann/features/installation/presentation/bloc/bloc_provider.dart';
+import 'package:shakti_hormann/features/installation/presentation/bloc/create_installation_entry_cubit/create_installation_entry_cubit.dart';
+import 'package:shakti_hormann/features/installation/presentation/ui/new_installation_entry.dart';
+import 'package:shakti_hormann/features/installation/presentation/widget/installation_list.dart';
 import 'package:shakti_hormann/features/loading_confirmation/model/loading_cnfm.dart';
 import 'package:shakti_hormann/features/loading_confirmation/presentation/bloc/bloc_provider.dart';
 import 'package:shakti_hormann/features/loading_confirmation/presentation/bloc/create_loading_cubit/create_loading_cnfm_cubit.dart';
@@ -82,6 +87,7 @@ import 'package:shakti_hormann/features/vehicle_reporting/presentation/ui/create
 import 'package:shakti_hormann/features/vehicle_reporting/presentation/ui/widgets/vehicle_reporting_list.dart';
 import 'package:shakti_hormann/features/vision_panel/model/vision_model.dart';
 import 'package:shakti_hormann/features/vision_panel/presentation/bloc/bloc_provider.dart';
+import 'package:shakti_hormann/features/vision_panel/presentation/bloc/create_vision_panel/create_vision_panel.dart';
 import 'package:shakti_hormann/features/vision_panel/presentation/ui/new_vision.dart';
 import 'package:shakti_hormann/features/vision_panel/presentation/ui/vision_panel_list.dart';
 import 'package:shakti_hormann/features/zone_transfer/model/zone_transfer.dart';
@@ -905,7 +911,7 @@ class AppRouterConfig {
                     path: _getPath(AppRoute.shutterPackaging),
                     builder: (ctxt, state) {
                       final filters = Pair(
-                        StringUtils.docStatusInt('Submitted'),
+                        StringUtils.docStatusInt('Draft'),
                         null,
                       );
                       return BlocProvider(
@@ -969,7 +975,7 @@ class AppRouterConfig {
                     path: _getPath(AppRoute.framePackaging),
                     builder: (ctxt, state) {
                       final filters = Pair(
-                        StringUtils.docStatusInt('Submitted'),
+                        StringUtils.docStatusInt('Draft'),
                         null,
                       );
                       return BlocProvider(
@@ -1091,7 +1097,7 @@ class AppRouterConfig {
                     path: _getPath(AppRoute.visionPanel),
                     builder: (ctxt, state) {
                       final filters = Pair(
-                        StringUtils.docStatusInt('Submitted'),
+                        StringUtils.docStatusInt('Draft'),
                         null,
                       );
                       return BlocProvider(
@@ -1129,23 +1135,93 @@ class AppRouterConfig {
                                             .getVisionLines()
                                           ..request(shutter?.name),
                               ),
-                              // BlocProvider(
-                              //   create: (_) => blocprovider.getPalletSize()..request(),
-                              // ),
-                              // BlocProvider(
-                              //   create:
-                              //       (_) =>
-                              //           blocprovider.getShutterLines()
-                              //             ..request(shutter?.name ?? ''),
-                              // ),
+                              BlocProvider(
+                                create: (_) => PalletBlocProvider.get().saleOrder()..request(),
+                              ),
                               BlocProvider(
                                 create:
                                     (_) =>
-                                        $sl.get<CreateVehicleCubit>()
+                                        blocprovider.getentryLines()
+                                          ..request(shutter?.name ?? ''),
+                              ),
+                              BlocProvider(
+                                create:
+                                    (_) =>
+                                        VisionPanelBlocProvider.get().getProduct()
+                                          ..request(),
+                              ),
+                              BlocProvider(
+                                create:
+                                    (_) =>
+                                        $sl.get<CreateVisionPanelCubit>()
                                           ..initDetails(shutter),
                               ),
                             ],
                             child: const NewVision(),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                  GoRoute(
+                    path: _getPath(AppRoute.installation),
+                    builder: (ctxt, state) {
+                      final filters = Pair(
+                        StringUtils.docStatusInt('Draft'),
+                        null,
+                      );
+                      return BlocProvider(
+                        create:
+                            (context) =>
+                                InstallationBlocProvider.get().getInstallation()
+                                  ..fetchInitial(filters),
+                        child: const InstallationList(),
+                      );
+                    },
+                    routes: [
+                      GoRoute(
+                        path: _getPath(AppRoute.newinstallation),
+                        onExit: (context, state) async {
+                          final form = state.extra as InstallationModel?;
+                          final formStatus =
+                              form?.docStatus == 1 ? 'Submitted' : 'Draft';
+                          return await _promptConf(
+                            context,
+                            formStatus: formStatus,
+                          );
+                        },
+                        builder: (_, state) {
+                          final shutter = state.extra as InstallationModel?;
+                          final blocprovider = InstallationBlocProvider.get();
+                          return MultiBlocProvider(
+                            providers: [
+                              BlocProvider(
+                                create: (_) => blocprovider.getInstallation(),
+                              ),
+                              BlocProvider(
+                                create:
+                                    (_) =>
+                                        InstallationBlocProvider.get()
+                                            .getInstallationLines()
+                                          ..request(shutter?.name),
+                              ),
+                              BlocProvider(
+                                create: (_) => PalletBlocProvider.get().saleOrder()..request(),
+                              ),
+                              BlocProvider(
+                                create:
+                                    (_) =>
+                                        VisionPanelBlocProvider.get().getProduct()
+                                          ..request(),
+                              ),
+                              BlocProvider(
+                                create:
+                                    (_) =>
+                                        $sl.get<CreateInstallationEntryCubit>()
+                                          ..initDetails(shutter),
+                              ),
+                            ],
+                            child: const NewInstallationEntry(),
                           );
                         },
                       ),

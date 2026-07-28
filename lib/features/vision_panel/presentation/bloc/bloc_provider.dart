@@ -5,8 +5,11 @@ import 'package:shakti_hormann/core/cubit/network_request/network_request_cubit.
 import 'package:shakti_hormann/core/di/injector.dart';
 import 'package:shakti_hormann/core/model/pair.dart';
 import 'package:shakti_hormann/features/vision_panel/data/vision_panel_repo.dart';
+import 'package:shakti_hormann/features/vision_panel/model/product_type.dart';
 import 'package:shakti_hormann/features/vision_panel/model/vision_items.dart';
 import 'package:shakti_hormann/features/vision_panel/model/vision_model.dart';
+import 'package:shakti_hormann/features/vision_panel/model/vision_panel_entry_lines.dart';
+
 
 
 
@@ -14,10 +17,10 @@ typedef VisionPanelCubit = InfiniteListCubit<VisionModel, Pair<int?, String?>, P
 typedef VisionPanelState = InfiniteListState<VisionModel>;
 typedef VisionLinesCubit = NetworkRequestCubit<List<VisionItems>, String>;
 typedef VisionLinesState = NetworkRequestState<List<VisionItems>>;
-// typedef FrameItemsCubit = NetworkRequestCubit<List<FrameItems>, Pair<String,String>>;
-// typedef FrameItemsCubitState = NetworkRequestState<List<FrameItems>>;
-// typedef PalletSizeCubit = NetworkRequestCubit<List<PalletSize>, String>;
-// typedef PalletSizeCubitState = NetworkRequestState<List<PalletSize>>;
+typedef ProductCubit = NetworkRequestCubit<List<ProductType>, Pair<String,String>>;
+typedef ProductState = NetworkRequestState<List<ProductType>>;
+typedef VisionEntryLines = NetworkRequestCubit<List<VisionPanelEntryLines>, String>;
+typedef VisionItemEntryState = NetworkRequestState<List<VisionPanelEntryLines>>;
 
 
 @lazySingleton
@@ -40,11 +43,11 @@ class VisionPanelBlocProvider {
   VisionLinesCubit getVisionLines() => VisionLinesCubit(
     onRequest: (params, state) => repo.fetchVisionLines(params!),
   );
-  //  FrameItemsCubit getFrameItems() => FrameItemsCubit(
-  //   onRequest: (params, state) => repo.fetchItems(params!.first,params.second),
-  // );
-  // PalletSizeCubit fetchPalletSize() => PalletSizeCubit(
-  //   onRequest: (params, state) => repo.fetchPalletSize(),
-  // );
+   ProductCubit getProduct() => ProductCubit(
+    onRequest: (params, state) => repo.fetchProduct(),
+  );
+  VisionEntryLines getentryLines() => VisionEntryLines(
+    onRequest: (params, state) => repo.fetchVisionEntryLines(params!),
+  );
 
 }

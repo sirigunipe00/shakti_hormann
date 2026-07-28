@@ -61,6 +61,12 @@ import '../../features/hardware_packing/presentation/bloc/create_hardware_cubit/
     as _i911;
 import '../../features/hardware_packing/presentation/bloc/create_hardware_cubit/hardware_items_cubit.dart'
     as _i28;
+import '../../features/installation/data/installation_repo.dart' as _i591;
+import '../../features/installation/data/installation_repo_impl.dart' as _i814;
+import '../../features/installation/presentation/bloc/bloc_provider.dart'
+    as _i516;
+import '../../features/installation/presentation/bloc/create_installation_entry_cubit/create_installation_entry_cubit.dart'
+    as _i733;
 import '../../features/loading_confirmation/data/loading_cnfm_repo.dart'
     as _i66;
 import '../../features/loading_confirmation/data/loading_cnfm_repoimpl.dart'
@@ -248,6 +254,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i271.TransportConfrimationRepo>(
       () => _i585.TransportCnfrmRepoimpl(gh<_i351.ApiClient>()),
     );
+    gh.lazySingleton<_i591.InstallationRepo>(
+      () => _i814.InstallationRepoImpl(gh<_i351.ApiClient>()),
+    );
     gh.lazySingleton<_i906.VehicleReportingRepo>(
       () => _i969.VehicleReportingRepoimpl(gh<_i351.ApiClient>()),
     );
@@ -299,6 +308,12 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i710.ZoneRepo>(
       () => _i981.ZoneRepoImp(gh<_i351.ApiClient>()),
+    );
+    gh.lazySingleton<_i516.InstallationBlocProvider>(
+      () => _i516.InstallationBlocProvider(gh<_i591.InstallationRepo>()),
+    );
+    gh.factory<_i733.CreateInstallationEntryCubit>(
+      () => _i733.CreateInstallationEntryCubit(gh<_i591.InstallationRepo>()),
     );
     gh.lazySingleton<_i1008.GateManagementBlocProvider>(
       () => _i1008.GateManagementBlocProvider(gh<_i1021.GateManagementRepo>()),

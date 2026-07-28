@@ -20,10 +20,14 @@ mixin _$CreateVisionPanelState {
   VisionModel get form => throw _privateConstructorUsedError;
   bool get isLoading => throw _privateConstructorUsedError;
   bool get isSuccess => throw _privateConstructorUsedError;
-  List<VisionItems> get newLines => throw _privateConstructorUsedError;
-  List<VisionItems> get lines => throw _privateConstructorUsedError;
+  List<VisionItems> get items => throw _privateConstructorUsedError;
+  List<VisionPanelEntryLines> get imageLines =>
+      throw _privateConstructorUsedError;
   VisionView get view => throw _privateConstructorUsedError;
   bool get isModified => throw _privateConstructorUsedError;
+  bool get isUpdated => throw _privateConstructorUsedError;
+  bool get isPrintLoading => throw _privateConstructorUsedError;
+  Set<int> get uploadedItemIndexes => throw _privateConstructorUsedError;
   String? get successMsg => throw _privateConstructorUsedError;
   Failure? get error => throw _privateConstructorUsedError;
 
@@ -45,10 +49,13 @@ abstract class $CreateVisionPanelStateCopyWith<$Res> {
     VisionModel form,
     bool isLoading,
     bool isSuccess,
-    List<VisionItems> newLines,
-    List<VisionItems> lines,
+    List<VisionItems> items,
+    List<VisionPanelEntryLines> imageLines,
     VisionView view,
     bool isModified,
+    bool isUpdated,
+    bool isPrintLoading,
+    Set<int> uploadedItemIndexes,
     String? successMsg,
     Failure? error,
   });
@@ -78,10 +85,13 @@ class _$CreateVisionPanelStateCopyWithImpl<
     Object? form = null,
     Object? isLoading = null,
     Object? isSuccess = null,
-    Object? newLines = null,
-    Object? lines = null,
+    Object? items = null,
+    Object? imageLines = null,
     Object? view = null,
     Object? isModified = null,
+    Object? isUpdated = null,
+    Object? isPrintLoading = null,
+    Object? uploadedItemIndexes = null,
     Object? successMsg = freezed,
     Object? error = freezed,
   }) {
@@ -102,16 +112,16 @@ class _$CreateVisionPanelStateCopyWithImpl<
                     ? _value.isSuccess
                     : isSuccess // ignore: cast_nullable_to_non_nullable
                         as bool,
-            newLines:
-                null == newLines
-                    ? _value.newLines
-                    : newLines // ignore: cast_nullable_to_non_nullable
+            items:
+                null == items
+                    ? _value.items
+                    : items // ignore: cast_nullable_to_non_nullable
                         as List<VisionItems>,
-            lines:
-                null == lines
-                    ? _value.lines
-                    : lines // ignore: cast_nullable_to_non_nullable
-                        as List<VisionItems>,
+            imageLines:
+                null == imageLines
+                    ? _value.imageLines
+                    : imageLines // ignore: cast_nullable_to_non_nullable
+                        as List<VisionPanelEntryLines>,
             view:
                 null == view
                     ? _value.view
@@ -122,6 +132,21 @@ class _$CreateVisionPanelStateCopyWithImpl<
                     ? _value.isModified
                     : isModified // ignore: cast_nullable_to_non_nullable
                         as bool,
+            isUpdated:
+                null == isUpdated
+                    ? _value.isUpdated
+                    : isUpdated // ignore: cast_nullable_to_non_nullable
+                        as bool,
+            isPrintLoading:
+                null == isPrintLoading
+                    ? _value.isPrintLoading
+                    : isPrintLoading // ignore: cast_nullable_to_non_nullable
+                        as bool,
+            uploadedItemIndexes:
+                null == uploadedItemIndexes
+                    ? _value.uploadedItemIndexes
+                    : uploadedItemIndexes // ignore: cast_nullable_to_non_nullable
+                        as Set<int>,
             successMsg:
                 freezed == successMsg
                     ? _value.successMsg
@@ -175,10 +200,13 @@ abstract class _$$CreateVisionPanelStateImplCopyWith<$Res>
     VisionModel form,
     bool isLoading,
     bool isSuccess,
-    List<VisionItems> newLines,
-    List<VisionItems> lines,
+    List<VisionItems> items,
+    List<VisionPanelEntryLines> imageLines,
     VisionView view,
     bool isModified,
+    bool isUpdated,
+    bool isPrintLoading,
+    Set<int> uploadedItemIndexes,
     String? successMsg,
     Failure? error,
   });
@@ -207,10 +235,13 @@ class __$$CreateVisionPanelStateImplCopyWithImpl<$Res>
     Object? form = null,
     Object? isLoading = null,
     Object? isSuccess = null,
-    Object? newLines = null,
-    Object? lines = null,
+    Object? items = null,
+    Object? imageLines = null,
     Object? view = null,
     Object? isModified = null,
+    Object? isUpdated = null,
+    Object? isPrintLoading = null,
+    Object? uploadedItemIndexes = null,
     Object? successMsg = freezed,
     Object? error = freezed,
   }) {
@@ -231,16 +262,16 @@ class __$$CreateVisionPanelStateImplCopyWithImpl<$Res>
                 ? _value.isSuccess
                 : isSuccess // ignore: cast_nullable_to_non_nullable
                     as bool,
-        newLines:
-            null == newLines
-                ? _value._newLines
-                : newLines // ignore: cast_nullable_to_non_nullable
+        items:
+            null == items
+                ? _value._items
+                : items // ignore: cast_nullable_to_non_nullable
                     as List<VisionItems>,
-        lines:
-            null == lines
-                ? _value._lines
-                : lines // ignore: cast_nullable_to_non_nullable
-                    as List<VisionItems>,
+        imageLines:
+            null == imageLines
+                ? _value._imageLines
+                : imageLines // ignore: cast_nullable_to_non_nullable
+                    as List<VisionPanelEntryLines>,
         view:
             null == view
                 ? _value.view
@@ -251,6 +282,21 @@ class __$$CreateVisionPanelStateImplCopyWithImpl<$Res>
                 ? _value.isModified
                 : isModified // ignore: cast_nullable_to_non_nullable
                     as bool,
+        isUpdated:
+            null == isUpdated
+                ? _value.isUpdated
+                : isUpdated // ignore: cast_nullable_to_non_nullable
+                    as bool,
+        isPrintLoading:
+            null == isPrintLoading
+                ? _value.isPrintLoading
+                : isPrintLoading // ignore: cast_nullable_to_non_nullable
+                    as bool,
+        uploadedItemIndexes:
+            null == uploadedItemIndexes
+                ? _value._uploadedItemIndexes
+                : uploadedItemIndexes // ignore: cast_nullable_to_non_nullable
+                    as Set<int>,
         successMsg:
             freezed == successMsg
                 ? _value.successMsg
@@ -273,14 +319,18 @@ class _$CreateVisionPanelStateImpl implements _CreateVisionPanelState {
     required this.form,
     required this.isLoading,
     required this.isSuccess,
-    final List<VisionItems> newLines = const [],
-    required final List<VisionItems> lines,
+    final List<VisionItems> items = const [],
+    final List<VisionPanelEntryLines> imageLines = const [],
     required this.view,
     this.isModified = false,
+    this.isUpdated = false,
+    this.isPrintLoading = false,
+    final Set<int> uploadedItemIndexes = const <int>{},
     this.successMsg,
     this.error,
-  }) : _newLines = newLines,
-       _lines = lines;
+  }) : _items = items,
+       _imageLines = imageLines,
+       _uploadedItemIndexes = uploadedItemIndexes;
 
   @override
   final VisionModel form;
@@ -288,21 +338,22 @@ class _$CreateVisionPanelStateImpl implements _CreateVisionPanelState {
   final bool isLoading;
   @override
   final bool isSuccess;
-  final List<VisionItems> _newLines;
+  final List<VisionItems> _items;
   @override
   @JsonKey()
-  List<VisionItems> get newLines {
-    if (_newLines is EqualUnmodifiableListView) return _newLines;
+  List<VisionItems> get items {
+    if (_items is EqualUnmodifiableListView) return _items;
     // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_newLines);
+    return EqualUnmodifiableListView(_items);
   }
 
-  final List<VisionItems> _lines;
+  final List<VisionPanelEntryLines> _imageLines;
   @override
-  List<VisionItems> get lines {
-    if (_lines is EqualUnmodifiableListView) return _lines;
+  @JsonKey()
+  List<VisionPanelEntryLines> get imageLines {
+    if (_imageLines is EqualUnmodifiableListView) return _imageLines;
     // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_lines);
+    return EqualUnmodifiableListView(_imageLines);
   }
 
   @override
@@ -311,13 +362,29 @@ class _$CreateVisionPanelStateImpl implements _CreateVisionPanelState {
   @JsonKey()
   final bool isModified;
   @override
+  @JsonKey()
+  final bool isUpdated;
+  @override
+  @JsonKey()
+  final bool isPrintLoading;
+  final Set<int> _uploadedItemIndexes;
+  @override
+  @JsonKey()
+  Set<int> get uploadedItemIndexes {
+    if (_uploadedItemIndexes is EqualUnmodifiableSetView)
+      return _uploadedItemIndexes;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableSetView(_uploadedItemIndexes);
+  }
+
+  @override
   final String? successMsg;
   @override
   final Failure? error;
 
   @override
   String toString() {
-    return 'CreateVisionPanelState(form: $form, isLoading: $isLoading, isSuccess: $isSuccess, newLines: $newLines, lines: $lines, view: $view, isModified: $isModified, successMsg: $successMsg, error: $error)';
+    return 'CreateVisionPanelState(form: $form, isLoading: $isLoading, isSuccess: $isSuccess, items: $items, imageLines: $imageLines, view: $view, isModified: $isModified, isUpdated: $isUpdated, isPrintLoading: $isPrintLoading, uploadedItemIndexes: $uploadedItemIndexes, successMsg: $successMsg, error: $error)';
   }
 
   @override
@@ -330,11 +397,22 @@ class _$CreateVisionPanelStateImpl implements _CreateVisionPanelState {
                 other.isLoading == isLoading) &&
             (identical(other.isSuccess, isSuccess) ||
                 other.isSuccess == isSuccess) &&
-            const DeepCollectionEquality().equals(other._newLines, _newLines) &&
-            const DeepCollectionEquality().equals(other._lines, _lines) &&
+            const DeepCollectionEquality().equals(other._items, _items) &&
+            const DeepCollectionEquality().equals(
+              other._imageLines,
+              _imageLines,
+            ) &&
             (identical(other.view, view) || other.view == view) &&
             (identical(other.isModified, isModified) ||
                 other.isModified == isModified) &&
+            (identical(other.isUpdated, isUpdated) ||
+                other.isUpdated == isUpdated) &&
+            (identical(other.isPrintLoading, isPrintLoading) ||
+                other.isPrintLoading == isPrintLoading) &&
+            const DeepCollectionEquality().equals(
+              other._uploadedItemIndexes,
+              _uploadedItemIndexes,
+            ) &&
             (identical(other.successMsg, successMsg) ||
                 other.successMsg == successMsg) &&
             (identical(other.error, error) || other.error == error));
@@ -346,10 +424,13 @@ class _$CreateVisionPanelStateImpl implements _CreateVisionPanelState {
     form,
     isLoading,
     isSuccess,
-    const DeepCollectionEquality().hash(_newLines),
-    const DeepCollectionEquality().hash(_lines),
+    const DeepCollectionEquality().hash(_items),
+    const DeepCollectionEquality().hash(_imageLines),
     view,
     isModified,
+    isUpdated,
+    isPrintLoading,
+    const DeepCollectionEquality().hash(_uploadedItemIndexes),
     successMsg,
     error,
   );
@@ -372,10 +453,13 @@ abstract class _CreateVisionPanelState implements CreateVisionPanelState {
     required final VisionModel form,
     required final bool isLoading,
     required final bool isSuccess,
-    final List<VisionItems> newLines,
-    required final List<VisionItems> lines,
+    final List<VisionItems> items,
+    final List<VisionPanelEntryLines> imageLines,
     required final VisionView view,
     final bool isModified,
+    final bool isUpdated,
+    final bool isPrintLoading,
+    final Set<int> uploadedItemIndexes,
     final String? successMsg,
     final Failure? error,
   }) = _$CreateVisionPanelStateImpl;
@@ -387,13 +471,19 @@ abstract class _CreateVisionPanelState implements CreateVisionPanelState {
   @override
   bool get isSuccess;
   @override
-  List<VisionItems> get newLines;
+  List<VisionItems> get items;
   @override
-  List<VisionItems> get lines;
+  List<VisionPanelEntryLines> get imageLines;
   @override
   VisionView get view;
   @override
   bool get isModified;
+  @override
+  bool get isUpdated;
+  @override
+  bool get isPrintLoading;
+  @override
+  Set<int> get uploadedItemIndexes;
   @override
   String? get successMsg;
   @override

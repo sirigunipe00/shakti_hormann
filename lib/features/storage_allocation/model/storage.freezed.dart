@@ -42,6 +42,10 @@ mixin _$Storage {
   int? get totalQty => throw _privateConstructorUsedError;
   @JsonKey(name: 'creation')
   String? get creation => throw _privateConstructorUsedError;
+  @JsonKey(name: 'pallet_count')
+  int? get palletCount => throw _privateConstructorUsedError;
+  @JsonKey(name: 'old_zone_name')
+  String? get oldZone => throw _privateConstructorUsedError;
   @JsonKey(
     includeFromJson: true,
     includeToJson: false,
@@ -80,6 +84,8 @@ abstract class $StorageCopyWith<$Res> {
     @JsonKey(name: 'zone_name') String? zoneName,
     @JsonKey(name: 'total_qty') int? totalQty,
     @JsonKey(name: 'creation') String? creation,
+    @JsonKey(name: 'pallet_count') int? palletCount,
+    @JsonKey(name: 'old_zone_name') String? oldZone,
     @JsonKey(
       includeFromJson: true,
       includeToJson: false,
@@ -118,6 +124,8 @@ class _$StorageCopyWithImpl<$Res, $Val extends Storage>
     Object? zoneName = freezed,
     Object? totalQty = freezed,
     Object? creation = freezed,
+    Object? palletCount = freezed,
+    Object? oldZone = freezed,
     Object? locationPhotoImg = freezed,
     Object? zoneQr = freezed,
     Object? palletBoxQr = freezed,
@@ -179,6 +187,16 @@ class _$StorageCopyWithImpl<$Res, $Val extends Storage>
                     ? _value.creation
                     : creation // ignore: cast_nullable_to_non_nullable
                         as String?,
+            palletCount:
+                freezed == palletCount
+                    ? _value.palletCount
+                    : palletCount // ignore: cast_nullable_to_non_nullable
+                        as int?,
+            oldZone:
+                freezed == oldZone
+                    ? _value.oldZone
+                    : oldZone // ignore: cast_nullable_to_non_nullable
+                        as String?,
             locationPhotoImg:
                 freezed == locationPhotoImg
                     ? _value.locationPhotoImg
@@ -220,6 +238,8 @@ abstract class _$$StorageImplCopyWith<$Res> implements $StorageCopyWith<$Res> {
     @JsonKey(name: 'zone_name') String? zoneName,
     @JsonKey(name: 'total_qty') int? totalQty,
     @JsonKey(name: 'creation') String? creation,
+    @JsonKey(name: 'pallet_count') int? palletCount,
+    @JsonKey(name: 'old_zone_name') String? oldZone,
     @JsonKey(
       includeFromJson: true,
       includeToJson: false,
@@ -257,6 +277,8 @@ class __$$StorageImplCopyWithImpl<$Res>
     Object? zoneName = freezed,
     Object? totalQty = freezed,
     Object? creation = freezed,
+    Object? palletCount = freezed,
+    Object? oldZone = freezed,
     Object? locationPhotoImg = freezed,
     Object? zoneQr = freezed,
     Object? palletBoxQr = freezed,
@@ -318,6 +340,16 @@ class __$$StorageImplCopyWithImpl<$Res>
                 ? _value.creation
                 : creation // ignore: cast_nullable_to_non_nullable
                     as String?,
+        palletCount:
+            freezed == palletCount
+                ? _value.palletCount
+                : palletCount // ignore: cast_nullable_to_non_nullable
+                    as int?,
+        oldZone:
+            freezed == oldZone
+                ? _value.oldZone
+                : oldZone // ignore: cast_nullable_to_non_nullable
+                    as String?,
         locationPhotoImg:
             freezed == locationPhotoImg
                 ? _value.locationPhotoImg
@@ -353,6 +385,8 @@ class _$StorageImpl implements _Storage {
     @JsonKey(name: 'zone_name') this.zoneName,
     @JsonKey(name: 'total_qty') this.totalQty,
     @JsonKey(name: 'creation') this.creation,
+    @JsonKey(name: 'pallet_count') this.palletCount,
+    @JsonKey(name: 'old_zone_name') this.oldZone,
     @JsonKey(
       includeFromJson: true,
       includeToJson: false,
@@ -400,6 +434,12 @@ class _$StorageImpl implements _Storage {
   @JsonKey(name: 'creation')
   final String? creation;
   @override
+  @JsonKey(name: 'pallet_count')
+  final int? palletCount;
+  @override
+  @JsonKey(name: 'old_zone_name')
+  final String? oldZone;
+  @override
   @JsonKey(
     includeFromJson: true,
     includeToJson: false,
@@ -416,7 +456,7 @@ class _$StorageImpl implements _Storage {
 
   @override
   String toString() {
-    return 'Storage(status: $status, name: $name, storedBy: $storedBy, storageTimeStamp: $storageTimeStamp, remarks: $remarks, locationPhoto: $locationPhoto, docStatus: $docStatus, salesOrders: $salesOrders, zoneName: $zoneName, totalQty: $totalQty, creation: $creation, locationPhotoImg: $locationPhotoImg, zoneQr: $zoneQr, palletBoxQr: $palletBoxQr)';
+    return 'Storage(status: $status, name: $name, storedBy: $storedBy, storageTimeStamp: $storageTimeStamp, remarks: $remarks, locationPhoto: $locationPhoto, docStatus: $docStatus, salesOrders: $salesOrders, zoneName: $zoneName, totalQty: $totalQty, creation: $creation, palletCount: $palletCount, oldZone: $oldZone, locationPhotoImg: $locationPhotoImg, zoneQr: $zoneQr, palletBoxQr: $palletBoxQr)';
   }
 
   @override
@@ -443,6 +483,9 @@ class _$StorageImpl implements _Storage {
                 other.totalQty == totalQty) &&
             (identical(other.creation, creation) ||
                 other.creation == creation) &&
+            (identical(other.palletCount, palletCount) ||
+                other.palletCount == palletCount) &&
+            (identical(other.oldZone, oldZone) || other.oldZone == oldZone) &&
             (identical(other.locationPhotoImg, locationPhotoImg) ||
                 other.locationPhotoImg == locationPhotoImg) &&
             (identical(other.zoneQr, zoneQr) || other.zoneQr == zoneQr) &&
@@ -465,6 +508,8 @@ class _$StorageImpl implements _Storage {
     zoneName,
     totalQty,
     creation,
+    palletCount,
+    oldZone,
     locationPhotoImg,
     zoneQr,
     palletBoxQr,
@@ -497,6 +542,8 @@ abstract class _Storage implements Storage {
     @JsonKey(name: 'zone_name') final String? zoneName,
     @JsonKey(name: 'total_qty') final int? totalQty,
     @JsonKey(name: 'creation') final String? creation,
+    @JsonKey(name: 'pallet_count') final int? palletCount,
+    @JsonKey(name: 'old_zone_name') final String? oldZone,
     @JsonKey(
       includeFromJson: true,
       includeToJson: false,
@@ -542,6 +589,12 @@ abstract class _Storage implements Storage {
   @override
   @JsonKey(name: 'creation')
   String? get creation;
+  @override
+  @JsonKey(name: 'pallet_count')
+  int? get palletCount;
+  @override
+  @JsonKey(name: 'old_zone_name')
+  String? get oldZone;
   @override
   @JsonKey(
     includeFromJson: true,

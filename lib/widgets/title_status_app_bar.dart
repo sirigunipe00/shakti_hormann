@@ -20,7 +20,8 @@ enum PageMode2 {
   shutterPacking('Shutter Packing'),
   framePacking('Frame Packing'),
   palletCreation('Pallet Creation'),
-  visionPanel('Vision Panel');
+  visionPanel('Vision Panel'),
+  installation('Installation Entry');
 
 
   const PageMode2(this.name);
