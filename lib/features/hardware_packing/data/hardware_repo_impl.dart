@@ -122,6 +122,113 @@ class HardWareRepoImp extends BaseApiRepository implements HardWareRepo {
       return right(Pair(r.data!.first, r.data!.second));
     });
   }
+  @override
+  AsyncValueOf<Pair<String, String>> updateHardware(
+    HardwarePacking form,
+    List<HardwareItem> lines,
+  ) async {
+    final name = form.name;
+    if (name == null || name.isEmpty) {
+      return left(
+        const Failure(
+          error: 'Hardware packing id missing for update',
+          title: 'Update Failed',
+          status: 0,
+        ),
+      );
+    }
+
+    final mesImages = <String>[];
+    final seenPaths = <String>{};
+
+    Future<void> addImage(File? file) async {
+      if (file == null || !file.existsSync()) return;
+      if (!seenPaths.add(file.path)) return;
+
+      final compressedBytes = await _compressImage(file);
+      if (compressedBytes == null) return;
+      mesImages.add(
+        'data:image/jpeg;base64,${base64Encode(compressedBytes)}',
+      );
+    }
+
+    await addImage(form.mesStickerImage);
+    for (final item in lines) {
+      await addImage(item.mesStickerImage);
+    }
+
+    final Map<String, dynamic> requestBody = {
+      'hardware_packing_id': name,
+      'mes_images': mesImages,
+      'items': lines
+          .map(
+            (item) => {
+              'product_name': item.materialCode ?? item.productName ?? '',
+              'description': item.productName ?? '',
+              'qty_on_sticker': item.qtySticker ?? 0,
+              'uom': item.uom ?? '',
+            },
+          )
+          .toList(),
+    };
+
+    final config = RequestConfig(
+      url: Urls.updateHardware,
+      parser: (json) {
+        final message = json['message'];
+        if (message is Map<String, dynamic>) {
+          final status = message['status'] as int?;
+          final text = message['message'] as String? ?? 'Update failed';
+          if (status != null && status >= 300) {
+            throw Failure(error: text, title: 'Update Failed', status: status);
+          }
+          final data = message['data'];
+          final docNo = data is Map<String, dynamic>
+              ? (data['hardware_packing_id'] as String? ?? name)
+              : name;
+          return Pair(text, docNo);
+        }
+        return Pair(message as String, name);
+      },
+      body: jsonEncode(requestBody),
+      headers: {HttpHeaders.contentTypeHeader: 'application/json'},
+    );
+
+    $logger.devLog('updateHardware.....$config');
+
+    final response = await post(config);
+    return response.processAsync((r) async {
+      return right(Pair(r.data!.first, r.data!.second));
+    });
+  }
+
+  @override
+  AsyncValueOf<String> submitHardware(String name) async {
+    final requestBody = {'hardware_packing_id': name};
+
+    final config = RequestConfig(
+      url: Urls.submitHardware,
+      parser: (json) {
+        final message = json['message'];
+        if (message is Map<String, dynamic>) {
+          final status = message['status'] as int?;
+          final text = message['message'] as String? ?? 'Submit failed';
+          if (status != null && status >= 300) {
+            throw Failure(error: text, title: 'Submit Failed', status: status);
+          }
+          return text;
+        }
+        return message as String;
+      },
+      body: jsonEncode(requestBody),
+      headers: {HttpHeaders.contentTypeHeader: 'application/json'},
+    );
+
+    $logger.devLog('submitHardware....$config');
+
+    final response = await post(config);
+    return response.process((r) => right(r.data!));
+  }
 
   @override
   AsyncValueOf<HardwarePackingItem> fetchHardwareItems(

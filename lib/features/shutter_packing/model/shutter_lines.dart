@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:shakti_hormann/core/utils/typedefs.dart';
 
 part 'shutter_lines.freezed.dart';
 part 'shutter_lines.g.dart';

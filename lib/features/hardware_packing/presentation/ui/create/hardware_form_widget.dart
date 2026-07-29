@@ -35,6 +35,7 @@ class __HardwareFormWidgetState extends State<HardwareFormWidget> {
   Widget build(BuildContext context) {
     final formState = context.watch<CreateHardwareCubit>().state;
     final isCompleted = formState.view == HardwareView.completed;
+    final isReadOnly = isCompleted || formState.form.docStatus == 1;
     final newform = formState.form;
     $logger.devLog('newform$newform');
 
@@ -125,7 +126,7 @@ class __HardwareFormWidgetState extends State<HardwareFormWidget> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (!isCompleted) ...[
+            if (!isReadOnly) ...[
               Row(
                 children: [
                   Expanded(
@@ -159,7 +160,7 @@ class __HardwareFormWidgetState extends State<HardwareFormWidget> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   InputField(
-                    readOnly: isCompleted,
+                    readOnly: isReadOnly,
                     initialValue: newform.mesSystem,
                     title: 'MSE System No',
                     hintText: 'Scan to add details',
@@ -173,7 +174,7 @@ class __HardwareFormWidgetState extends State<HardwareFormWidget> {
                     focusNode: focusNodes.elementAt(13),
                   ),
                   InputField(
-                    readOnly: isCompleted,
+                    readOnly: isReadOnly,
                     initialValue: newform.salesOrderNo,
                     title: 'Sales Order No',
                     hintText: 'Scan to add details',
@@ -188,7 +189,7 @@ class __HardwareFormWidgetState extends State<HardwareFormWidget> {
                   ),
                   InputField(
                     key: UniqueKey(),
-                    readOnly: isCompleted,
+                    readOnly: isReadOnly,
                     initialValue:
                         (newform.captueDate != null &&
                                 newform.captueDate!.contains('.'))
@@ -218,7 +219,7 @@ class __HardwareFormWidgetState extends State<HardwareFormWidget> {
             ),
             HardwareItemWidget(
               items: formState.lines,
-              isCompleted: isCompleted,
+              isCompleted: isReadOnly,
               onDelete: (slNo) {
                 context.read<CreateHardwareCubit>();
               },

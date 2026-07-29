@@ -530,18 +530,7 @@ class __FrameFormWidgetState extends State<FrameFormWidget> {
     await cubit.freezeFrameQuantity();
 
     if (!context.mounted) return;
-
-    final error = cubit.state.error;
-    if (error != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(error.error),
-          backgroundColor: Colors.red,
-        ),
-      );
-      cubit.errorHandled();
-      return;
-    }
+    if (cubit.state.error != null) return;
 
     await AppDialog.showSuccessDialog(
       context,

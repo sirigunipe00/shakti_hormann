@@ -86,67 +86,83 @@ class VisionPanelRepoImpl extends BaseApiRepository implements VisionPanelRepo {
       return right(Pair(r.data!.first, r.data!.second));
     });
   }
+
   @override
   AsyncValueOf<String> updateVision(
-     String name, {
-     String? productType,
-     int? noOfBoxes,
-     required List<String> images,
-   }) async {
+    String name, {
+    String? productType,
+    int? noOfBoxes,
+    required List<String> images,
+  }) async {
+    final item = <String, dynamic>{
+      if (productType != null) 'product_type': productType,
+      if (noOfBoxes != null) 'no_of_boxes': noOfBoxes,
+      'images': images,
+    };
+
     final requestBody = {
       'vision_panel_id': name,
-      'items': images
-          .map((images) => {'images': images})
-          .toList(),
+      'items': [item],
     };
- 
+
     final config = RequestConfig(
       url: Urls.updateVision,
-      parser: (json) => json['message']['message'] as String,
+      parser: (json) {
+        final message = json['message'];
+        if (message is Map<String, dynamic>) {
+          final status = message['status'] as int?;
+          final text = message['message'] as String? ?? 'Update failed';
+          if (status != null && status >= 300) {
+            throw Failure(error: text, title: 'Update Failed', status: status);
+          }
+          return text;
+        }
+        return message as String;
+      },
       body: jsonEncode(requestBody),
       headers: {HttpHeaders.contentTypeHeader: 'application/json'},
     );
- 
-    $logger.devLog('updateInstallation....$config');
- 
+
+    $logger.devLog('updateVision....$config');
+
     final response = await post(config);
     return response.process((r) => right(r.data!));
   }
-@override
-AsyncValueOf<String> printVisionSticker(String id) async {
-  final Map<String, dynamic> requestBody = {
-    'docname': id,
-  };
 
-  final config = RequestConfig(
-    url: Urls.printShutterSticker,
-    parser: (json) {
-      final message = json['message'] as Map<String, dynamic>;
-      final status = message['status'] as int?;
-      final text = message['message'] as String? ?? 'Unknown error';
-      if (status != null && status >= 300) {
-        throw Failure(error: text, title: 'Print Failed', status: status);
-      }
-
-      return text;
-    },
-    body: jsonEncode(requestBody),
-    headers: {HttpHeaders.contentTypeHeader: 'application/json'},
-  );
-
-  $logger.devLog('printShutterSticker requestConfig.....$config');
-
-  final response = await post(config);
-  return response.processAsync((r) async {
-    return right(r.data!);
-  });
-}
   @override
-  AsyncValueOf<String> submitVision(String name) async {
-    final requestBody = {'name': name};
+  AsyncValueOf<String> printVisionSticker(String id) async {
+    final Map<String, dynamic> requestBody = {'docname': id};
 
     final config = RequestConfig(
-      url: Urls.submitVision, 
+      url: Urls.printVisionSticker,
+      parser: (json) {
+        final message = json['message'] as Map<String, dynamic>;
+        final status = message['status'] as int?;
+        final text = message['message'] as String? ?? 'Unknown error';
+        if (status != null && status >= 300) {
+          throw Failure(error: text, title: 'Print Failed', status: status);
+        }
+
+        return text;
+      },
+      body: jsonEncode(requestBody),
+      headers: {HttpHeaders.contentTypeHeader: 'application/json'},
+    );
+
+    $logger.devLog('printShutterSticker requestConfig.....$config');
+
+    final response = await post(config);
+    return response.processAsync((r) async {
+      return right(r.data!);
+    });
+  }
+
+  @override
+  AsyncValueOf<String> submitVision(String name) async {
+    final requestBody = {'vision_panel_id': name};
+
+    final config = RequestConfig(
+      url: Urls.submitVision,
       parser: (json) => json['message']['message'] as String,
       body: jsonEncode(requestBody),
       headers: {HttpHeaders.contentTypeHeader: 'application/json'},
@@ -163,14 +179,14 @@ AsyncValueOf<String> printVisionSticker(String id) async {
     final requestConfig = RequestConfig(
       url: Urls.getList,
       parser: (json) {
-  final data = json['message'] as List<dynamic>;
+        final data = json['message'] as List<dynamic>;
 
-  final items = data.map((e) => VisionItems.fromJson(e)).toList()
+        final items =
+            data.map((e) => VisionItems.fromJson(e)).toList()
+              ..sort((a, b) => (a.creation ?? '').compareTo(b.creation ?? ''));
 
-  ..sort((a, b) => (a.creation ?? '').compareTo(b.creation ?? ''));
-
-  return items;
-},
+        return items;
+      },
       reqParams: {
         'filters': jsonEncode([
           ['parent', '=', itemName],
@@ -186,8 +202,11 @@ AsyncValueOf<String> printVisionSticker(String id) async {
     final response = await get(requestConfig);
     return response.process((r) => right(r.data!));
   }
-    @override
-  AsyncValueOf<List<VisionPanelEntryLines>> fetchVisionEntryLines(String itemName) async {
+
+  @override
+  AsyncValueOf<List<VisionPanelEntryLines>> fetchVisionEntryLines(
+    String itemName,
+  ) async {
     final requestConfig = RequestConfig(
       url: Urls.getList,
       parser: (json) {
@@ -211,7 +230,8 @@ AsyncValueOf<String> printVisionSticker(String id) async {
     final response = await get(requestConfig);
     return response.process((r) => right(r.data!));
   }
-   @override
+
+  @override
   AsyncValueOf<List<ProductType>> fetchProduct() async {
     final requestConfig = RequestConfig(
       url: Urls.getList,

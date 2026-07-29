@@ -379,41 +379,90 @@ class CreateFrameCubit extends AppBaseCubit<CreateFrameState> {
       },
     );
   }
-
   Future<void> _syncLineToServer() async {
-    if (_isSyncingLine) return;
-    _isSyncingLine = true;
+  if (_isSyncingLine) return;
+  _isSyncingLine = true;
 
-    try {
-      final form = state.form;
-      final docExists = form.name != null && form.name!.isNotEmpty;
+  try {
+    final form = state.form;
+    final docExists = form.name != null && form.name!.isNotEmpty;
 
-      if (!docExists) {
-        _emitError(
-          const Pair(
-            'Please save the Sales Order and Pallet Code before scanning items.',
-            null,
+    if (!docExists) {
+      _emitError(
+        const Pair(
+          'Please save the Sales Order and Pallet Code before scanning items.',
+          null,
+        ),
+      );
+      return;
+    }
+
+    final pending = state.newLines;
+    if (pending.isEmpty) return;
+
+    final response = await repo.updateFrame(form, pending);
+    response.fold(
+      (failure) {
+        final failedQrs = pending
+            .map((l) => l.shutterBarcodeQr)
+            .whereType<String>()
+            .toSet();
+
+        final rolledBackLines = state.lines
+            .where((l) => !failedQrs.contains(l.shutterBarcodeQr))
+            .toList();
+
+        emitSafeState(
+          state.copyWith(
+            lines: rolledBackLines,
+            newLines: [],
+            error: failure,
           ),
         );
-        return;
-      }
-
-      final pending = state.newLines;
-      if (pending.isEmpty) return;
-
-      final response = await repo.updateFrame(form, pending);
-      response.fold(
-        (failure) {
-          emitSafeState(state.copyWith(error: failure));
-        },
-        (_) {
-          emitSafeState(state.copyWith(newLines: []));
-        },
-      );
-    } finally {
-      _isSyncingLine = false;
-    }
+      },
+      (_) {
+        emitSafeState(state.copyWith(newLines: []));
+      },
+    );
+  } finally {
+    _isSyncingLine = false;
   }
+}
+
+  // Future<void> _syncLineToServer() async {
+  //   if (_isSyncingLine) return;
+  //   _isSyncingLine = true;
+
+  //   try {
+  //     final form = state.form;
+  //     final docExists = form.name != null && form.name!.isNotEmpty;
+
+  //     if (!docExists) {
+  //       _emitError(
+  //         const Pair(
+  //           'Please save the Sales Order and Pallet Code before scanning items.',
+  //           null,
+  //         ),
+  //       );
+  //       return;
+  //     }
+
+  //     final pending = state.newLines;
+  //     if (pending.isEmpty) return;
+
+  //     final response = await repo.updateFrame(form, pending);
+  //     response.fold(
+  //       (failure) {
+  //         emitSafeState(state.copyWith(error: failure));
+  //       },
+  //       (_) {
+  //         emitSafeState(state.copyWith(newLines: []));
+  //       },
+  //     );
+  //   } finally {
+  //     _isSyncingLine = false;
+  //   }
+  // }
 
   void addLinePhotos(int index, List<String> localPaths) {
     final lines = [...state.lines];
@@ -527,6 +576,12 @@ class CreateFrameCubit extends AppBaseCubit<CreateFrameState> {
   }
 
   Future<void> freezeFrameQuantity() async {
+    final incompleteError = _validateAllQuantitiesScanned(state.lines);
+    if (incompleteError != null) {
+      _emitError(Pair(incompleteError, null));
+      return;
+    }
+
     emitSafeState(state.copyWith(isFreezing: true));
 
     final form = state.form;
@@ -560,6 +615,46 @@ class CreateFrameCubit extends AppBaseCubit<CreateFrameState> {
         );
       },
     );
+  }
+
+  /// Validates QR segment `current/total` (e.g. 1/9 in
+  /// `180048712/183/LHR/1/9/1203`). Freeze is allowed only when every
+  /// item group has all [total] frames scanned.
+  String? _validateAllQuantitiesScanned(List<FrameLines> lines) {
+    if (lines.isEmpty) {
+      return 'Scan at least one frame before freezing quantity.';
+    }
+
+    final totalsByGroup = <String, int>{};
+    final scannedByGroup = <String, Set<int>>{};
+
+    for (final line in lines) {
+      final qr = line.shutterBarcodeQr;
+      if (qr == null || qr.isEmpty) continue;
+
+      final parsed = _ParsedShutterQr.tryParse(qr);
+      if (parsed == null) continue;
+
+      totalsByGroup[parsed.groupKey] = parsed.totalQty;
+      scannedByGroup
+          .putIfAbsent(parsed.groupKey, () => <int>{})
+          .add(parsed.seqNo);
+    }
+
+    if (totalsByGroup.isEmpty) {
+      return 'Invalid frame QR data. Rescan and try again.';
+    }
+
+    for (final entry in totalsByGroup.entries) {
+      final scannedCount = scannedByGroup[entry.key]?.length ?? 0;
+      final totalQty = entry.value;
+      if (scannedCount < totalQty) {
+        return 'You have scanned $scannedCount out of $totalQty. '
+            'To freeze quantity, scan all $totalQty.';
+      }
+    }
+
+    return null;
   }
 
   void freezeHandled() {

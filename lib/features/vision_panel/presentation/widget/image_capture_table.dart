@@ -26,16 +26,19 @@ class _ImageCaptureTableState extends State<ImageCaptureTable> {
         final isSubmitted = newform.docStatus == 1;
 
         final activeIndex = cubit.activeItemIndex;
+        final uploaded = state.uploadedItemIndexes;
 
-        // Filter out stray orphan rows that have no itemIndex and no photo
         final validEntries = <MapEntry<int, VisionPanelEntryLines>>[];
         for (var i = 0; i < state.imageLines.length; i++) {
           final line = state.imageLines[i];
           final hasPhoto = line.visionPhotoImg != null ||
               (line.image != null && line.image!.isNotEmpty);
 
-          // Only keep if it belongs to a known item OR already has an uploaded photo
-          if (line.itemIndex != null || hasPhoto) {
+          // Keep captured photos; drop blank leftover rows for uploaded items.
+          if (hasPhoto) {
+            validEntries.add(MapEntry(i, line));
+          } else if (line.itemIndex != null &&
+              !uploaded.contains(line.itemIndex)) {
             validEntries.add(MapEntry(i, line));
           }
         }
@@ -200,8 +203,6 @@ class _BoxDetailsTable extends StatelessWidget {
     if (isSubmitted) {
       return const SizedBox();
     }
-
-    // Only enable camera for the active item currently being captured
     final isRowActive = activeIndex != null && line.itemIndex == activeIndex;
 
     return IconButton(

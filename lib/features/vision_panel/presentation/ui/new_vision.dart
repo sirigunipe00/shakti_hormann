@@ -33,10 +33,7 @@ class _NewVisionState extends State<NewVision> {
               (docName == null || docName.isEmpty)
                   ? SimpleAppBar(
                     title: 'New Accessories Packing',
-                    actionButton: BlocBuilder<
-                      CreateVisionPanelCubit,
-                      CreateVisionPanelState
-                    >(
+                    actionButton: BlocBuilder<CreateVisionPanelCubit,CreateVisionPanelState>(
                       builder: (context, state) {
                         final hasSO =
                             (state.form.salesOrderNo?.trim().isNotEmpty ??
@@ -80,10 +77,7 @@ class _NewVisionState extends State<NewVision> {
                         actionButton:
                             (form.docStatus == 1)
                                 ? null
-                                : BlocBuilder<
-                                  CreateVisionPanelCubit,
-                                  CreateVisionPanelState
-                                >(
+                                : BlocBuilder<CreateVisionPanelCubit,CreateVisionPanelState>(
                                   builder: (context, state) {
                                     final canSubmit =
                                         state.isUpdated && !state.isLoading;

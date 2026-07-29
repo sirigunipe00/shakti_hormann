@@ -97,7 +97,7 @@ AsyncValueOf<String> printFrameSticker(String framePackingId) async {
   };
 
   final config = RequestConfig(
-    url: Urls.printShutterSticker,
+    url: Urls.printFrameSticker,
     parser: (json) {
       final message = json['message'] as Map<String, dynamic>;
       final status = message['status'] as int?;

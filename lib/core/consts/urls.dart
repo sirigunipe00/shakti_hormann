@@ -71,13 +71,17 @@ class Urls {
   static final zoneTransfer = '$cusWs/shaktihormann.p2_api.create_zone_transfer';
 
   static final createHardware = '$cusWs/shaktihormann.p2_api.create_hardware_packing';
+  static final updateHardware = '$cusWs/shaktihormann.p2_api.update_hardware_packing';
+  static final submitHardware = '$cusWs/shaktihormann.p2_api.submit_hardware_packing';
   static final getMesValues = '$cusWs/shaktihormann.p2_api.extract_packing_label_api';
 
   static final createPallet = '$cusWs/shaktihormann.p2_api.create_pallet';
   static final updatePallet = '$cusWs/shaktihormann.p2_api.update_pallet';
 
   static final printShutterSticker = '$cusWs/shaktihormann.network_print.print_shutter_pallet_over_network';
+  static final printFrameSticker = '$cusWs/shaktihormann.network_print.print_frame_pallet_over_network';
   static final printinstalltionStciker = '$cusWs/shaktihormann.network_print.print_installation_pallet_over_network';
+  static final printVisionSticker = '$cusWs/shaktihormann.network_print.print_vision_panel_pallet_over_network';
   static final getPalletCode = '$cusWs/shaktihormann.p2_api.get_pallet_codes';
 
   static final createVision = '$cusWs/shaktihormann.p2_api.create_vision_panel';

@@ -116,12 +116,13 @@ class _AppPageView2State<T extends PageViewFiltersCubit>
         case PageMode2.shutterPacking:
          case PageMode2.framePacking:
          case PageMode2.installation:
+         case PageMode2.hardwarePackaging:
         
         filters = ['Draft', 'Submitted', 'All'];
         break;
         case PageMode2.storageAllocation:
         case PageMode2.zoneTransfer:
-        case PageMode2.hardwarePackaging:
+        
         
        
 
