@@ -14,5 +14,6 @@ abstract class PalletRepo{
   AsyncValueOf<Pair<String,String>> createPallet(PalletModel form,List<PalletItems> lines,);
   AsyncValueOf<Pair<String,String>> updatePallet(PalletModel form,List<PalletItems> lines,);
   AsyncValueOf<List<PalletItems>> fetchPalletItems(String name);
+  AsyncValueOf<Pair<String,String>> submitPallet(String name);
   AsyncValueOf<List<SalesOrderForm>> salesOrder();
 }

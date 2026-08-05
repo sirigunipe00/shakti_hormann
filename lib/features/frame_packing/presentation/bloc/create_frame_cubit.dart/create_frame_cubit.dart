@@ -536,7 +536,7 @@ class CreateFrameCubit extends AppBaseCubit<CreateFrameState> {
                 isLoading: false,
                 form: form.copyWith(status: status, name: r.second),
                 isSuccess: true,
-                successMsg: r.first,
+                successMsg: '${r.first}\n${r.second}',
                 isModified: false,
                 view: FrameView.edit,
                 newLines: [],
@@ -555,7 +555,7 @@ class CreateFrameCubit extends AppBaseCubit<CreateFrameState> {
                 isLoading: false,
                 isSuccess: true,
                 form: form.copyWith(docStatus: 1),
-                successMsg: r.first,
+                successMsg: '${r.first}\n${r.second}',
                 view: FrameView.completed,
                 isModified: false,
               ),
@@ -617,9 +617,6 @@ class CreateFrameCubit extends AppBaseCubit<CreateFrameState> {
     );
   }
 
-  /// Validates QR segment `current/total` (e.g. 1/9 in
-  /// `180048712/183/LHR/1/9/1203`). Freeze is allowed only when every
-  /// item group has all [total] frames scanned.
   String? _validateAllQuantitiesScanned(List<FrameLines> lines) {
     if (lines.isEmpty) {
       return 'Scan at least one frame before freezing quantity.';

@@ -83,12 +83,20 @@ class InstallationRepoImpl extends BaseApiRepository implements InstallationRepo
     });
   }
   @override
-  AsyncValueOf<String> updateInstallation(String name, List<String> images) async {
+  AsyncValueOf<Pair<String,String>> updateInstallation(String name, List<String> images) async {
     final requestBody = {'name': name, 'images': images};
 
     final config = RequestConfig(
       url: Urls.updateInstallation,
-      parser: (json) => json['message']['message'] as String,
+       parser: (json) {
+        final message = json['message']['message'] as String;
+
+        final data = json['message']['data'] as Map<String, dynamic>;
+
+        final docNo = data['name'] as String;
+
+        return Pair(message, docNo);
+      },
       body: jsonEncode(requestBody),
       headers: {HttpHeaders.contentTypeHeader: 'application/json'},
     );
@@ -128,12 +136,21 @@ AsyncValueOf<String> printinstallationSticker(String id) async {
   });
 }
   @override
-  AsyncValueOf<String> submitInstallation(String name) async {
+  AsyncValueOf<Pair<String,String>> submitInstallation(String name) async {
     final requestBody = {'name': name};
 
     final config = RequestConfig(
       url: Urls.submitInstallation, 
-      parser: (json) => json['message']['message'] as String,
+      // parser: (json) => json['message']['message'] as String,
+       parser: (json) {
+        final message = json['message']['message'] as String;
+
+        final data = json['message']['data'] as Map<String, dynamic>;
+
+        final docNo = data['name'] as String;
+
+        return Pair(message, docNo);
+      },
       body: jsonEncode(requestBody),
       headers: {HttpHeaders.contentTypeHeader: 'application/json'},
     );

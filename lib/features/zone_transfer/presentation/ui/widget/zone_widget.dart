@@ -1,7 +1,7 @@
 import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/material.dart';
 import 'package:shakti_hormann/core/core.dart';
-import 'package:shakti_hormann/features/zone_transfer/model/zone_transfer.dart';
+import 'package:shakti_hormann/features/storage_allocation/model/storage.dart';
 import 'package:shakti_hormann/widgets/doc_status_widget.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/styles/app_text_styles.dart';
@@ -13,7 +13,7 @@ class ZoneWidget extends StatelessWidget {
     required this.gateEntry,
     required this.onTap,
   });
-  final ZoneTransfer gateEntry;
+  final Storage gateEntry;
   final VoidCallback onTap;
   String get _palletDisplayNumber {
     final raw = gateEntry.name;

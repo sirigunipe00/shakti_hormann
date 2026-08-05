@@ -67,14 +67,29 @@ class _NewPalletState extends State<NewPallet> {
                             ? null
                             : BlocBuilder<CreatePalletCubit, CreatePalletState>(
                               builder: (context, state) {
+                                final currentStatus = state.form.docStatus;
+
+                                if (currentStatus == 1 && !state.isModified) {
+                                  return const SizedBox.shrink();
+                                }
+                                final isReadyToSubmit =
+                                    currentStatus == 0 && !state.isModified;
+
                                 return AppButton(
                                   borderColor: Colors.grey,
                                   isLoading: state.isLoading,
                                   label:
-                                      state.view
-                                          .toName(), // always 'Update' here
+                                      isReadyToSubmit
+                                          ? 'Submit'
+                                          : state.view.toName(),
                                   onPressed: () {
-                                    context.cubit<CreatePalletCubit>().save();
+                                    if (isReadyToSubmit) {
+                                      context
+                                          .cubit<CreatePalletCubit>()
+                                          .submit();
+                                    } else {
+                                      context.cubit<CreatePalletCubit>().save();
+                                    }
                                   },
                                 );
                               },
@@ -117,7 +132,8 @@ class _NewPalletState extends State<NewPallet> {
           }
         },
         child: BlocProvider(
-          create: (context) => ShutterBlocProvider.get().getPalletSize()..request(),
+          create:
+              (context) => ShutterBlocProvider.get().getPalletSize()..request(),
           child: PalletFormWidget(key: ValueKey(status)),
         ),
       ),

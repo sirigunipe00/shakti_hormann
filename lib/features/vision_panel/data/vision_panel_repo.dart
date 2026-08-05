@@ -22,6 +22,6 @@ abstract interface class VisionPanelRepo {
      required List<String> images,
    });
   AsyncValueOf<List<ProductType>> fetchProduct();
-  AsyncValueOf<String> submitVision(String name);
+  AsyncValueOf<Pair<String,String>> submitVision(String name);
   AsyncValueOf<String> printVisionSticker(String id);
 }

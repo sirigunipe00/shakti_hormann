@@ -811,7 +811,7 @@ class CreateVisionPanelCubit extends AppBaseCubit<CreateVisionPanelState> {
           state.copyWith(
             isLoading: false,
             isSuccess: true,
-            successMsg: r.first,
+            successMsg: '${r.first}\n${r.second}',
             form: state.form.copyWith(name: docNo, docStatus: 0),
             view: VisionView.edit,
           ),
@@ -1093,7 +1093,7 @@ class CreateVisionPanelCubit extends AppBaseCubit<CreateVisionPanelState> {
           isLoading: false,
           isSuccess: true,
           isModified: false,
-          successMsg: msg,
+          successMsg: '${msg.first}\n${msg.second}',
           form: state.form.copyWith(docStatus: 1),
           view: VisionView.completed,
         ),

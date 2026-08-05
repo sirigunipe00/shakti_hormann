@@ -11,7 +11,7 @@ abstract interface class InstallationRepo {
   );
   AsyncValueOf<Pair<String,String>> createInstallation(InstallationModel form);
   AsyncValueOf<List<InstallationLineItems>> fetchInstallationLines(String name);
-  AsyncValueOf<String> updateInstallation(String name, List<String> images);
-  AsyncValueOf<String> submitInstallation(String name);
+  AsyncValueOf<Pair<String,String>> updateInstallation(String name, List<String> images);
+  AsyncValueOf<Pair<String,String>> submitInstallation(String name);
   AsyncValueOf<String> printinstallationSticker(String id);
 }

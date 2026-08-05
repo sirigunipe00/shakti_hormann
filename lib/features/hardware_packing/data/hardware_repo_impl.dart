@@ -203,22 +203,19 @@ class HardWareRepoImp extends BaseApiRepository implements HardWareRepo {
   }
 
   @override
-  AsyncValueOf<String> submitHardware(String name) async {
+  AsyncValueOf<Pair<String,String>> submitHardware(String name) async {
     final requestBody = {'hardware_packing_id': name};
 
     final config = RequestConfig(
       url: Urls.submitHardware,
-      parser: (json) {
-        final message = json['message'];
-        if (message is Map<String, dynamic>) {
-          final status = message['status'] as int?;
-          final text = message['message'] as String? ?? 'Submit failed';
-          if (status != null && status >= 300) {
-            throw Failure(error: text, title: 'Submit Failed', status: status);
-          }
-          return text;
-        }
-        return message as String;
+       parser: (json) {
+        final message = json['message']['message'] as String;
+
+        final data = json['message']['data'] as Map<String, dynamic>;
+
+        final docNo = data['name'] as String;
+
+        return Pair(message, docNo);
       },
       body: jsonEncode(requestBody),
       headers: {HttpHeaders.contentTypeHeader: 'application/json'},

@@ -1,4 +1,3 @@
-import 'package:flutter/widgets.dart';
 import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/features/hardware_packing/model/hardware_item.dart';
 import 'package:shakti_hormann/features/hardware_packing/model/hardware_packing.dart';
@@ -12,7 +11,7 @@ abstract class HardWareRepo{
   );
   AsyncValueOf<Pair<String,String>> createHardware(HardwarePacking form,List<HardwareItem> lines);
   AsyncValueOf<Pair<String,String>> updateHardware(HardwarePacking form,List<HardwareItem> lines);
-  AsyncValueOf<String> submitHardware(String name);
+  AsyncValueOf<Pair<String,String>> submitHardware(String name);
   AsyncValueOf<List<HardwareItem>> fetchItems(String name);
   AsyncValueOf<HardwarePackingItem> fetchHardwareItems(String mesImage);
 }

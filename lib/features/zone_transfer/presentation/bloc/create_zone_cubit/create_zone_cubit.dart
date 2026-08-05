@@ -5,7 +5,6 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:shakti_hormann/features/storage_allocation/model/storage.dart';
 import 'package:shakti_hormann/features/zone_transfer/data/zone_repo.dart';
-import 'package:shakti_hormann/features/zone_transfer/model/zone_transfer.dart';
 
 part 'create_zone_cubit.freezed.dart';
 
@@ -38,6 +37,7 @@ class CreateZoneCubit extends AppBaseCubit<CreateZoneState> {
     String? oldzone,
     String? palletNo,
     File? zonePhoto,
+    int? palletCount,
   }) async {
     shouldAskForConfirmation.value = true;
 
@@ -52,8 +52,9 @@ class CreateZoneCubit extends AppBaseCubit<CreateZoneState> {
       salesOrders: salesOrders ?? form.salesOrders,
       totalQty: totalQty ?? form.totalQty,
       oldZone: oldzone ?? form.oldZone,
-      newzoneQr: newzoneQr ?? form.newzoneQr,
+      // newzoneQr: newzoneQr ?? form.newzoneQr,
       palletBoxQr: palletNo ?? form.palletBoxQr,
+      palletCount: palletCount ?? form.palletCount,
       locationPhotoImg: zonePhotos,
     );
 
@@ -73,7 +74,7 @@ class CreateZoneCubit extends AppBaseCubit<CreateZoneState> {
 
   void initDetails(Object? entry) async {
     shouldAskForConfirmation.value = false;
-    if (entry is ZoneTransfer) {
+    if (entry is Storage) {
       final form = state.form;
       final updatedForm = form.copyWith(
         docStatus: entry.docStatus,
@@ -84,7 +85,8 @@ class CreateZoneCubit extends AppBaseCubit<CreateZoneState> {
         locationPhoto: entry.locationPhoto,
         salesOrders: entry.salesOrders,
         totalQty: entry.totalQty,
-        newzoneQr: entry.newzoneQr,
+        palletCount: entry.palletCount,
+        // newzoneQr: entry.newzoneQr,
         palletBoxQr: entry.palletBoxQr,
       );
       emitSafeState(
@@ -197,9 +199,10 @@ Future<void> onQrScanned(String rawQr) async {
       return optionOf(const Pair('Missing PalletQr No', 0));
     } else if (form.oldZone.isNull || (form.oldZone?.trim().isEmpty ?? true)) {
       return optionOf(const Pair('Missing Old Zone No', 0));
-    }else if (form.newzoneQr.isNull || (form.newzoneQr?.trim().isEmpty ?? true)) {
-      return optionOf(const Pair('Missing New Zone No', 0));
     }
+    // else if (form.newzoneQr.isNull || (form.newzoneQr?.trim().isEmpty ?? true)) {
+    //   return optionOf(const Pair('Missing New Zone No', 0));
+    // }
     else if (form.locationPhotoImg.isNull && form.locationPhoto.doesNotHaveValue) {
       return optionOf(const Pair('Missing Zone Photo', 0));
     }
@@ -211,7 +214,7 @@ Future<void> onQrScanned(String rawQr) async {
 @freezed
 class CreateZoneState with _$CreateZoneState {
   const factory CreateZoneState({
-    required ZoneTransfer form,
+    required Storage form,
     required bool isLoading,
     required bool isSuccess,
     required ZoneView view,
@@ -223,7 +226,7 @@ class CreateZoneState with _$CreateZoneState {
 
   factory CreateZoneState.initial() {
     return const CreateZoneState(
-      form: ZoneTransfer(),
+      form: Storage(),
       view: ZoneView.create,
       isLoading: false,
       isSuccess: false,

@@ -77,6 +77,7 @@ class Urls {
 
   static final createPallet = '$cusWs/shaktihormann.p2_api.create_pallet';
   static final updatePallet = '$cusWs/shaktihormann.p2_api.update_pallet';
+  static final submitPallet = '$cusWs/shaktihormann.p2_api.submit_pallet';
 
   static final printShutterSticker = '$cusWs/shaktihormann.network_print.print_shutter_pallet_over_network';
   static final printFrameSticker = '$cusWs/shaktihormann.network_print.print_frame_pallet_over_network';

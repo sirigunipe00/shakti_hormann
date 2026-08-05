@@ -171,6 +171,20 @@ class __ZoneFormWidgetState extends State<ZoneFormWidget> {
                       },
                       focusNode: focusNodes.elementAt(13),
                     ),
+                    InputField(
+                    readOnly: true,
+                    initialValue: newform.palletCount.toString(),
+                    title: 'Pallet Count',
+                    hintText: 'pallet count',
+                    isRequired: false,
+                    borderColor: AppColors.grey,
+                    onChanged: (p0) {
+                      context.cubit<CreateZoneCubit>().onValueChanged(
+                        palletCount: int.parse(p0),
+                      );
+                    },
+                    focusNode: focusNodes.elementAt(13),
+                  ),
 
                   ],
                 ),
@@ -196,7 +210,7 @@ class __ZoneFormWidgetState extends State<ZoneFormWidget> {
                   children: [
                     InputField(
                       readOnly: true,
-                      initialValue: newform.newzoneQr,
+                      initialValue: newform.zoneQr,
                       title: 'New Zone No',
                       hintText: 'Scan to add details',
                       isRequired: false,

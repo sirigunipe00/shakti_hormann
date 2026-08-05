@@ -9,14 +9,13 @@ import 'package:path/path.dart' as p;
 import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/features/storage_allocation/model/storage.dart';
 import 'package:shakti_hormann/features/zone_transfer/data/zone_repo.dart';
-import 'package:shakti_hormann/features/zone_transfer/model/zone_transfer.dart';
 
 @LazySingleton(as: ZoneRepo)
 class ZoneRepoImp extends BaseApiRepository implements ZoneRepo{
   ZoneRepoImp(super.dio);
 
   @override
-  AsyncValueOf<List<ZoneTransfer>> fetchZone(
+  AsyncValueOf<List<Storage>> fetchZone(
     int start,
     int? docStatus,
     String? search,
@@ -34,7 +33,7 @@ class ZoneRepoImp extends BaseApiRepository implements ZoneRepo{
       url: Urls.getList,
       parser: (json) {
         final data = json['message'] as List<dynamic>;
-        return data.map((e) => ZoneTransfer.fromJson(e)).toList();
+        return data.map((e) => Storage.fromJson(e)).toList();
       },
       reqParams: {
         'filters': jsonEncode(filters),
@@ -53,7 +52,7 @@ class ZoneRepoImp extends BaseApiRepository implements ZoneRepo{
     return response.process((r) => right(r.data!));
   }
     @override
-  AsyncValueOf<Pair<String,String>> createZone(ZoneTransfer form) async{
+  AsyncValueOf<Pair<String,String>> createZone(Storage form) async{
     final formJson = form.toJson();
     formJson['status'] = ['Draft'];
      Uint8List? zonecompressedBytes;
@@ -72,7 +71,7 @@ class ZoneRepoImp extends BaseApiRepository implements ZoneRepo{
     final Map<String, dynamic> requestBody = {
       'pallet__box_qr_scan': form.palletBoxQr,
       'old_zone_qr': form.oldZone,
-      'new_zone_qr': form.newzoneQr,
+      'zone_qr': form.zoneQr,
       'location_photo': zonecompressedBytes == null
               ? null
               : base64Encode(zonecompressedBytes)
@@ -92,7 +91,7 @@ class ZoneRepoImp extends BaseApiRepository implements ZoneRepo{
       headers: {HttpHeaders.contentTypeHeader: 'application/json'},
     );
 
-    $logger.devLog('requestConfig.....$config');
+    $logger.devLog('zone.....$config');
 
     final response = await post(config);
     return response.processAsync((r) async {

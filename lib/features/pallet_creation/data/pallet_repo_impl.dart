@@ -159,6 +159,29 @@ class PalletRepoImpl extends BaseApiRepository implements PalletRepo {
       return right(r.data!);
     });
   }
+    @override
+  AsyncValueOf<Pair<String,String>> submitPallet(String name) async {
+    final requestBody = {'pallet_id': name};
+
+    final config = RequestConfig(
+      url: Urls.submitPallet, 
+      // parser: (json) => json['message']['message'] as String,
+      parser: (json){
+        final result = json['message'] as Map<String, dynamic>;
+        final message = result['message'] as String? ?? '';
+        final data = result['data'] as Map<String, dynamic>?;
+
+        return Pair(message, data?['pallet_id'] as String? ?? '');
+      },
+      body: jsonEncode(requestBody),
+      headers: {HttpHeaders.contentTypeHeader: 'application/json'},
+    );
+
+    $logger.devLog('submitPallet....$config');
+
+    final response = await post(config);
+    return response.process((r) => right(r.data!));
+  }
 
   @override
   AsyncValueOf<List<PalletItems>> fetchPalletItems(String name) async {

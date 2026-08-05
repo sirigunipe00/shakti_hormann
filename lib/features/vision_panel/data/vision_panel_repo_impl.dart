@@ -158,12 +158,21 @@ class VisionPanelRepoImpl extends BaseApiRepository implements VisionPanelRepo {
   }
 
   @override
-  AsyncValueOf<String> submitVision(String name) async {
+  AsyncValueOf<Pair<String,String>> submitVision(String name) async {
     final requestBody = {'vision_panel_id': name};
 
     final config = RequestConfig(
       url: Urls.submitVision,
-      parser: (json) => json['message']['message'] as String,
+      // parser: (json) => json['message']['message'] as String,
+       parser: (json) {
+        final message = json['message']['message'] as String;
+
+        final data = json['message']['data'] as Map<String, dynamic>;
+
+        final docNo = data['vision_panel_id'] as String;
+
+        return Pair(message, docNo);
+      },
       body: jsonEncode(requestBody),
       headers: {HttpHeaders.contentTypeHeader: 'application/json'},
     );

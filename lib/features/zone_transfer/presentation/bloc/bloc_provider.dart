@@ -2,11 +2,11 @@ import 'package:injectable/injectable.dart';
 import 'package:shakti_hormann/core/cubit/infinite_list/infinite_list_cubit.dart';
 import 'package:shakti_hormann/core/di/injector.dart';
 import 'package:shakti_hormann/core/model/pair.dart';
+import 'package:shakti_hormann/features/storage_allocation/model/storage.dart';
 import 'package:shakti_hormann/features/zone_transfer/data/zone_repo.dart';
-import 'package:shakti_hormann/features/zone_transfer/model/zone_transfer.dart';
 
-typedef ZoneCubit = InfiniteListCubit<ZoneTransfer, Pair<int?, String?>, Pair<int?, String?>>;
-typedef ZoneCubitState = InfiniteListState<ZoneTransfer>;
+typedef ZoneCubit = InfiniteListCubit<Storage, Pair<int?, String?>, Pair<int?, String?>>;
+typedef ZoneCubitState = InfiniteListState<Storage>;
 
 @lazySingleton
 class ZoneBlocProvider {

@@ -4,7 +4,7 @@ import 'package:shakti_hormann/app/presentation/widgets/app_page_view2.dart';
 import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/core/model/page_view_filters.dart';
 import 'package:shakti_hormann/features/frame_packing/presentation/bloc/bloc_provider.dart';
-import 'package:shakti_hormann/features/zone_transfer/model/zone_transfer.dart';
+import 'package:shakti_hormann/features/storage_allocation/model/storage.dart';
 import 'package:shakti_hormann/features/zone_transfer/presentation/bloc/bloc_provider.dart';
 import 'package:shakti_hormann/features/zone_transfer/presentation/bloc/zone_filter_cubit.dart';
 import 'package:shakti_hormann/features/zone_transfer/presentation/ui/widget/zone_widget.dart';
@@ -52,7 +52,7 @@ class _ZoneListScrnState extends State<ZoneListScrn> {
         },
         child: BlocListener<ZoneFilterCubit, PageViewFilters>(
           listener: (_, state) => _fetchInital(context),
-          child: InfiniteListViewWidget<ZoneCubit, ZoneTransfer>(
+          child: InfiniteListViewWidget<ZoneCubit, Storage>(
             childBuilder: (context, entry) => ZoneWidget(
               gateEntry: entry,
               onTap: () async {

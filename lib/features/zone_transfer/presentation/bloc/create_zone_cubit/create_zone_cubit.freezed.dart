@@ -17,7 +17,7 @@ final _privateConstructorUsedError = UnsupportedError(
 
 /// @nodoc
 mixin _$CreateZoneState {
-  ZoneTransfer get form => throw _privateConstructorUsedError;
+  Storage get form => throw _privateConstructorUsedError;
   bool get isLoading => throw _privateConstructorUsedError;
   bool get isSuccess => throw _privateConstructorUsedError;
   ZoneView get view => throw _privateConstructorUsedError;
@@ -40,7 +40,7 @@ abstract class $CreateZoneStateCopyWith<$Res> {
   ) = _$CreateZoneStateCopyWithImpl<$Res, CreateZoneState>;
   @useResult
   $Res call({
-    ZoneTransfer form,
+    Storage form,
     bool isLoading,
     bool isSuccess,
     ZoneView view,
@@ -49,7 +49,7 @@ abstract class $CreateZoneStateCopyWith<$Res> {
     Failure? error,
   });
 
-  $ZoneTransferCopyWith<$Res> get form;
+  $StorageCopyWith<$Res> get form;
   $FailureCopyWith<$Res>? get error;
 }
 
@@ -82,7 +82,7 @@ class _$CreateZoneStateCopyWithImpl<$Res, $Val extends CreateZoneState>
                 null == form
                     ? _value.form
                     : form // ignore: cast_nullable_to_non_nullable
-                        as ZoneTransfer,
+                        as Storage,
             isLoading:
                 null == isLoading
                     ? _value.isLoading
@@ -122,8 +122,8 @@ class _$CreateZoneStateCopyWithImpl<$Res, $Val extends CreateZoneState>
   /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
-  $ZoneTransferCopyWith<$Res> get form {
-    return $ZoneTransferCopyWith<$Res>(_value.form, (value) {
+  $StorageCopyWith<$Res> get form {
+    return $StorageCopyWith<$Res>(_value.form, (value) {
       return _then(_value.copyWith(form: value) as $Val);
     });
   }
@@ -153,7 +153,7 @@ abstract class _$$CreateZoneStateImplCopyWith<$Res>
   @override
   @useResult
   $Res call({
-    ZoneTransfer form,
+    Storage form,
     bool isLoading,
     bool isSuccess,
     ZoneView view,
@@ -163,7 +163,7 @@ abstract class _$$CreateZoneStateImplCopyWith<$Res>
   });
 
   @override
-  $ZoneTransferCopyWith<$Res> get form;
+  $StorageCopyWith<$Res> get form;
   @override
   $FailureCopyWith<$Res>? get error;
 }
@@ -196,7 +196,7 @@ class __$$CreateZoneStateImplCopyWithImpl<$Res>
             null == form
                 ? _value.form
                 : form // ignore: cast_nullable_to_non_nullable
-                    as ZoneTransfer,
+                    as Storage,
         isLoading:
             null == isLoading
                 ? _value.isLoading
@@ -246,7 +246,7 @@ class _$CreateZoneStateImpl implements _CreateZoneState {
   });
 
   @override
-  final ZoneTransfer form;
+  final Storage form;
   @override
   final bool isLoading;
   @override
@@ -310,7 +310,7 @@ class _$CreateZoneStateImpl implements _CreateZoneState {
 
 abstract class _CreateZoneState implements CreateZoneState {
   const factory _CreateZoneState({
-    required final ZoneTransfer form,
+    required final Storage form,
     required final bool isLoading,
     required final bool isSuccess,
     required final ZoneView view,
@@ -320,7 +320,7 @@ abstract class _CreateZoneState implements CreateZoneState {
   }) = _$CreateZoneStateImpl;
 
   @override
-  ZoneTransfer get form;
+  Storage get form;
   @override
   bool get isLoading;
   @override

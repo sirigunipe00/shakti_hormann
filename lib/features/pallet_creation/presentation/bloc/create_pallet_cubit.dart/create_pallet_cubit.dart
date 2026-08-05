@@ -86,13 +86,11 @@ class CreatePalletCubit extends AppBaseCubit<CreatePalletState> {
     if (entry == null) return;
   }
 
-  /// Loads existing pallet line items fetched from the server (has `idx`).
+
   void addAllLines(List<PalletItems> lines) {
     emitSafeState(state.copyWith(lines: lines));
   }
 
-  /// Adds a brand-new pallet entry (from the "Product Type" dialog).
-  /// No `idx` set — the backend will treat this as a new row.
   void addPalletItem(PalletItems item) {
     emitSafeState(
       state.copyWith(
@@ -102,10 +100,7 @@ class CreatePalletCubit extends AppBaseCubit<CreatePalletState> {
     );
   }
 
-  /// Replaces the row at [index] after editing via the dialog.
-  /// Preserves the original `idx` (if the row was already persisted) so the
-  /// backend still recognizes it as an existing item on update, rather than
-  /// treating an edited row as a brand-new one.
+
   void updatePalletItemAt(int index, PalletItems updatedItem) {
     if (index < 0 || index >= state.lines.length) return;
 
@@ -168,10 +163,6 @@ class CreatePalletCubit extends AppBaseCubit<CreatePalletState> {
         );
         }
 
-      // Existing draft doc — every subsequent save is an update.
-      // Send the full line list; the repo distinguishes existing rows
-      // (has `idx`) from new rows (no `idx`) and builds the request body
-      // accordingly, so we don't need to track a separate "new" list here.
       final response = await repo.updatePallet(form, state.lines);
       return response.fold(
         (l) => emitSafeState(state.copyWith(isLoading: false, error: l)),
@@ -182,7 +173,7 @@ class CreatePalletCubit extends AppBaseCubit<CreatePalletState> {
               isLoading: false,
               form: form.copyWith(status: 'Draft', name: r.second),
               isSuccess: true,
-              successMsg: r.first,
+              successMsg: '${r.first}\n${r.second}',
               isModified: false,
               view: PalletView.edit,
             ),
@@ -191,6 +182,31 @@ class CreatePalletCubit extends AppBaseCubit<CreatePalletState> {
       );
     }, _emitError);
   }
+  void submit() async {
+  final form = state.form;
+  final docName = form.name;
+  if (docName == null || docName.isEmpty) return;
+
+  emitSafeState(state.copyWith(isLoading: true, isSuccess: false));
+
+  final response = await repo.submitPallet(docName);
+  response.fold(
+    (l) => emitSafeState(state.copyWith(isLoading: false, error: l)),
+    (r) {
+      shouldAskForConfirmation.value = false;
+      emitSafeState(
+        state.copyWith(
+          isLoading: false,
+          isSuccess: true,
+          successMsg: '${r.first}\n${r.second}',
+          form: form.copyWith(docStatus: 1, status: 'Submitted'),
+          view: PalletView.completed,
+          isModified: false,
+        ),
+      );
+    },
+  );
+}
 
   void _emitError(Pair<String, int?> error) {
     final failure = Failure(

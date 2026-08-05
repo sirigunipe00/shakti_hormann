@@ -366,7 +366,7 @@ Future<void> _autoUpdateInstallation() async {
         isLoading: false,
         isSuccess: true,
         isUpdated: true,
-        successMsg: msg,
+        successMsg: '${msg.first}\n${msg.second}',
       ),
     ),
   );
@@ -392,7 +392,7 @@ Future<void> _autoUpdateInstallation() async {
           isLoading: false,
           isSuccess: true,
           isModified: false,
-          successMsg: msg,
+          successMsg: '${msg.first}\n${msg.second}',
           form: state.form.copyWith(docStatus: 1),
           view: InstallationView.completed,
         ),
