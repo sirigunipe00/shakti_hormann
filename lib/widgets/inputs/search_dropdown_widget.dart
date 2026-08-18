@@ -108,6 +108,24 @@ Widget build(BuildContext context) {
               ),
             ),
           )
+        else if (widget.items.isEmpty)
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: backgroundColor,
+              borderRadius: BorderRadius.circular(8.0),
+              border: Border.all(color: borderColor, width: 1),
+            ),
+            child: Text(
+              widget.hint ?? 'No options available',
+              style: context.textTheme.titleMedium?.copyWith(
+                color: AppColors.black.withValues(alpha: 0.55),
+                fontWeight: FontWeight.w500,
+                fontFamily: 'Urbanist',
+              ),
+            ),
+          )
         else
           AbsorbPointer(
             absorbing: widget.readOnly,

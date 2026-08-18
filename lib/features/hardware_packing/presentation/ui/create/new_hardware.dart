@@ -36,15 +36,9 @@ class _NewHardwareState extends State<NewHardware> {
               (name == null || name.isEmpty)
                   ? SimpleAppBar(
                     title: 'New HardWare Packing',
-                    actionButton: BlocBuilder<
-                      CreateHardwareCubit,
-                      CreateHardwareState
-                    >(
+                    actionButton: BlocBuilder<CreateHardwareCubit,CreateHardwareState>(
                       builder: (context, createState) {
-                        return BlocBuilder<
-                          HardwarePackingItemsCubit,
-                          HardwarePackingItemsState
-                        >(
+                        return BlocBuilder<HardwarePackingItemsCubit,HardwarePackingItemsState>(
                           builder: (context, packingItemsState) {
                             final canSave =
                                 (createState.form.salesOrderNo
@@ -91,15 +85,9 @@ class _NewHardwareState extends State<NewHardware> {
                         actionButton:
                             !isDraft
                                 ? null
-                                : BlocBuilder<
-                                  CreateHardwareCubit,
-                                  CreateHardwareState
-                                >(
+                                : BlocBuilder<CreateHardwareCubit,CreateHardwareState>(
                                   builder: (context, createState) {
-                                    return BlocBuilder<
-                                      HardwarePackingItemsCubit,
-                                      HardwarePackingItemsState
-                                    >(
+                                    return BlocBuilder<HardwarePackingItemsCubit,HardwarePackingItemsState>(
                                       builder: (context, packingItemsState) {
                                         final cubit =
                                             context.read<CreateHardwareCubit>();
@@ -121,9 +109,9 @@ class _NewHardwareState extends State<NewHardware> {
                                                   )
                                                   : AppColors.green,
                                           textStyle: const TextStyle(
-                                            color: AppColors.darkBlue,
+                                            color: AppColors.white,
                                             fontWeight: FontWeight.bold,
-                                            fontSize: 15,
+                                            fontSize: 17,
                                           ),
                                           isLoading: isBusy,
                                           label:
@@ -159,8 +147,6 @@ class _NewHardwareState extends State<NewHardware> {
 
                 if (!context.mounted) return;
                 context.cubit<CreateHardwareCubit>().errorHandled();
-
-                // Refresh list always; leave page only after final submit.
                 final filters = context.read<HardWareFilterCubit>().state;
                 context.cubit<HardwareCubit>().fetchInitial(
                   Pair(

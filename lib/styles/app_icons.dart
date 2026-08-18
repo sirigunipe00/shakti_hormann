@@ -14,6 +14,7 @@ class AppIcons {
   static const transportrterConfirmation = AppIcon(
     '$imagesPath/transportconfirmation.svg',
   );
+  static const mesSticker = AppIcon('assets/images/mes_sticker.png');
   static const vehicleReporting = AppIcon('$imagesPath/vehiclereportings.svg');
   static const pod = AppIcon('$imagesPath/loadingconfirmation.svg');
   static const loadingConfirmation = AppIcon('$imagesPath/pod.svg');

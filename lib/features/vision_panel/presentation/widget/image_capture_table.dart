@@ -43,9 +43,9 @@ class _ImageCaptureTableState extends State<ImageCaptureTable> {
           }
         }
 
-        if (validEntries.isEmpty) {
-          return const SizedBox.shrink();
-        }
+        // if (validEntries.isEmpty) {
+        //   return const SizedBox.shrink();
+        // }
 
         return _BoxDetailsTable(
           entries: validEntries,

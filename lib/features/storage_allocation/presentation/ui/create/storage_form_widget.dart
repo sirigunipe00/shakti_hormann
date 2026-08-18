@@ -94,7 +94,7 @@ class __StorageFormWidgetState extends State<StorageFormWidget> {
                     initialValue: newform.palletBoxQr,
                     title: 'Pallet No',
                     hintText: 'Scan to add details',
-                    isRequired: false,
+                    isRequired: true,
                     borderColor: AppColors.grey,
                     onChanged: (p0) {
                       context.cubit<CreateStorageCubit>().onValueChanged(
@@ -105,10 +105,10 @@ class __StorageFormWidgetState extends State<StorageFormWidget> {
                   ),
                   InputField(
                     readOnly: true,
-                    initialValue: newform.totalQty.toString(),
+                    initialValue: newform.totalQty?.toString() ?? '0',
                     title: 'Total Quantity',
                     hintText: 'Scan to add details',
-                    isRequired: false,
+                    isRequired: true,
                     borderColor: AppColors.grey,
                     onChanged: (p0) {
                       context.cubit<CreateStorageCubit>().onValueChanged(
@@ -122,7 +122,7 @@ class __StorageFormWidgetState extends State<StorageFormWidget> {
                     initialValue: newform.salesOrders,
                     title: 'Sales Order No',
                     hintText: 'Scan to add details',
-                    isRequired: false,
+                    isRequired: true,
                     borderColor: AppColors.grey,
                     onChanged: (p0) {
                       context.cubit<CreateStorageCubit>().onValueChanged(
@@ -133,7 +133,7 @@ class __StorageFormWidgetState extends State<StorageFormWidget> {
                   ),
                   InputField(
                     readOnly: true,
-                    initialValue: newform.palletCount.toString(),
+                    initialValue: newform.palletCount == null ? '' : newform.palletCount.toString(),
                     title: 'Pallet Count',
                     hintText: 'pallet count',
                     isRequired: false,
@@ -172,7 +172,7 @@ class __StorageFormWidgetState extends State<StorageFormWidget> {
                     initialValue: newform.zoneQr,
                     title: 'Zone No',
                     hintText: 'Scan to add details',
-                    isRequired: false,
+                    isRequired: true,
                     borderColor: AppColors.grey,
                     onChanged: (p0) {
                       context.cubit<CreateStorageCubit>().onValueChanged(

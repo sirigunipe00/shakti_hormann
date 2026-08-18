@@ -22,7 +22,7 @@ class HardwareItem with _$HardwareItem {
     @JsonKey(name: 'uom') String? uom,
     @JsonKey(name: 'description') String? productName,
     @JsonKey(name: 'qty_on_sticker') int? qtySticker,
-    @JsonKey(name: 'product_name') String? materialCode,
+    @JsonKey(name: 'sap_code') String? materialCode,
     @JsonKey(name: 'mes_sticker_image') String? mesStcikerImage,
       @JsonKey(
       includeFromJson: true,
@@ -31,6 +31,12 @@ class HardwareItem with _$HardwareItem {
       fromJson: toNull,
     )
     File? mesStickerImage,
+    @JsonKey(includeFromJson: false, includeToJson: false)
+    String? box,
+    @JsonKey(includeFromJson: false, includeToJson: false)
+    String? page,
+    @JsonKey(includeFromJson: false, includeToJson: false)
+    String? boxType,
   @Default(<String>[]) @JsonKey(includeFromJson: false, includeToJson: false) List<String> deletedLines,
 
 

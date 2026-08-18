@@ -15,11 +15,6 @@ mixin StatusModeSelectionMixin {
       case PageMode2.gateexit:
       case PageMode2.proofOfDelivery:
       case PageMode2.gateManagement:
-      
-      
-      
-      
-      
       case PageMode2.palletCreation:
        case PageMode2.visionPanel:
         case PageMode2.shutterPacking:

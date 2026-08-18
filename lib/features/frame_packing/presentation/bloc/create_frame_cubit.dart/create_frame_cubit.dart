@@ -186,13 +186,24 @@ class CreateFrameCubit extends AppBaseCubit<CreateFrameState> {
   }
 
   Future<void> getPalletCodes(String salesOrder) async {
-    emitSafeState(state.copyWith(isLoading: true));
+    emitSafeState(
+      state.copyWith(
+        isLoading: true,
+        palletCodes: [],
+      ),
+    );
 
     final result = await repo.getFramePalletCode(salesOrder);
 
     result.fold(
       (failure) {
-        emitSafeState(state.copyWith(isLoading: false, error: failure));
+        emitSafeState(
+          state.copyWith(
+            isLoading: false,
+            palletCodes: [],
+            error: failure,
+          ),
+        );
       },
       (codes) {
         emitSafeState(state.copyWith(isLoading: false, palletCodes: codes));
@@ -672,6 +683,12 @@ class CreateFrameCubit extends AppBaseCubit<CreateFrameState> {
   Option<Pair<String, int?>> _validate() {
     final form = state.form;
     final isSubmit = state.view == FrameView.edit && !state.isModified;
+ if (form.salesOrder == null || form.salesOrder!.isEmpty) {
+      return optionOf(const Pair('Sales Order is required', 0));
+    }
+    else if (form.palletCode == null || form.palletCode!.isEmpty) {
+      return optionOf(const Pair('Pallet Code is required', 0));
+    }
 
     if (isSubmit &&
         form.palletPhotoImg == null &&

@@ -57,7 +57,7 @@ class PalletRepoImpl extends BaseApiRepository implements PalletRepo {
         'limit_page_length': 'None',
         'order_by': 'creation desc',
         'doctype': 'SAP Sales Order',
-        'fields': ['*'],
+        'fields': jsonEncode(['name', 'customer_name', 'order_date']),
         // 'filters': jsonEncode(filters),
       };
 
@@ -132,23 +132,39 @@ class PalletRepoImpl extends BaseApiRepository implements PalletRepo {
 
         return Pair(message, data?['pallet_id'] as String? ?? '');
       },
-      body: jsonEncode({
-        'pallet_id': form.name,
-        'pallet_details':
-            lines.map((e) {
-              final map = <String, dynamic>{};
-              if (e.idx != null) {
-                map['idx'] = e.idx;
-                map['no_of_pallets'] = e.noOfPallets;
-              } else {
-                map['product_type'] = e.productType;
-                map['size'] = e.size;
-                map['no_of_pallets'] = e.noOfPallets;
-              }
+      // body: jsonEncode({
+      //   'pallet_id': form.name,
+      //   'pallet_details':
+      //       lines.map((e) {
+      //         final map = <String, dynamic>{};
+      //         if (e.idx != null) {
+      //           map['idx'] = e.idx;
+      //           map['no_of_pallets'] = e.noOfPallets;
+      //         } else {
+      //           map['product_type'] = e.productType;
+      //           map['size'] = e.size;
+      //           map['no_of_pallets'] = e.noOfPallets;
+      //         }
 
-              return map;
-            }).toList(),
-      }),
+      //         return map;
+      //       }).toList(),
+      // }),
+      body: jsonEncode({
+  'pallet_id': form.name,
+  'pallet_details':
+      lines.map((e) {
+        final map = <String, dynamic>{
+          'product_type': e.productType,
+          'size': e.size,
+          'no_of_pallets': e.noOfPallets,
+        };
+        if (e.idx != null) {
+          map['idx'] = e.idx;
+        }
+
+        return map;
+      }).toList(),
+}),
       headers: {HttpHeaders.contentTypeHeader: 'application/json'},
     );
 

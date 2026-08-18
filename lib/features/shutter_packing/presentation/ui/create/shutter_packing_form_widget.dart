@@ -104,6 +104,7 @@ class __ShutterPackingFormWidgetState extends State<ShutterPackingFormWidget> {
                         key: ValueKey(newform.salesOrder),
                         color: AppColors.black,
                         items: names,
+                        isRequired: true,
                         readOnly: isDropdownLocked,
                         defaultSelection: names.firstWhere(
                           (g) => g.salesOrder == newform.salesOrder,
@@ -146,6 +147,7 @@ class __ShutterPackingFormWidgetState extends State<ShutterPackingFormWidget> {
                         onSelected: (selected) {
                           context.cubit<CreateShutterCubit>().onValueChanged(
                             salesOrder: selected.salesOrder,
+                            palletCode: '',
                           );
                           context.cubit<CreateShutterCubit>().getPalletCodes(
                             selected.salesOrder!,
@@ -168,26 +170,34 @@ class __ShutterPackingFormWidgetState extends State<ShutterPackingFormWidget> {
                       );
                       if (storedCode != null &&
                           storedCode.isNotEmpty &&
-                          !matchInList) {
+                          !matchInList &&
+                          palletCodes.isNotEmpty) {
                         palletCodes.insert(
                           0,
                           PalletCodeModel(name: storedCode),
                         );
                       }
 
+                      final PalletCodeModel? selection = palletCodes
+                          .where((e) => e.name == storedCode)
+                          .firstOrNull;
+
                       return SearchDropDownList<PalletCodeModel>(
                         title: 'Pallet Select',
-                        hint: 'Search Pallet',
+                        hint:
+                            palletCodes.isEmpty &&
+                                    (newform.salesOrder?.isNotEmpty ?? false)
+                                ? 'No pallet codes available'
+                                : 'Search Pallet',
                         items: palletCodes,
                         key: ValueKey(
-                          '${newform.palletCode}_${palletCodes.length}',
+                          '${newform.salesOrder}_${state.palletCodes.join()}',
                         ),
                         readOnly: isDropdownLocked,
+                        isRequired: true,
+                        isloading: state.isLoading,
                         color: AppColors.black,
-                        defaultSelection: palletCodes.firstWhere(
-                          (e) => e.name == storedCode,
-                          orElse: () => const PalletCodeModel(name: ''),
-                        ),
+                        defaultSelection: selection,
                         futureRequest: (query) async {
                           if (query.isEmpty) return palletCodes;
                           return palletCodes

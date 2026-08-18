@@ -92,6 +92,7 @@ class CreatePalletCubit extends AppBaseCubit<CreatePalletState> {
   }
 
   void addPalletItem(PalletItems item) {
+    shouldAskForConfirmation.value = true;
     emitSafeState(
       state.copyWith(
         lines: [...state.lines, item],
@@ -103,6 +104,7 @@ class CreatePalletCubit extends AppBaseCubit<CreatePalletState> {
 
   void updatePalletItemAt(int index, PalletItems updatedItem) {
     if (index < 0 || index >= state.lines.length) return;
+     shouldAskForConfirmation.value = true;
 
     final existing = state.lines[index];
     final merged = updatedItem.copyWith(idx: existing.idx);
@@ -153,7 +155,7 @@ class CreatePalletCubit extends AppBaseCubit<CreatePalletState> {
               state.copyWith(
                 isLoading: false,
                 isSuccess: true,
-                form: form.copyWith(status: 'Draft', name: docstatus),
+                form: form.copyWith(status: 'Draft', name: docstatus,docStatus: 0),
                 successMsg: '${r.first}\n${r.second}',
                 view: PalletView.edit,
                 isModified: false,

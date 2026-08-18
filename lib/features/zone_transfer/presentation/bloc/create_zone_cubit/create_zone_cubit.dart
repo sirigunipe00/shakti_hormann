@@ -200,9 +200,9 @@ Future<void> onQrScanned(String rawQr) async {
     } else if (form.oldZone.isNull || (form.oldZone?.trim().isEmpty ?? true)) {
       return optionOf(const Pair('Missing Old Zone No', 0));
     }
-    // else if (form.newzoneQr.isNull || (form.newzoneQr?.trim().isEmpty ?? true)) {
-    //   return optionOf(const Pair('Missing New Zone No', 0));
-    // }
+    else if (form.salesOrders.isNull || (form.salesOrders?.trim().isEmpty ?? true)) {
+      return optionOf(const Pair('Missing Sales Order No', 0));
+    }
     else if (form.locationPhotoImg.isNull && form.locationPhoto.doesNotHaveValue) {
       return optionOf(const Pair('Missing Zone Photo', 0));
     }

@@ -198,6 +198,69 @@ class _Cell extends StatelessWidget {
   }
 }
 
+// class _RowStatusCell extends StatelessWidget {
+//   const _RowStatusCell({
+//     required this.index,
+//     required this.item,
+//     required this.cubit,
+//   });
+
+//   final int index;
+//   final VisionItems item;
+//   final CreateVisionPanelCubit cubit;
+
+//   @override
+//   Widget build(BuildContext context) {
+//     final state = cubit.state;
+//     final isPrinted = item.printCheck == 1;
+//     final isSubmitted = state.form.docStatus == 1;
+
+//     if (isSubmitted) {
+//       return const Text(
+//         'Locked',
+//         style: TextStyle(fontSize: 11, color: Colors.grey),
+//       );
+//     }
+
+//     if (!isPrinted) {
+//       return SizedBox(
+//         height: 34,
+//         child: ElevatedButton(
+//           onPressed:
+//               state.isPrintLoading ? null : () => cubit.printItemSticker(index),
+//           style: ElevatedButton.styleFrom(
+//             backgroundColor: AppColors.darkBlue,
+//             foregroundColor: Colors.white,
+//             padding: const EdgeInsets.symmetric(horizontal: 8),
+//           ),
+//           child:
+//               state.isPrintLoading
+//                   ? const SizedBox(
+//                     width: 16,
+//                     height: 16,
+//                     child: CircularProgressIndicator(
+//                       strokeWidth: 2,
+//                       color: Colors.white,
+//                     ),
+//                   )
+//                   : const Text('Print', style: TextStyle(fontSize: 12)),
+//         ),
+//       );
+//     }
+
+//     return const Row(
+//       mainAxisSize: MainAxisSize.min,
+//       children: [
+//         Icon(Icons.check_circle, color: Colors.green, size: 16),
+//         SizedBox(width: 4),
+//         Text(
+//           'Printed',
+//           style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+//         ),
+//       ],
+//     );
+//   }
+// }
 class _RowStatusCell extends StatelessWidget {
   const _RowStatusCell({
     required this.index,
@@ -214,6 +277,8 @@ class _RowStatusCell extends StatelessWidget {
     final state = cubit.state;
     final isPrinted = item.printCheck == 1;
     final isSubmitted = state.form.docStatus == 1;
+    final isFormSaved =
+        state.form.name != null && state.form.name!.isNotEmpty;
 
     if (isSubmitted) {
       return const Text(
@@ -223,6 +288,16 @@ class _RowStatusCell extends StatelessWidget {
     }
 
     if (!isPrinted) {
+      if (!isFormSaved) {
+        return const Tooltip(
+          message: 'Save the form to enable printing',
+          child: Text(
+            'Save first',
+            style: TextStyle(fontSize: 11, color: Colors.grey),
+          ),
+        );
+      }
+
       return SizedBox(
         height: 34,
         child: ElevatedButton(

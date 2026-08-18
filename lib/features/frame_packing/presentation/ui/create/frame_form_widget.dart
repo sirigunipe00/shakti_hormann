@@ -104,6 +104,7 @@ class __FrameFormWidgetState extends State<FrameFormWidget> {
                         key: ValueKey(newform.salesOrder),
                         color: AppColors.black,
                         items: names,
+                        isRequired: true,
                         readOnly: isDropdownLocked,
                         defaultSelection: names.firstWhere(
                           (g) => g.salesOrder == newform.salesOrder,
@@ -113,7 +114,8 @@ class __FrameFormWidgetState extends State<FrameFormWidget> {
                         futureRequest: (query) async {
                           if (query.isEmpty) return names;
                           return names.where((item) {
-                            final orderNo = item.salesOrder?.toLowerCase() ?? '';
+                            final orderNo =
+                                item.salesOrder?.toLowerCase() ?? '';
                             final search = query.toLowerCase();
                             return orderNo.contains(search);
                           }).toList();
@@ -145,6 +147,7 @@ class __FrameFormWidgetState extends State<FrameFormWidget> {
                         onSelected: (selected) {
                           context.cubit<CreateFrameCubit>().onValueChanged(
                             salesOrder: selected.salesOrder,
+                            palletCode: '',
                           );
                           context.cubit<CreateFrameCubit>().getPalletCodes(
                             selected.salesOrder!,
@@ -156,45 +159,65 @@ class __FrameFormWidgetState extends State<FrameFormWidget> {
                   ),
                   const SizedBox(height: 12),
                   BlocBuilder<CreateFrameCubit, CreateFrameState>(
-  builder: (context, state) {
-    final palletCodes =
-        state.palletCodes.map((e) => PalletCodeModel(name: e)).toList();
+                    builder: (context, state) {
+                      final palletCodes =
+                          state.palletCodes
+                              .map((e) => PalletCodeModel(name: e))
+                              .toList();
+                      final storedCode = state.form.palletCode;
+                      final matchInList = palletCodes.any(
+                        (e) => e.name == storedCode,
+                      );
+                      if (storedCode != null &&
+                          storedCode.isNotEmpty &&
+                          !matchInList &&
+                          palletCodes.isNotEmpty) {
+                        palletCodes.insert(
+                          0,
+                          PalletCodeModel(name: storedCode),
+                        );
+                      }
 
-    // Fallback: if the saved value isn't in the fetched list yet
-    // (e.g. reopening before getPalletCodes has resolved, or the
-    // API simply doesn't return it), show the stored value directly
-    // instead of falling back to an empty item.
-    final storedCode = state.form.palletCode;
-    final matchInList = palletCodes.any((e) => e.name == storedCode);
-    if (storedCode != null && storedCode.isNotEmpty && !matchInList) {
-      palletCodes.insert(0, PalletCodeModel(name: storedCode));
-    }
+                      final PalletCodeModel? selection = palletCodes
+                          .where((e) => e.name == storedCode)
+                          .firstOrNull;
 
-    return SearchDropDownList<PalletCodeModel>(
-      title: 'Pallet Select',
-      hint: 'Search Pallet',
-      items: palletCodes,
-      key: ValueKey('${newform.palletCode}_${palletCodes.length}'),
-      readOnly: isDropdownLocked,
-      color: AppColors.black,
-      defaultSelection: palletCodes.firstWhere(
-        (e) => e.name == storedCode,
-        orElse: () => const PalletCodeModel(name: ''),
-      ),
-      futureRequest: (query) async {
-        if (query.isEmpty) return palletCodes;
-        return palletCodes
-            .where((e) => e.name.toLowerCase().contains(query.toLowerCase()))
-            .toList();
-      },
-      headerBuilder: (_, item, __) => Text(item.name),
-      listItemBuilder: (_, item, __, ___) => Text(item.name),
-      onSelected: (selected) {
-        context.read<CreateFrameCubit>().onValueChanged(palletCode: selected.name);
-      },
-    );
-  },
-),
+                      return SearchDropDownList<PalletCodeModel>(
+                        title: 'Pallet Select',
+                        hint:
+                            palletCodes.isEmpty &&
+                                    (newform.salesOrder?.isNotEmpty ?? false)
+                                ? 'No pallet codes available'
+                                : 'Search Pallet',
+                        items: palletCodes,
+                        key: ValueKey(
+                          '${newform.salesOrder}_${state.palletCodes.join()}',
+                        ),
+                        readOnly: isDropdownLocked,
+                        isRequired: true,
+                        isloading: state.isLoading,
+                        color: AppColors.black,
+                        defaultSelection: selection,
+                        futureRequest: (query) async {
+                          if (query.isEmpty) return palletCodes;
+                          return palletCodes
+                              .where(
+                                (e) => e.name.toLowerCase().contains(
+                                  query.toLowerCase(),
+                                ),
+                              )
+                              .toList();
+                        },
+                        headerBuilder: (_, item, __) => Text(item.name),
+                        listItemBuilder: (_, item, __, ___) => Text(item.name),
+                        onSelected: (selected) {
+                          context.read<CreateFrameCubit>().onValueChanged(
+                            palletCode: selected.name,
+                          );
+                        },
+                      );
+                    },
+                  ),
                 ],
               ),
             ),
@@ -405,7 +428,9 @@ class __FrameFormWidgetState extends State<FrameFormWidget> {
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed:
-                        canFreeze ? () => __onFreezeFrameuantity(context) : null,
+                        canFreeze
+                            ? () => __onFreezeFrameuantity(context)
+                            : null,
                     style: ElevatedButton.styleFrom(
                       backgroundColor:
                           hasLines

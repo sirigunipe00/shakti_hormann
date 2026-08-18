@@ -74,7 +74,7 @@ class _AppPageView2State<T extends PageViewFiltersCubit>
     PageMode2.zoneTransfer => 'Search ZT',
     PageMode2.framePacking => 'Search Frame',
     PageMode2.shutterPacking => 'Search Shutter',
-    PageMode2.palletCreation => 'Serach SO',
+    PageMode2.palletCreation => 'Serach PD',
     PageMode2.visionPanel => 'Serach VP',
     PageMode2.installation => 'Serach ID',
   };

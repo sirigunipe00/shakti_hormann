@@ -151,7 +151,7 @@ class HardwareWidget extends StatelessWidget {
                   ),
                 ),
                 DocStatusWidget(
-                  status: StringUtils.framePackingStatus(
+                  status: StringUtils.docStatus(
                     hardware.docStatus ?? 0,
                   ),
                 ),

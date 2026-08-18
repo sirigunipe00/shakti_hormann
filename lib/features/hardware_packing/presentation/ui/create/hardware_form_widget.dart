@@ -10,6 +10,7 @@ import 'package:shakti_hormann/features/hardware_packing/presentation/ui/widget/
 import 'package:shakti_hormann/features/hardware_packing/presentation/ui/widget/scan_page.dart';
 import 'package:shakti_hormann/features/shutter_packing/presentation/ui/widget/border_painter.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
+import 'package:shakti_hormann/widgets/dailogs/app_dialogs.dart';
 import 'package:shakti_hormann/widgets/input_filed.dart';
 import 'package:shakti_hormann/widgets/sectionheader.dart';
 import 'package:shakti_hormann/widgets/spaced_column.dart';
@@ -34,9 +35,11 @@ class __HardwareFormWidgetState extends State<HardwareFormWidget> {
   @override
   Widget build(BuildContext context) {
     final formState = context.watch<CreateHardwareCubit>().state;
+    final packingState = context.watch<HardwarePackingItemsCubit>().state;
     final isCompleted = formState.view == HardwareView.completed;
     final isReadOnly = isCompleted || formState.form.docStatus == 1;
     final newform = formState.form;
+    final status = newform.docStatus;
     $logger.devLog('newform$newform');
 
     return MultiBlocListener(
@@ -56,12 +59,45 @@ class __HardwareFormWidgetState extends State<HardwareFormWidget> {
           },
         ),
         BlocListener<HardwarePackingItemsCubit, HardwarePackingItemsState>(
-          listener: (context, state) {
+          listener: (context, state) async {
+            if (state.error != null) {
+              await AppDialog.showErrorDialog(
+                context,
+                title: state.error?.title ?? 'Sticker Error',
+                content: state.error!.error,
+                onTapDismiss: () {
+                  Navigator.of(context, rootNavigator: true).pop();
+                },
+              );
+
+              if (!context.mounted) return;
+              context.read<HardwarePackingItemsCubit>().errorHandled();
+              return;
+            }
+
             if (!state.isSuccess || state.response == null) return;
 
             final response = state.response!;
             final cubit = context.read<CreateHardwareCubit>();
             final form = cubit.state.form;
+
+            final existingSalesOrder = form.salesOrderNo;
+            final scannedSalesOrder = response.orderNumber;
+            if (existingSalesOrder != null &&
+                existingSalesOrder.isNotEmpty &&
+                scannedSalesOrder != null &&
+                scannedSalesOrder.isNotEmpty &&
+                existingSalesOrder != scannedSalesOrder) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    'This record is for Sales Order $existingSalesOrder. '
+                    'Scanned sticker belongs to $scannedSalesOrder — not allowed.',
+                  ),
+                ),
+              );
+              return;
+            }
 
             final boxParts = response.box?.split('/');
             final boxCurrent =
@@ -73,34 +109,41 @@ class __HardwareFormWidgetState extends State<HardwareFormWidget> {
                     ? int.tryParse(boxParts[1].trim())
                     : null;
 
-            if (boxCurrent == null || boxTotal == null) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Could not read box count from sticker.'),
-                ),
-              );
-              return;
-            }
-
             final alreadyScanned = form.scannedBoxNumbers;
-            if (alreadyScanned.length >= boxTotal) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    'All $boxTotal boxes for this order are already scanned.',
+
+            if (boxCurrent != null && boxTotal != null) {
+              if (alreadyScanned.contains(boxCurrent)) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      'Box $boxCurrent of $boxTotal has already been scanned for this order.',
+                    ),
                   ),
-                ),
-              );
-              return;
+                );
+                return;
+              }
+
+              if (alreadyScanned.length >= boxTotal) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      'All $boxTotal boxes for this order are already scanned.',
+                    ),
+                  ),
+                );
+                return;
+              }
             }
 
             context.read<CreateHardwareCubit>().onValueChanged(
               mesSystem: response.mesBarCode,
               salesOrderNo: response.orderNumber,
               captueDate: response.printDate,
-              boxCount: int.tryParse(response.box?.split('/').first ?? '0'),
-              totalBoxCount: boxTotal,
-              scannedBoxNumbers: [...alreadyScanned, boxCurrent],
+              boxCount: boxCurrent ?? form.boxCount ?? 0,
+              totalBoxCount: boxTotal ?? form.totalBoxCount ?? 0,
+              scannedBoxNumbers: boxCurrent != null
+                  ? [...alreadyScanned, boxCurrent]
+                  : alreadyScanned,
             );
 
             final items =
@@ -112,10 +155,21 @@ class __HardwareFormWidgetState extends State<HardwareFormWidget> {
                     qtySticker: e.qtySticker,
                     uom: e.uom,
                     mesStickerImage: response.mesStickerImage,
+                    box: response.box,
+                    page: response.page,
+                    boxType: response.boxType,
                   );
                 }).toList();
 
-            // context.read<CreateHardwareCubit>().updateHardwareItems(items);
+            if (items.isEmpty) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('No hardware items were found in this sticker.'),
+                ),
+              );
+              return;
+            }
+
             context.read<CreateHardwareCubit>().addHardwareItems(items);
           },
         ),
@@ -130,11 +184,18 @@ class __HardwareFormWidgetState extends State<HardwareFormWidget> {
               Row(
                 children: [
                   Expanded(
-                    child: _ScanCard(
-                      icon: Icons.camera_alt,
-                      label: 'Capture MES Sticker',
-                      onTap: () => _captureSticker(context),
-                    ),
+                    child:
+                        packingState.isLoading
+                            ? const _AIExtractionLoadingCard()
+                            : _ScanCard(
+                              icon: Icons.camera_alt,
+                              label: 'Capture MES Sticker',
+                              onTap:
+                                  () =>
+                                      status == 1
+                                          ? null
+                                          : _captureSticker(context),
+                            ),
                   ),
                 ],
               ),
@@ -160,11 +221,11 @@ class __HardwareFormWidgetState extends State<HardwareFormWidget> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   InputField(
-                    readOnly: isReadOnly,
+                    readOnly: true,
                     initialValue: newform.mesSystem,
                     title: 'MSE System No',
                     hintText: 'Scan to add details',
-                    isRequired: false,
+                    isRequired: true,
                     borderColor: AppColors.grey,
                     onChanged: (p0) {
                       context.cubit<CreateHardwareCubit>().onValueChanged(
@@ -173,23 +234,47 @@ class __HardwareFormWidgetState extends State<HardwareFormWidget> {
                     },
                     focusNode: focusNodes.elementAt(13),
                   ),
-                  InputField(
-                    readOnly: isReadOnly,
-                    initialValue: newform.salesOrderNo,
-                    title: 'Sales Order No',
-                    hintText: 'Scan to add details',
-                    isRequired: false,
-                    borderColor: AppColors.grey,
-                    onChanged: (p0) {
-                      context.cubit<CreateHardwareCubit>().onValueChanged(
-                        salesOrderNo: p0,
-                      );
-                    },
-                    focusNode: focusNodes.elementAt(14),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: InputField(
+                          readOnly: true,
+                          initialValue: newform.salesOrderNo,
+                          title: 'Sales Order No',
+                          hintText: 'Scan to add details',
+                          isRequired: true,
+                          borderColor: AppColors.grey,
+                          onChanged: (p0) {
+                            context.cubit<CreateHardwareCubit>().onValueChanged(
+                              salesOrderNo: p0,
+                            );
+                          },
+                          focusNode: focusNodes.elementAt(14),
+                        ),
+                      ),
+                      const SizedBox(width: 5),
+                      Expanded(
+                        child: InputField(
+                          key: UniqueKey(),
+                          readOnly: true,
+                          initialValue: newform.boxCount?.toString() ?? '0',
+                          title: 'Box Count',
+                          hintText: 'Scan to add details',
+                          isRequired: true,
+                          borderColor: AppColors.grey,
+                          onChanged: (p0) {
+                            context.cubit<CreateHardwareCubit>().onValueChanged(
+                              boxCount: int.tryParse(p0) ?? 0,
+                            );
+                          },
+                          focusNode: focusNodes.elementAt(15),
+                        ),
+                      ),
+                    ],
                   ),
                   InputField(
                     key: UniqueKey(),
-                    readOnly: isReadOnly,
+                    readOnly: true,
                     initialValue:
                         (newform.captueDate != null &&
                                 newform.captueDate!.contains('.'))
@@ -199,7 +284,7 @@ class __HardwareFormWidgetState extends State<HardwareFormWidget> {
                             ),
                     title: 'Print Date',
                     hintText: 'Scan to add details',
-                    isRequired: false,
+                    isRequired: true,
                     borderColor: AppColors.grey,
                     onChanged: (p0) {
                       context.cubit<CreateHardwareCubit>().onValueChanged(
@@ -241,6 +326,57 @@ class __HardwareFormWidgetState extends State<HardwareFormWidget> {
       context.read<CreateHardwareCubit>().onValueChanged(mesImage: imageFile);
       context.read<HardwarePackingItemsCubit>().fetchHardwareItems(imageFile);
     }
+  }
+}
+
+class _AIExtractionLoadingCard extends StatelessWidget {
+  const _AIExtractionLoadingCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return DashedBorderBox(
+      borderRadius: 16,
+      child: Container(
+        height: 150,
+        decoration: BoxDecoration(
+          color: const Color(0xFFF8FAFC),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const SizedBox(
+              width: 52,
+              height: 52,
+              child: CircularProgressIndicator(
+                strokeWidth: 4,
+                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF2563EB)),
+              ),
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'AI Extraction',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF1E293B),
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              'Please wait while data is being extracted...',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: Colors.grey.shade600,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 

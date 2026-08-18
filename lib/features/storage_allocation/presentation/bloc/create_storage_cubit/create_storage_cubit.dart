@@ -185,6 +185,8 @@ Future<void> onQrScanned(String rawQr) async {
       return optionOf(const Pair('Missing Pallet Qr No', 0));
     } else if (form.zoneQr.isNull || (form.zoneQr?.trim().isEmpty ?? true)) {
       return optionOf(const Pair('Missing Zone No', 0));
+    }else if (form.salesOrders.isNull || (form.salesOrders?.trim().isEmpty ?? true)) {
+      return optionOf(const Pair('Missing Sales Order No', 0));
     }
     else if (form.locationPhotoImg.isNull && form.locationPhoto.doesNotHaveValue) {
       return optionOf(const Pair('Missing Zone Photo', 0));

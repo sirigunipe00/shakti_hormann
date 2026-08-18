@@ -88,6 +88,7 @@ class _VisionPanelFormWidgetState extends State<VisionPanelFormWidget> {
                         readOnly: isLocked,
                         defaultSelection: invoiceform,
                         isloading: state.isLoading,
+                        isRequired: true,
                         futureRequest: (query) async {
                           if (query.isEmpty) return names;
                           return names.where((item) {

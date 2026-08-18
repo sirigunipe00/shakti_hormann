@@ -96,47 +96,96 @@ class _NewPalletState extends State<NewPallet> {
                             ),
                   )
                   as PreferredSizeWidget,
-      body: BlocListener<CreatePalletCubit, CreatePalletState>(
-        listener: (_, state) async {
-          if (state.isSuccess && state.successMsg.isNotNull) {
-            AppDialog.showSuccessDialog(
-              context,
-              title: 'Success',
-              content: state.successMsg.valueOrEmpty,
-              onTapDismiss: context.exit,
-            ).then((_) {
-              final docName = state.form.name;
-              if (!context.mounted) return;
-              context.cubit<CreatePalletCubit>().errorHandled();
-              context.cubit<PalletItemCubit>().request(docName);
-              final gateEntryFilters = context.read<PalletFilterCubit>().state;
-              context.cubit<PalletCubit>().fetchInitial(
-                Pair(
-                  StringUtils.docStatusInt(gateEntryFilters.status),
-                  gateEntryFilters.query,
-                ),
-              );
-              Navigator.pop(context, true);
-              setState(() {});
-            });
-          }
-          if (state.error.isNotNull) {
-            await AppDialog.showErrorDialog(
-              context,
-              title: state.error?.title,
-              content: state.error!.error,
-              onTapDismiss: context.exit,
-            );
-            if (!context.mounted) return;
-            context.cubit<CreatePalletCubit>().errorHandled();
-          }
-        },
-        child: BlocProvider(
-          create:
-              (context) => ShutterBlocProvider.get().getPalletSize()..request(),
-          child: PalletFormWidget(key: ValueKey(status)),
-        ),
-      ),
+                  body: BlocListener<CreatePalletCubit, CreatePalletState>(
+  listener: (_, state) async {
+    if (state.isSuccess && state.successMsg.isNotNull) {
+      final isSubmitted = state.view == PalletView.completed;
+
+      AppDialog.showSuccessDialog(
+        context,
+        title: 'Success',
+        content: state.successMsg.valueOrEmpty,
+        onTapDismiss: context.exit,
+      ).then((_) {
+        final docName = state.form.name;
+        if (!context.mounted) return;
+
+        context.cubit<CreatePalletCubit>().errorHandled();
+        context.cubit<PalletItemCubit>().request(docName);
+
+        final gateEntryFilters = context.read<PalletFilterCubit>().state;
+        context.cubit<PalletCubit>().fetchInitial(
+          Pair(
+            StringUtils.docStatusInt(gateEntryFilters.status),
+            gateEntryFilters.query,
+          ),
+        );
+
+        if (isSubmitted) {
+          Navigator.pop(context, true);
+        } else {
+          setState(() {});
+        }
+      });
+    }
+    if (state.error.isNotNull) {
+      await AppDialog.showErrorDialog(
+        context,
+        title: state.error?.title,
+        content: state.error!.error,
+        onTapDismiss: context.exit,
+      );
+      if (!context.mounted) return;
+      context.cubit<CreatePalletCubit>().errorHandled();
+    }
+  },
+  child: BlocProvider(
+    create:
+        (context) => ShutterBlocProvider.get().getPalletSize()..request(),
+    child: PalletFormWidget(key: ValueKey(status)),
+  ),
+),
+      // body: BlocListener<CreatePalletCubit, CreatePalletState>(
+      //   listener: (_, state) async {
+      //     if (state.isSuccess && state.successMsg.isNotNull) {
+      //       AppDialog.showSuccessDialog(
+      //         context,
+      //         title: 'Success',
+      //         content: state.successMsg.valueOrEmpty,
+      //         onTapDismiss: context.exit,
+      //       ).then((_) {
+      //         final docName = state.form.name;
+      //         if (!context.mounted) return;
+      //         context.cubit<CreatePalletCubit>().errorHandled();
+      //         context.cubit<PalletItemCubit>().request(docName);
+      //         final gateEntryFilters = context.read<PalletFilterCubit>().state;
+      //         context.cubit<PalletCubit>().fetchInitial(
+      //           Pair(
+      //             StringUtils.docStatusInt(gateEntryFilters.status),
+      //             gateEntryFilters.query,
+      //           ),
+      //         );
+      //         Navigator.pop(context, true);
+      //         setState(() {});
+      //       });
+      //     }
+      //     if (state.error.isNotNull) {
+      //       await AppDialog.showErrorDialog(
+      //         context,
+      //         title: state.error?.title,
+      //         content: state.error!.error,
+      //         onTapDismiss: context.exit,
+      //       );
+      //       if (!context.mounted) return;
+      //       context.cubit<CreatePalletCubit>().errorHandled();
+      //     }
+      //   },
+      //   child: BlocProvider(
+      //     create:
+      //         (context) => ShutterBlocProvider.get().getPalletSize()..request(),
+      //     child: PalletFormWidget(key: ValueKey(status)),
+      //   ),
+      // ),
     );
   }
 }

@@ -121,7 +121,7 @@ class __ZoneFormWidgetState extends State<ZoneFormWidget> {
                       initialValue: newform.palletBoxQr,
                       title: 'Pallet No',
                       hintText: 'Scan to add details',
-                      isRequired: false,
+                      isRequired: true,
                       borderColor: AppColors.grey,
                       onChanged: (p0) {
                         context.cubit<CreateZoneCubit>().onValueChanged(
@@ -132,10 +132,10 @@ class __ZoneFormWidgetState extends State<ZoneFormWidget> {
                     ),
                      InputField(
                       readOnly: true,
-                      initialValue: newform.totalQty.toString(),
+                      initialValue: newform.totalQty?.toString() ?? '0',
                       title: 'Total Quantity',
                       hintText: 'Scan to add details',
-                      isRequired: false,
+                      isRequired: true,
                       borderColor: AppColors.grey,
                       onChanged: (p0) {
                         context.cubit<CreateZoneCubit>().onValueChanged(
@@ -149,7 +149,7 @@ class __ZoneFormWidgetState extends State<ZoneFormWidget> {
                       initialValue: newform.salesOrders,
                       title: 'Sales Order No',
                       hintText: 'Scan to add details',
-                      isRequired: false,
+                      isRequired: true,
                       borderColor: AppColors.grey,
                       onChanged: (p0) {
                         context.cubit<CreateZoneCubit>().onValueChanged(
@@ -173,7 +173,7 @@ class __ZoneFormWidgetState extends State<ZoneFormWidget> {
                     ),
                     InputField(
                     readOnly: true,
-                    initialValue: newform.palletCount.toString(),
+                    initialValue: newform.palletCount == null ? '0' : newform.palletCount.toString(),
                     title: 'Pallet Count',
                     hintText: 'pallet count',
                     isRequired: false,
@@ -213,7 +213,7 @@ class __ZoneFormWidgetState extends State<ZoneFormWidget> {
                       initialValue: newform.zoneQr,
                       title: 'New Zone No',
                       hintText: 'Scan to add details',
-                      isRequired: false,
+                      isRequired: true,
                       borderColor: AppColors.grey,
                       onChanged: (p0) {
                         context.cubit<CreateZoneCubit>().onValueChanged(

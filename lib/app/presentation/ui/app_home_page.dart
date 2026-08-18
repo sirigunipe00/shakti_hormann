@@ -190,13 +190,115 @@ class _AppHomePageState extends State<AppHomePage> {
     ),
   ];
 
+  void _showHardwareStickerPreview() {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (dialogContext) {
+        return Dialog(
+          insetPadding: const EdgeInsets.all(20),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Container(
+            width: 360,
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Expanded(
+                      child: Text(
+                        'MES Sticker Sample',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF0E1446),
+                          fontFamily: 'Urbanist',
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () => Navigator.of(dialogContext).pop(),
+                      icon: const Icon(Icons.close, color: Color(0xFF0E1446)),
+                      tooltip: 'Close',
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF7F8FA),
+                    borderRadius: BorderRadius.circular(18),
+                    border: Border.all(color: const Color(0xFFE8ECF4)),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Image.asset(
+                      AppIcons.mesSticker.path,
+                      fit: BoxFit.contain,
+                      height: 220,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 14),
+                const Text(
+                  'Capture this sticker while creating hardware packing:',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF0E1446),
+                    fontFamily: 'Urbanist',
+                  ),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  '• Sales Order No\n• Box Count\n• MES System No\n• Item / Material details\n• Qty and UOM',
+                  style: TextStyle(
+                    fontSize: 13,
+                    height: 1.6,
+                    color: Color(0xFF475569),
+                    fontFamily: 'Urbanist',
+                  ),
+                ),
+                const SizedBox(height: 18),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: () => Navigator.of(dialogContext).pop(),
+                    style: TextButton.styleFrom(
+                      backgroundColor: const Color(0xFF1A3C6B),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 10,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    child: const Text('Close'),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   Widget buildDashboardCard(DashboardItem item) {
+    final isHardwarePackaging = item.title == 'Hardware Packaging';
+
     return GestureDetector(
       onTap: () => item.onTap(context),
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
-
           color: Colors.white,
           border: Border.all(color: const Color(0xFFE8ECF4), width: 2),
           boxShadow: [
@@ -207,25 +309,55 @@ class _AppHomePageState extends State<AppHomePage> {
             ),
           ],
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+        child: Stack(
+          clipBehavior: Clip.none,
           children: [
-            item.icon.toWidget(
-              height: item.iconSize?.height ?? 60,
-              width: item.iconSize?.width ?? 100,
-            ),
-
-            const SizedBox(height: 10),
-            Text(
-              item.title,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontWeight: FontWeight.w600,
-                fontSize: 16,
-                fontFamily: 'Urbanist',
-                color: Color(0xFF0E1446),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  item.icon.toWidget(
+                    height: item.iconSize?.height ?? 60,
+                    width: item.iconSize?.width ?? 100,
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    item.title,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
+                      fontFamily: 'Urbanist',
+                      color: Color(0xFF0E1446),
+                    ),
+                  ),
+                ],
               ),
             ),
+            if (isHardwarePackaging)
+              Positioned(
+                top: 8,
+                right: 8,
+                child: GestureDetector(
+                  onTap: () {
+                    _showHardwareStickerPreview();
+                  },
+                  child: Container(
+                    width: 30,
+                    height: 30,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1A3C6B).withValues(alpha: 0.12),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.info_outline_rounded,
+                      size: 18,
+                      color: Color(0xFF1A3C6B),
+                    ),
+                  ),
+                ),
+              ),
           ],
         ),
       ),

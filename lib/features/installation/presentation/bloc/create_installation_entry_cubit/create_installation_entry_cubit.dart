@@ -175,6 +175,16 @@ void ensureLinePlaceholders(int boxCount) {
     ),
   );
 }
+void clearNoOfBoxes() {
+  if (state.form.isStickerPrinted == 1) return;
+  shouldAskForConfirmation.value = true;
+  emitSafeState(
+    state.copyWith(
+      form: state.form.copyWith(noOfBoxes: null),
+      isModified: true,
+    ),
+  );
+}
 
 Future<void> createEntry() async {
   final form = state.form;

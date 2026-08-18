@@ -127,6 +127,7 @@ class _InstallationEntryFormWidgetState
                               key: const ValueKey('sales_order_dropdown'),
                               color: AppColors.black,
                               items: names,
+                              isRequired: true,
                               readOnly: isCreated || printed || isSubmitted,
                               defaultSelection: invoiceform,
                               isloading: state.isLoading,
@@ -180,55 +181,71 @@ class _InstallationEntryFormWidgetState
                           inputType: TextInputType.number,
                           initialValue: newform.noOfBoxes?.toString() ?? '',
                           onChanged: (p0) {
-                            final parsed = int.tryParse(p0);
+                            final trimmed = p0.trim();
+                            if (trimmed.isEmpty) {
+                              cubit.clearNoOfBoxes();
+                              return;
+                            }
+                            final parsed = int.tryParse(trimmed);
                             if (parsed != null) {
                               cubit.onValueChanged(noOfBoxes: parsed);
                             }
                           },
                         ),
-                      if (!isSubmitted)
-  SizedBox(
-    width: double.infinity,
-    child: ElevatedButton.icon(
-      onPressed:
-          (isCreated && !formState.isPrintLoading && !printed)
-              ? () => _confirmPrint(context, formState, cubit)
-              : null,
-      icon: Icon(
-        printed ? Icons.check_circle : Icons.print,
-        color: Colors.white,
-      ),
-      label:
-          formState.isPrintLoading   // only true while printSticker() itself is running
-              ? const SizedBox(
-                  height: 18,
-                  width: 18,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: Colors.white,
-                  ),
-                )
-              : Text(
-                  printed ? 'Sticker Printed' : 'Print Sticker',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-      style: ElevatedButton.styleFrom(
-        backgroundColor:
-            printed
-                ? Colors.grey.shade400
-                : isCreated
-                    ? const Color(0xFF5CB88F)
-                    : Colors.grey.shade400,
-        padding: const EdgeInsets.symmetric(vertical: 14),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-      ),
-    ),
-  ),
+                        if (!isSubmitted)
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton.icon(
+                              onPressed:
+                                  (isCreated &&
+                                          !formState.isPrintLoading &&
+                                          !printed)
+                                      ? () => _confirmPrint(
+                                        context,
+                                        formState,
+                                        cubit,
+                                      )
+                                      : null,
+                              icon: Icon(
+                                printed ? Icons.check_circle : Icons.print,
+                                color: Colors.green,
+                              ),
+                              label:
+                                  formState
+                                          .isPrintLoading // only true while printSticker() itself is running
+                                      ? const SizedBox(
+                                        height: 18,
+                                        width: 18,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          color: Colors.white,
+                                        ),
+                                      )
+                                      : Text(
+                                        printed
+                                            ? 'Sticker Printed'
+                                            : 'Print Sticker',
+                                        style: const TextStyle(
+                                          color: Colors.green,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor:
+                                    printed
+                                        ? Colors.grey.shade400
+                                        : isCreated
+                                        ? const Color(0xFF5CB88F)
+                                        : Colors.grey.shade400,
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 14,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                            ),
+                          ),
                       ],
                     ),
                   ),
@@ -470,7 +487,7 @@ class _BoxDetailsTable extends StatelessWidget {
     return ClipRRect(
       borderRadius: BorderRadius.circular(10),
       child: Table(
-        border: TableBorder.all(color: Colors.grey.shade300),
+        border: TableBorder.all(color: Colors.grey.shade400),
         columnWidths: const {
           0: FixedColumnWidth(44),
           1: FlexColumnWidth(1.2),
@@ -558,7 +575,9 @@ class _HeaderCell extends StatelessWidget {
         text,
         textAlign: TextAlign.center,
         style: const TextStyle(
+          fontFamily: 'Urbanist',
           color: Colors.white,
+          fontSize: 16,
           fontWeight: FontWeight.bold,
         ),
       ),

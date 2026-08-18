@@ -71,7 +71,7 @@ class HardwarePackingItemsCubit
             state.copyWith(
               isLoading: false,
               isSuccess: true,
-              response: response,
+              response: response.copyWith(mesStickerImage: imageFile),
             ),
           );
         },

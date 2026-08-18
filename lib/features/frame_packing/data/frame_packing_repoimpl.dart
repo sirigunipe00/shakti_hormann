@@ -133,10 +133,13 @@ AsyncValueOf<List<String>> getFramePalletCode(String salesOrder) async {
       'product_type': 'Frame',
     },
     parser: (json) {
-      final data = json['message']['data'] as List;
+      final data = json['message']['data'];
+      if (data is! List) return <String>[];
 
       return data
-          .map((e) => e['pallet_code'].toString())
+          .whereType<Map>()
+          .map((e) => e['pallet_code']?.toString() ?? '')
+          .where((code) => code.isNotEmpty)
           .toList();
     },
     headers: {

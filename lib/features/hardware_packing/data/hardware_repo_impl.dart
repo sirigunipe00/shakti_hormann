@@ -58,19 +58,6 @@ class HardWareRepoImp extends BaseApiRepository implements HardWareRepo {
     HardwarePacking form,
     List<HardwareItem> lines,
   ) async {
-    List<String> mesImages = [];
-
-    final imageFile = form.mesStickerImage;
-
-    if (imageFile != null) {
-      final compressedBytes = await _compressImage(imageFile);
-
-      if (compressedBytes != null) {
-        final base64 = base64Encode(compressedBytes);
-
-        mesImages.add(base64);
-      }
-    }
     String? formattedDate;
     try {
       if (form.captueDate != null && form.captueDate!.isNotEmpty) {
@@ -81,26 +68,52 @@ class HardWareRepoImp extends BaseApiRepository implements HardWareRepo {
       formattedDate = form.captueDate;
     }
 
+    final captures = <Map<String, dynamic>>[];
+    final grouped = <String, List<HardwareItem>>{};
+    for (final item in lines) {
+      final key =
+          item.mesStickerImage?.path ??
+          '${item.box ?? ''}|${item.page ?? ''}|${item.boxType ?? ''}';
+      grouped.putIfAbsent(key, () => []).add(item);
+    }
+
+    for (final group in grouped.values) {
+      final first = group.first;
+      final imageFile = first.mesStickerImage ?? form.mesStickerImage;
+      var imagePayload = '';
+      if (imageFile != null) {
+        final compressedBytes = await _compressImage(imageFile);
+        if (compressedBytes != null) {
+          imagePayload =
+              'data:image/jpeg;base64,${base64Encode(compressedBytes)}';
+        }
+      }
+
+      captures.add({
+        'box': first.box ?? '',
+        'page': first.page ?? '',
+        'box_type': first.boxType ?? '',
+        'image': imagePayload,
+        'items':
+            group
+                .map(
+                  (item) => {
+                    'sap_code': item.materialCode ?? '',
+                    'description': item.productName ?? '',
+                    'qty': item.qtySticker ?? 0,
+                    'uom': item.uom ?? '',
+                  },
+                )
+                .toList(),
+      });
+    }
+
     final Map<String, dynamic> requestBody = {
       'sales_order_no': form.salesOrderNo ?? '',
-      'print_date': formattedDate ?? '',
       'mes_number': form.mesSystem ?? '',
-      'box_count': form.boxCount ?? 0,
+      'print_date': formattedDate ?? '',
       'remarks': form.remarks ?? '',
-      'mes_images': mesImages,
-      'items':
-          lines
-              .map(
-                (item) => {
-                  'product_name': item.productName ?? '',
-                  'description': item.productName ?? '',
-                  'qty_on_sticker': item.qtySticker ?? 0,
-                  'uom': item.uom ?? '',
-                  'sap_material_code': item.materialCode ?? '',
-                  'mes_qr__barcode_value': item.mesBarCode ?? '',
-                },
-              )
-              .toList(),
+      'captures': captures,
     };
 
     final config = RequestConfig(
@@ -201,31 +214,30 @@ class HardWareRepoImp extends BaseApiRepository implements HardWareRepo {
       return right(Pair(r.data!.first, r.data!.second));
     });
   }
+@override
+AsyncValueOf<Pair<String, String>> submitHardware(String name) async {
+  final requestBody = {'hardware_packing_id': name};
 
-  @override
-  AsyncValueOf<Pair<String,String>> submitHardware(String name) async {
-    final requestBody = {'hardware_packing_id': name};
+  final config = RequestConfig(
+    url: Urls.submitHardware,
+    parser: (json) {
+      final message = json['message']['message'] as String;
 
-    final config = RequestConfig(
-      url: Urls.submitHardware,
-       parser: (json) {
-        final message = json['message']['message'] as String;
+      final data = json['message']['data'] as Map<String, dynamic>;
 
-        final data = json['message']['data'] as Map<String, dynamic>;
+      final docNo = data['hardware_packing_id'] as String? ?? name;
 
-        final docNo = data['name'] as String;
+      return Pair(message, docNo);
+    },
+    body: jsonEncode(requestBody),
+    headers: {HttpHeaders.contentTypeHeader: 'application/json'},
+  );
 
-        return Pair(message, docNo);
-      },
-      body: jsonEncode(requestBody),
-      headers: {HttpHeaders.contentTypeHeader: 'application/json'},
-    );
+  $logger.devLog('submitHardware....$config');
 
-    $logger.devLog('submitHardware....$config');
-
-    final response = await post(config);
-    return response.process((r) => right(r.data!));
-  }
+  final response = await post(config);
+  return response.process((r) => right(r.data!));
+}
 
   @override
   AsyncValueOf<HardwarePackingItem> fetchHardwareItems(
@@ -235,7 +247,15 @@ class HardWareRepoImp extends BaseApiRepository implements HardWareRepo {
       final config = RequestConfig(
         url: Urls.getMesValues,
         parser: (json) {
-          return HardwarePackingItem.fromJson(json['message']);
+          final raw = Map<String, dynamic>.from(json as Map);
+          final message = raw['message'];
+          final map = message is Map
+              ? Map<String, dynamic>.from(message)
+              : raw;
+          final payload = map['data'] is Map
+              ? Map<String, dynamic>.from(map['data'] as Map)
+              : map;
+          return HardwarePackingItem.fromJson(payload);
         },
         body: jsonEncode({'base64_image': base64Image}),
         headers: {HttpHeaders.contentTypeHeader: 'application/json'},

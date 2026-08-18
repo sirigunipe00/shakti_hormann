@@ -272,7 +272,6 @@ class _NewEntryState extends State<NewEntry> {
     );
   }
 
-  // ---- Storage: edit-mode status app bar ----
   PreferredSizeWidget _storageStatusAppBar(BuildContext context) {
     final state = context.read<CreateStorageCubit>().state;
     final newform = state.form;

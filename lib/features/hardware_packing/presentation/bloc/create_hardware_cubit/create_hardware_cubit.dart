@@ -27,7 +27,6 @@ class CreateHardwareCubit extends AppBaseCubit<CreateHardwareState> {
   CreateHardwareCubit(this.repo) : super(CreateHardwareState.initial());
   final HardWareRepo repo;
 
-  /// Lines already synced via create/update; only newer lines go in update API.
   int _syncedLineCount = 0;
 
   void onValueChanged({
@@ -210,45 +209,58 @@ class CreateHardwareCubit extends AppBaseCubit<CreateHardwareState> {
     );
   }
 
-  Future<void> submit() async {
-    final name = state.form.name;
-    if (name == null || name.isEmpty) {
-      return _emitError(const Pair('Document ID missing for submit', 0));
-    }
+ Future<void> submit() async {
+  final name = state.form.name;
+  if (name == null || name.isEmpty) {
+    return _emitError(const Pair('Document ID missing for submit', 0));
+  }
 
-    if (state.isModified || state.lines.length > _syncedLineCount) {
-      return _emitError(
-        const Pair('Update new MES sticker items before submit', 0),
-      );
-    }
-
-    if (state.lines.isEmpty) {
-      return _emitError(const Pair('Add at least one MES sticker item', 0));
-    }
-
-    emitSafeState(state.copyWith(isLoading: true, isSuccess: false));
-
-    final response = await repo.submitHardware(name);
-
-    response.fold(
-      (l) => emitSafeState(
-        state.copyWith(isLoading: false, error: l, isSuccess: false),
-      ),
-      (msg) {
-        shouldAskForConfirmation.value = false;
-        emitSafeState(
-          state.copyWith(
-            isLoading: false,
-            isSuccess: true,
-            isModified: false,
-            successMsg: '${msg.first}\n${msg.second}',
-            form: state.form.copyWith(docStatus: 1, status: 'Submitted'),
-            view: HardwareView.completed,
-          ),
-        );
-      },
+  if (state.isModified || state.lines.length > _syncedLineCount) {
+    return _emitError(
+      const Pair('Update new MES sticker items before submit', 0),
     );
   }
+
+  if (state.lines.isEmpty) {
+    return _emitError(const Pair('Add at least one MES sticker item', 0));
+  }
+
+  final totalBoxCount = state.form.totalBoxCount;
+  final scannedCount = state.form.scannedBoxNumbers.length;
+  if (totalBoxCount != null && scannedCount < totalBoxCount) {
+    return _emitError(
+      Pair(
+        'Only $scannedCount of $totalBoxCount boxes saved. '
+        'Scan and save all boxes before submitting.',
+        0,
+      ),
+    );
+  }
+  // --- end new check ---
+
+  emitSafeState(state.copyWith(isLoading: true, isSuccess: false));
+
+  final response = await repo.submitHardware(name);
+
+  response.fold(
+    (l) => emitSafeState(
+      state.copyWith(isLoading: false, error: l, isSuccess: false),
+    ),
+    (msg) {
+      shouldAskForConfirmation.value = false;
+      emitSafeState(
+        state.copyWith(
+          isLoading: false,
+          isSuccess: true,
+          isModified: false,
+          successMsg: '${msg.first}\n${msg.second}',
+          form: state.form.copyWith(docStatus: 1, status: 'Submitted'),
+          view: HardwareView.completed,
+        ),
+      );
+    },
+  );
+}
 
   void _emitError(Pair<String, int?> error) {
     final failure = Failure(
@@ -274,6 +286,10 @@ class CreateHardwareCubit extends AppBaseCubit<CreateHardwareState> {
     final form = state.form;
     if (form.salesOrderNo == null || form.salesOrderNo!.isEmpty) {
       return optionOf(const Pair('Select Sales Order', 0));
+    }else if (form.mesSystem == null || form.mesSystem!.isEmpty) {
+      return optionOf(const Pair('Required MES System No', 0));
+    }else if (form.captueDate == null || form.captueDate!.isEmpty) {
+      return optionOf(const Pair('Required Print Date', 0));
     }
 
     if (state.lines.isEmpty) {

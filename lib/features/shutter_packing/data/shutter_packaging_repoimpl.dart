@@ -209,6 +209,7 @@ AsyncValueOf<String> printShutterSticker(String shutterPackingId) async {
   $logger.devLog('printShutterSticker requestConfig.....$config');
 
   final response = await post(config);
+  $logger.devLog('response.......$response');
   return response.processAsync((r) async {
     return right(r.data!);
   });
@@ -222,10 +223,13 @@ AsyncValueOf<List<String>> getShutterPalletCode(String salesOrder) async {
       'product_type': 'Shutter',
     },
     parser: (json) {
-      final data = json['message']['data'] as List;
+      final data = json['message']['data'];
+      if (data is! List) return <String>[];
 
       return data
-          .map((e) => e['pallet_code'].toString())
+          .whereType<Map>()
+          .map((e) => e['pallet_code']?.toString() ?? '')
+          .where((code) => code.isNotEmpty)
           .toList();
     },
     headers: {
@@ -500,6 +504,7 @@ AsyncValueOf<Pair<String, String>> updateShutter(
         headers: {HttpHeaders.contentTypeHeader: 'application/json'},
       );
       final response = await post(config);
+      $logger.devLog('response.......$response');
 
       return response.processAsync((r) async {
         return right(r.data!);
