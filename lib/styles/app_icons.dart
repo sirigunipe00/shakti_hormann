@@ -8,25 +8,25 @@ class AppIcons {
   static const iconsPath = '$basePath/logo';
   static const shaktiHormannLogo = AppIcon('$iconsPath/hormann-logo-new-1 1.png');
   // static const bubbles = AppIcon('$imagesPath/bubbles.svg');
-  static const gateeEntry = AppIcon('$imagesPath/gate_entry.png');
-  static const gateExit = AppIcon('$imagesPath/gate_exit.png');
+  static const gateeEntry = AppIcon('$imagesPath/entry.png');
+  static const gateExit = AppIcon('$imagesPath/exit.png');
   static const logisticRequest = AppIcon('$imagesPath/Logistics-pana 1.svg');
   static const transportrterConfirmation = AppIcon(
     '$imagesPath/transportconfirmation.svg',
   );
-  static const mesSticker = AppIcon('assets/images/mes_sticker.png');
+  static const mesSticker = AppIcon('assets/images/mes_sticker.jpeg');
   static const vehicleReporting = AppIcon('$imagesPath/vehiclereportings.svg');
   static const pod = AppIcon('$imagesPath/loadingconfirmation.svg');
   static const loadingConfirmation = AppIcon('$imagesPath/pod.svg');
   static const gatemanagement = AppIcon('$imagesPath/gatemanagement.png');
-  static const storage = AppIcon('$imagesPath/storage.png');
+  static const storage = AppIcon('$imagesPath/storage_allocations.png');
   static const zone = AppIcon('$imagesPath/zone.png');
-  static const shutter = AppIcon('$imagesPath/shutter.png');
-  static const frame = AppIcon('$imagesPath/frame_packing.png');
-  static const hardware = AppIcon('$imagesPath/hardware_packaging.svg');
-  static const pallet = AppIcon('$imagesPath/pallet.png');
-  static const installation = AppIcon('$imagesPath/installation.png');
-  static const accessories = AppIcon('$imagesPath/accessories.png');
+  static const shutter = AppIcon('$imagesPath/shutter_packings.png');
+  static const frame = AppIcon('$imagesPath/frame_pack.png');
+  static const hardware = AppIcon('$imagesPath/hardware.png');
+  static const pallet = AppIcon('$imagesPath/pallet_creation.png');
+  static const installation = AppIcon('$imagesPath/installation_packing.png');
+  static const accessories = AppIcon('$imagesPath/vision_panel.png');
 }
 
 class AppIcon {

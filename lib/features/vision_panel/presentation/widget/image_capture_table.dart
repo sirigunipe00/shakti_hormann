@@ -87,7 +87,7 @@ class _ImageCaptureTableState extends State<ImageCaptureTable> {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) =>
-            _ImageViewerPage(localFile: localFile, imageUrl: resolvedUrl),
+            _ImageViewerPage(localFile: localFile, imageUrl: resolvedUrl,boxLabel: 'Box No: ${line.boxNo}'),
       ),
     );
   }
@@ -169,7 +169,7 @@ class _BoxDetailsTable extends StatelessWidget {
                 ),
                 _Cell(
                   child: Text(
-                    'B-${(displayIndex + 1).toString().padLeft(2, '0')}',
+                    entries[displayIndex].value.boxNo ?? '',
                   ),
                 ),
                 _Cell(child: _buildPhotoCell(entries[displayIndex])),
@@ -250,10 +250,11 @@ class _Cell extends StatelessWidget {
 }
 
 class _ImageViewerPage extends StatelessWidget {
-  const _ImageViewerPage({this.localFile, this.imageUrl});
+  const _ImageViewerPage({this.localFile, this.imageUrl, required this.boxLabel});
 
   final File? localFile;
   final String? imageUrl;
+  final String boxLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -288,7 +289,7 @@ class _ImageViewerPage extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: AppColors.darkBlue,
         iconTheme: const IconThemeData(color: Colors.white),
-        title: const Text('Box Photo', style: TextStyle(color: Colors.white)),
+        title:  Text(boxLabel, style: const TextStyle(color: Colors.white)),
       ),
       body: Center(
         child: InteractiveViewer(minScale: 0.8, maxScale: 5, child: content),

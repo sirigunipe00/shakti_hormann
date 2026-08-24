@@ -101,8 +101,26 @@ class _VisionPanelFormWidgetState extends State<VisionPanelFormWidget> {
                           }).toList();
                         },
                         headerBuilder: (_, item, __) => Text(item.name ?? ''),
-                        listItemBuilder: (_, item, __, ___) =>
-                            Text(item.name ?? ''),
+                           listItemBuilder:
+                                      (_, item, __, ___) => Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            'Sales Order: ${item.name ?? ''}',
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          if (item.customerName != null)
+                                            Text(
+                                              'Customer Name : ${item.customerName}',
+                                            ),
+                                          Text(
+                                            'Order Date: ${DFU.ddMMyyyyFromStr(item.orderDate ?? '')} ',
+                                          ),
+                                        ],
+                                      ),
                         onSelected: (selected) {
                           setState(() {
                             invoiceform = selected;
@@ -129,7 +147,7 @@ class _VisionPanelFormWidgetState extends State<VisionPanelFormWidget> {
                 ],
               ),
             ),
-
+            const Center(child: Text('**Please Add Atleast One Product To Save the Record**',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 15),)),
             const ProductSelectionTable(),
 
             const Padding(

@@ -293,7 +293,7 @@ class _RowStatusCell extends StatelessWidget {
           message: 'Save the form to enable printing',
           child: Text(
             'Save first',
-            style: TextStyle(fontSize: 11, color: Colors.grey),
+            style: TextStyle(fontSize: 14, color: Colors.black),
           ),
         );
       }

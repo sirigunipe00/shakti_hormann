@@ -65,6 +65,7 @@ class CreateInstallationEntryCubit extends AppBaseCubit<CreateInstallationState>
     );
 
     emitSafeState(state.copyWith(form: newForm, isModified: true));
+    _previewBoxSequence();
   }
 
 void initDetails(Object? entry) async {
@@ -119,7 +120,10 @@ void initDetails(Object? entry) async {
             final fallbackLines = entry.isStickerPrinted == 1
                 ? List.generate(
                     entry.noOfBoxes ?? 0,
-                    (i) => InstallationLineItems(idx: i + 1),
+                    (i) => InstallationLineItems(
+                      idx: i + 1,
+                      boxNo: 'B-${(i + 1).toString().padLeft(2, '0')}',
+                    ),
                   )
                 : <InstallationLineItems>[];
             emitSafeState(
@@ -135,11 +139,8 @@ void initDetails(Object? entry) async {
             final int boxCount = entry.noOfBoxes ?? updatedForm.noOfBoxes ?? 0;
 
             final lines = fetchedLines.isEmpty && hasPrintedStickers && boxCount > 0
-                ? List.generate(
-                    boxCount,
-                    (i) => InstallationLineItems(idx: i + 1),
-                  )
-                : fetchedLines;
+                ? _generatedBoxes(boxCount)
+                : _withFallbackBoxNos(fetchedLines, boxCount);
             final isFullyCaptured = lines.isNotEmpty &&
                 lines.every(
                   (l) =>
@@ -171,18 +172,83 @@ void ensureLinePlaceholders(int boxCount) {
   if (state.lines.isNotEmpty || boxCount <= 0) return;
   emitSafeState(
     state.copyWith(
-      lines: List.generate(boxCount, (i) => InstallationLineItems(idx: i + 1)),
+      lines: _generatedBoxes(boxCount),
     ),
   );
 }
 void clearNoOfBoxes() {
   if (state.form.isStickerPrinted == 1) return;
   shouldAskForConfirmation.value = true;
+  final isCreated = state.form.name != null && state.form.name!.isNotEmpty;
   emitSafeState(
     state.copyWith(
       form: state.form.copyWith(noOfBoxes: null),
+      lines: isCreated ? state.lines : [],
       isModified: true,
     ),
+  );
+}
+
+List<InstallationLineItems> _generatedBoxes(int boxCount) {
+  return List.generate(
+    boxCount,
+    (i) => InstallationLineItems(
+      idx: i + 1,
+      boxNo: 'B-${(i + 1).toString().padLeft(2, '0')}',
+    ),
+  );
+}
+
+List<InstallationLineItems> _withFallbackBoxNos(
+  List<InstallationLineItems> lines,
+  int boxCount,
+) {
+  if (lines.isEmpty) {
+    return boxCount > 0 ? _generatedBoxes(boxCount) : lines;
+  }
+  return [
+    for (var i = 0; i < lines.length; i++)
+      (lines[i].boxNo == null || lines[i].boxNo!.isEmpty)
+          ? lines[i].copyWith(boxNo: 'B-${(i + 1).toString().padLeft(2, '0')}')
+          : lines[i],
+  ];
+}
+
+bool _hasServerBoxNos(List<InstallationLineItems> lines) =>
+    lines.any((l) => l.boxNo != null && l.boxNo!.isNotEmpty);
+
+Future<void> _previewBoxSequence() async {
+  final form = state.form;
+  final isCreated = form.name != null && form.name!.isNotEmpty;
+  if (isCreated || form.isStickerPrinted == 1) return;
+
+  final salesOrder = form.salesOrderNo?.trim();
+  final boxCount = form.noOfBoxes;
+  if (salesOrder == null || salesOrder.isEmpty || boxCount == null || boxCount <= 0) {
+    emitSafeState(state.copyWith(lines: []));
+    return;
+  }
+
+  final response = await repo.getInstallationBoxSequence(
+    salesOrderNo: salesOrder,
+    noOfBoxes: boxCount,
+  );
+  if (state.form.salesOrderNo?.trim() != salesOrder ||
+      state.form.noOfBoxes != boxCount) {
+    return;
+  }
+
+  response.fold(
+    (_) {
+      emitSafeState(state.copyWith(lines: _generatedBoxes(boxCount)));
+    },
+    (boxes) {
+      emitSafeState(
+        state.copyWith(
+          lines: boxes.isNotEmpty ? boxes : _generatedBoxes(boxCount),
+        ),
+      );
+    },
   );
 }
 
@@ -205,14 +271,16 @@ Future<void> createEntry() async {
   createResponse.fold(
     (l) => emitSafeState(state.copyWith(isLoading: false, error: l)),
     (r) {
-      final docNo = r.second;
       shouldAskForConfirmation.value = false;
       emitSafeState(
         state.copyWith(
           isLoading: false,
           isSuccess: true,
-          successMsg: r.first,
-          form: form.copyWith(name: docNo,docStatus: 0),
+          successMsg: r.message,
+          lines: r.items.isNotEmpty
+              ? r.items
+              : (state.lines.isNotEmpty ? state.lines : _generatedBoxes(boxCount)),
+          form: form.copyWith(name: r.name, docStatus: 0),
         ),
       );
     },
@@ -238,10 +306,9 @@ Future<void> printSticker() async {
   printResponse.fold(
     (l) => emitSafeState(state.copyWith(isPrintLoading: false, error: l)),
     (printMsg) {
-      final generatedLines = List.generate(
-        boxCount,
-        (i) => InstallationLineItems(idx: i + 1),
-      );
+      final lines = _hasServerBoxNos(state.lines)
+          ? state.lines
+          : _generatedBoxes(boxCount);
 
       shouldAskForConfirmation.value = false;
       emitSafeState(
@@ -249,7 +316,7 @@ Future<void> printSticker() async {
           isPrintLoading: false,
           isSuccess: true,
           successMsg: printMsg,
-          lines: generatedLines,
+          lines: lines,
           form: form.copyWith(isStickerPrinted: 1),
           view: InstallationView.edit,
         ),
@@ -319,8 +386,13 @@ Future<void> printSticker() async {
   }
 
   Future<void> onBoxPhotoCaptured(int index, File file) async {
+    if (state.form.docStatus == 1) return;
+    if (state.isUpdated) return;
     if (state.form.isStickerPrinted != 1) return;
     if (index < 0 || index >= state.lines.length) return;
+
+    final current = state.lines[index];
+    if (current.image != null && current.image!.isNotEmpty) return;
 
     final updated = [...state.lines];
     updated[index] = updated[index].copyWith(installtionPhotoImg: file);
@@ -342,8 +414,9 @@ Future<void> _autoUpdateInstallation() async {
 
   emitSafeState(state.copyWith(isLoading: true, isSuccess: false));
 
-  final images = <String>[];
-  for (final line in state.lines) {
+  final images = <Map<String, String>>[];
+  for (int i = 0; i < state.lines.length; i++) {
+    final line = state.lines[i];
     final file = line.installtionPhotoImg;
     if (file == null) continue;
 
@@ -359,15 +432,19 @@ Future<void> _autoUpdateInstallation() async {
       minHeight: 1280,
     );
 
+    final String base64Image;
     if (compressedBytes != null) {
-      images.add('data:image/png;base64,${base64Encode(compressedBytes)}');
+      base64Image = 'data:image/png;base64,${base64Encode(compressedBytes)}';
     } else {
       final bytes = await file.readAsBytes();
-      images.add('data:image/png;base64,${base64Encode(bytes)}');
+      base64Image = 'data:image/png;base64,${base64Encode(bytes)}';
     }
+
+    final boxNo = line.boxNo ?? 'B-${(i + 1).toString().padLeft(2, '0')}';
+    images.add({'box_no': boxNo, 'image': base64Image});
   }
 
-  final response = await repo.updateInstallation(name!, images);
+  final response = await repo.updateInstallation(name!, images: images);
 
   response.fold(
     (l) => emitSafeState(state.copyWith(isLoading: false, error: l)),

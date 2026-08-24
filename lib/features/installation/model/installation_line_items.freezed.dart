@@ -43,7 +43,7 @@ mixin _$InstallationLineItems {
   String? get parentField => throw _privateConstructorUsedError;
   @JsonKey(name: 'parenttype')
   String? get parentType => throw _privateConstructorUsedError;
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(name: 'box_no')
   String? get boxNo => throw _privateConstructorUsedError;
   @JsonKey(name: 'image')
   String? get image => throw _privateConstructorUsedError;
@@ -83,7 +83,7 @@ abstract class $InstallationLineItemsCopyWith<$Res> {
     @JsonKey(name: 'parent') String? parent,
     @JsonKey(name: 'parentfield') String? parentField,
     @JsonKey(name: 'parenttype') String? parentType,
-    @JsonKey(includeFromJson: false, includeToJson: false) String? boxNo,
+    @JsonKey(name: 'box_no') String? boxNo,
     @JsonKey(name: 'image') String? image,
     @JsonKey(
       includeFromJson: true,
@@ -220,7 +220,7 @@ abstract class _$$InstallationLineItemsImplCopyWith<$Res>
     @JsonKey(name: 'parent') String? parent,
     @JsonKey(name: 'parentfield') String? parentField,
     @JsonKey(name: 'parenttype') String? parentType,
-    @JsonKey(includeFromJson: false, includeToJson: false) String? boxNo,
+    @JsonKey(name: 'box_no') String? boxNo,
     @JsonKey(name: 'image') String? image,
     @JsonKey(
       includeFromJson: true,
@@ -347,7 +347,7 @@ class _$InstallationLineItemsImpl implements _InstallationLineItems {
     @JsonKey(name: 'parent') this.parent,
     @JsonKey(name: 'parentfield') this.parentField,
     @JsonKey(name: 'parenttype') this.parentType,
-    @JsonKey(includeFromJson: false, includeToJson: false) this.boxNo,
+    @JsonKey(name: 'box_no') this.boxNo,
     @JsonKey(name: 'image') this.image,
     @JsonKey(
       includeFromJson: true,
@@ -392,7 +392,7 @@ class _$InstallationLineItemsImpl implements _InstallationLineItems {
   @JsonKey(name: 'parenttype')
   final String? parentType;
   @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(name: 'box_no')
   final String? boxNo;
   @override
   @JsonKey(name: 'image')
@@ -487,7 +487,7 @@ abstract class _InstallationLineItems implements InstallationLineItems {
     @JsonKey(name: 'parent') final String? parent,
     @JsonKey(name: 'parentfield') final String? parentField,
     @JsonKey(name: 'parenttype') final String? parentType,
-    @JsonKey(includeFromJson: false, includeToJson: false) final String? boxNo,
+    @JsonKey(name: 'box_no') final String? boxNo,
     @JsonKey(name: 'image') final String? image,
     @JsonKey(
       includeFromJson: true,
@@ -532,7 +532,7 @@ abstract class _InstallationLineItems implements InstallationLineItems {
   @JsonKey(name: 'parenttype')
   String? get parentType;
   @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(name: 'box_no')
   String? get boxNo;
   @override
   @JsonKey(name: 'image')

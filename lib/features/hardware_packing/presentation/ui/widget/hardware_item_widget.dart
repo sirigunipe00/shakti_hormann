@@ -13,7 +13,7 @@ class HardwareItemWidget extends StatelessWidget {
   final ValueChanged<int> onDelete;
   final bool isCompleted;
 
-  static const List<int> _flexes = [1, 2, 4, 2, 2];
+  static const List<int> _flexes = [1, 2, 4, 3, 2, 2];
   static const Color _lineColor = Color(0xFFE2E8F0);
   static const Color _headerColor = Color(0xFF1A3C6B);
 
@@ -29,7 +29,14 @@ class HardwareItemWidget extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           _buildRow(
-            cells: const ['#', 'SAP Code', 'Description', 'Qty', 'UOM'],
+            cells: const [
+              '#',
+              'SAP Code',
+              'Description',
+              'MES Sticker',
+              'Qty',
+              'UOM',
+            ],
             isHeader: true,
           ),
           if (items.isEmpty)
@@ -54,6 +61,7 @@ class HardwareItemWidget extends StatelessWidget {
                   items[i].slNO ?? (i + 1).toString(),
                   items[i].materialCode.toString(),
                   items[i].productName.toString(),
+                  items[i].mesNumber ?? '—',
                   items[i].qtySticker.toString(),
                   items[i].uom.toString(),
                 ],

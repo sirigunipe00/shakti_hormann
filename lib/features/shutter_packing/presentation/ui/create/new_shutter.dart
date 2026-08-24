@@ -455,14 +455,17 @@ class NewShutter extends StatefulWidget {
 }
 
 class _NewShutterState extends State<NewShutter> {
+  int _formRefreshToken = 0;
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<CreateShutterCubit, CreateShutterState>(
       builder: (context, gateEntryState) {
-        final gateEntryState = context.read<CreateShutterCubit>().state;
         final newform = gateEntryState.form;
         final status = newform.docStatus;
         final name = newform.name;
+        final isCompletedView = gateEntryState.view == ShutterView.completed;
+        final isSubmitted = status == 1;
 
         return Scaffold(
           backgroundColor: AppColors.white,
@@ -516,10 +519,11 @@ class _NewShutterState extends State<NewShutter> {
                         status: StringUtils.docStatus(status),
                         textColor: AppColors.white,
                         pageMode: PageMode2.shutterPacking,
+                        showRejectButton: false,
                         onSubmit: () {},
                         onReject: () {},
                         actionButton:
-                            (status == 1 && !gateEntryState.isModified)
+                            (isSubmitted || isCompletedView)
                                 ? null
                                 : BlocBuilder<
                                   CreateShutterCubit,
@@ -542,11 +546,7 @@ class _NewShutterState extends State<NewShutter> {
                                               : 'Submit',
                                       onPressed:
                                           isPrinted
-                                              ? () {
-                                                context
-                                                    .cubit<CreateShutterCubit>()
-                                                    .save();
-                                              }
+                                              ? () => _onSubmitWithConfirmation(context)
                                               : null,
                                     );
                                   },
@@ -574,36 +574,50 @@ class _NewShutterState extends State<NewShutter> {
                 },
               ),
               BlocListener<CreateShutterCubit, CreateShutterState>(
+                listenWhen:
+                    (previous, current) =>
+                        previous.isSuccess != current.isSuccess &&
+                        current.isSuccess &&
+                        current.successMsg != null,
                 listener: (_, state) async {
                   if (state.isSuccess && state.successMsg.isNotNull) {
-                    AppDialog.showSuccessDialog(
+                    await AppDialog.showSuccessDialog(
                       context,
                       title: 'Success',
                       content: state.successMsg.valueOrEmpty,
                       onTapDismiss: () {
                         Navigator.of(context, rootNavigator: true).pop();
                       },
-                    ).then((_) {
-                      if (!context.mounted) return;
+                    );
+                    if (!context.mounted) return;
 
-                      final docName = state.form.name;
-                      context.cubit<CreateShutterCubit>().errorHandled();
-                      context.cubit<ShutterLinesCubit>().request(docName);
+                    final isSubmitted = state.form.docStatus == 1;
+                    context.cubit<CreateShutterCubit>().errorHandled();
 
-                      final gateEntryFilters =
-                          context.read<ShutterFilterCubit>().state;
-                      context.cubit<ShutterCubit>().fetchInitial(
-                        Pair(
-                          StringUtils.docStatusInt(gateEntryFilters.status),
-                          gateEntryFilters.query,
-                        ),
-                      );
+                    final gateEntryFilters =
+                        context.read<ShutterFilterCubit>().state;
+                    context.cubit<ShutterCubit>().fetchInitial(
+                      Pair(
+                        StringUtils.docStatusInt(gateEntryFilters.status),
+                        gateEntryFilters.query,
+                      ),
+                    );
 
+                    if (isSubmitted) {
                       shouldAskForConfirmation.value = false;
-
                       Navigator.pop(context, true);
-                    });
+                    } else {
+                      setState(() => _formRefreshToken++);
+                    }
                   }
+                },
+              ),
+              BlocListener<CreateShutterCubit, CreateShutterState>(
+                listenWhen:
+                    (previous, current) =>
+                        previous.error != current.error &&
+                        current.error.isNotNull,
+                listener: (_, state) async {
                   if (state.error.isNotNull) {
                     await AppDialog.showErrorDialog(
                       context,
@@ -619,11 +633,84 @@ class _NewShutterState extends State<NewShutter> {
             ],
             child: BlocProvider(
               create: (context) => ShutterBlocProvider.get().getItemsLines(),
-              child: ShutterPackingFormWidget(key: ValueKey(status)),
+              child: ShutterPackingFormWidget(
+                key: ValueKey(
+                  '${name}_${status}_${gateEntryState.view}_$_formRefreshToken',
+                ),
+              ),
             ),
           ),
         );
       },
     );
+  }
+
+  Future<void> _onSubmitWithConfirmation(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFECFDF5),
+                  borderRadius: BorderRadius.circular(24),
+                ),
+                child: const Icon(Icons.check_circle_outline, color: Color(0xFF16A34A)),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Submit Document?',
+                style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'Are you sure you want to submit this document? This action cannot be undone.',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 13, color: Color(0xFF64748B)),
+              ),
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.of(dialogContext).pop(false),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: const Color(0xFF64748B),
+                        side: const BorderSide(color: Color(0xFFCBD5E1)),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      ),
+                      child: const Text('Cancel'),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.of(dialogContext).pop(true),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF16A34A),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      ),
+                      child: const Text('Submit', style: TextStyle(color: Colors.white)),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    if (confirmed != true || !context.mounted) return;
+    context.cubit<CreateShutterCubit>().save();
   }
 }

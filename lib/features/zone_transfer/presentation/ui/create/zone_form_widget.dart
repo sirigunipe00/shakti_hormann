@@ -117,6 +117,7 @@ class __ZoneFormWidgetState extends State<ZoneFormWidget> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     InputField(
+                      key: ValueKey('zt_pallet_${newform.palletBoxQr}'),
                       readOnly: true,
                       initialValue: newform.palletBoxQr,
                       title: 'Pallet No',
@@ -131,6 +132,7 @@ class __ZoneFormWidgetState extends State<ZoneFormWidget> {
                       focusNode: focusNodes.elementAt(13),
                     ),
                      InputField(
+                      key: ValueKey('zt_qty_${newform.totalQty}'),
                       readOnly: true,
                       initialValue: newform.totalQty?.toString() ?? '0',
                       title: 'Total Quantity',
@@ -145,6 +147,7 @@ class __ZoneFormWidgetState extends State<ZoneFormWidget> {
                       focusNode: focusNodes.elementAt(13),
                     ),
                      InputField(
+                      key: ValueKey('zt_so_${newform.salesOrders}'),
                       readOnly: true,
                       initialValue: newform.salesOrders,
                       title: 'Sales Order No',
@@ -157,7 +160,8 @@ class __ZoneFormWidgetState extends State<ZoneFormWidget> {
                         );
                       },
                       focusNode: focusNodes.elementAt(13),
-                    ), InputField(
+                    ),                     InputField(
+                      key: ValueKey('zt_old_${newform.oldZone}'),
                       readOnly: true,
                       initialValue: newform.oldZone,
                       title: 'Old Zone No',
@@ -172,6 +176,7 @@ class __ZoneFormWidgetState extends State<ZoneFormWidget> {
                       focusNode: focusNodes.elementAt(13),
                     ),
                     InputField(
+                    key: ValueKey('zt_count_${newform.palletCount}'),
                     readOnly: true,
                     initialValue: newform.palletCount == null ? '0' : newform.palletCount.toString(),
                     title: 'Pallet Count',
@@ -209,6 +214,7 @@ class __ZoneFormWidgetState extends State<ZoneFormWidget> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     InputField(
+                      key: ValueKey('zt_new_${newform.zoneQr}'),
                       readOnly: true,
                       initialValue: newform.zoneQr,
                       title: 'New Zone No',
@@ -272,9 +278,9 @@ class __ZoneFormWidgetState extends State<ZoneFormWidget> {
         ZoneView.completed) {
       return;
     }
-    final raw = await Navigator.of(
-      context,
-    ).push<String>(MaterialPageRoute(builder: (_) => const ScanFramePage()));
+    final raw = await Navigator.of(context).push<String>(
+      MaterialPageRoute(builder: (_) => const ScanFramePage.qr()),
+    );
 
     if (raw == null || !context.mounted) return;
 

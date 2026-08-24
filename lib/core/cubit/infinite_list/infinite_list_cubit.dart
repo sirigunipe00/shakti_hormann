@@ -21,22 +21,31 @@ class InfiniteListCubit<T, FIP, FMP> extends AppBaseCubit<InfiniteListState<T>> 
 
   bool _isFetchInProgress = false;
   final pageLength = 20;
+
   Future<void> fetchInitial([FIP? params]) async {
     try {
       emitSafeState(state.copyWith(apiState: ApiState.loading, failure: null));
       _isFetchInProgress = true;
       final result = await requestInitial(params, state);
       result.fold(
-        (l) => emitSafeState(state.copyWith(apiState: ApiState.failed, failure: l)),
-        (r) => emitSafeState(state.copyWith(
-          apiState: ApiState.success,
-          records: r,
-          hasReachedMax: (r.length < pageLength),
-        )),
+        (l) => emitSafeState(
+          state.copyWith(apiState: ApiState.failed, failure: l),
+        ),
+        (r) => emitSafeState(
+          state.copyWith(
+            apiState: ApiState.success,
+            records: r,
+            // List APIs use limit_page_length: 'None' → full set in one call.
+            // Never trigger fetchMore / infinite append after this.
+            hasReachedMax: true,
+          ),
+        ),
       );
     } on Exception catch (e) {
       final exception = Failure(error: e.toString());
-      emitSafeState(state.copyWith(apiState: ApiState.failed, failure: exception));
+      emitSafeState(
+        state.copyWith(apiState: ApiState.failed, failure: exception),
+      );
     } finally {
       _isFetchInProgress = false;
     }
@@ -45,24 +54,40 @@ class InfiniteListCubit<T, FIP, FMP> extends AppBaseCubit<InfiniteListState<T>> 
   void fetchMore([FMP? params]) async {
     final canRequest =
         !state.hasReachedMax && !_isFetchInProgress && requestMore != null;
-    if (canRequest) {
-      _isFetchInProgress = true;
-      emitSafeState(state.copyWith(apiState: ApiState.loadingMore, failure: null));
+    if (!canRequest) return;
 
-      final result = await requestMore!(params, state);
-      result.fold(
-        (l) => emitSafeState(state.copyWith(apiState: ApiState.success, failure: l)),
-        (List<T> r) {
-          final hasReachedMax = (r.length < pageLength);
-          emitSafeState(state.copyWith(
-            apiState: ApiState.success,
-            records: state.records + r,
-            hasReachedMax: hasReachedMax,
-          ));
-        },
-      );
-      _isFetchInProgress = false;
-    }
+    _isFetchInProgress = true;
+    emitSafeState(
+      state.copyWith(apiState: ApiState.loadingMore, failure: null),
+    );
+
+    final result = await requestMore!(params, state);
+    result.fold(
+      (l) => emitSafeState(
+        state.copyWith(apiState: ApiState.success, failure: l),
+      ),
+      (List<T> r) {
+        // Empty / short page ⇒ end. Do not append empty pages.
+        if (r.isEmpty || r.length < pageLength) {
+          emitSafeState(
+            state.copyWith(
+              apiState: ApiState.success,
+              records: r.isEmpty ? state.records : state.records + r,
+              hasReachedMax: true,
+            ),
+          );
+        } else {
+          emitSafeState(
+            state.copyWith(
+              apiState: ApiState.success,
+              records: state.records + r,
+              hasReachedMax: false,
+            ),
+          );
+        }
+      },
+    );
+    _isFetchInProgress = false;
   }
 }
 

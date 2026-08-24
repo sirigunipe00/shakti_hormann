@@ -51,11 +51,10 @@ class ZoneRepoImp extends BaseApiRepository implements ZoneRepo{
     final response = await get(requestConfig);
     return response.process((r) => right(r.data!));
   }
-    @override
-  AsyncValueOf<Pair<String,String>> createZone(Storage form) async{
-    final formJson = form.toJson();
-    formJson['status'] = ['Draft'];
-     Uint8List? zonecompressedBytes;
+
+  @override
+  AsyncValueOf<Pair<String, String>> createZone(Storage form) async {
+    Uint8List? zonecompressedBytes;
 
     if (form.locationPhotoImg != null) {
       final filePath = form.locationPhotoImg!.path;
@@ -68,25 +67,30 @@ class ZoneRepoImp extends BaseApiRepository implements ZoneRepo{
         form.locationPhoto ?? '',
       );
     }
-    final Map<String, dynamic> requestBody = {
+
+    final photo = zonecompressedBytes == null
+        ? null
+        : 'data:image/jpeg;base64,${base64Encode(zonecompressedBytes)}';
+
+    final requestBody = <String, dynamic>{
       'pallet__box_qr_scan': form.palletBoxQr,
-      'old_zone_qr': form.oldZone,
-      'zone_qr': form.zoneQr,
-      'location_photo': zonecompressedBytes == null
-              ? null
-              : base64Encode(zonecompressedBytes)
+      'new_zone_qr': form.zoneQr,
+      'location_photo': photo,
     };
+    if (form.remarks != null && form.remarks!.trim().isNotEmpty) {
+      requestBody['remarks'] = form.remarks;
+    }
+
     final config = RequestConfig(
-      url: Urls.storageAllocation,
+      url: Urls.zoneTransfer,
       parser: (json) {
        final message = json['message']['message'] as String;
 
         final data = json['message']['data'] as Map<String, dynamic>;
 
-        final docNo = data['storage_zone_id'] as String;
+        final docNo = data['zone_transfer_id'] as String;
         return Pair(message, docNo);
       },
-
       body: jsonEncode(requestBody),
       headers: {HttpHeaders.contentTypeHeader: 'application/json'},
     );
@@ -97,9 +101,82 @@ class ZoneRepoImp extends BaseApiRepository implements ZoneRepo{
     return response.processAsync((r) async {
       return right(Pair(r.data!.first, r.data!.second));
     });
+  }
 
+  @override
+  AsyncValueOf<ZonePalletScanResult> scanPalletForZoneTransfer(
+    String palletQr,
+  ) async {
+    final config = RequestConfig(
+      url: Urls.scanPalletForZoneTransfer,
+      parser: (json) {
+        final envelope = _requireZoneOk(json);
+        final data = envelope['data'] as Map<String, dynamic>? ?? {};
+        final isNew = data['is_new_pallet'] == true;
+        final movement = (data['movement_count'] as num?)?.toInt() ?? 0;
+        return ZonePalletScanResult(
+          palletQr: data['pallet__box_qr_scan'] as String? ??
+              data['scanned_qr'] as String? ??
+              palletQr,
+          salesOrder: data['sales_order'] as String?,
+          totalQty: (data['total_qty'] as num?)?.toInt(),
+          oldZoneName: data['old_zone_name'] as String? ??
+              data['current_zone'] as String?,
+          isNewPallet: isNew,
+          movementCount: movement,
+          transferCount: isNew ? 0 : (movement > 0 ? movement - 1 : 0),
+          popupMessage: _zoneMessage(envelope),
+        );
+      },
+      body: jsonEncode({'pallet__box_qr_scan': palletQr}),
+      headers: {HttpHeaders.contentTypeHeader: 'application/json'},
+    );
 
-}
+    $logger.devLog('scanPalletForZoneTransfer....$config');
+    final response = await post(config);
+    return response.process((r) => right(r.data!));
+  }
+
+  @override
+  AsyncValueOf<int> getPalletTransferCount(String palletQr) async {
+    final config = RequestConfig(
+      url: Urls.getPalletMovementHistory,
+      parser: (json) {
+        final envelope = _requireZoneOk(json);
+        final data = envelope['data'] as Map<String, dynamic>? ?? {};
+        return (data['transfer_count'] as num?)?.toInt() ?? 0;
+      },
+      reqParams: {'pallet__box_qr_scan': palletQr},
+      headers: {HttpHeaders.contentTypeHeader: 'application/json'},
+    );
+
+    $logger.devLog('getPalletMovementHistory....$config');
+    final response = await get(config);
+    return response.process((r) => right(r.data!));
+  }
+
+  Map<String, dynamic> _requireZoneOk(Map<String, dynamic> json) {
+    final message = json['message'];
+    if (message is Map<String, dynamic>) {
+      final ok = message['ok'] == true;
+      final status = message['status'] as int?;
+      if (!ok || (status != null && status >= 300)) {
+        throw Exception(_zoneMessage(message));
+      }
+      return message;
+    }
+    throw Exception('Unsupported Zone Transfer response');
+  }
+
+  String _zoneMessage(Map<String, dynamic> envelope) {
+    final data = envelope['data'];
+    if (data is Map<String, dynamic>) {
+      final popup = data['popup_message'] as String?;
+      if (popup != null && popup.isNotEmpty) return popup;
+    }
+    return envelope['message'] as String? ?? 'Request failed';
+  }
+
   Future<Uint8List?> fetchAndConvertToBase64(String relativePath) async {
     if (p.extension(relativePath).isEmpty) {
       return null;
@@ -115,26 +192,4 @@ class ZoneRepoImp extends BaseApiRepository implements ZoneRepo{
       throw Exception('Failed to load file: ${response.statusCode}');
     }
   }
-  @override
-  AsyncValueOf<List<Storage>> fetchSales(String palletNo) async {
-     final requestConfig = RequestConfig(
-      url: Urls.getList,
-      parser: (json) {
-        final data = json['message'] as List<dynamic>;
-        return data.map((e) => Storage.fromJson(e)).toList();
-      },
-      reqParams: {
-        'doctype': 'Storage Zone',
-        'fields': jsonEncode(['*']),
-        'filters': jsonEncode([
-          ['pallet__box_qr_scan', '=', palletNo],
-          ]),
-      },
-      headers: {HttpHeaders.contentTypeHeader: 'application/json'},
-    );
-
-    final response = await get(requestConfig);
-    return response.process((r) => right(r.data!));
-  }
-    
-  }
+}

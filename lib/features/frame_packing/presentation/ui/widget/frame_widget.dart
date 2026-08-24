@@ -27,9 +27,10 @@ class FrameWidget extends StatelessWidget {
       return raw.substring(0, raw.length.clamp(0, 3)).toUpperCase();
     }
 
-    final last = digits.last;
-    return last.length >= 3 ? last.substring(last.length - 3) : last.padLeft(3, '0');
+    return digits.last;
   }
+
+  bool get _isFreezed => frame.freezeQuantity == 1;
 
   @override
   Widget build(BuildContext context) {
@@ -76,35 +77,70 @@ class FrameWidget extends StatelessWidget {
                     children: [
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                frame.name ?? '',
-                                style: AppTextStyles.titleLarge(context).copyWith(
-                                  color: AppColors.black,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                          Expanded(
+                            child: Text(
+                              frame.name ?? '',
+                              style: AppTextStyles.titleLarge(context).copyWith(
+                                color: AppColors.black,
+                                fontWeight: FontWeight.bold,
                               ),
-                              const SizedBox(height: 5),
-                              Text(
-                                frame.palletNo ?? '',
-                                style: const TextStyle(
-                                  color: AppColors.grey,
-                                  fontWeight: FontWeight.normal,
-                                  letterSpacing: 0,
-                                ),
-                              ),
-                            ],
+                            ),
                           ),
+                          if (_isFreezed) ...[
+                            const SizedBox(width: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF16A34A).withValues(alpha: 0.12),
+                                borderRadius: BorderRadius.circular(6),
+                                border: Border.all(
+                                  color: const Color(0xFF16A34A).withValues(alpha: 0.3),
+                                ),
+                              ),
+                              child: const Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.ac_unit_rounded,
+                                    size: 12,
+                                    color: Color(0xFF16A34A),
+                                  ),
+                                  SizedBox(width: 4),
+                                  Text(
+                                    'Quantity is Freezed',
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w700,
+                                      color: Color(0xFF16A34A),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ],
                       ),
                       const SizedBox(height: 5),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
+                          Flexible(
+                            child: Text(
+                              frame.palletNo ?? '',
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                color: AppColors.grey,
+                                fontWeight: FontWeight.normal,
+                                letterSpacing: 0,
+                              ),
+                            ),
+                          ),
                           Row(
                             children: [
                               const Icon(
@@ -117,7 +153,7 @@ class FrameWidget extends StatelessWidget {
                                 DFU.ddMMyyyyFromStr(frame.packingDate ?? ''),
                                 style: const TextStyle(
                                   color: Color(0xFF163A6B),
-                                  fontSize: 11,
+                                  fontSize: 14,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -146,8 +182,14 @@ class FrameWidget extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Quantity : ${frame.totalUnitsOnPallet} Units',
-                style: const TextStyle(color: Colors.orange,fontWeight: FontWeight.bold,fontSize: 15),),
+                Text(
+                  'Quantity : ${frame.totalUnitsOnPallet} Units',
+                  style: const TextStyle(
+                    color: Colors.orange,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                  ),
+                ),
                 DocStatusWidget(
                   status: StringUtils.docStatus(frame.docStatus ?? 0),
                 ),

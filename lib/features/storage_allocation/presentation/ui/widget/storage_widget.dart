@@ -15,20 +15,16 @@ class StorageWidget extends StatelessWidget {
   });
   final Storage gateEntry;
   final VoidCallback onTap;
-  String get _palletDisplayNumber {
+ String get _palletDisplayNumber {
     final raw = gateEntry.name;
     if (raw == null || raw.isEmpty) return '---';
 
-    final digits =
-        RegExp(r'\d+').allMatches(raw).map((m) => m.group(0)!).toList();
+    final digits = RegExp(r'\d+').allMatches(raw).map((m) => m.group(0)!).toList();
     if (digits.isEmpty) {
       return raw.substring(0, raw.length.clamp(0, 3)).toUpperCase();
     }
 
-    final last = digits.last;
-    return last.length >= 3
-        ? last.substring(last.length - 3)
-        : last.padLeft(3, '0');
+    return digits.last; 
   }
 
   @override
@@ -158,7 +154,7 @@ class StorageWidget extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Text(
-                  gateEntry.salesOrders ?? '',
+                  'Sales Order: ${gateEntry.salesOrders ?? ''}',
                   style: const TextStyle(
                     color: Colors.orange,
                     fontWeight: FontWeight.bold,

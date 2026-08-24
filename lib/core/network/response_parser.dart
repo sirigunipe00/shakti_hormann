@@ -26,13 +26,29 @@ class FrappeApiResponseParser<T> implements ApiResponseParser<T> {
       if (messageObj is Map<String, dynamic>) {
         if (messageObj.containsKey('status')) {
           final status = messageObj['status'];
-          if (status == 200) {
+          // Some APIs return numeric 200; others return "success" (e.g. get_loaded_items).
+          final isSuccess = status == 200 ||
+              (status is String &&
+                  status.toLowerCase() == 'success');
+          if (isSuccess) {
             final result = parser(response);
             return ApiResponse.success(result);
-          } else if (status == 500 || status == 400 || status == 422 || status == 401 || status == 'error') {
-            final message = messageObj['message'];
-            return ApiResponse.failure(message, status: 400);
           }
+          final rawMessage = messageObj['message'];
+          final code = messageObj['code'] as String?;
+          final data = messageObj['data'];
+          final buffer = StringBuffer(
+            rawMessage is String && rawMessage.isNotEmpty
+                ? rawMessage
+                : defErrorMessage,
+          );
+          if (code == 'DUPLICATE_MES' &&
+              data is Map &&
+              data['existing_record'] != null) {
+            buffer.write('\nExisting record: ${data['existing_record']}');
+          }
+          final mappedStatus = status == 409 ? 409 : 400;
+          return ApiResponse.failure(buffer.toString(), status: mappedStatus);
         }
         if (response.containsKey('_server_messages')) {
           final serverMsgs =

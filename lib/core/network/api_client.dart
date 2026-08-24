@@ -156,13 +156,16 @@ class ApiClient {
       throw ParseException(e.message);
     } on Exception catch (e, st) {
       $logger.error('[API client SocketException]',e, st);
-      if (e is NoInternetException ||
-          e is UnExpectedResponseException ||
-          e is UnAuthorizedException ||
-          e is ClientException ||
-          e is ServerException) {
-        rethrow;
-      }
+        if (e is http.ClientException || e is SocketException) {
+          throw ClientException(e.toString());
+        }
+        if (e is NoInternetException ||
+            e is UnExpectedResponseException ||
+            e is UnAuthorizedException ||
+            e is ClientException ||
+            e is ServerException) {
+          rethrow;
+        }
       throw UnknownException(Errors.unknown);
     }
   }

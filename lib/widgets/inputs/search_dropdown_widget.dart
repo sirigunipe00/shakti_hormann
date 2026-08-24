@@ -129,8 +129,13 @@ Widget build(BuildContext context) {
         else
           AbsorbPointer(
             absorbing: widget.readOnly,
-            child: CustomDropdown<T>.searchRequest(
-              hideSelectedFieldWhenExpanded: true,
+            child: KeyedSubtree(
+              key: ValueKey(
+                '${widget.title}_${widget.defaultSelection}_'
+                '${widget.items.length}_${widget.readOnly}',
+              ),
+              child: CustomDropdown<T>.searchRequest(
+                hideSelectedFieldWhenExpanded: true,
               excludeSelected: false,
               closedHeaderPadding: const EdgeInsets.all(16.0),
               expandedHeaderPadding: const EdgeInsets.all(16.0),
@@ -160,6 +165,7 @@ Widget build(BuildContext context) {
                 }
               },
               initialItem: _selectedValue,
+            ),
             ),
           ),
 

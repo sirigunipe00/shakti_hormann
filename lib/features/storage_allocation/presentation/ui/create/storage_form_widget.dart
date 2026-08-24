@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/features/frame_packing/presentation/ui/create/frame_scan_page.dart';
 import 'package:shakti_hormann/features/shutter_packing/presentation/ui/widget/border_painter.dart';
-import 'package:shakti_hormann/features/storage_allocation/presentation/bloc/create_storage_cubit/create_storage_cubit.dart';
+import 'package:shakti_hormann/features/zone_transfer/presentation/bloc/create_zone_cubit/create_zone_cubit.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/widgets/input_filed.dart';
 import 'package:shakti_hormann/widgets/inputs/new_upload_photo_widget.dart';
@@ -29,13 +29,13 @@ class __StorageFormWidgetState extends State<StorageFormWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final formState = context.watch<CreateStorageCubit>().state;
-    final isCompleted = formState.view == StorageView.completed;
+    final formState = context.watch<CreateZoneCubit>().state;
+    final isCompleted = formState.view == ZoneView.completed;
     final newform = formState.form;
 
     return MultiBlocListener(
       listeners: [
-        BlocListener<CreateStorageCubit, CreateStorageState>(
+        BlocListener<CreateZoneCubit, CreateZoneState>(
           listenWhen:
               (previous, current) =>
                   previous.error?.status != current.error?.status,
@@ -51,14 +51,16 @@ class __StorageFormWidgetState extends State<StorageFormWidget> {
             if (!isCompleted) ...[
               Row(
                 children: [
-                  Expanded(
-                    child: _ScanCard(
-                      icon: Icons.qr_code_scanner,
-                      label: 'Scan Pallet / Box Qr',
-                      onTap: () => _onScanSticker(context, isZoneScan: false),
+                  if (!formState.isMoveFlow) ...[
+                    Expanded(
+                      child: _ScanCard(
+                        icon: Icons.qr_code_scanner,
+                        label: 'Scan Pallet / Box Qr',
+                        onTap: () => _onScanSticker(context, isZoneScan: false),
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 12),
+                    const SizedBox(width: 12),
+                  ],
                   Expanded(
                     child: _ScanCard(
                       icon: Icons.qr_code_scanner,
@@ -90,6 +92,7 @@ class __StorageFormWidgetState extends State<StorageFormWidget> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   InputField(
+                    key: ValueKey('st_pallet_${newform.palletBoxQr}'),
                     readOnly: true,
                     initialValue: newform.palletBoxQr,
                     title: 'Pallet No',
@@ -97,13 +100,14 @@ class __StorageFormWidgetState extends State<StorageFormWidget> {
                     isRequired: true,
                     borderColor: AppColors.grey,
                     onChanged: (p0) {
-                      context.cubit<CreateStorageCubit>().onValueChanged(
+                      context.cubit<CreateZoneCubit>().onValueChanged(
                         palletNo: p0,
                       );
                     },
                     focusNode: focusNodes.elementAt(13),
                   ),
                   InputField(
+                    key: ValueKey('st_qty_${newform.totalQty}'),
                     readOnly: true,
                     initialValue: newform.totalQty?.toString() ?? '0',
                     title: 'Total Quantity',
@@ -111,13 +115,14 @@ class __StorageFormWidgetState extends State<StorageFormWidget> {
                     isRequired: true,
                     borderColor: AppColors.grey,
                     onChanged: (p0) {
-                      context.cubit<CreateStorageCubit>().onValueChanged(
+                      context.cubit<CreateZoneCubit>().onValueChanged(
                         totalQty: int.tryParse(p0),
                       );
                     },
                     focusNode: focusNodes.elementAt(13),
                   ),
                   InputField(
+                    key: ValueKey('st_so_${newform.salesOrders}'),
                     readOnly: true,
                     initialValue: newform.salesOrders,
                     title: 'Sales Order No',
@@ -125,13 +130,14 @@ class __StorageFormWidgetState extends State<StorageFormWidget> {
                     isRequired: true,
                     borderColor: AppColors.grey,
                     onChanged: (p0) {
-                      context.cubit<CreateStorageCubit>().onValueChanged(
+                      context.cubit<CreateZoneCubit>().onValueChanged(
                         salesOrders: p0,
                       );
                     },
                     focusNode: focusNodes.elementAt(13),
                   ),
                   InputField(
+                    key: ValueKey('st_count_${newform.palletCount}'),
                     readOnly: true,
                     initialValue: newform.palletCount == null ? '' : newform.palletCount.toString(),
                     title: 'Pallet Count',
@@ -139,7 +145,7 @@ class __StorageFormWidgetState extends State<StorageFormWidget> {
                     isRequired: false,
                     borderColor: AppColors.grey,
                     onChanged: (p0) {
-                      context.cubit<CreateStorageCubit>().onValueChanged(
+                      context.cubit<CreateZoneCubit>().onValueChanged(
                         palletCount: int.parse(p0),
                       );
                     },
@@ -168,6 +174,7 @@ class __StorageFormWidgetState extends State<StorageFormWidget> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   InputField(
+                    key: ValueKey('st_zone_${newform.zoneQr}'),
                     readOnly: true,
                     initialValue: newform.zoneQr,
                     title: 'Zone No',
@@ -175,13 +182,14 @@ class __StorageFormWidgetState extends State<StorageFormWidget> {
                     isRequired: true,
                     borderColor: AppColors.grey,
                     onChanged: (p0) {
-                      context.cubit<CreateStorageCubit>().onValueChanged(
-                        zoneQr: p0,
+                      context.cubit<CreateZoneCubit>().onValueChanged(
+                        newzoneQr: p0,
                       );
                     },
                     focusNode: focusNodes.elementAt(13),
                   ),
                   InputField(
+                    key: ValueKey('st_old_${newform.oldZone}'),
                     readOnly: true,
                     initialValue: newform.oldZone,
                     title: 'Old Zone Name',
@@ -189,8 +197,8 @@ class __StorageFormWidgetState extends State<StorageFormWidget> {
                     isRequired: false,
                     borderColor: AppColors.grey,
                     onChanged: (p0) {
-                      context.cubit<CreateStorageCubit>().onValueChanged(
-                        oldZone: p0,
+                      context.cubit<CreateZoneCubit>().onValueChanged(
+                        oldzone: p0,
                       );
                     },
                     focusNode: focusNodes.elementAt(13),
@@ -220,7 +228,7 @@ class __StorageFormWidgetState extends State<StorageFormWidget> {
                             isReadOnly: isCompleted,
                             onFileCapture: (file) {
                               context
-                                  .cubit<CreateStorageCubit>()
+                                  .cubit<CreateZoneCubit>()
                                   .onValueChanged(zonePhoto: file);
                             },
                           ),
@@ -241,20 +249,20 @@ class __StorageFormWidgetState extends State<StorageFormWidget> {
     BuildContext context, {
     required bool isZoneScan,
   }) async {
-    if (context.read<CreateStorageCubit>().state.view ==
-        StorageView.completed) {
+    if (context.read<CreateZoneCubit>().state.view ==
+        ZoneView.completed) {
       return;
     }
-    final raw = await Navigator.of(
-      context,
-    ).push<String>(MaterialPageRoute(builder: (_) => const ScanFramePage()));
+    final raw = await Navigator.of(context).push<String>(
+      MaterialPageRoute(builder: (_) => const ScanFramePage.qr()),
+    );
 
     if (raw == null || !context.mounted) return;
 
     if (isZoneScan) {
-      context.cubit<CreateStorageCubit>().onValueChanged(zoneQr: raw);
+      context.cubit<CreateZoneCubit>().onValueChanged(newzoneQr: raw);
     } else {
-      context.cubit<CreateStorageCubit>().onQrScanned(raw);
+      context.cubit<CreateZoneCubit>().onQrScanned(raw);
     }
   }
 }

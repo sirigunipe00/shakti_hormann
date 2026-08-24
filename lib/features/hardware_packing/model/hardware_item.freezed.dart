@@ -45,6 +45,8 @@ mixin _$HardwareItem {
   int? get qtySticker => throw _privateConstructorUsedError;
   @JsonKey(name: 'sap_code')
   String? get materialCode => throw _privateConstructorUsedError;
+  @JsonKey(name: 'mes_number')
+  String? get mesNumber => throw _privateConstructorUsedError;
   @JsonKey(name: 'mes_sticker_image')
   String? get mesStcikerImage => throw _privateConstructorUsedError;
   @JsonKey(
@@ -54,11 +56,11 @@ mixin _$HardwareItem {
     fromJson: toNull,
   )
   File? get mesStickerImage => throw _privateConstructorUsedError;
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(name: 'box')
   String? get box => throw _privateConstructorUsedError;
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(name: 'page')
   String? get page => throw _privateConstructorUsedError;
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(name: 'box_type')
   String? get boxType => throw _privateConstructorUsedError;
   @JsonKey(includeFromJson: false, includeToJson: false)
   List<String> get deletedLines => throw _privateConstructorUsedError;
@@ -94,6 +96,7 @@ abstract class $HardwareItemCopyWith<$Res> {
     @JsonKey(name: 'description') String? productName,
     @JsonKey(name: 'qty_on_sticker') int? qtySticker,
     @JsonKey(name: 'sap_code') String? materialCode,
+    @JsonKey(name: 'mes_number') String? mesNumber,
     @JsonKey(name: 'mes_sticker_image') String? mesStcikerImage,
     @JsonKey(
       includeFromJson: true,
@@ -102,9 +105,9 @@ abstract class $HardwareItemCopyWith<$Res> {
       fromJson: toNull,
     )
     File? mesStickerImage,
-    @JsonKey(includeFromJson: false, includeToJson: false) String? box,
-    @JsonKey(includeFromJson: false, includeToJson: false) String? page,
-    @JsonKey(includeFromJson: false, includeToJson: false) String? boxType,
+    @JsonKey(name: 'box') String? box,
+    @JsonKey(name: 'page') String? page,
+    @JsonKey(name: 'box_type') String? boxType,
     @JsonKey(includeFromJson: false, includeToJson: false)
     List<String> deletedLines,
   });
@@ -138,6 +141,7 @@ class _$HardwareItemCopyWithImpl<$Res, $Val extends HardwareItem>
     Object? productName = freezed,
     Object? qtySticker = freezed,
     Object? materialCode = freezed,
+    Object? mesNumber = freezed,
     Object? mesStcikerImage = freezed,
     Object? mesStickerImage = freezed,
     Object? box = freezed,
@@ -212,6 +216,11 @@ class _$HardwareItemCopyWithImpl<$Res, $Val extends HardwareItem>
                     ? _value.materialCode
                     : materialCode // ignore: cast_nullable_to_non_nullable
                         as String?,
+            mesNumber:
+                freezed == mesNumber
+                    ? _value.mesNumber
+                    : mesNumber // ignore: cast_nullable_to_non_nullable
+                        as String?,
             mesStcikerImage:
                 freezed == mesStcikerImage
                     ? _value.mesStcikerImage
@@ -271,6 +280,7 @@ abstract class _$$HardwareItemImplCopyWith<$Res>
     @JsonKey(name: 'description') String? productName,
     @JsonKey(name: 'qty_on_sticker') int? qtySticker,
     @JsonKey(name: 'sap_code') String? materialCode,
+    @JsonKey(name: 'mes_number') String? mesNumber,
     @JsonKey(name: 'mes_sticker_image') String? mesStcikerImage,
     @JsonKey(
       includeFromJson: true,
@@ -279,9 +289,9 @@ abstract class _$$HardwareItemImplCopyWith<$Res>
       fromJson: toNull,
     )
     File? mesStickerImage,
-    @JsonKey(includeFromJson: false, includeToJson: false) String? box,
-    @JsonKey(includeFromJson: false, includeToJson: false) String? page,
-    @JsonKey(includeFromJson: false, includeToJson: false) String? boxType,
+    @JsonKey(name: 'box') String? box,
+    @JsonKey(name: 'page') String? page,
+    @JsonKey(name: 'box_type') String? boxType,
     @JsonKey(includeFromJson: false, includeToJson: false)
     List<String> deletedLines,
   });
@@ -314,6 +324,7 @@ class __$$HardwareItemImplCopyWithImpl<$Res>
     Object? productName = freezed,
     Object? qtySticker = freezed,
     Object? materialCode = freezed,
+    Object? mesNumber = freezed,
     Object? mesStcikerImage = freezed,
     Object? mesStickerImage = freezed,
     Object? box = freezed,
@@ -388,6 +399,11 @@ class __$$HardwareItemImplCopyWithImpl<$Res>
                 ? _value.materialCode
                 : materialCode // ignore: cast_nullable_to_non_nullable
                     as String?,
+        mesNumber:
+            freezed == mesNumber
+                ? _value.mesNumber
+                : mesNumber // ignore: cast_nullable_to_non_nullable
+                    as String?,
         mesStcikerImage:
             freezed == mesStcikerImage
                 ? _value.mesStcikerImage
@@ -440,6 +456,7 @@ class _$HardwareItemImpl implements _HardwareItem {
     @JsonKey(name: 'description') this.productName,
     @JsonKey(name: 'qty_on_sticker') this.qtySticker,
     @JsonKey(name: 'sap_code') this.materialCode,
+    @JsonKey(name: 'mes_number') this.mesNumber,
     @JsonKey(name: 'mes_sticker_image') this.mesStcikerImage,
     @JsonKey(
       includeFromJson: true,
@@ -448,9 +465,9 @@ class _$HardwareItemImpl implements _HardwareItem {
       fromJson: toNull,
     )
     this.mesStickerImage,
-    @JsonKey(includeFromJson: false, includeToJson: false) this.box,
-    @JsonKey(includeFromJson: false, includeToJson: false) this.page,
-    @JsonKey(includeFromJson: false, includeToJson: false) this.boxType,
+    @JsonKey(name: 'box') this.box,
+    @JsonKey(name: 'page') this.page,
+    @JsonKey(name: 'box_type') this.boxType,
     @JsonKey(includeFromJson: false, includeToJson: false)
     final List<String> deletedLines = const <String>[],
   }) : _deletedLines = deletedLines;
@@ -496,6 +513,9 @@ class _$HardwareItemImpl implements _HardwareItem {
   @JsonKey(name: 'sap_code')
   final String? materialCode;
   @override
+  @JsonKey(name: 'mes_number')
+  final String? mesNumber;
+  @override
   @JsonKey(name: 'mes_sticker_image')
   final String? mesStcikerImage;
   @override
@@ -507,13 +527,13 @@ class _$HardwareItemImpl implements _HardwareItem {
   )
   final File? mesStickerImage;
   @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(name: 'box')
   final String? box;
   @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(name: 'page')
   final String? page;
   @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(name: 'box_type')
   final String? boxType;
   final List<String> _deletedLines;
   @override
@@ -526,7 +546,7 @@ class _$HardwareItemImpl implements _HardwareItem {
 
   @override
   String toString() {
-    return 'HardwareItem(status: $status, slNO: $slNO, name: $name, owner: $owner, creation: $creation, modified: $modified, modifiedBy: $modifiedBy, boxCount: $boxCount, mesBarCode: $mesBarCode, uom: $uom, productName: $productName, qtySticker: $qtySticker, materialCode: $materialCode, mesStcikerImage: $mesStcikerImage, mesStickerImage: $mesStickerImage, box: $box, page: $page, boxType: $boxType, deletedLines: $deletedLines)';
+    return 'HardwareItem(status: $status, slNO: $slNO, name: $name, owner: $owner, creation: $creation, modified: $modified, modifiedBy: $modifiedBy, boxCount: $boxCount, mesBarCode: $mesBarCode, uom: $uom, productName: $productName, qtySticker: $qtySticker, materialCode: $materialCode, mesNumber: $mesNumber, mesStcikerImage: $mesStcikerImage, mesStickerImage: $mesStickerImage, box: $box, page: $page, boxType: $boxType, deletedLines: $deletedLines)';
   }
 
   @override
@@ -555,6 +575,8 @@ class _$HardwareItemImpl implements _HardwareItem {
                 other.qtySticker == qtySticker) &&
             (identical(other.materialCode, materialCode) ||
                 other.materialCode == materialCode) &&
+            (identical(other.mesNumber, mesNumber) ||
+                other.mesNumber == mesNumber) &&
             (identical(other.mesStcikerImage, mesStcikerImage) ||
                 other.mesStcikerImage == mesStcikerImage) &&
             (identical(other.mesStickerImage, mesStickerImage) ||
@@ -585,6 +607,7 @@ class _$HardwareItemImpl implements _HardwareItem {
     productName,
     qtySticker,
     materialCode,
+    mesNumber,
     mesStcikerImage,
     mesStickerImage,
     box,
@@ -622,6 +645,7 @@ abstract class _HardwareItem implements HardwareItem {
     @JsonKey(name: 'description') final String? productName,
     @JsonKey(name: 'qty_on_sticker') final int? qtySticker,
     @JsonKey(name: 'sap_code') final String? materialCode,
+    @JsonKey(name: 'mes_number') final String? mesNumber,
     @JsonKey(name: 'mes_sticker_image') final String? mesStcikerImage,
     @JsonKey(
       includeFromJson: true,
@@ -630,10 +654,9 @@ abstract class _HardwareItem implements HardwareItem {
       fromJson: toNull,
     )
     final File? mesStickerImage,
-    @JsonKey(includeFromJson: false, includeToJson: false) final String? box,
-    @JsonKey(includeFromJson: false, includeToJson: false) final String? page,
-    @JsonKey(includeFromJson: false, includeToJson: false)
-    final String? boxType,
+    @JsonKey(name: 'box') final String? box,
+    @JsonKey(name: 'page') final String? page,
+    @JsonKey(name: 'box_type') final String? boxType,
     @JsonKey(includeFromJson: false, includeToJson: false)
     final List<String> deletedLines,
   }) = _$HardwareItemImpl;
@@ -679,6 +702,9 @@ abstract class _HardwareItem implements HardwareItem {
   @JsonKey(name: 'sap_code')
   String? get materialCode;
   @override
+  @JsonKey(name: 'mes_number')
+  String? get mesNumber;
+  @override
   @JsonKey(name: 'mes_sticker_image')
   String? get mesStcikerImage;
   @override
@@ -690,13 +716,13 @@ abstract class _HardwareItem implements HardwareItem {
   )
   File? get mesStickerImage;
   @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(name: 'box')
   String? get box;
   @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(name: 'page')
   String? get page;
   @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(name: 'box_type')
   String? get boxType;
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)

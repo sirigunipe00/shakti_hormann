@@ -45,6 +45,12 @@ mixin _$VisionPanelEntryLines {
   String? get parentType => throw _privateConstructorUsedError;
   @JsonKey(name: 'product_type')
   String? get productType => throw _privateConstructorUsedError;
+  @JsonKey(name: 'box_no')
+  String? get boxNo => throw _privateConstructorUsedError;
+  @JsonKey(name: 'box_index')
+  int? get boxIndex => throw _privateConstructorUsedError;
+  @JsonKey(name: 'box_code')
+  String? get boxCode => throw _privateConstructorUsedError;
   int? get itemIndex => throw _privateConstructorUsedError;
   @JsonKey(name: 'image')
   String? get image => throw _privateConstructorUsedError;
@@ -85,6 +91,9 @@ abstract class $VisionPanelEntryLinesCopyWith<$Res> {
     @JsonKey(name: 'parentfield') String? parentField,
     @JsonKey(name: 'parenttype') String? parentType,
     @JsonKey(name: 'product_type') String? productType,
+    @JsonKey(name: 'box_no') String? boxNo,
+    @JsonKey(name: 'box_index') int? boxIndex,
+    @JsonKey(name: 'box_code') String? boxCode,
     int? itemIndex,
     @JsonKey(name: 'image') String? image,
     @JsonKey(
@@ -126,6 +135,9 @@ class _$VisionPanelEntryLinesCopyWithImpl<
     Object? parentField = freezed,
     Object? parentType = freezed,
     Object? productType = freezed,
+    Object? boxNo = freezed,
+    Object? boxIndex = freezed,
+    Object? boxCode = freezed,
     Object? itemIndex = freezed,
     Object? image = freezed,
     Object? visionPhotoImg = freezed,
@@ -187,6 +199,21 @@ class _$VisionPanelEntryLinesCopyWithImpl<
                     ? _value.productType
                     : productType // ignore: cast_nullable_to_non_nullable
                         as String?,
+            boxNo:
+                freezed == boxNo
+                    ? _value.boxNo
+                    : boxNo // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            boxIndex:
+                freezed == boxIndex
+                    ? _value.boxIndex
+                    : boxIndex // ignore: cast_nullable_to_non_nullable
+                        as int?,
+            boxCode:
+                freezed == boxCode
+                    ? _value.boxCode
+                    : boxCode // ignore: cast_nullable_to_non_nullable
+                        as String?,
             itemIndex:
                 freezed == itemIndex
                     ? _value.itemIndex
@@ -229,6 +256,9 @@ abstract class _$$VisionPanelEntryLinesImplCopyWith<$Res>
     @JsonKey(name: 'parentfield') String? parentField,
     @JsonKey(name: 'parenttype') String? parentType,
     @JsonKey(name: 'product_type') String? productType,
+    @JsonKey(name: 'box_no') String? boxNo,
+    @JsonKey(name: 'box_index') int? boxIndex,
+    @JsonKey(name: 'box_code') String? boxCode,
     int? itemIndex,
     @JsonKey(name: 'image') String? image,
     @JsonKey(
@@ -267,6 +297,9 @@ class __$$VisionPanelEntryLinesImplCopyWithImpl<$Res>
     Object? parentField = freezed,
     Object? parentType = freezed,
     Object? productType = freezed,
+    Object? boxNo = freezed,
+    Object? boxIndex = freezed,
+    Object? boxCode = freezed,
     Object? itemIndex = freezed,
     Object? image = freezed,
     Object? visionPhotoImg = freezed,
@@ -328,6 +361,21 @@ class __$$VisionPanelEntryLinesImplCopyWithImpl<$Res>
                 ? _value.productType
                 : productType // ignore: cast_nullable_to_non_nullable
                     as String?,
+        boxNo:
+            freezed == boxNo
+                ? _value.boxNo
+                : boxNo // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        boxIndex:
+            freezed == boxIndex
+                ? _value.boxIndex
+                : boxIndex // ignore: cast_nullable_to_non_nullable
+                    as int?,
+        boxCode:
+            freezed == boxCode
+                ? _value.boxCode
+                : boxCode // ignore: cast_nullable_to_non_nullable
+                    as String?,
         itemIndex:
             freezed == itemIndex
                 ? _value.itemIndex
@@ -363,6 +411,9 @@ class _$VisionPanelEntryLinesImpl implements _VisionPanelEntryLines {
     @JsonKey(name: 'parentfield') this.parentField,
     @JsonKey(name: 'parenttype') this.parentType,
     @JsonKey(name: 'product_type') this.productType,
+    @JsonKey(name: 'box_no') this.boxNo,
+    @JsonKey(name: 'box_index') this.boxIndex,
+    @JsonKey(name: 'box_code') this.boxCode,
     this.itemIndex,
     @JsonKey(name: 'image') this.image,
     @JsonKey(
@@ -411,6 +462,15 @@ class _$VisionPanelEntryLinesImpl implements _VisionPanelEntryLines {
   @JsonKey(name: 'product_type')
   final String? productType;
   @override
+  @JsonKey(name: 'box_no')
+  final String? boxNo;
+  @override
+  @JsonKey(name: 'box_index')
+  final int? boxIndex;
+  @override
+  @JsonKey(name: 'box_code')
+  final String? boxCode;
+  @override
   final int? itemIndex;
   @override
   @JsonKey(name: 'image')
@@ -426,7 +486,7 @@ class _$VisionPanelEntryLinesImpl implements _VisionPanelEntryLines {
 
   @override
   String toString() {
-    return 'VisionPanelEntryLines(name: $name, owner: $owner, creation: $creation, modified: $modified, modifiedBy: $modifiedBy, docStatus: $docStatus, idx: $idx, parent: $parent, parentField: $parentField, parentType: $parentType, productType: $productType, itemIndex: $itemIndex, image: $image, visionPhotoImg: $visionPhotoImg)';
+    return 'VisionPanelEntryLines(name: $name, owner: $owner, creation: $creation, modified: $modified, modifiedBy: $modifiedBy, docStatus: $docStatus, idx: $idx, parent: $parent, parentField: $parentField, parentType: $parentType, productType: $productType, boxNo: $boxNo, boxIndex: $boxIndex, boxCode: $boxCode, itemIndex: $itemIndex, image: $image, visionPhotoImg: $visionPhotoImg)';
   }
 
   @override
@@ -452,6 +512,10 @@ class _$VisionPanelEntryLinesImpl implements _VisionPanelEntryLines {
                 other.parentType == parentType) &&
             (identical(other.productType, productType) ||
                 other.productType == productType) &&
+            (identical(other.boxNo, boxNo) || other.boxNo == boxNo) &&
+            (identical(other.boxIndex, boxIndex) ||
+                other.boxIndex == boxIndex) &&
+            (identical(other.boxCode, boxCode) || other.boxCode == boxCode) &&
             (identical(other.itemIndex, itemIndex) ||
                 other.itemIndex == itemIndex) &&
             (identical(other.image, image) || other.image == image) &&
@@ -474,6 +538,9 @@ class _$VisionPanelEntryLinesImpl implements _VisionPanelEntryLines {
     parentField,
     parentType,
     productType,
+    boxNo,
+    boxIndex,
+    boxCode,
     itemIndex,
     image,
     visionPhotoImg,
@@ -510,6 +577,9 @@ abstract class _VisionPanelEntryLines implements VisionPanelEntryLines {
     @JsonKey(name: 'parentfield') final String? parentField,
     @JsonKey(name: 'parenttype') final String? parentType,
     @JsonKey(name: 'product_type') final String? productType,
+    @JsonKey(name: 'box_no') final String? boxNo,
+    @JsonKey(name: 'box_index') final int? boxIndex,
+    @JsonKey(name: 'box_code') final String? boxCode,
     final int? itemIndex,
     @JsonKey(name: 'image') final String? image,
     @JsonKey(
@@ -557,6 +627,15 @@ abstract class _VisionPanelEntryLines implements VisionPanelEntryLines {
   @override
   @JsonKey(name: 'product_type')
   String? get productType;
+  @override
+  @JsonKey(name: 'box_no')
+  String? get boxNo;
+  @override
+  @JsonKey(name: 'box_index')
+  int? get boxIndex;
+  @override
+  @JsonKey(name: 'box_code')
+  String? get boxCode;
   @override
   int? get itemIndex;
   @override

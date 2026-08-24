@@ -98,13 +98,6 @@ final result = childResponse.process((r) => right(r.data ?? []));
       filters.add(['plant_name', '=', plantName]);
     }
   }
-
-
-
-  $logger.devLog('FINAL FILTERS ---> $filters');
-
-
-
   final requestConfig = RequestConfig(
     url: Urls.getList,
     parser: (json) {
@@ -172,6 +165,7 @@ final result = childResponse.process((r) => right(r.data ?? []));
       $logger.devLog('Fetching items for: $salesOrderIds');
 
       final response = await post(config);
+       $logger.devLog('Fetching for: $response');
       return response.processAsync((r) async => right(r.data!));
     });
   }
@@ -375,6 +369,7 @@ final result = childResponse.process((r) => right(r.data ?? []));
   @override
   AsyncValueOf<List<ItemModel>> getItems(String name) async {
     return await executeSafely(() async {
+        $logger.devLog('Itemlist name.....$name');
       final config = RequestConfig(
         url: Urls.getLodedItems,
 
@@ -398,6 +393,7 @@ final result = childResponse.process((r) => right(r.data ?? []));
       final response = await get(config);
 
       $logger.devLog('Itemlist response.....$response');
+    
 
       return response.processAsync((r) async {
         return right((r.data!));

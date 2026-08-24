@@ -129,6 +129,7 @@ class CreateShutterCubit extends AppBaseCubit<CreateShutterState> {
         palletQrPrinted: entry.palletQrPrinted,
         salesOrder: entry.salesOrder,
         palletCode: entry.palletCode,
+        freezeQuantity: entry.freezeQuantity,
         creation: entry.creation,
       );
       final status = entry.docStatus;
@@ -145,12 +146,19 @@ class CreateShutterCubit extends AppBaseCubit<CreateShutterState> {
               ? ShutterView.completed
               : ShutterView.edit;
       emitSafeState(
-        state.copyWith(form: updatedForm, view: mode, isModified: false),
+        state.copyWith(
+          form: updatedForm,
+          view: mode,
+          isModified: false,
+          isFrozen: entry.freezeQuantity == 1,
+        ),
       );
-    }
-    if (entry == null) return;
-    if (entry is ShutterPacking && entry.salesOrder?.isNotEmpty == true) {
-      getPalletCodes(entry.salesOrder!);
+      final canSelectPallet =
+          mode != ShutterView.completed &&
+          (entry.name == null || entry.name!.isEmpty);
+      if (canSelectPallet && entry.salesOrder?.isNotEmpty == true) {
+        getPalletCodes(entry.salesOrder!);
+      }
     }
   }
 
@@ -243,7 +251,7 @@ class CreateShutterCubit extends AppBaseCubit<CreateShutterState> {
             form: form.copyWith(name: r.second, status: 'Draft',docStatus: 0),
             isCreatingDoc: false,
             isModified: false,
-            createSuccessMsg: r.first,
+            createSuccessMsg: '${r.first}\n${r.second}',
           ),
         );
       },
@@ -253,7 +261,7 @@ class CreateShutterCubit extends AppBaseCubit<CreateShutterState> {
   Future<void> onQrScanned(String rawQr, {List<String>? imagePaths}) async {
     final parsed = _ParsedShutterQr.tryParse(rawQr);
     if (parsed == null) {
-      _emitError(Pair('Invalid QR format: $rawQr', null));
+      _emitError(Pair('Invalid Barcode format: $rawQr', null));
       return;
     }
 
@@ -377,9 +385,10 @@ class CreateShutterCubit extends AppBaseCubit<CreateShutterState> {
     }
 
     final pending = state.newLines;
-    if (pending.isEmpty) return;
+    final allItems = state.lines;
+    if (allItems.isEmpty) return;
 
-    final response = await repo.updateShutter(form, pending);
+    final response = await repo.updateShutter(form, allItems);
     response.fold(
       (failure) {
         final failedQrs = pending
@@ -463,6 +472,64 @@ class CreateShutterCubit extends AppBaseCubit<CreateShutterState> {
     emitSafeState(state.copyWith(lines: lines, isModified: true));
   }
 
+  /// Removes a whole line item from the draft and syncs it for saved docs.
+  Future<void> removeLine(int lineIndex) async {
+    if (lineIndex < 0 || lineIndex >= state.lines.length) return;
+
+    final previousLines = [...state.lines];
+    final previousNewLines = [...state.newLines];
+    final removed = state.lines[lineIndex];
+    final updatedLines = [...state.lines]..removeAt(lineIndex);
+
+    // Keep newLines in sync so validation / submit logic sees the change.
+    final updatedNewLines = [...state.newLines];
+    final qr = removed.shutterBarcodeQr;
+    if (qr != null && qr.isNotEmpty) {
+      updatedNewLines.removeWhere((l) => l.shutterBarcodeQr == qr);
+    } else {
+      // Fallback: best-effort by index.
+      if (lineIndex >= 0 && lineIndex < updatedNewLines.length) {
+        updatedNewLines.removeAt(lineIndex);
+      }
+    }
+
+    final docExists = state.form.name != null && state.form.name!.isNotEmpty;
+    emitSafeState(
+      state.copyWith(
+        lines: updatedLines,
+        newLines: docExists ? updatedLines : updatedNewLines,
+        isModified: true,
+      ),
+    );
+
+    if (!docExists) return;
+
+    emitSafeState(state.copyWith(isLoading: true));
+
+    final response = await repo.updateShutter(state.form, updatedLines);
+    response.fold(
+      (failure) {
+        emitSafeState(
+          state.copyWith(
+            isLoading: false,
+            lines: previousLines,
+            newLines: previousNewLines,
+            error: failure,
+          ),
+        );
+      },
+      (_) {
+        emitSafeState(
+          state.copyWith(
+            isLoading: false,
+            newLines: [],
+            isModified: false,
+          ),
+        );
+      },
+    );
+  }
+
   void clearVehiclePhoto() {
     final form = state.form.copyWith(palletPhoto: null);
     emitSafeState(state.copyWith(form: form));
@@ -504,17 +571,19 @@ class CreateShutterCubit extends AppBaseCubit<CreateShutterState> {
           },
         );
       } else if (isDraft && hasNewItems) {
-        final response = await repo.updateShutter(form, state.newLines);
+        final response = await repo.updateShutter(form, state.lines);
         return response.fold(
           (l) => emitSafeState(state.copyWith(isLoading: false, error: l)),
           (r) {
             shouldAskForConfirmation.value = false;
+            final updatedName =
+                (r.second.isNotEmpty) ? r.second : form.name;
             emitSafeState(
               state.copyWith(
                 isLoading: false,
-                form: form.copyWith(status: status, name: r.second),
+                form: form.copyWith(status: status, name: updatedName),
                 isSuccess: true,
-                successMsg: '${r.first}\n${r.second}',
+                successMsg: '${r.first}\n${updatedName ?? ''}',
                 isModified: false,
                 view: ShutterView.edit,
                 newLines: [],
@@ -565,91 +634,43 @@ class CreateShutterCubit extends AppBaseCubit<CreateShutterState> {
   }
 
   Future<void> freezeQuantity() async {
-    final incompleteError = _validateAllQuantitiesScanned(state.lines);
-    if (incompleteError != null) {
-      _emitError(Pair(incompleteError, null));
+    final docName = state.form.name;
+    if (docName == null || docName.isEmpty) {
+      _emitError(
+        const Pair('Please save the document before freezing quantity.', null),
+      );
       return;
     }
 
     emitSafeState(state.copyWith(isFreezing: true));
 
-    final form = state.form;
-    final docAlreadyCreated = form.name != null && form.name!.isNotEmpty;
-
-    final response =
-        docAlreadyCreated
-            ? await repo.updateShutter(form, state.newLines)
-            : await repo.createShutter(form, state.lines);
-
+    final response = await repo.freezeShutter(docName);
     response.fold(
       (failure) {
         emitSafeState(state.copyWith(isFreezing: false, error: failure));
       },
       (r) {
-        final updatedForm =
-            docAlreadyCreated
-                ? form
-                : form.copyWith(name: r.second, status: 'Draft');
         shouldAskForConfirmation.value = false;
-
         emitSafeState(
           state.copyWith(
-            form: updatedForm,
+            form: state.form.copyWith(freezeQuantity: 1),
             isFreezing: false,
             isFrozen: true,
             isModified: false,
-            newLines: [],
-            freezeSuccessMsg: 'Quantity frozen successfully.',
+            freezeSuccessMsg: r.first,
           ),
         );
       },
     );
   }
 
-  /// Validates QR segment `current/total` (e.g. 1/9 in
-  /// `180048712/183/LHR/1/9/1203`). Freeze is allowed only when every
-  /// item group has all [total] shutters scanned.
-  String? _validateAllQuantitiesScanned(List<ShutterLines> lines) {
-    if (lines.isEmpty) {
-      return 'Scan at least one shutter before freezing quantity.';
-    }
-
-    final totalsByGroup = <String, int>{};
-    final scannedByGroup = <String, Set<int>>{};
-
-    for (final line in lines) {
-      final qr = line.shutterBarcodeQr;
-      if (qr == null || qr.isEmpty) continue;
-
-      final parsed = _ParsedShutterQr.tryParse(qr);
-      if (parsed == null) continue;
-
-      totalsByGroup[parsed.groupKey] = parsed.totalQty;
-      scannedByGroup
-          .putIfAbsent(parsed.groupKey, () => <int>{})
-          .add(parsed.seqNo);
-    }
-
-    if (totalsByGroup.isEmpty) {
-      return 'Invalid shutter QR data. Rescan and try again.';
-    }
-
-    for (final entry in totalsByGroup.entries) {
-      final scannedCount = scannedByGroup[entry.key]?.length ?? 0;
-      final totalQty = entry.value;
-      if (scannedCount < totalQty) {
-        return 'You have scanned $scannedCount out of $totalQty. '
-            'To freeze quantity, scan all $totalQty.';
-      }
-    }
-
-    return null;
-  }
-
   Future<bool> printSticker() async {
     final docName = state.form.name;
     if (docName == null || docName.isEmpty) {
       _emitError(const Pair('No document found to print.', null));
+      return false;
+    }
+    if (state.form.palletQrPrinted == 1 || state.form.docStatus == 1) {
       return false;
     }
 

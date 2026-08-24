@@ -172,7 +172,7 @@ AsyncValueOf<List<PalletModel>> getSales() async {
         'filters': jsonEncode([
           ['parent', '=', itemName],
         ]),
-        'limit': 20,
+        'limit_page_length': 'None',
         'order_by': 'creation desc',
         'doctype': 'Shutter Packing Lines',
         'parent': 'Shutter Packing',
@@ -458,7 +458,7 @@ AsyncValueOf<Pair<String, String>> updateShutter(
     url: Urls.updateShutter,
     parser: (json) {
       final data = json['message']['message'] as String;
-      return Pair(data, '');
+      return Pair(data, form.name ?? '');
     },
     body: jsonEncode(requestBody),
     headers: {HttpHeaders.contentTypeHeader: 'application/json'},
@@ -471,6 +471,47 @@ AsyncValueOf<Pair<String, String>> updateShutter(
     return right(Pair(r.data!.first, r.data!.second));
   });
 }
+
+  @override
+  AsyncValueOf<Pair<String, String>> freezeShutter(
+    String shutterPackingId,
+  ) async {
+    final requestBody = {
+      'shutter_packing_id': shutterPackingId,
+      'freeze_quantity': 1,
+    };
+
+    final config = RequestConfig(
+      url: Urls.updateShutter,
+      parser: (json) {
+        final message = json['message'];
+        if (message is Map<String, dynamic>) {
+          final ok = message['ok'] as bool?;
+          final status = message['status'] as int?;
+          final text = message['message'] as String? ?? 'Freeze failed';
+          if (ok == false || (status != null && status >= 300)) {
+            throw Failure(
+              error: text,
+              title: 'Freeze Failed',
+              status: status,
+            );
+          }
+          return Pair(text, shutterPackingId);
+        }
+        return Pair(message.toString(), shutterPackingId);
+      },
+      body: jsonEncode(requestBody),
+      headers: {HttpHeaders.contentTypeHeader: 'application/json'},
+    );
+
+    $logger.devLog('freezeShutter requestConfig.....$config');
+
+    final response = await post(config);
+    return response.processAsync((r) async {
+      return right(Pair(r.data!.first, r.data!.second));
+    });
+  }
+
   @override
   AsyncValueOf<Pair<String, String>> submitShutter(ShutterPacking form) async {
     return await executeSafely(() async {
@@ -491,7 +532,7 @@ AsyncValueOf<Pair<String, String>> updateShutter(
         parser: (json) {
           return Pair(
             json['message']['message'] as String,
-            json['message']['status'].toString(),
+            ''
           );
         },
         body: jsonEncode({

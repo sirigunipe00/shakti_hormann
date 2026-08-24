@@ -51,10 +51,13 @@ class __HardwareFormWidgetState extends State<HardwareFormWidget> {
           listener: (_, state) async {},
         ),
         BlocListener<HardwareItemsCubit, HardwareItemsState>(
+          listenWhen: (previous, current) => previous != current,
           listener: (_, state) {
             state.maybeWhen(
               orElse: () {},
-              success: context.cubit<CreateHardwareCubit>().addAllLines,
+              success: (lines) {
+                context.cubit<CreateHardwareCubit>().addAllLines(lines);
+              },
             );
           },
         ),
@@ -109,31 +112,48 @@ class __HardwareFormWidgetState extends State<HardwareFormWidget> {
                     ? int.tryParse(boxParts[1].trim())
                     : null;
 
-            final alreadyScanned = form.scannedBoxNumbers;
+            final boxLabel = response.box ?? '';
+            final pageLabel = response.page ?? '';
+            final captureKey = '$boxLabel|$pageLabel';
+            final alreadyCaptured = cubit.state.lines.any(
+              (line) => '${line.box ?? ''}|${line.page ?? ''}' == captureKey &&
+                  captureKey != '|',
+            );
 
-            if (boxCurrent != null && boxTotal != null) {
-              if (alreadyScanned.contains(boxCurrent)) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      'Box $boxCurrent of $boxTotal has already been scanned for this order.',
-                    ),
+            if (alreadyCaptured) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    'Box $boxLabel page $pageLabel has already been captured.',
                   ),
-                );
-                return;
-              }
+                ),
+              );
+              return;
+            }
 
-              if (alreadyScanned.length >= boxTotal) {
+            final boxMes = response.mesBarCode;
+            if (boxLabel.isNotEmpty &&
+                boxMes != null &&
+                boxMes.isNotEmpty) {
+              final mismatch = cubit.state.lines.any(
+                (line) =>
+                    line.box == boxLabel &&
+                    (line.mesNumber ?? line.mesBarCode) != null &&
+                    (line.mesNumber ?? line.mesBarCode) != boxMes,
+              );
+              if (mismatch) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(
-                      'All $boxTotal boxes for this order are already scanned.',
+                      'MES mismatch for box $boxLabel. Same box cannot use two MES numbers.',
                     ),
                   ),
                 );
                 return;
               }
             }
+
+            final alreadyScanned = form.scannedBoxNumbers;
 
             context.read<CreateHardwareCubit>().onValueChanged(
               mesSystem: response.mesBarCode,
@@ -142,7 +162,10 @@ class __HardwareFormWidgetState extends State<HardwareFormWidget> {
               boxCount: boxCurrent ?? form.boxCount ?? 0,
               totalBoxCount: boxTotal ?? form.totalBoxCount ?? 0,
               scannedBoxNumbers: boxCurrent != null
-                  ? [...alreadyScanned, boxCurrent]
+                  ? {
+                      ...alreadyScanned,
+                      boxCurrent,
+                    }.toList()
                   : alreadyScanned,
             );
 
@@ -154,10 +177,12 @@ class __HardwareFormWidgetState extends State<HardwareFormWidget> {
                     productName: e.productName,
                     qtySticker: e.qtySticker,
                     uom: e.uom,
+                    mesNumber: e.mesBarCode ?? response.mesBarCode,
+                    mesBarCode: e.mesBarCode ?? response.mesBarCode,
                     mesStickerImage: response.mesStickerImage,
-                    box: response.box,
-                    page: response.page,
-                    boxType: response.boxType,
+                    box: e.box ?? response.box,
+                    page: e.page ?? response.page,
+                    boxType: e.boxType ?? response.boxType,
                   );
                 }).toList();
 
@@ -170,7 +195,9 @@ class __HardwareFormWidgetState extends State<HardwareFormWidget> {
               return;
             }
 
-            context.read<CreateHardwareCubit>().addHardwareItems(items);
+            await cubit.addCaptureFromScan(items);
+            if (!context.mounted) return;
+            context.read<HardwarePackingItemsCubit>().errorHandled();
           },
         ),
       ],
@@ -220,24 +247,13 @@ class __HardwareFormWidgetState extends State<HardwareFormWidget> {
                 defaultHeight: 6,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  InputField(
-                    readOnly: true,
-                    initialValue: newform.mesSystem,
-                    title: 'MSE System No',
-                    hintText: 'Scan to add details',
-                    isRequired: true,
-                    borderColor: AppColors.grey,
-                    onChanged: (p0) {
-                      context.cubit<CreateHardwareCubit>().onValueChanged(
-                        mesSystem: p0,
-                      );
-                    },
-                    focusNode: focusNodes.elementAt(13),
-                  ),
                   Row(
                     children: [
                       Expanded(
                         child: InputField(
+                          key: ValueKey(
+                            'hw_so_${newform.name}_${newform.salesOrderNo}',
+                          ),
                           readOnly: true,
                           initialValue: newform.salesOrderNo,
                           title: 'Sales Order No',
@@ -255,7 +271,9 @@ class __HardwareFormWidgetState extends State<HardwareFormWidget> {
                       const SizedBox(width: 5),
                       Expanded(
                         child: InputField(
-                          key: UniqueKey(),
+                          key: ValueKey(
+                            'hw_box_${newform.name}_${newform.boxCount}',
+                          ),
                           readOnly: true,
                           initialValue: newform.boxCount?.toString() ?? '0',
                           title: 'Box Count',
@@ -273,7 +291,9 @@ class __HardwareFormWidgetState extends State<HardwareFormWidget> {
                     ],
                   ),
                   InputField(
-                    key: UniqueKey(),
+                    key: ValueKey(
+                      'hw_date_${newform.name}_${newform.captueDate}',
+                    ),
                     readOnly: true,
                     initialValue:
                         (newform.captueDate != null &&
@@ -297,6 +317,11 @@ class __HardwareFormWidgetState extends State<HardwareFormWidget> {
               ),
             ),
             const SizedBox(height: 20),
+
+            if (formState.lines.isNotEmpty) ...[
+              _CaptureProgressBanner(lines: formState.lines),
+              const SizedBox(height: 12),
+            ],
 
             const SectionHeader(
               title: 'Item Loaded',
@@ -326,6 +351,50 @@ class __HardwareFormWidgetState extends State<HardwareFormWidget> {
       context.read<CreateHardwareCubit>().onValueChanged(mesImage: imageFile);
       context.read<HardwarePackingItemsCubit>().fetchHardwareItems(imageFile);
     }
+  }
+}
+
+class _CaptureProgressBanner extends StatelessWidget {
+  const _CaptureProgressBanner({required this.lines});
+
+  final List<HardwareItem> lines;
+
+  @override
+  Widget build(BuildContext context) {
+    final captures = <String>{};
+    for (final line in lines) {
+      final box = line.box ?? '';
+      final page = line.page ?? '';
+      if (box.isEmpty && page.isEmpty) continue;
+      captures.add('$box|$page');
+    }
+    if (captures.isEmpty) return const SizedBox.shrink();
+
+    final labels = captures.map((key) {
+      final parts = key.split('|');
+      final box = parts.first;
+      final page = parts.length > 1 ? parts[1] : '';
+      return page.isEmpty ? box : '$box (p$page)';
+    }).toList()
+      ..sort();
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFEFF6FF),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFBFDBFE)),
+      ),
+      child: Text(
+        'Captured ${captures.length} sticker(s): ${labels.join(', ')}',
+        style: const TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.w600,
+          color: Color(0xFF1E3A8A),
+        ),
+      ),
+    );
   }
 }
 

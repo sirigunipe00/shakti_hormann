@@ -18,6 +18,7 @@ abstract class ShutterPackingRepo{
   );
   AsyncValueOf<Pair<String,String>> createShutter(ShutterPacking form,List<ShutterLines> lines);
   AsyncValueOf<Pair<String,String>> updateShutter(ShutterPacking form,List<ShutterLines> lines);
+  AsyncValueOf<Pair<String,String>> freezeShutter(String shutterPackingId);
   AsyncValueOf<Pair<String,String>> submitShutter(ShutterPacking form);
   AsyncValueOf<List<Items>> fetchItems(String name,String index);
   AsyncValueOf<List<PalletSize>> getPalletSize();

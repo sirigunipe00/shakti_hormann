@@ -11,6 +11,10 @@ abstract class HardWareRepo{
   );
   AsyncValueOf<Pair<String,String>> createHardware(HardwarePacking form,List<HardwareItem> lines);
   AsyncValueOf<Pair<String,String>> updateHardware(HardwarePacking form,List<HardwareItem> lines);
+  AsyncValueOf<Pair<String,String>> addHardwareCapture({
+    required String hardwarePackingId,
+    required List<HardwareItem> lines,
+  });
   AsyncValueOf<Pair<String,String>> submitHardware(String name);
   AsyncValueOf<List<HardwareItem>> fetchItems(String name);
   AsyncValueOf<HardwarePackingItem> fetchHardwareItems(String mesImage);

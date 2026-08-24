@@ -38,79 +38,61 @@ class _ShutterLinesWidgetState extends State<ShutterLinesWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-
     return BlocBuilder<CreateShutterCubit, CreateShutterState>(
       builder: (_, state) {
         final itemLines = state.lines.toList();
+        final locked = state.isFrozen ||
+            state.form.freezeQuantity == 1 ||
+            state.form.palletQrPrinted == 1;
+        final showDeleteColumn =
+            state.form.docStatus != 1 &&
+            !state.isFrozen &&
+            state.form.freezeQuantity != 1;
+        final canDelete = showDeleteColumn && !locked && state.view != ShutterView.completed;
+
+        final columnWidths = <int, TableColumnWidth>{
+          0: const FlexColumnWidth(0.8), // Sl No.
+          1: const FlexColumnWidth(2.0), // Barcode
+          2: const FlexColumnWidth(1.5), // Item Code
+          3: const FlexColumnWidth(1.5), // Photos
+          if (showDeleteColumn) 4: const FlexColumnWidth(1.0), 
+        };
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: ConstrainedBox(
-                constraints: BoxConstraints(minWidth: screenWidth - 32),
-                child: DataTable(
-                  headingTextStyle: const TextStyle(
-                    fontSize: 14,
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
+            Container(
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey.shade400),
+              ),
+              child: Table(
+                columnWidths: columnWidths,
+                border: TableBorder(
+                  horizontalInside: BorderSide(
+                    color: Colors.grey.shade300,
+                    width: 1,
                   ),
-                  dataTextStyle: const TextStyle(
-                    fontSize: 13,
-                    color: Colors.black87,
+                  verticalInside: BorderSide(
+                    color: Colors.grey.shade300,
+                    width: 1,
                   ),
-                  headingRowColor: WidgetStateProperty.all(
-                    const Color(0xFF1A3C6B),
+                ),
+                children: [
+                  // Header row.
+                  TableRow(
+                    decoration: const BoxDecoration(
+                      color: Color(0xFF1A3C6B),
+                    ),
+                    children: [
+                      _headerCell('#'),
+                      _headerCell('Shutter Barcode'),
+                      _headerCell('Item Code'),
+                      _headerCell('Photos'),
+                      if (showDeleteColumn) _headerCell('Delete'),
+                    ],
                   ),
-                  border: TableBorder(
-                    top: BorderSide(color: Colors.grey.shade400),
-                    bottom: BorderSide(color: Colors.grey.shade400),
-                    left: BorderSide(color: Colors.grey.shade400),
-                    right: BorderSide(color: Colors.grey.shade400),
-
-                    horizontalInside: BorderSide(
-                      color: Colors.grey.shade300,
-                      width: 1,
-                    ),
-                    verticalInside: BorderSide(
-                      color: Colors.grey.shade300,
-                      width: 1,
-                    ),
-                  ),
-                  columnSpacing: 20,
-                  horizontalMargin: 12,
-                  headingRowHeight: 50,
-                  dataRowMinHeight: 56,
-                  dataRowMaxHeight: 56,
-
-                  columns: const [
-                    DataColumn(
-                      label: Center(
-                        child: Text('Sl No.', style: TextStyle(fontSize: 18)),
-                      ),
-                    ),
-                    DataColumn(
-                      label: Center(
-                        child: Text('SO No.', style: TextStyle(fontSize: 18)),
-                      ),
-                    ),
-                    DataColumn(
-                      label: Center(
-                        child: Text(
-                          'Item Code',
-                          style: TextStyle(fontSize: 18),
-                        ),
-                      ),
-                    ),
-                    DataColumn(
-                      label: Center(
-                        child: Text('Photos', style: TextStyle(fontSize: 18)),
-                      ),
-                    ),
-                  ],
-                  rows: List.generate(itemLines.length, (index) {
+                  // Data rows.
+                  ...List.generate(itemLines.length, (index) {
                     final item = itemLines[index];
                     final slNo = (index + 1).toString().padLeft(2, '0');
 
@@ -119,60 +101,118 @@ class _ShutterLinesWidgetState extends State<ShutterLinesWidget> {
                       item.shutterPhotoImg,
                     );
                     final hasPhoto = photoUrls.isNotEmpty;
+                    final isSelected = selectedRows.contains(index);
 
-                    return DataRow(
-                      selected: selectedRows.contains(index),
-                      color: WidgetStateProperty.resolveWith((states) {
-                        if (states.contains(WidgetState.selected)) {
-                          return const Color(0xFFEFF6FF);
-                        }
-                        return index.isEven
-                            ? Colors.white
-                            : const Color(0xFFF8FAFC);
-                      }),
-                      cells: [
-                        DataCell(
+                    final rowColor = isSelected
+                        ? const Color(0xFFEFF6FF)
+                        : (index.isEven ? Colors.white : const Color(0xFFF8FAFC));
+
+                    return TableRow(
+                      decoration: BoxDecoration(color: rowColor),
+                      children: [
+                        _dataCell(
                           Text(
                             slNo,
+                            textAlign: TextAlign.center,
                             style: const TextStyle(
                               color: Color(0xFF2563EB),
                               fontWeight: FontWeight.bold,
-                              fontSize: 14,
+                              fontSize: 13,
                             ),
                           ),
                         ),
-                        DataCell(Text(item.salesOrder ?? '—')),
-                        DataCell(Text(item.itemCode ?? '—')),
-                        DataCell(
+                        _dataCell(_bodyText(item.shutterBarcodeQr ?? '—')),
+                        _dataCell(_bodyText(item.itemCode ?? '—')),
+                        _dataCell(
                           hasPhoto
                               ? Center(
-                                child: _ViewButton(
-                                  count: photoUrls.length,
-                                  onTap:
-                                      () =>
-                                          _showPhotoDialog(context, photoUrls),
-                                ),
-                              )
+                                  child: _ViewButton(
+                                    count: photoUrls.length,
+                                    onTap: () =>
+                                        _showPhotoDialog(context, photoUrls),
+                                  ),
+                                )
                               : const Center(
-                                child: Text(
-                                  'N/A',
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    color: Colors.grey,
-                                    fontWeight: FontWeight.w500,
+                                  child: Text(
+                                    'N/A',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.grey,
+                                      fontWeight: FontWeight.w500,
+                                    ),
                                   ),
                                 ),
-                              ),
                         ),
+                        if (showDeleteColumn)
+                          _dataCell(
+                            Center(
+                              child: IconButton(
+                                padding: EdgeInsets.zero,
+                                constraints: const BoxConstraints(),
+                                icon: const Icon(
+                                  Icons.delete_outline,
+                                  color: Colors.red,
+                                  size: 20,
+                                ),
+                                onPressed: canDelete
+                                    ? () {
+                                        context
+                                            .read<CreateShutterCubit>()
+                                            .removeLine(index);
+                                        setState(() => selectedRows = []);
+                                      }
+                                    : null,
+                              ),
+                            ),
+                          ),
                       ],
                     );
                   }),
-                ),
+                ],
               ),
             ),
           ],
         );
       },
+    );
+  }
+
+  static Widget _headerCell(String label) {
+    return TableCell(
+      verticalAlignment: TableCellVerticalAlignment.middle,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 6),
+        child: Text(
+          label,
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            fontSize: 13,
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+    );
+  }
+
+  static Widget _dataCell(Widget child) {
+    return TableCell(
+      verticalAlignment: TableCellVerticalAlignment.middle,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 6),
+        child: child,
+      ),
+    );
+  }
+
+  static Widget _bodyText(String text) {
+    return Text(
+      text,
+      textAlign: TextAlign.center,
+      // No overflow/maxLines limit — long values wrap onto extra lines
+      // instead of being cut off with an ellipsis, so nothing is hidden.
+      softWrap: true,
+      style: const TextStyle(fontSize: 12, color: Colors.black87),
     );
   }
 
@@ -302,7 +342,7 @@ class _ViewButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
         decoration: BoxDecoration(
           color: const Color(0xFF2563EB),
           borderRadius: BorderRadius.circular(6),
@@ -311,7 +351,7 @@ class _ViewButton extends StatelessWidget {
           count > 1 ? 'View ($count)' : 'View',
           style: const TextStyle(
             color: Colors.white,
-            fontSize: 16,
+            fontSize: 12,
             fontWeight: FontWeight.w600,
           ),
         ),

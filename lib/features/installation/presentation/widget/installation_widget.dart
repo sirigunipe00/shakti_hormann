@@ -27,8 +27,7 @@ class InstallationWidget extends StatelessWidget {
       return raw.substring(0, raw.length.clamp(0, 3)).toUpperCase();
     }
 
-    final last = digits.last;
-    return last.length >= 3 ? last.substring(last.length - 3) : last.padLeft(3, '0');
+    return digits.last;
   }
 
   @override
@@ -74,37 +73,30 @@ class InstallationWidget extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                installation.name ?? '',
-                                style: AppTextStyles.titleLarge(context).copyWith(
-                                  color: AppColors.black,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(height: 5),
-                              Text(
-                                installation.salesOrderNo ?? '',
-                                style: const TextStyle(
-                                  color: AppColors.grey,
-                                  fontWeight: FontWeight.normal,
-                                  letterSpacing: 0,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
+                      Text(
+                        installation.name ?? '',
+                        style: AppTextStyles.titleLarge(context).copyWith(
+                          color: AppColors.black,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       const SizedBox(height: 5),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
+                          Flexible(
+                            child: Text(
+                              'Sales Order: ${installation.salesOrderNo ?? ''}',
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                color: AppColors.grey,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 0,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ),
                           Row(
                             children: [
                               const Icon(
@@ -117,7 +109,7 @@ class InstallationWidget extends StatelessWidget {
                                 DFU.ddMMyyyyFromStr(installation.packingDate ?? ''),
                                 style: const TextStyle(
                                   color: Color(0xFF163A6B),
-                                  fontSize: 11,
+                                  fontSize: 14,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -146,8 +138,14 @@ class InstallationWidget extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Quantity : ${installation.noOfBoxes} Units',
-                style: const TextStyle(color: Colors.orange,fontWeight: FontWeight.bold,fontSize: 15),),
+                Text(
+                  'Quantity : ${installation.noOfBoxes} Units',
+                  style: const TextStyle(
+                    color: Colors.orange,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                  ),
+                ),
                 DocStatusWidget(
                   status: StringUtils.docStatus(installation.docStatus ?? 0),
                 ),

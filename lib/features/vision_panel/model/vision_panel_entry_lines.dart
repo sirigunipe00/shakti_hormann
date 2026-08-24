@@ -20,6 +20,9 @@ class VisionPanelEntryLines with _$VisionPanelEntryLines {
     @JsonKey(name: 'parentfield') String? parentField,
     @JsonKey(name: 'parenttype') String? parentType,
     @JsonKey(name: 'product_type') String? productType,
+    @JsonKey(name: 'box_no') String? boxNo,
+    @JsonKey(name: 'box_index') int? boxIndex,
+    @JsonKey(name: 'box_code') String? boxCode,
      int? itemIndex,
     @JsonKey(name: 'image') String? image,
      @JsonKey(

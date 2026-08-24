@@ -152,13 +152,26 @@ class _InstallationEntryFormWidgetState
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
-                              listItemBuilder:
-                                  (_, item, __, ___) => Text(
-                                    item.name ?? '',
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
+                    listItemBuilder:
+                                      (_, item, __, ___) => Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            'Sales Order: ${item.name ?? ''}',
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          if (item.customerName != null)
+                                            Text(
+                                              'Customer Name : ${item.customerName}',
+                                            ),
+                                          Text(
+                                            'Order Date: ${DFU.ddMMyyyyFromStr(item.orderDate ?? '')} ',
+                                          ),
+                                        ],
+                                      ),
                               onSelected: (selected) {
                                 setState(() {
                                   invoiceform = selected;
@@ -192,6 +205,7 @@ class _InstallationEntryFormWidgetState
                             }
                           },
                         ),
+                        const Text('**Please Save the Sales Order & No Of Boxes before Printing the stickers**'),
                         if (!isSubmitted)
                           SizedBox(
                             width: double.infinity,
@@ -212,7 +226,7 @@ class _InstallationEntryFormWidgetState
                               ),
                               label:
                                   formState
-                                          .isPrintLoading // only true while printSticker() itself is running
+                                          .isPrintLoading 
                                       ? const SizedBox(
                                         height: 18,
                                         width: 18,
@@ -226,8 +240,9 @@ class _InstallationEntryFormWidgetState
                                             ? 'Sticker Printed'
                                             : 'Print Sticker',
                                         style: const TextStyle(
-                                          color: Colors.green,
+                                          color: Colors.black,
                                           fontWeight: FontWeight.bold,
+                                          fontSize: 18
                                         ),
                                       ),
                               style: ElevatedButton.styleFrom(
@@ -276,7 +291,15 @@ class _InstallationEntryFormWidgetState
                               (index) =>
                                   _captureBoxPhoto(context, cubit, index),
                           onBoxNoChanged: cubit.onBoxNoChanged,
-                          onViewImage: (line) => _previewImage(context, line),
+                          onViewImage:
+                              (index, line) => _previewImage(
+                                context,
+                                cubit,
+                                index,
+                                line,
+                                isSubmitted: isSubmitted,
+                                isUpdated: formState.isUpdated,
+                              ),
                         ),
                       ],
                     ),
@@ -305,22 +328,38 @@ class _InstallationEntryFormWidgetState
     }
   }
 
-  void _previewImage(BuildContext context, InstallationLineItems line) {
+  Future<void> _previewImage(
+    BuildContext context,
+    CreateInstallationEntryCubit cubit,
+    int index,
+    InstallationLineItems line, {
+    required bool isSubmitted,
+    required bool isUpdated,
+  }) async {
     final localFile = line.installtionPhotoImg;
     final remoteUrl = line.image;
+    final hasUploadedImage = remoteUrl != null && remoteUrl.isNotEmpty;
 
     final String? resolvedUrl =
-        (remoteUrl != null && remoteUrl.isNotEmpty)
-            ? _resolveImageUrl(remoteUrl)
-            : null;
+        hasUploadedImage ? _resolveImageUrl(remoteUrl) : null;
 
-    Navigator.of(context).push(
+    final canRetake = !isSubmitted && !isUpdated && !hasUploadedImage;
+
+    final shouldRetake = await Navigator.of(context).push<bool>(
       MaterialPageRoute(
         builder:
-            (_) =>
-                _ImageViewerPage(localFile: localFile, imageUrl: resolvedUrl),
+            (_) => _ImageViewerPage(
+              localFile: localFile,
+              imageUrl: resolvedUrl,
+              canRetake: canRetake,
+              boxLabel: 'Box No: ${line.boxNo}',
+            ),
       ),
     );
+
+    if (shouldRetake == true && context.mounted) {
+      await _captureBoxPhoto(context, cubit, index);
+    }
   }
 
   String _resolveImageUrl(String raw) {
@@ -406,10 +445,17 @@ class _InstallationEntryFormWidgetState
 }
 
 class _ImageViewerPage extends StatelessWidget {
-  const _ImageViewerPage({this.localFile, this.imageUrl});
+  const _ImageViewerPage({
+    this.localFile,
+    this.imageUrl,
+    this.canRetake = false,
+    required this.boxLabel,
+  });
 
   final File? localFile;
   final String? imageUrl;
+  final bool canRetake;
+  final String boxLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -447,7 +493,23 @@ class _ImageViewerPage extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: AppColors.darkBlue,
         iconTheme: const IconThemeData(color: Colors.white),
-        title: const Text('Box Photo', style: TextStyle(color: Colors.white)),
+        title: Text(boxLabel, style: const TextStyle(color: Colors.white)),
+        actions:
+            canRetake
+                ? [
+                  TextButton.icon(
+                    onPressed: () => Navigator.of(context).pop(true),
+                    icon: const Icon(Icons.camera_alt, color: Colors.white),
+                    label: const Text(
+                      'Retake',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ]
+                : null,
       ),
       body: Center(
         child: InteractiveViewer(minScale: 0.8, maxScale: 5, child: content),
@@ -473,7 +535,7 @@ class _BoxDetailsTable extends StatelessWidget {
   final bool isUpdating;
   final void Function(int index) onCapture;
   final void Function(int index, String boxNo) onBoxNoChanged;
-  final void Function(InstallationLineItems line) onViewImage;
+  final void Function(int index, InstallationLineItems line) onViewImage;
 
   bool _hasPhoto(InstallationLineItems line) =>
       line.installtionPhotoImg != null ||
@@ -495,7 +557,7 @@ class _BoxDetailsTable extends StatelessWidget {
         },
         children: [
           const TableRow(
-            decoration: BoxDecoration(color: Color(0xFF2C4A9E)),
+            decoration: BoxDecoration(color: AppColors.darkBlue),
             children: [
               _HeaderCell('#'),
               _HeaderCell('Box No.'),
@@ -524,7 +586,7 @@ class _BoxDetailsTable extends StatelessWidget {
                   child:
                       _hasPhoto(lines[i])
                           ? InkWell(
-                            onTap: () => onViewImage(lines[i]),
+                            onTap: () => onViewImage(i, lines[i]),
                             child: Container(
                               width: double.infinity,
                               color: const Color(0xFF5CB88F),

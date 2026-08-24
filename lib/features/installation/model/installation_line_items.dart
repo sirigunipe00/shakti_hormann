@@ -28,7 +28,7 @@ class InstallationLineItems with _$InstallationLineItems {
     @JsonKey(name: 'parentfield') String? parentField,
 
     @JsonKey(name: 'parenttype') String? parentType,
-    @JsonKey(includeFromJson: false, includeToJson: false) String? boxNo,
+    @JsonKey(name: 'box_no') String? boxNo,
 
     @JsonKey(name: 'image') String? image,
     @JsonKey(

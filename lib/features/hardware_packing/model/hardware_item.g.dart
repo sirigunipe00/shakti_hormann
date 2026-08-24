@@ -21,8 +21,12 @@ _$HardwareItemImpl _$$HardwareItemImplFromJson(Map<String, dynamic> json) =>
       productName: json['description'] as String?,
       qtySticker: (json['qty_on_sticker'] as num?)?.toInt(),
       materialCode: json['sap_code'] as String?,
+      mesNumber: json['mes_number'] as String?,
       mesStcikerImage: json['mes_sticker_image'] as String?,
       mesStickerImage: toNull(json['mesStickerImage']),
+      box: json['box'] as String?,
+      page: json['page'] as String?,
+      boxType: json['box_type'] as String?,
     );
 
 Map<String, dynamic> _$$HardwareItemImplToJson(_$HardwareItemImpl instance) =>
@@ -40,5 +44,9 @@ Map<String, dynamic> _$$HardwareItemImplToJson(_$HardwareItemImpl instance) =>
       'description': instance.productName,
       'qty_on_sticker': instance.qtySticker,
       'sap_code': instance.materialCode,
+      'mes_number': instance.mesNumber,
       'mes_sticker_image': instance.mesStcikerImage,
+      'box': instance.box,
+      'page': instance.page,
+      'box_type': instance.boxType,
     };

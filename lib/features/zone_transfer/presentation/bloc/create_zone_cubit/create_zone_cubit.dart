@@ -5,6 +5,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:shakti_hormann/features/storage_allocation/model/storage.dart';
 import 'package:shakti_hormann/features/zone_transfer/data/zone_repo.dart';
+import 'package:shakti_hormann/features/zone_transfer/model/zone_transfer.dart';
 
 part 'create_zone_cubit.freezed.dart';
 
@@ -13,7 +14,7 @@ enum ZoneView { create, completed }
 extension ActionType on ZoneView {
   String toName() {
     return switch (this) {
-      ZoneView.create => 'Transfer',
+      ZoneView.create => 'Save',
       ZoneView.completed => 'Submitted',
     };
   }
@@ -41,6 +42,24 @@ class CreateZoneCubit extends AppBaseCubit<CreateZoneState> {
   }) async {
     shouldAskForConfirmation.value = true;
 
+    if (newzoneQr != null &&
+        newzoneQr.trim().isNotEmpty &&
+        state.form.oldZone != null &&
+        state.form.oldZone!.trim().isNotEmpty &&
+        newzoneQr.trim() == state.form.oldZone!.trim()) {
+      emitSafeState(
+        state.copyWith(
+          error: Failure(
+            error:
+                "Pallet is already in zone '${state.form.oldZone}'. Scan a different zone to move it.",
+            title: 'SAME_ZONE',
+            status: 400,
+          ),
+        ),
+      );
+      return;
+    }
+
     final form = state.form;
 
     final zonePhotos = zonePhoto ?? form.locationPhotoImg;
@@ -52,7 +71,7 @@ class CreateZoneCubit extends AppBaseCubit<CreateZoneState> {
       salesOrders: salesOrders ?? form.salesOrders,
       totalQty: totalQty ?? form.totalQty,
       oldZone: oldzone ?? form.oldZone,
-      // newzoneQr: newzoneQr ?? form.newzoneQr,
+      zoneQr: newzoneQr ?? form.zoneQr,
       palletBoxQr: palletNo ?? form.palletBoxQr,
       palletCount: palletCount ?? form.palletCount,
       locationPhotoImg: zonePhotos,
@@ -61,16 +80,22 @@ class CreateZoneCubit extends AppBaseCubit<CreateZoneState> {
     emitSafeState(state.copyWith(form: newForm));
   }
   void initFromStorage(Storage storage) async {
-  shouldAskForConfirmation.value = false;
-  final form = state.form;
-  final updatedForm = form.copyWith(
-    palletBoxQr: storage.palletBoxQr,
-    totalQty: storage.totalQty,
-    salesOrders: storage.salesOrders,
-    oldZone: storage.zoneQr ?? storage.zoneName,
-  );
-  emitSafeState(state.copyWith(form: updatedForm, view: ZoneView.create,isMoveFlow : true));
-}
+    shouldAskForConfirmation.value = false;
+    final form = state.form;
+    final updatedForm = form.copyWith(
+      palletBoxQr: storage.palletBoxQr,
+      totalQty: storage.totalQty,
+      salesOrders: storage.salesOrders,
+      oldZone: storage.zoneQr ?? storage.zoneName,
+    );
+    emitSafeState(
+      state.copyWith(form: updatedForm, view: ZoneView.create, isMoveFlow: true),
+    );
+    final palletQr = storage.palletBoxQr;
+    if (palletQr != null && palletQr.isNotEmpty) {
+      await onQrScanned(palletQr);
+    }
+  }
 
   void initDetails(Object? entry) async {
     shouldAskForConfirmation.value = false;
@@ -86,23 +111,57 @@ class CreateZoneCubit extends AppBaseCubit<CreateZoneState> {
         salesOrders: entry.salesOrders,
         totalQty: entry.totalQty,
         palletCount: entry.palletCount,
-        // newzoneQr: entry.newzoneQr,
+        zoneQr: entry.zoneQr,
         palletBoxQr: entry.palletBoxQr,
       );
       emitSafeState(
-        state.copyWith(form: updatedForm, view: ZoneView.completed),
+        state.copyWith(
+          form: updatedForm,
+          view: entry.docStatus == null ? ZoneView.create : ZoneView.completed,
+        ),
       );
+      await _loadTransferCount(entry.palletBoxQr);
+    } else if (entry is ZoneTransfer) {
+      final form = state.form;
+      final updatedForm = form.copyWith(
+        docStatus: entry.docStatus,
+        name: entry.name,
+        remarks: entry.remarks,
+        storedBy: entry.storedBy,
+        oldZone: entry.oldZone,
+        locationPhoto: entry.locationPhoto,
+        salesOrders: entry.salesOrders,
+        totalQty: entry.totalQty,
+        zoneQr: entry.newzoneQr,
+        palletBoxQr: entry.palletBoxQr,
+      );
+      emitSafeState(
+        state.copyWith(
+          form: updatedForm,
+          view: entry.docStatus == null ? ZoneView.create : ZoneView.completed,
+        ),
+      );
+      await _loadTransferCount(entry.palletBoxQr);
     }
-    if (entry == null) return;
+  }
+
+  Future<void> _loadTransferCount(String? palletQr) async {
+    if (palletQr == null || palletQr.isEmpty) return;
+    final history = await repo.getPalletTransferCount(palletQr);
+    history.fold((_) {}, (count) {
+      emitSafeState(
+        state.copyWith(form: state.form.copyWith(palletCount: count)),
+      );
+    });
   }
 
 Future<void> onQrScanned(String rawQr) async {
-  emitSafeState(state.copyWith(isLoading: true));
+  emitSafeState(state.copyWith(isLoading: true, error: null));
 
-  final result = await repo.fetchSales(rawQr);
+  final result = await repo.scanPalletForZoneTransfer(rawQr);
 
-  result.fold(
-    (failure) {
+  await result.fold(
+    (failure) async {
       emitSafeState(
         state.copyWith(
           isLoading: false,
@@ -110,22 +169,20 @@ Future<void> onQrScanned(String rawQr) async {
         ),
       );
     },
-    (items) {
-      if (items.isEmpty) {
-        emitSafeState(state.copyWith(isLoading: false));
-        return;
-      }
-
-      final storage = items.first;
+    (scan) async {
+      var transferCount = scan.transferCount;
+      final history = await repo.getPalletTransferCount(scan.palletQr);
+      history.fold((_) {}, (count) => transferCount = count);
 
       emitSafeState(
         state.copyWith(
           isLoading: false,
           form: state.form.copyWith(
-            palletBoxQr: rawQr,
-            salesOrders: storage.salesOrders,
-            totalQty: storage.totalQty,
-            oldZone: storage.zoneName,
+            palletBoxQr: scan.palletQr,
+            salesOrders: scan.salesOrder ?? '',
+            totalQty: scan.totalQty,
+            oldZone: scan.oldZoneName ?? '',
+            palletCount: transferCount,
           ),
         ),
       );
@@ -163,7 +220,7 @@ Future<void> onQrScanned(String rawQr) async {
                   name: docstatus,
                   docStatus: 1,
                 ),
-                successMsg: r.first,
+            successMsg: '${r.first} ${r.second}',
                 view: ZoneView.completed,
               ),
             );
@@ -197,13 +254,10 @@ Future<void> onQrScanned(String rawQr) async {
     final form = state.form;
     if (form.palletBoxQr.isNull || (form.palletBoxQr?.trim().isEmpty ?? true)) {
       return optionOf(const Pair('Missing PalletQr No', 0));
-    } else if (form.oldZone.isNull || (form.oldZone?.trim().isEmpty ?? true)) {
-      return optionOf(const Pair('Missing Old Zone No', 0));
-    }
-    else if (form.salesOrders.isNull || (form.salesOrders?.trim().isEmpty ?? true)) {
-      return optionOf(const Pair('Missing Sales Order No', 0));
-    }
-    else if (form.locationPhotoImg.isNull && form.locationPhoto.doesNotHaveValue) {
+    } else if (form.zoneQr.isNull || (form.zoneQr?.trim().isEmpty ?? true)) {
+      return optionOf(const Pair('Missing New Zone QR', 0));
+    } else if (form.locationPhotoImg.isNull &&
+        form.locationPhoto.doesNotHaveValue) {
       return optionOf(const Pair('Missing Zone Photo', 0));
     }
 

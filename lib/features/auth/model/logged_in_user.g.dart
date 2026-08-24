@@ -93,6 +93,13 @@ _$RoleStatusImpl _$$RoleStatusImplFromJson(Map<String, dynamic> json) =>
       showpod: (json['Show Proof of Delivery in Mobile App'] as num?)?.toInt(),
       showgateManagement:
           (json['Show Gate Management in Mobile App'] as num?)?.toInt(),
+      showShutter: (json['Shutter Packing-SH'] as num?)?.toInt(),
+      showHardware: (json['Hardware Packing-SH'] as num?)?.toInt(),
+      showFrame: (json['Frame Packing-SH'] as num?)?.toInt(),
+      showInstalltion: (json['Installation Packing-SH'] as num?)?.toInt(),
+      showPallet: (json['Pallet Creation-SH'] as num?)?.toInt(),
+      showStorage: (json['Storage-SH'] as num?)?.toInt(),
+      showVision: (json['Accessories Packing-SH'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$$RoleStatusImplToJson(
@@ -108,4 +115,11 @@ Map<String, dynamic> _$$RoleStatusImplToJson(
   'Show Loading Confirmation in Mobile App': instance.showLoadingConfirmation,
   'Show Proof of Delivery in Mobile App': instance.showpod,
   'Show Gate Management in Mobile App': instance.showgateManagement,
+  'Shutter Packing-SH': instance.showShutter,
+  'Hardware Packing-SH': instance.showHardware,
+  'Frame Packing-SH': instance.showFrame,
+  'Installation Packing-SH': instance.showInstalltion,
+  'Pallet Creation-SH': instance.showPallet,
+  'Storage-SH': instance.showStorage,
+  'Accessories Packing-SH': instance.showVision,
 };

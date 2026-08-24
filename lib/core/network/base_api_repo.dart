@@ -101,7 +101,9 @@ class BaseApiRepository {
 
       return right(response);
     } on BaseApiException catch (e, _) {
-      return left(Failure(error: e.message));
+      return left(
+        Failure(error: e is ClientException ? 'ClientException' : e.message),
+      );
     } on Exception catch (e, st) {
       $logger
         ..info('Log 2')

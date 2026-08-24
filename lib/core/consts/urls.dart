@@ -4,7 +4,7 @@ final _reqisteredUrl = $sl.get<Urls>(instanceName: 'baseUrl');
 
 class Urls {
   factory Urls.local() =>
-      const Urls('http://192.168.1.132:8000/api');
+      const Urls('http://192.168.29.128:8000/api');
   factory Urls.shaktiHormannUAT() =>
    const Urls('https://shaktihormannuat.easycloud.co.in/api');
    factory Urls.live() =>  const Urls('https://shaktihormannlive.easycloud.co.in/api');
@@ -69,10 +69,13 @@ class Urls {
   static final storageAllocation = '$cusWs/shaktihormann.p2_api.create_storage_zone';
   static final getSales = '$cusWs/shaktihormann.p2_api.get_pallet_sales_orders';
   static final zoneTransfer = '$cusWs/shaktihormann.p2_api.create_zone_transfer';
+  static final scanPalletForZoneTransfer = '$cusWs/shaktihormann.p2_api.scan_pallet_for_zone_transfer';
+  static final getPalletMovementHistory = '$cusWs/shaktihormann.p2_api.get_pallet_movement_history';
 
   static final createHardware = '$cusWs/shaktihormann.p2_api.create_hardware_packing';
   static final updateHardware = '$cusWs/shaktihormann.p2_api.update_hardware_packing';
   static final submitHardware = '$cusWs/shaktihormann.p2_api.submit_hardware_packing';
+  static final addHardwareCapture = '$cusWs/shaktihormann.p2_api.add_hardware_packing_capture';
   static final getMesValues = '$cusWs/shaktihormann.p2_api.extract_packing_label_api';
 
   static final createPallet = '$cusWs/shaktihormann.p2_api.create_pallet';
@@ -88,9 +91,11 @@ class Urls {
   static final createVision = '$cusWs/shaktihormann.p2_api.create_vision_panel';
   static final updateVision = '$cusWs/shaktihormann.p2_api.update_vision_panel';
   static final submitVision = '$cusWs/shaktihormann.p2_api.submit_vision_panel';
+  static final getVisionPanelBoxSequence = '$cusWs/shaktihormann.p2_api.get_vision_panel_box_sequence';
 
   static final createInstallation = '$cusWs/shaktihormann.p2_api.create_installation_entry';
   static final updateInstallation = '$cusWs/shaktihormann.p2_api.update_installation_entry';
   static final submitInstallation = '$cusWs/shaktihormann.p2_api.submit_installation_entry';
+  static final getInstallationBoxSequence = '$cusWs/shaktihormann.p2_api.get_installation_box_sequence';
 
 }

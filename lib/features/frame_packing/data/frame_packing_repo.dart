@@ -18,6 +18,7 @@ abstract class FramePackingRepo{
   );
   AsyncValueOf<Pair<String,String>> createFrame(FramePacking form,List<FrameLines> lines);
   AsyncValueOf<Pair<String,String>> updateFrame(FramePacking form,List<FrameLines> lines);
+  AsyncValueOf<Pair<String,String>> freezeFrame(String framePackingId);
   AsyncValueOf<Pair<String,String>> submitFrame(FramePacking form);
   AsyncValueOf<List<FrameItems>> fetchItems(String name,String index);
   AsyncValueOf<List<PalletSize>> fetchPalletSize();

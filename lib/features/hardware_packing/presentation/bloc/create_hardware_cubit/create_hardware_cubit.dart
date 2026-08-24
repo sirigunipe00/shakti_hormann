@@ -82,6 +82,43 @@ class CreateHardwareCubit extends AppBaseCubit<CreateHardwareState> {
     );
   }
 
+  Future<void> addCaptureFromScan(List<HardwareItem> items) async {
+    if (items.isEmpty) return;
+
+    final name = state.form.name;
+    if (name == null || name.isEmpty) {
+      addHardwareItems(items);
+      return;
+    }
+
+    emitSafeState(state.copyWith(isLoading: true, isSuccess: false));
+    final response = await repo.addHardwareCapture(
+      hardwarePackingId: name,
+      lines: items,
+    );
+
+    response.fold(
+      (l) => emitSafeState(
+        state.copyWith(isLoading: false, error: l, isSuccess: false),
+      ),
+      (r) {
+        shouldAskForConfirmation.value = false;
+        final updatedLines = [...state.lines, ...items];
+        _syncedLineCount = updatedLines.length;
+        emitSafeState(
+          state.copyWith(
+            isLoading: false,
+            isSuccess: true,
+            isModified: false,
+            lines: updatedLines,
+            successMsg: '${r.first}\n${r.second}',
+            view: HardwareView.edit,
+          ),
+        );
+      },
+    );
+  }
+
   void initDetails(Object? entry) async {
     shouldAskForConfirmation.value = false;
     if (entry is HardwarePacking) {
@@ -129,8 +166,28 @@ class CreateHardwareCubit extends AppBaseCubit<CreateHardwareState> {
 
   void addAllLines(List<HardwareItem> lines) {
     _syncedLineCount = lines.length;
+    final scanned = <int>[];
+    int? totalBoxCount;
+    for (final line in lines) {
+      final parts = line.box?.split('/');
+      if (parts != null && parts.length == 2) {
+        final current = int.tryParse(parts.first.trim());
+        final total = int.tryParse(parts.last.trim());
+        if (current != null && !scanned.contains(current)) {
+          scanned.add(current);
+        }
+        totalBoxCount ??= total;
+      }
+    }
     emitSafeState(
-      state.copyWith(lines: lines, isModified: false),
+      state.copyWith(
+        lines: lines,
+        isModified: false,
+        form: state.form.copyWith(
+          scannedBoxNumbers: scanned,
+          totalBoxCount: totalBoxCount ?? state.form.totalBoxCount,
+        ),
+      ),
     );
   }
 
@@ -186,7 +243,10 @@ class CreateHardwareCubit extends AppBaseCubit<CreateHardwareState> {
 
     emitSafeState(state.copyWith(isLoading: true, isSuccess: false));
 
-    final response = await repo.updateHardware(state.form, linesToSend);
+    final response = await repo.addHardwareCapture(
+      hardwarePackingId: name,
+      lines: linesToSend,
+    );
 
     response.fold(
       (l) => emitSafeState(
@@ -224,19 +284,6 @@ class CreateHardwareCubit extends AppBaseCubit<CreateHardwareState> {
   if (state.lines.isEmpty) {
     return _emitError(const Pair('Add at least one MES sticker item', 0));
   }
-
-  final totalBoxCount = state.form.totalBoxCount;
-  final scannedCount = state.form.scannedBoxNumbers.length;
-  if (totalBoxCount != null && scannedCount < totalBoxCount) {
-    return _emitError(
-      Pair(
-        'Only $scannedCount of $totalBoxCount boxes saved. '
-        'Scan and save all boxes before submitting.',
-        0,
-      ),
-    );
-  }
-  // --- end new check ---
 
   emitSafeState(state.copyWith(isLoading: true, isSuccess: false));
 
@@ -286,9 +333,7 @@ class CreateHardwareCubit extends AppBaseCubit<CreateHardwareState> {
     final form = state.form;
     if (form.salesOrderNo == null || form.salesOrderNo!.isEmpty) {
       return optionOf(const Pair('Select Sales Order', 0));
-    }else if (form.mesSystem == null || form.mesSystem!.isEmpty) {
-      return optionOf(const Pair('Required MES System No', 0));
-    }else if (form.captueDate == null || form.captueDate!.isEmpty) {
+    } else if (form.captueDate == null || form.captueDate!.isEmpty) {
       return optionOf(const Pair('Required Print Date', 0));
     }
 

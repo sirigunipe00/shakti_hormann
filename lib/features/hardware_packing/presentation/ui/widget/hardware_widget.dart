@@ -15,20 +15,16 @@ class HardwareWidget extends StatelessWidget {
   });
   final HardwarePacking hardware;
   final VoidCallback onTap;
-  String get _palletDisplayNumber {
+ String get _palletDisplayNumber {
     final raw = hardware.name;
     if (raw == null || raw.isEmpty) return '---';
 
-    final digits =
-        RegExp(r'\d+').allMatches(raw).map((m) => m.group(0)!).toList();
+    final digits = RegExp(r'\d+').allMatches(raw).map((m) => m.group(0)!).toList();
     if (digits.isEmpty) {
       return raw.substring(0, raw.length.clamp(0, 3)).toUpperCase();
     }
 
-    final last = digits.last;
-    return last.length >= 3
-        ? last.substring(last.length - 3)
-        : last.padLeft(3, '0');
+    return digits.last; 
   }
 
   @override
@@ -94,10 +90,11 @@ class HardwareWidget extends StatelessWidget {
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
                                   Text(
-                                    'Order No : ${hardware.salesOrderNo}',
+                                    'Sales Order  : ${hardware.salesOrderNo}',
                                     style: const TextStyle(
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.normal,
+                                      color: Colors.grey,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14,
                                       letterSpacing: 0,
                                     ),
                                   ),

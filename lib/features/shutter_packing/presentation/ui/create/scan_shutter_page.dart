@@ -1,8 +1,8 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:mobile_scanner/mobile_scanner.dart' hide BarcodeFormat;
+import 'package:shakti_hormann/core/utils/packing_sticker_decoder.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
 
 class ScanShutterPage extends StatefulWidget {
   const ScanShutterPage({super.key});
@@ -12,7 +12,9 @@ class ScanShutterPage extends StatefulWidget {
 }
 
 class _ScanShutterPageState extends State<ScanShutterPage> {
-  final MobileScannerController _controller = MobileScannerController();
+  final MobileScannerController _controller = MobileScannerController(
+    formats: [BarcodeFormat.pdf417],
+  );
   bool _scanned = false;
 
   @override
@@ -26,9 +28,12 @@ class _ScanShutterPageState extends State<ScanShutterPage> {
     final raw = capture.barcodes.firstOrNull?.rawValue;
     if (raw == null || raw.isEmpty) return;
 
+    // PDF417 stickers encode extra fields; keep only the printed 6-part ID.
+    final value = extractPackingStickerCode(raw) ?? raw;
+
     _scanned = true;
     _controller.stop();
-    Navigator.of(context).pop(raw);
+    Navigator.of(context).pop(value);
   }
 
   @override
@@ -38,7 +43,7 @@ class _ScanShutterPageState extends State<ScanShutterPage> {
       appBar: AppBar(
         backgroundColor: const Color(0xFF1A3C6B),
         foregroundColor: Colors.white,
-        title: const Text('Scan Shutter Sticker'),
+        title: const Text('Scan Shutter Barcode'),
         actions: [
           IconButton(
             icon: const Icon(Icons.flash_on),
@@ -60,11 +65,11 @@ class _ScanShutterPageState extends State<ScanShutterPage> {
                 Container(color: Colors.transparent),
                 Center(
                   child: Container(
-                    width: 260,
-                    height: 260,
+                    width: 300,
+                    height: 140,
                     decoration: BoxDecoration(
                       color: Colors.black,
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(12),
                     ),
                   ),
                 ),
@@ -74,8 +79,8 @@ class _ScanShutterPageState extends State<ScanShutterPage> {
 
           Center(
             child: SizedBox(
-              width: 260,
-              height: 260,
+              width: 350,
+              height: 140,
               child: CustomPaint(painter: _CornerBorderPainter()),
             ),
           ),
@@ -85,7 +90,7 @@ class _ScanShutterPageState extends State<ScanShutterPage> {
             child: Padding(
               padding: EdgeInsets.only(bottom: 80),
               child: Text(
-                'Point camera at the shutter sticker QR code',
+                'Point camera at the shutter sticker barcode',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 14,
@@ -100,7 +105,6 @@ class _ScanShutterPageState extends State<ScanShutterPage> {
     );
   }
 }
-
 class _CornerBorderPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
@@ -204,69 +208,14 @@ Future<Map<String, dynamic>?> captureAndDecodeShutterQrMulti(
 
   if (imagePaths == null || imagePaths.isEmpty) return null;
 
-  final extracted = await _decodeQrFromImage(imagePaths.first);
+  String? extracted;
+  for (final path in imagePaths) {
+    extracted = await decodePackingStickerCode(path);
+    if (extracted != null) break;
+  }
   if (extracted == null) return null;
 
   return {'qr': extracted, 'imagePaths': imagePaths};
-}
-// Future<String?> _decodeQrFromImage(String imagePath) async {
-//   final inputImage = InputImage.fromFile(File(imagePath));
-//   final textRecognizer = TextRecognizer();
-
-//   try {
-//     final result = await textRecognizer.processImage(inputImage);
-//     final fullText = result.text;
-//     final normalized = fullText.replaceAll(RegExp(r'\s+'), '');
-
-//     // final match = RegExp(
-//     //   r'(\d+\/\d+\/[A-Z]+\/+\d+\/\d+)',
-//     // ).firstMatch(normalized);
-//     final match = RegExp(
-//       r'(\d+\/\d+\/[A-Za-z0-9]+(?:\/\d+){2,}(?:\/[A-Za-z0-9]+)*)',
-//     ).firstMatch(normalized);
-
-//     if (match == null) return null;
-//     return match.group(0)!;
-//   } finally {
-//     await textRecognizer.close();
-//   }
-// }
-Future<String?> _decodeQrFromImage(String imagePath) async {
-  final inputImage = InputImage.fromFile(File(imagePath));
-  final textRecognizer = TextRecognizer();
-
-  final pattern = RegExp(
-    r'(\d+\/\d+\/[A-Za-z0-9]+(?:\/\d+){2,}(?:\/[A-Za-z0-9]+)*)',
-  );
-
-  try {
-    final result = await textRecognizer.processImage(inputImage);
-
-    for (final block in result.blocks) {
-      for (final line in block.lines) {
-        final lineText = line.text.replaceAll(RegExp(r'\s+'), '');
-        final match = pattern.firstMatch(lineText);
-        if (match != null) {
-          return match.group(0);
-        }
-      }
-    }
-    final joinedText = result.blocks
-        .expand((b) => b.lines)
-        .map((l) => l.text.trim())
-        .where((t) => t.isNotEmpty)
-        .join('|');
-    final fallbackMatch = pattern.firstMatch(
-      joinedText.replaceAll(RegExp(r'\s+'), ''),
-    );
-    if (fallbackMatch != null) {
-      return fallbackMatch.group(0);
-    }
-
-    return null;
-  } finally {
-    await textRecognizer.close();
-  }
 }
 class MultiImageCapturePage extends StatefulWidget {
   const MultiImageCapturePage({super.key});

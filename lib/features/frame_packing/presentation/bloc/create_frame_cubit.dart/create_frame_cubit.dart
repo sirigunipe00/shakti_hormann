@@ -126,6 +126,7 @@ class CreateFrameCubit extends AppBaseCubit<CreateFrameState> {
         palletPhoto: entry.palletPhoto,
         totalUnitsOnPallet: entry.totalUnitsOnPallet,
         palletQrPrinted: entry.palletQrPrinted,
+        freezeQuantity: entry.freezeQuantity,
         creation: entry.creation,
       );
       final status = entry.docStatus;
@@ -140,12 +141,19 @@ class CreateFrameCubit extends AppBaseCubit<CreateFrameState> {
       final mode =
           (isSubmitted || isCancelled) ? FrameView.completed : FrameView.edit;
       emitSafeState(
-        state.copyWith(form: updatedForm, view: mode, isModified: false),
+        state.copyWith(
+          form: updatedForm,
+          view: mode,
+          isModified: false,
+          isFrozen: entry.freezeQuantity == 1,
+        ),
       );
-    }
-    if (entry == null) return;
-    if (entry is FramePacking && entry.salesOrder?.isNotEmpty == true) {
-      getPalletCodes(entry.salesOrder!);
+      final canSelectPallet =
+          mode != FrameView.completed &&
+          (entry.name == null || entry.name!.isEmpty);
+      if (canSelectPallet && entry.salesOrder?.isNotEmpty == true) {
+        getPalletCodes(entry.salesOrder!);
+      }
     }
   }
 
@@ -183,6 +191,26 @@ class CreateFrameCubit extends AppBaseCubit<CreateFrameState> {
 
   void createDocHandled() {
     emitSafeState(state.copyWith(createSuccessMsg: null));
+  }
+
+  Future<void> _refreshLinesFromServer() async {
+    final docName = state.form.name;
+    if (docName == null || docName.isEmpty) return;
+
+    final response = await repo.fetchFrameLines(docName);
+    final lines = response.fold<List<FrameLines>?>(
+      (_) => null,
+      (data) => data,
+    );
+    if (lines == null) return;
+
+    emitSafeState(
+      state.copyWith(
+        lines: lines,
+        newLines: [],
+      ),
+    );
+    await _mergeAttachmentsIntoLines(docName);
   }
 
   Future<void> getPalletCodes(String salesOrder) async {
@@ -239,7 +267,8 @@ class CreateFrameCubit extends AppBaseCubit<CreateFrameState> {
             form: form.copyWith(name: r.second, status: 'Draft', docStatus: 0),
             isCreatingDoc: false,
             isModified: false,
-            createSuccessMsg: r.first,
+            view: FrameView.edit,
+            createSuccessMsg: '${r.first}\n${r.second}',
           ),
         );
       },
@@ -250,6 +279,9 @@ class CreateFrameCubit extends AppBaseCubit<CreateFrameState> {
     final docName = state.form.name;
     if (docName == null || docName.isEmpty) {
       _emitError(const Pair('No document found to print.', null));
+      return false;
+    }
+    if (state.form.palletQrPrinted == 1 || state.form.docStatus == 1) {
       return false;
     }
 
@@ -409,10 +441,11 @@ class CreateFrameCubit extends AppBaseCubit<CreateFrameState> {
     }
 
     final pending = state.newLines;
-    if (pending.isEmpty) return;
+    final allItems = state.lines;
+    if (allItems.isEmpty) return;
 
-    final response = await repo.updateFrame(form, pending);
-    response.fold(
+    final response = await repo.updateFrame(form, allItems);
+    final didUpdate = response.fold(
       (failure) {
         final failedQrs = pending
             .map((l) => l.shutterBarcodeQr)
@@ -430,11 +463,16 @@ class CreateFrameCubit extends AppBaseCubit<CreateFrameState> {
             error: failure,
           ),
         );
+        return false;
       },
       (_) {
         emitSafeState(state.copyWith(newLines: []));
+        return true;
       },
     );
+    if (didUpdate) {
+      await _refreshLinesFromServer();
+    }
   } finally {
     _isSyncingLine = false;
   }
@@ -496,6 +534,67 @@ class CreateFrameCubit extends AppBaseCubit<CreateFrameState> {
     emitSafeState(state.copyWith(lines: lines, isModified: true));
   }
 
+  /// Removes a whole line item from the draft and syncs it for saved docs.
+  Future<void> removeLine(int lineIndex) async {
+    if (lineIndex < 0 || lineIndex >= state.lines.length) return;
+
+    final previousLines = [...state.lines];
+    final previousNewLines = [...state.newLines];
+    final removed = state.lines[lineIndex];
+    final updatedLines = [...state.lines]..removeAt(lineIndex);
+
+    final updatedNewLines = [...state.newLines];
+    final qr = removed.shutterBarcodeQr;
+    if (qr != null && qr.isNotEmpty) {
+      updatedNewLines.removeWhere((l) => l.shutterBarcodeQr == qr);
+    } else {
+      if (lineIndex >= 0 && lineIndex < updatedNewLines.length) {
+        updatedNewLines.removeAt(lineIndex);
+      }
+    }
+
+    final docExists = state.form.name != null && state.form.name!.isNotEmpty;
+    emitSafeState(
+      state.copyWith(
+        lines: updatedLines,
+        newLines: docExists ? updatedLines : updatedNewLines,
+        isModified: true,
+      ),
+    );
+
+    if (!docExists) return;
+
+    emitSafeState(state.copyWith(isLoading: true));
+
+    final response = await repo.updateFrame(state.form, updatedLines);
+    final didUpdate = response.fold(
+      (failure) {
+        emitSafeState(
+          state.copyWith(
+            isLoading: false,
+            lines: previousLines,
+            newLines: previousNewLines,
+            error: failure,
+          ),
+        );
+        return false;
+      },
+      (_) {
+        emitSafeState(
+          state.copyWith(
+            isLoading: false,
+            newLines: [],
+            isModified: false,
+          ),
+        );
+        return true;
+      },
+    );
+    if (didUpdate) {
+      await _refreshLinesFromServer();
+    }
+  }
+
   void clearVehiclePhoto() {
     final form = state.form.copyWith(palletPhoto: null);
     emitSafeState(state.copyWith(form: form));
@@ -537,24 +636,34 @@ class CreateFrameCubit extends AppBaseCubit<CreateFrameState> {
           },
         );
       } else if (isDraft && hasNewItems) {
-        final response = await repo.updateFrame(form, state.newLines);
-        return response.fold(
-          (l) => emitSafeState(state.copyWith(isLoading: false, error: l)),
+        final response = await repo.updateFrame(form, state.lines);
+        final didUpdate = response.fold(
+          (l) {
+            emitSafeState(state.copyWith(isLoading: false, error: l));
+            return false;
+          },
           (r) {
             shouldAskForConfirmation.value = false;
+            final updatedName =
+                (r.second.isNotEmpty) ? r.second : form.name;
             emitSafeState(
               state.copyWith(
                 isLoading: false,
-                form: form.copyWith(status: status, name: r.second),
+                form: form.copyWith(status: status, name: updatedName),
                 isSuccess: true,
-                successMsg: '${r.first}\n${r.second}',
+                successMsg: '${r.first}\n${updatedName ?? ''}',
                 isModified: false,
                 view: FrameView.edit,
                 newLines: [],
               ),
             );
+            return true;
           },
         );
+        if (didUpdate) {
+          await _refreshLinesFromServer();
+        }
+        return;
       } else {
         final response = await repo.submitFrame(form);
         return response.fold(
@@ -587,82 +696,34 @@ class CreateFrameCubit extends AppBaseCubit<CreateFrameState> {
   }
 
   Future<void> freezeFrameQuantity() async {
-    final incompleteError = _validateAllQuantitiesScanned(state.lines);
-    if (incompleteError != null) {
-      _emitError(Pair(incompleteError, null));
+    final docName = state.form.name;
+    if (docName == null || docName.isEmpty) {
+      _emitError(
+        const Pair('Please save the document before freezing quantity.', null),
+      );
       return;
     }
 
     emitSafeState(state.copyWith(isFreezing: true));
 
-    final form = state.form;
-    final docAlreadyCreated = form.name != null && form.name!.isNotEmpty;
-
-    final response =
-        docAlreadyCreated
-            ? await repo.updateFrame(form, state.newLines)
-            : await repo.createFrame(form, state.lines);
-
+    final response = await repo.freezeFrame(docName);
     response.fold(
       (failure) {
         emitSafeState(state.copyWith(isFreezing: false, error: failure));
       },
       (r) {
-        final updatedForm =
-            docAlreadyCreated
-                ? form
-                : form.copyWith(name: r.second, status: 'Draft');
         shouldAskForConfirmation.value = false;
-
         emitSafeState(
           state.copyWith(
-            form: updatedForm,
+            form: state.form.copyWith(freezeQuantity: 1),
             isFreezing: false,
             isFrozen: true,
             isModified: false,
-            newLines: [],
-            freezeSuccessMsg: 'Quantity frozen successfully.',
+            freezeSuccessMsg: r.first,
           ),
         );
       },
     );
-  }
-
-  String? _validateAllQuantitiesScanned(List<FrameLines> lines) {
-    if (lines.isEmpty) {
-      return 'Scan at least one frame before freezing quantity.';
-    }
-
-    final totalsByGroup = <String, int>{};
-    final scannedByGroup = <String, Set<int>>{};
-
-    for (final line in lines) {
-      final qr = line.shutterBarcodeQr;
-      if (qr == null || qr.isEmpty) continue;
-
-      final parsed = _ParsedShutterQr.tryParse(qr);
-      if (parsed == null) continue;
-
-      totalsByGroup[parsed.groupKey] = parsed.totalQty;
-      scannedByGroup
-          .putIfAbsent(parsed.groupKey, () => <int>{})
-          .add(parsed.seqNo);
-    }
-
-    if (totalsByGroup.isEmpty) {
-      return 'Invalid frame QR data. Rescan and try again.';
-    }
-
-    for (final entry in totalsByGroup.entries) {
-      final scannedCount = scannedByGroup[entry.key]?.length ?? 0;
-      final totalQty = entry.value;
-      if (scannedCount < totalQty) {
-        return 'You have scanned $scannedCount out of $totalQty. '
-            'To freeze quantity, scan all $totalQty.';
-      }
-    }
-
-    return null;
   }
 
   void freezeHandled() {

@@ -72,7 +72,6 @@ import 'package:shakti_hormann/features/shutter_packing/presentation/ui/create/n
 import 'package:shakti_hormann/features/shutter_packing/presentation/ui/widget/shutter_list.dart';
 import 'package:shakti_hormann/features/storage_allocation/model/storage.dart';
 import 'package:shakti_hormann/features/storage_allocation/presentation/bloc/bloc_provider.dart';
-import 'package:shakti_hormann/features/storage_allocation/presentation/bloc/create_storage_cubit/create_storage_cubit.dart';
 import 'package:shakti_hormann/features/storage_allocation/presentation/ui/create/new_storage.dart';
 import 'package:shakti_hormann/features/storage_allocation/presentation/ui/widget/storage_list.dart';
 import 'package:shakti_hormann/features/transport_confirmation/model/transport_confirmation_form.dart';
@@ -697,18 +696,12 @@ class AppRouterConfig {
                               BlocProvider(
                                 create: (_) => storageBloc.fetchStorage(),
                               ),
-                              BlocProvider(
-                                create:
-                                    (_) =>
-                                        $sl.get<CreateStorageCubit>()
-                                          ..initDetails(storageForm),
-                              ),
                               BlocProvider(create: (_) => zoneBloc.fetchZone()),
                               BlocProvider(
                                 create:
                                     (_) =>
                                         $sl.get<CreateZoneCubit>()
-                                          ..initDetails(null),
+                                          ..initDetails(storageForm),
                               ),
                             ],
                             child: const NewEntry(),
@@ -771,10 +764,15 @@ class AppRouterConfig {
                                 create: (_) => blocprovider.fetchHardware(),
                               ),
                               BlocProvider(
-                                create:
-                                    (_) =>
-                                        blocprovider.getItemsLines()
-                                          ..request(hardwareForm?.name),
+                                create: (_) {
+                                  final itemsCubit =
+                                      blocprovider.getItemsLines();
+                                  final docName = hardwareForm?.name;
+                                  if (docName != null && docName.isNotEmpty) {
+                                    itemsCubit.request(docName);
+                                  }
+                                  return itemsCubit;
+                                },
                               ),
                               BlocProvider(
                                 create:
@@ -841,9 +839,6 @@ class AppRouterConfig {
                             providers: [
                               BlocProvider(
                                 create: (_) => blocprovider.fetchZone(),
-                              ),
-                              BlocProvider(
-                                create: (_) => $sl.get<CreateStorageCubit>(),
                               ),
                               BlocProvider(
                                 create: (_) {
@@ -953,10 +948,15 @@ class AppRouterConfig {
                                 create: (_) => blocprovider.getPalletSize()..request(),
                               ),
                               BlocProvider(
-                                create:
-                                    (_) =>
-                                        blocprovider.getShutterLines()
-                                          ..request(shutter?.name ?? ''),
+                                create: (_) {
+                                  final linesCubit =
+                                      blocprovider.getShutterLines();
+                                  final docName = shutter?.name;
+                                  if (docName != null && docName.isNotEmpty) {
+                                    linesCubit.request(docName);
+                                  }
+                                  return linesCubit;
+                                },
                               ),
                               BlocProvider(
                                 create:
@@ -1017,10 +1017,15 @@ class AppRouterConfig {
                                           ..request(''),
                               ),
                               BlocProvider(
-                                create:
-                                    (_) =>
-                                        blocprovider.getFrameLines()
-                                          ..request(frame?.name ?? ''),
+                                create: (_) {
+                                  final linesCubit =
+                                      blocprovider.getFrameLines();
+                                  final docName = frame?.name;
+                                  if (docName != null && docName.isNotEmpty) {
+                                    linesCubit.request(docName);
+                                  }
+                                  return linesCubit;
+                                },
                               ),
                               BlocProvider(
                                 create:

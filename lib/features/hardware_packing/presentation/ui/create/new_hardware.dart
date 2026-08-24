@@ -146,6 +146,7 @@ class _NewHardwareState extends State<NewHardware> {
                 );
 
                 if (!context.mounted) return;
+                final docName = state.form.name;
                 context.cubit<CreateHardwareCubit>().errorHandled();
                 final filters = context.read<HardWareFilterCubit>().state;
                 context.cubit<HardwareCubit>().fetchInitial(
@@ -159,6 +160,9 @@ class _NewHardwareState extends State<NewHardware> {
                   shouldAskForConfirmation.value = false;
                   Navigator.pop(context, true);
                 } else {
+                  if (docName != null && docName.isNotEmpty) {
+                    context.read<HardwareItemsCubit>().request(docName);
+                  }
                   setState(() {});
                 }
               }

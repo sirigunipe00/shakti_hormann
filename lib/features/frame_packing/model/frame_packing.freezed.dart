@@ -48,6 +48,8 @@ mixin _$FramePacking {
   String? get palletCode => throw _privateConstructorUsedError;
   @JsonKey(name: 'sales_order')
   String? get salesOrder => throw _privateConstructorUsedError;
+  @JsonKey(name: 'freeze_quantity')
+  int? get freezeQuantity => throw _privateConstructorUsedError;
   @JsonKey(name: 'pallet_photo')
   String? get palletPhoto => throw _privateConstructorUsedError;
   @JsonKey(
@@ -100,6 +102,7 @@ abstract class $FramePackingCopyWith<$Res> {
     @JsonKey(name: 'pallet_no') String? palletNo,
     @JsonKey(name: 'pallet_code') String? palletCode,
     @JsonKey(name: 'sales_order') String? salesOrder,
+    @JsonKey(name: 'freeze_quantity') int? freezeQuantity,
     @JsonKey(name: 'pallet_photo') String? palletPhoto,
     @JsonKey(
       includeFromJson: true,
@@ -146,6 +149,7 @@ class _$FramePackingCopyWithImpl<$Res, $Val extends FramePacking>
     Object? palletNo = freezed,
     Object? palletCode = freezed,
     Object? salesOrder = freezed,
+    Object? freezeQuantity = freezed,
     Object? palletPhoto = freezed,
     Object? palletPhotoImg = freezed,
     Object? totalUnitsOnPallet = freezed,
@@ -226,6 +230,11 @@ class _$FramePackingCopyWithImpl<$Res, $Val extends FramePacking>
                     ? _value.salesOrder
                     : salesOrder // ignore: cast_nullable_to_non_nullable
                         as String?,
+            freezeQuantity:
+                freezed == freezeQuantity
+                    ? _value.freezeQuantity
+                    : freezeQuantity // ignore: cast_nullable_to_non_nullable
+                        as int?,
             palletPhoto:
                 freezed == palletPhoto
                     ? _value.palletPhoto
@@ -291,6 +300,7 @@ abstract class _$$FramePackingImplCopyWith<$Res>
     @JsonKey(name: 'pallet_no') String? palletNo,
     @JsonKey(name: 'pallet_code') String? palletCode,
     @JsonKey(name: 'sales_order') String? salesOrder,
+    @JsonKey(name: 'freeze_quantity') int? freezeQuantity,
     @JsonKey(name: 'pallet_photo') String? palletPhoto,
     @JsonKey(
       includeFromJson: true,
@@ -336,6 +346,7 @@ class __$$FramePackingImplCopyWithImpl<$Res>
     Object? palletNo = freezed,
     Object? palletCode = freezed,
     Object? salesOrder = freezed,
+    Object? freezeQuantity = freezed,
     Object? palletPhoto = freezed,
     Object? palletPhotoImg = freezed,
     Object? totalUnitsOnPallet = freezed,
@@ -416,6 +427,11 @@ class __$$FramePackingImplCopyWithImpl<$Res>
                 ? _value.salesOrder
                 : salesOrder // ignore: cast_nullable_to_non_nullable
                     as String?,
+        freezeQuantity:
+            freezed == freezeQuantity
+                ? _value.freezeQuantity
+                : freezeQuantity // ignore: cast_nullable_to_non_nullable
+                    as int?,
         palletPhoto:
             freezed == palletPhoto
                 ? _value.palletPhoto
@@ -474,6 +490,7 @@ class _$FramePackingImpl implements _FramePacking {
     @JsonKey(name: 'pallet_no') this.palletNo,
     @JsonKey(name: 'pallet_code') this.palletCode,
     @JsonKey(name: 'sales_order') this.salesOrder,
+    @JsonKey(name: 'freeze_quantity') this.freezeQuantity,
     @JsonKey(name: 'pallet_photo') this.palletPhoto,
     @JsonKey(
       includeFromJson: true,
@@ -535,6 +552,9 @@ class _$FramePackingImpl implements _FramePacking {
   @JsonKey(name: 'sales_order')
   final String? salesOrder;
   @override
+  @JsonKey(name: 'freeze_quantity')
+  final int? freezeQuantity;
+  @override
   @JsonKey(name: 'pallet_photo')
   final String? palletPhoto;
   @override
@@ -568,7 +588,7 @@ class _$FramePackingImpl implements _FramePacking {
 
   @override
   String toString() {
-    return 'FramePacking(status: $status, name: $name, owner: $owner, creation: $creation, modified: $modified, modifiedBy: $modifiedBy, docStatus: $docStatus, idx: $idx, packingDate: $packingDate, shift: $shift, operator: $operator, palletNo: $palletNo, palletCode: $palletCode, salesOrder: $salesOrder, palletPhoto: $palletPhoto, palletPhotoImg: $palletPhotoImg, totalUnitsOnPallet: $totalUnitsOnPallet, palletQrPrinted: $palletQrPrinted, remarks: $remarks, amendedFrom: $amendedFrom, deletedLines: $deletedLines)';
+    return 'FramePacking(status: $status, name: $name, owner: $owner, creation: $creation, modified: $modified, modifiedBy: $modifiedBy, docStatus: $docStatus, idx: $idx, packingDate: $packingDate, shift: $shift, operator: $operator, palletNo: $palletNo, palletCode: $palletCode, salesOrder: $salesOrder, freezeQuantity: $freezeQuantity, palletPhoto: $palletPhoto, palletPhotoImg: $palletPhotoImg, totalUnitsOnPallet: $totalUnitsOnPallet, palletQrPrinted: $palletQrPrinted, remarks: $remarks, amendedFrom: $amendedFrom, deletedLines: $deletedLines)';
   }
 
   @override
@@ -599,6 +619,8 @@ class _$FramePackingImpl implements _FramePacking {
                 other.palletCode == palletCode) &&
             (identical(other.salesOrder, salesOrder) ||
                 other.salesOrder == salesOrder) &&
+            (identical(other.freezeQuantity, freezeQuantity) ||
+                other.freezeQuantity == freezeQuantity) &&
             (identical(other.palletPhoto, palletPhoto) ||
                 other.palletPhoto == palletPhoto) &&
             (identical(other.palletPhotoImg, palletPhotoImg) ||
@@ -634,6 +656,7 @@ class _$FramePackingImpl implements _FramePacking {
     palletNo,
     palletCode,
     salesOrder,
+    freezeQuantity,
     palletPhoto,
     palletPhotoImg,
     totalUnitsOnPallet,
@@ -673,6 +696,7 @@ abstract class _FramePacking implements FramePacking {
     @JsonKey(name: 'pallet_no') final String? palletNo,
     @JsonKey(name: 'pallet_code') final String? palletCode,
     @JsonKey(name: 'sales_order') final String? salesOrder,
+    @JsonKey(name: 'freeze_quantity') final int? freezeQuantity,
     @JsonKey(name: 'pallet_photo') final String? palletPhoto,
     @JsonKey(
       includeFromJson: true,
@@ -733,6 +757,9 @@ abstract class _FramePacking implements FramePacking {
   @override
   @JsonKey(name: 'sales_order')
   String? get salesOrder;
+  @override
+  @JsonKey(name: 'freeze_quantity')
+  int? get freezeQuantity;
   @override
   @JsonKey(name: 'pallet_photo')
   String? get palletPhoto;

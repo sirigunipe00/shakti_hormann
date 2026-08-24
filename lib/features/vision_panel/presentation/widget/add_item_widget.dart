@@ -63,6 +63,7 @@ class _AddVisionItemDialogState extends State<AddVisionItemDialog> {
                     return SearchDropDownList<ProductType>(
                       title: 'Product Type',
                       hint: 'Select Product',
+                      isRequired: true,
                       color: AppColors.black,
                       items: products,
                       futureRequest: (query) async {
@@ -70,20 +71,27 @@ class _AddVisionItemDialogState extends State<AddVisionItemDialog> {
                         final search = query.toLowerCase();
                         return products
                             .where(
-                              (p) => (p.name ?? '')
-                                  .toLowerCase()
-                                  .contains(search),
+                              (p) =>
+                                  (p.name ?? '').toLowerCase().contains(search),
                             )
                             .toList();
                       },
-                      headerBuilder: (_, p, __) => Text(
-                        p.name ?? '',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      listItemBuilder: (_, p, __, ___) => Text(p.name ?? ''),
-                      onSelected: (p) =>
-                          setDialogState(() => _selectedProduct = p),
+                      headerBuilder:
+                          (_, p, __) => Text(
+                            p.name ?? '',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                      listItemBuilder:
+                          (_, p, __, ___) => Padding(
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 10.0,
+                              horizontal: 4.0,
+                            ),
+                            child: Text(p.name ?? ''),
+                          ),
+                      onSelected:
+                          (p) => setDialogState(() => _selectedProduct = p),
                       focusNode: FocusNode(),
                     );
                   },
@@ -121,12 +129,13 @@ class _AddVisionItemDialogState extends State<AddVisionItemDialog> {
                       child: AppButton(
                         label: 'Add',
                         isLoading: false,
-                        onPressed: _canSubmit
-                            ? () => Navigator.of(context).pop((
+                        onPressed:
+                            _canSubmit
+                                ? () => Navigator.of(context).pop((
                                   _selectedProduct!.name!,
                                   int.parse(_boxesController.text),
                                 ))
-                            : null,
+                                : null,
                       ),
                     ),
                   ],

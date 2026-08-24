@@ -216,7 +216,7 @@ class PalletRepoImpl extends BaseApiRepository implements PalletRepo {
           ],
           'limit_start': 0,
           'limit_page_length': 'None',
-          'oreder_by': 'creat desc',
+          'order_by': 'idx asc',
           'doctype': 'Pallet Details',
           'parent': 'Pallet',
           'fields': ['*'],

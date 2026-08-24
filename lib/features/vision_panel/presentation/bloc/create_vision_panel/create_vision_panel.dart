@@ -572,6 +572,7 @@ enum VisionView { create, edit, completed }
 class CreateVisionPanelCubit extends AppBaseCubit<CreateVisionPanelState> {
   CreateVisionPanelCubit(this.repo) : super(CreateVisionPanelState.initial());
   final VisionPanelRepo repo;
+  List<VisionPanelEntryLines> _reservedLines = [];
 
   void onSalesOrderSelected(String salesOrderNo) {
     shouldAskForConfirmation.value = true;
@@ -615,15 +616,16 @@ class CreateVisionPanelCubit extends AppBaseCubit<CreateVisionPanelState> {
     return true;
   }
 
-  /// Map server entry lines onto printed items and only synthesize missing
-  /// blank capture slots (never duplicate rows that already have photos).
-  List<VisionPanelEntryLines> _resolveImageLinesForItems(
+  /// Map server photo rows onto items by product type. Never invent Box-01.
+  List<VisionPanelEntryLines> _assignItemIndexes(
     List<VisionPanelEntryLines> serverLines,
     List<VisionItems> items,
   ) {
-    final unassigned = [...serverLines]..sort((a, b) {
-        final idxCompare = (a.idx ?? 0).compareTo(b.idx ?? 0);
-        if (idxCompare != 0) return idxCompare;
+    final remaining = [...serverLines]..sort((a, b) {
+        final boxCompare = (a.boxIndex ?? a.idx ?? 0).compareTo(
+          b.boxIndex ?? b.idx ?? 0,
+        );
+        if (boxCompare != 0) return boxCompare;
         return (a.creation ?? '').compareTo(b.creation ?? '');
       });
 
@@ -631,13 +633,11 @@ class CreateVisionPanelCubit extends AppBaseCubit<CreateVisionPanelState> {
 
     for (var itemIndex = 0; itemIndex < items.length; itemIndex++) {
       final item = items[itemIndex];
-      if (item.printCheck != 1) continue;
-
       final boxCount = item.noOfBoxes ?? 0;
       var assigned = 0;
 
-      for (var i = 0; i < unassigned.length && assigned < boxCount;) {
-        final line = unassigned[i];
+      for (var i = 0; i < remaining.length && assigned < boxCount;) {
+        final line = remaining[i];
         final type = line.productType;
         final matchesType = type == null ||
             type.isEmpty ||
@@ -649,33 +649,68 @@ class CreateVisionPanelCubit extends AppBaseCubit<CreateVisionPanelState> {
         }
 
         resolved.add(line.copyWith(itemIndex: itemIndex));
-        unassigned.removeAt(i);
-        assigned++;
-      }
-
-      while (assigned < boxCount) {
-        resolved.add(
-          VisionPanelEntryLines(
-            idx: resolved.length + 1,
-            productType: item.productType,
-            itemIndex: itemIndex,
-          ),
-        );
+        remaining.removeAt(i);
         assigned++;
       }
     }
 
-    for (final leftover in unassigned) {
-      if (_lineHasPhoto(leftover)) {
-        resolved.add(leftover);
-      }
-    }
-
+    resolved.addAll(remaining);
     return resolved;
+  }
+
+  List<VisionPanelEntryLines> _visiblePrintedLines(
+    List<VisionItems> items, {
+    Set<int>? uploaded,
+  }) {
+    final currentUploaded = uploaded ?? state.uploadedItemIndexes;
+    return _reservedLines.where((line) {
+      if (!_shouldKeepImageLine(line, currentUploaded)) return false;
+      final itemIndex = line.itemIndex;
+      if (itemIndex == null || itemIndex < 0 || itemIndex >= items.length) {
+        return _lineHasPhoto(line);
+      }
+      return items[itemIndex].printCheck == 1 || _lineHasPhoto(line);
+    }).toList();
+  }
+
+  Set<int> _uploadedIndexes(
+    List<VisionItems> items,
+    List<VisionPanelEntryLines> lines,
+  ) {
+    final uploaded = <int>{};
+    for (var i = 0; i < items.length; i++) {
+      final itemLines = lines.where((l) => l.itemIndex == i).toList();
+      final done = itemLines.isNotEmpty &&
+          itemLines.every(
+            (l) => l.image != null && l.image!.isNotEmpty,
+          );
+      if (done) uploaded.add(i);
+    }
+    return uploaded;
+  }
+
+  void _mergeReservedLines(
+    List<VisionPanelEntryLines> serverLines,
+    List<VisionItems> items,
+  ) {
+    final byBox = <String, VisionPanelEntryLines>{
+      for (final line in _reservedLines)
+        if (line.boxNo != null && line.boxNo!.isNotEmpty) line.boxNo!: line,
+    };
+    _reservedLines = _assignItemIndexes(
+      [
+        for (final line in serverLines)
+          byBox.containsKey(line.boxNo)
+              ? line.copyWith(visionPhotoImg: byBox[line.boxNo]!.visionPhotoImg)
+              : line,
+      ],
+      items,
+    );
   }
 
   void initDetails(Object? entry) async {
     shouldAskForConfirmation.value = false;
+    _reservedLines = [];
 
     if (entry is VisionModel) {
       final parsedDate = DFU.toDateTime(
@@ -737,28 +772,15 @@ class CreateVisionPanelCubit extends AppBaseCubit<CreateVisionPanelState> {
             emitSafeState(state.copyWith(isLoading: false));
           },
           (imageLines) {
-            final resolvedLines =
-                _resolveImageLinesForItems(imageLines, fetchedItems);
-
-            final uploaded = <int>{};
-            for (var i = 0; i < fetchedItems.length; i++) {
-              final itemLines =
-                  resolvedLines.where((l) => l.itemIndex == i).toList();
-              final done = itemLines.isNotEmpty &&
-                  itemLines.every(
-                    (l) => (l.image != null && l.image!.isNotEmpty),
-                  );
-              if (done) uploaded.add(i);
-            }
-
-            final visibleLines = resolvedLines
-                .where((l) => _shouldKeepImageLine(l, uploaded))
-                .toList();
-
+            _mergeReservedLines(imageLines, fetchedItems);
+            final uploaded = _uploadedIndexes(fetchedItems, _reservedLines);
             emitSafeState(
               state.copyWith(
                 isLoading: false,
-                imageLines: visibleLines,
+                imageLines: _visiblePrintedLines(
+                  fetchedItems,
+                  uploaded: uploaded,
+                ),
                 isUpdated: _areAllItemsComplete(
                   items: fetchedItems,
                   uploaded: uploaded,
@@ -775,15 +797,7 @@ class CreateVisionPanelCubit extends AppBaseCubit<CreateVisionPanelState> {
   }
 
   void ensureLinePlaceholders(int boxCount) {
-    if (state.imageLines.isNotEmpty || boxCount <= 0) return;
-    emitSafeState(
-      state.copyWith(
-        imageLines: List.generate(
-          boxCount,
-          (i) => VisionPanelEntryLines(idx: i + 1),
-        ),
-      ),
-    );
+    // Box numbers come from create / get_vision_panel_box_sequence.
   }
 
   Future<void> createEntry() async {
@@ -796,6 +810,14 @@ class CreateVisionPanelCubit extends AppBaseCubit<CreateVisionPanelState> {
         const Pair('Select Product Type and No. of Boxes', 0),
       );
     }
+    if (state.items.length > 1) {
+      return _emitError(
+        const Pair(
+          'Create accepts only one product type. After photos are uploaded, add the next product type.',
+          0,
+        ),
+      );
+    }
 
     emitSafeState(state.copyWith(isLoading: true, isSuccess: false));
 
@@ -804,15 +826,22 @@ class CreateVisionPanelCubit extends AppBaseCubit<CreateVisionPanelState> {
     response.fold(
       (l) => emitSafeState(state.copyWith(isLoading: false, error: l)),
       (r) {
-        final docNo = r.second;
         shouldAskForConfirmation.value = false;
+        final items = r.items.isNotEmpty ? r.items : state.items;
+        _mergeReservedLines(r.entryLines, items);
 
         emitSafeState(
           state.copyWith(
             isLoading: false,
             isSuccess: true,
-            successMsg: '${r.first}\n${r.second}',
-            form: state.form.copyWith(name: docNo, docStatus: 0),
+            successMsg: '${r.message}\n${r.name}',
+            items: items,
+            imageLines: _visiblePrintedLines(items),
+            form: state.form.copyWith(
+              name: r.name,
+              docStatus: 0,
+              totalBoxes: r.entryLines.length,
+            ),
             view: VisionView.edit,
           ),
         );
@@ -857,23 +886,9 @@ class CreateVisionPanelCubit extends AppBaseCubit<CreateVisionPanelState> {
             return;
           }
 
-          final boxCount = currentItem.noOfBoxes ?? 0;
           updatedItems[index] = currentItem.copyWith(printCheck: 1);
+          _reservedLines = _assignItemIndexes(_reservedLines, updatedItems);
           final uploaded = {...state.uploadedItemIndexes}..remove(index);
-          final cleanExistingLines = state.imageLines
-              .where((l) => _shouldKeepImageLine(l, uploaded))
-              .toList();
-
-          final newLines = List.generate(
-            boxCount,
-            (i) => VisionPanelEntryLines(
-              idx: cleanExistingLines.length + i + 1,
-              productType: currentItem.productType,
-              itemIndex: index,
-            ),
-          );
-
-          final combinedLines = [...cleanExistingLines, ...newLines];
 
           emitSafeState(
             state.copyWith(
@@ -881,7 +896,10 @@ class CreateVisionPanelCubit extends AppBaseCubit<CreateVisionPanelState> {
               isSuccess: true,
               successMsg: msg,
               items: updatedItems,
-              imageLines: combinedLines,
+              imageLines: _visiblePrintedLines(
+                updatedItems,
+                uploaded: uploaded,
+              ),
               uploadedItemIndexes: uploaded,
               isUpdated: false,
             ),
@@ -901,6 +919,15 @@ class CreateVisionPanelCubit extends AppBaseCubit<CreateVisionPanelState> {
 
     final updatedLines = [...state.imageLines];
     updatedLines[index] = updatedLines[index].copyWith(visionPhotoImg: file);
+    final captured = updatedLines[index];
+    _reservedLines = [
+      for (final line in _reservedLines)
+        (captured.boxNo != null &&
+                captured.boxNo!.isNotEmpty &&
+                line.boxNo == captured.boxNo)
+            ? captured
+            : line,
+    ];
     emitSafeState(state.copyWith(imageLines: updatedLines, isModified: true));
 
     final itemIndex = updatedLines[index].itemIndex;
@@ -954,13 +981,14 @@ class CreateVisionPanelCubit extends AppBaseCubit<CreateVisionPanelState> {
     if (name.isNull) return;
     if (itemIndex < 0 || itemIndex >= state.items.length) return;
 
-    final currentItem = state.items[itemIndex];
     emitSafeState(state.copyWith(isLoading: true, isSuccess: false));
 
-    final images = <String>[];
+    final images = <Map<String, String>>[];
     for (final line
         in state.imageLines.where((l) => l.itemIndex == itemIndex)) {
       final file = line.visionPhotoImg;
+      final boxNo = line.boxNo;
+      if (boxNo == null || boxNo.isEmpty) continue;
       if (file == null || !await file.exists()) continue;
 
       final compressedBytes = await FlutterImageCompress.compressWithFile(
@@ -970,36 +998,42 @@ class CreateVisionPanelCubit extends AppBaseCubit<CreateVisionPanelState> {
         minHeight: 1280,
       );
 
-      images.add(
-        compressedBytes != null
-            ? 'data:image/png;base64,${base64Encode(compressedBytes)}'
-            : 'data:image/png;base64,${base64Encode(await file.readAsBytes())}',
-      );
+      images.add({
+        'box_no': boxNo,
+        'image': compressedBytes != null
+            ? 'data:image/jpeg;base64,${base64Encode(compressedBytes)}'
+            : 'data:image/jpeg;base64,${base64Encode(await file.readAsBytes())}',
+      });
     }
-    final response = await repo.updateVision(
-      name!,
-      productType: currentItem.productType,
-      noOfBoxes: currentItem.noOfBoxes,
-      images: images,
-    );
+    if (images.isEmpty) {
+      emitSafeState(state.copyWith(isLoading: false));
+      return;
+    }
+    final response = await repo.updateVision(name!, images: images);
 
     response.fold(
       (l) => emitSafeState(state.copyWith(isLoading: false, error: l)),
-      (msg) {
+      (result) {
+        final items = result.items.isNotEmpty ? result.items : state.items;
+        if (result.entryLines.isNotEmpty) {
+          _mergeReservedLines(result.entryLines, items);
+        }
         final updatedUploaded = {...state.uploadedItemIndexes, itemIndex};
-        final allDone = _areAllItemsComplete(uploaded: updatedUploaded);
-        final prunedLines = state.imageLines
-            .where((l) => _shouldKeepImageLine(l, updatedUploaded))
-            .toList();
+        final allDone = result.pendingBoxes.isEmpty &&
+            _areAllItemsComplete(items: items, uploaded: updatedUploaded);
 
         emitSafeState(
           state.copyWith(
             isLoading: false,
             isSuccess: true,
             isUpdated: allDone,
+            items: items,
             uploadedItemIndexes: updatedUploaded,
-            imageLines: prunedLines,
-            successMsg: msg,
+            imageLines: _visiblePrintedLines(
+              items,
+              uploaded: updatedUploaded,
+            ),
+            successMsg: result.message,
           ),
         );
       },
@@ -1052,21 +1086,35 @@ class CreateVisionPanelCubit extends AppBaseCubit<CreateVisionPanelState> {
       name,
       productType: productType,
       noOfBoxes: noOfBoxes,
-      images: const [],
     );
 
     response.fold(
       (l) => emitSafeState(
-        state.copyWith(isLoading: false, error: l, isUpdated: false),
-      ),
-      (msg) => emitSafeState(
         state.copyWith(
           isLoading: false,
-          isSuccess: true,
-          successMsg: msg,
+          error: l,
           isUpdated: false,
+          items: updatedItems.sublist(0, updatedItems.length - 1),
         ),
       ),
+      (result) {
+        final items = result.items.isNotEmpty ? result.items : updatedItems;
+        if (result.entryLines.isNotEmpty) {
+          _mergeReservedLines(result.entryLines, items);
+        } else {
+          _reservedLines = _assignItemIndexes(_reservedLines, items);
+        }
+        emitSafeState(
+          state.copyWith(
+            isLoading: false,
+            isSuccess: true,
+            successMsg: result.message,
+            items: items,
+            imageLines: _visiblePrintedLines(items),
+            isUpdated: false,
+          ),
+        );
+      },
     );
   }
 

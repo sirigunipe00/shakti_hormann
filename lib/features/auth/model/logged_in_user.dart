@@ -61,6 +61,13 @@ class RoleStatus with _$RoleStatus {
     @JsonKey(name: 'Show Loading Confirmation in Mobile App') int? showLoadingConfirmation,
     @JsonKey(name: 'Show Proof of Delivery in Mobile App') int? showpod,
     @JsonKey(name: 'Show Gate Management in Mobile App') int? showgateManagement,
+    @JsonKey(name: 'Shutter Packing-SH') int? showShutter,
+    @JsonKey(name: 'Hardware Packing-SH') int? showHardware,
+    @JsonKey(name: 'Frame Packing-SH') int? showFrame,
+    @JsonKey(name: 'Installation Packing-SH') int? showInstalltion,
+    @JsonKey(name: 'Pallet Creation-SH') int? showPallet,
+    @JsonKey(name: 'Storage-SH') int? showStorage,
+    @JsonKey(name: 'Accessories Packing-SH') int? showVision,
   }) = _RoleStatus;
 
   factory RoleStatus.fromJson(Map<String, dynamic> json) =>

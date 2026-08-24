@@ -27,8 +27,7 @@ class VisionPanelWidget extends StatelessWidget {
       return raw.substring(0, raw.length.clamp(0, 3)).toUpperCase();
     }
 
-    final last = digits.last;
-    return last.length >= 3 ? last.substring(last.length - 3) : last.padLeft(3, '0');
+    return digits.last;
   }
 
   @override
@@ -74,37 +73,30 @@ class VisionPanelWidget extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                vision.name ?? '',
-                                style: AppTextStyles.titleLarge(context).copyWith(
-                                  color: AppColors.black,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(height: 5),
-                              Text(
-                                vision.salesOrderNo ?? '',
-                                style: const TextStyle(
-                                  color: AppColors.grey,
-                                  fontWeight: FontWeight.normal,
-                                  letterSpacing: 0,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
+                      Text(
+                        vision.name ?? '',
+                        style: AppTextStyles.titleLarge(context).copyWith(
+                          color: AppColors.black,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       const SizedBox(height: 5),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
+                          Flexible(
+                            child: Text(
+                              'Sales Order: ${vision.salesOrderNo ?? ''}',
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                color: AppColors.grey,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14,
+                                letterSpacing: 0,
+                              ),
+                            ),
+                          ),
                           Row(
                             children: [
                               const Icon(
@@ -117,7 +109,7 @@ class VisionPanelWidget extends StatelessWidget {
                                 DFU.ddMMyyyyFromStr(vision.packingDate ?? ''),
                                 style: const TextStyle(
                                   color: Color(0xFF163A6B),
-                                  fontSize: 11,
+                                  fontSize: 14,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -146,8 +138,14 @@ class VisionPanelWidget extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Quantity : ${vision.totalBoxes} Units',
-                style: const TextStyle(color: Colors.orange,fontWeight: FontWeight.bold,fontSize: 15),),
+                Text(
+                  'Quantity : ${vision.totalBoxes} Units',
+                  style: const TextStyle(
+                    color: Colors.orange,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                  ),
+                ),
                 DocStatusWidget(
                   status: StringUtils.docStatus(vision.docStatus ?? 0),
                 ),

@@ -998,6 +998,20 @@ mixin _$RoleStatus {
   int? get showpod => throw _privateConstructorUsedError;
   @JsonKey(name: 'Show Gate Management in Mobile App')
   int? get showgateManagement => throw _privateConstructorUsedError;
+  @JsonKey(name: 'Shutter Packing-SH')
+  int? get showShutter => throw _privateConstructorUsedError;
+  @JsonKey(name: 'Hardware Packing-SH')
+  int? get showHardware => throw _privateConstructorUsedError;
+  @JsonKey(name: 'Frame Packing-SH')
+  int? get showFrame => throw _privateConstructorUsedError;
+  @JsonKey(name: 'Installation Packing-SH')
+  int? get showInstalltion => throw _privateConstructorUsedError;
+  @JsonKey(name: 'Pallet Creation-SH')
+  int? get showPallet => throw _privateConstructorUsedError;
+  @JsonKey(name: 'Storage-SH')
+  int? get showStorage => throw _privateConstructorUsedError;
+  @JsonKey(name: 'Accessories Packing-SH')
+  int? get showVision => throw _privateConstructorUsedError;
 
   /// Serializes this RoleStatus to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -1031,6 +1045,13 @@ abstract class $RoleStatusCopyWith<$Res> {
     @JsonKey(name: 'Show Proof of Delivery in Mobile App') int? showpod,
     @JsonKey(name: 'Show Gate Management in Mobile App')
     int? showgateManagement,
+    @JsonKey(name: 'Shutter Packing-SH') int? showShutter,
+    @JsonKey(name: 'Hardware Packing-SH') int? showHardware,
+    @JsonKey(name: 'Frame Packing-SH') int? showFrame,
+    @JsonKey(name: 'Installation Packing-SH') int? showInstalltion,
+    @JsonKey(name: 'Pallet Creation-SH') int? showPallet,
+    @JsonKey(name: 'Storage-SH') int? showStorage,
+    @JsonKey(name: 'Accessories Packing-SH') int? showVision,
   });
 }
 
@@ -1058,6 +1079,13 @@ class _$RoleStatusCopyWithImpl<$Res, $Val extends RoleStatus>
     Object? showLoadingConfirmation = freezed,
     Object? showpod = freezed,
     Object? showgateManagement = freezed,
+    Object? showShutter = freezed,
+    Object? showHardware = freezed,
+    Object? showFrame = freezed,
+    Object? showInstalltion = freezed,
+    Object? showPallet = freezed,
+    Object? showStorage = freezed,
+    Object? showVision = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -1106,6 +1134,41 @@ class _$RoleStatusCopyWithImpl<$Res, $Val extends RoleStatus>
                     ? _value.showgateManagement
                     : showgateManagement // ignore: cast_nullable_to_non_nullable
                         as int?,
+            showShutter:
+                freezed == showShutter
+                    ? _value.showShutter
+                    : showShutter // ignore: cast_nullable_to_non_nullable
+                        as int?,
+            showHardware:
+                freezed == showHardware
+                    ? _value.showHardware
+                    : showHardware // ignore: cast_nullable_to_non_nullable
+                        as int?,
+            showFrame:
+                freezed == showFrame
+                    ? _value.showFrame
+                    : showFrame // ignore: cast_nullable_to_non_nullable
+                        as int?,
+            showInstalltion:
+                freezed == showInstalltion
+                    ? _value.showInstalltion
+                    : showInstalltion // ignore: cast_nullable_to_non_nullable
+                        as int?,
+            showPallet:
+                freezed == showPallet
+                    ? _value.showPallet
+                    : showPallet // ignore: cast_nullable_to_non_nullable
+                        as int?,
+            showStorage:
+                freezed == showStorage
+                    ? _value.showStorage
+                    : showStorage // ignore: cast_nullable_to_non_nullable
+                        as int?,
+            showVision:
+                freezed == showVision
+                    ? _value.showVision
+                    : showVision // ignore: cast_nullable_to_non_nullable
+                        as int?,
           )
           as $Val,
     );
@@ -1136,6 +1199,13 @@ abstract class _$$RoleStatusImplCopyWith<$Res>
     @JsonKey(name: 'Show Proof of Delivery in Mobile App') int? showpod,
     @JsonKey(name: 'Show Gate Management in Mobile App')
     int? showgateManagement,
+    @JsonKey(name: 'Shutter Packing-SH') int? showShutter,
+    @JsonKey(name: 'Hardware Packing-SH') int? showHardware,
+    @JsonKey(name: 'Frame Packing-SH') int? showFrame,
+    @JsonKey(name: 'Installation Packing-SH') int? showInstalltion,
+    @JsonKey(name: 'Pallet Creation-SH') int? showPallet,
+    @JsonKey(name: 'Storage-SH') int? showStorage,
+    @JsonKey(name: 'Accessories Packing-SH') int? showVision,
   });
 }
 
@@ -1162,6 +1232,13 @@ class __$$RoleStatusImplCopyWithImpl<$Res>
     Object? showLoadingConfirmation = freezed,
     Object? showpod = freezed,
     Object? showgateManagement = freezed,
+    Object? showShutter = freezed,
+    Object? showHardware = freezed,
+    Object? showFrame = freezed,
+    Object? showInstalltion = freezed,
+    Object? showPallet = freezed,
+    Object? showStorage = freezed,
+    Object? showVision = freezed,
   }) {
     return _then(
       _$RoleStatusImpl(
@@ -1210,6 +1287,41 @@ class __$$RoleStatusImplCopyWithImpl<$Res>
                 ? _value.showgateManagement
                 : showgateManagement // ignore: cast_nullable_to_non_nullable
                     as int?,
+        showShutter:
+            freezed == showShutter
+                ? _value.showShutter
+                : showShutter // ignore: cast_nullable_to_non_nullable
+                    as int?,
+        showHardware:
+            freezed == showHardware
+                ? _value.showHardware
+                : showHardware // ignore: cast_nullable_to_non_nullable
+                    as int?,
+        showFrame:
+            freezed == showFrame
+                ? _value.showFrame
+                : showFrame // ignore: cast_nullable_to_non_nullable
+                    as int?,
+        showInstalltion:
+            freezed == showInstalltion
+                ? _value.showInstalltion
+                : showInstalltion // ignore: cast_nullable_to_non_nullable
+                    as int?,
+        showPallet:
+            freezed == showPallet
+                ? _value.showPallet
+                : showPallet // ignore: cast_nullable_to_non_nullable
+                    as int?,
+        showStorage:
+            freezed == showStorage
+                ? _value.showStorage
+                : showStorage // ignore: cast_nullable_to_non_nullable
+                    as int?,
+        showVision:
+            freezed == showVision
+                ? _value.showVision
+                : showVision // ignore: cast_nullable_to_non_nullable
+                    as int?,
       ),
     );
   }
@@ -1233,6 +1345,13 @@ class _$RoleStatusImpl extends _RoleStatus {
     @JsonKey(name: 'Show Proof of Delivery in Mobile App') this.showpod,
     @JsonKey(name: 'Show Gate Management in Mobile App')
     this.showgateManagement,
+    @JsonKey(name: 'Shutter Packing-SH') this.showShutter,
+    @JsonKey(name: 'Hardware Packing-SH') this.showHardware,
+    @JsonKey(name: 'Frame Packing-SH') this.showFrame,
+    @JsonKey(name: 'Installation Packing-SH') this.showInstalltion,
+    @JsonKey(name: 'Pallet Creation-SH') this.showPallet,
+    @JsonKey(name: 'Storage-SH') this.showStorage,
+    @JsonKey(name: 'Accessories Packing-SH') this.showVision,
   }) : super._();
 
   factory _$RoleStatusImpl.fromJson(Map<String, dynamic> json) =>
@@ -1265,10 +1384,31 @@ class _$RoleStatusImpl extends _RoleStatus {
   @override
   @JsonKey(name: 'Show Gate Management in Mobile App')
   final int? showgateManagement;
+  @override
+  @JsonKey(name: 'Shutter Packing-SH')
+  final int? showShutter;
+  @override
+  @JsonKey(name: 'Hardware Packing-SH')
+  final int? showHardware;
+  @override
+  @JsonKey(name: 'Frame Packing-SH')
+  final int? showFrame;
+  @override
+  @JsonKey(name: 'Installation Packing-SH')
+  final int? showInstalltion;
+  @override
+  @JsonKey(name: 'Pallet Creation-SH')
+  final int? showPallet;
+  @override
+  @JsonKey(name: 'Storage-SH')
+  final int? showStorage;
+  @override
+  @JsonKey(name: 'Accessories Packing-SH')
+  final int? showVision;
 
   @override
   String toString() {
-    return 'RoleStatus(showDashboards: $showDashboards, showGateEntry: $showGateEntry, showGateExit: $showGateExit, showLogisticRequest: $showLogisticRequest, showTransporterConfirmation: $showTransporterConfirmation, showVehicleReporting: $showVehicleReporting, showLoadingConfirmation: $showLoadingConfirmation, showpod: $showpod, showgateManagement: $showgateManagement)';
+    return 'RoleStatus(showDashboards: $showDashboards, showGateEntry: $showGateEntry, showGateExit: $showGateExit, showLogisticRequest: $showLogisticRequest, showTransporterConfirmation: $showTransporterConfirmation, showVehicleReporting: $showVehicleReporting, showLoadingConfirmation: $showLoadingConfirmation, showpod: $showpod, showgateManagement: $showgateManagement, showShutter: $showShutter, showHardware: $showHardware, showFrame: $showFrame, showInstalltion: $showInstalltion, showPallet: $showPallet, showStorage: $showStorage, showVision: $showVision)';
   }
 
   @override
@@ -1299,7 +1439,21 @@ class _$RoleStatusImpl extends _RoleStatus {
                 other.showLoadingConfirmation == showLoadingConfirmation) &&
             (identical(other.showpod, showpod) || other.showpod == showpod) &&
             (identical(other.showgateManagement, showgateManagement) ||
-                other.showgateManagement == showgateManagement));
+                other.showgateManagement == showgateManagement) &&
+            (identical(other.showShutter, showShutter) ||
+                other.showShutter == showShutter) &&
+            (identical(other.showHardware, showHardware) ||
+                other.showHardware == showHardware) &&
+            (identical(other.showFrame, showFrame) ||
+                other.showFrame == showFrame) &&
+            (identical(other.showInstalltion, showInstalltion) ||
+                other.showInstalltion == showInstalltion) &&
+            (identical(other.showPallet, showPallet) ||
+                other.showPallet == showPallet) &&
+            (identical(other.showStorage, showStorage) ||
+                other.showStorage == showStorage) &&
+            (identical(other.showVision, showVision) ||
+                other.showVision == showVision));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -1315,6 +1469,13 @@ class _$RoleStatusImpl extends _RoleStatus {
     showLoadingConfirmation,
     showpod,
     showgateManagement,
+    showShutter,
+    showHardware,
+    showFrame,
+    showInstalltion,
+    showPallet,
+    showStorage,
+    showVision,
   );
 
   /// Create a copy of RoleStatus
@@ -1347,6 +1508,13 @@ abstract class _RoleStatus extends RoleStatus {
     @JsonKey(name: 'Show Proof of Delivery in Mobile App') final int? showpod,
     @JsonKey(name: 'Show Gate Management in Mobile App')
     final int? showgateManagement,
+    @JsonKey(name: 'Shutter Packing-SH') final int? showShutter,
+    @JsonKey(name: 'Hardware Packing-SH') final int? showHardware,
+    @JsonKey(name: 'Frame Packing-SH') final int? showFrame,
+    @JsonKey(name: 'Installation Packing-SH') final int? showInstalltion,
+    @JsonKey(name: 'Pallet Creation-SH') final int? showPallet,
+    @JsonKey(name: 'Storage-SH') final int? showStorage,
+    @JsonKey(name: 'Accessories Packing-SH') final int? showVision,
   }) = _$RoleStatusImpl;
   const _RoleStatus._() : super._();
 
@@ -1380,6 +1548,27 @@ abstract class _RoleStatus extends RoleStatus {
   @override
   @JsonKey(name: 'Show Gate Management in Mobile App')
   int? get showgateManagement;
+  @override
+  @JsonKey(name: 'Shutter Packing-SH')
+  int? get showShutter;
+  @override
+  @JsonKey(name: 'Hardware Packing-SH')
+  int? get showHardware;
+  @override
+  @JsonKey(name: 'Frame Packing-SH')
+  int? get showFrame;
+  @override
+  @JsonKey(name: 'Installation Packing-SH')
+  int? get showInstalltion;
+  @override
+  @JsonKey(name: 'Pallet Creation-SH')
+  int? get showPallet;
+  @override
+  @JsonKey(name: 'Storage-SH')
+  int? get showStorage;
+  @override
+  @JsonKey(name: 'Accessories Packing-SH')
+  int? get showVision;
 
   /// Create a copy of RoleStatus
   /// with the given fields replaced by the non-null parameter values.

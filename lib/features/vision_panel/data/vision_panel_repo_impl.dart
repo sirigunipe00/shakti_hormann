@@ -51,30 +51,24 @@ class VisionPanelRepoImpl extends BaseApiRepository implements VisionPanelRepo {
   }
 
   @override
-  AsyncValueOf<Pair<String, String>> createVision(
+  AsyncValueOf<VisionPanelSaveResult> createVision(
     VisionModel form,
     List<VisionItems> lines,
   ) async {
-    final formJson = form.toJson();
-    formJson['status'] = 'Draft';
-
-    final Map<String, dynamic> requestBody = {
+    final first = lines.first;
+    final requestBody = {
       'sales_order_no': form.salesOrderNo,
-      // 'pallet_code': form.palletCode,
-      'items': lines,
+      'items': [
+        {
+          'product_type': first.productType,
+          'no_of_boxes': first.noOfBoxes,
+        },
+      ],
     };
 
     final config = RequestConfig(
       url: Urls.createVision,
-      parser: (json) {
-        final message = json['message']['message'] as String;
-
-        final data = json['message']['data'] as Map<String, dynamic>;
-
-        final docNo = data['vision_panel_id'] as String;
-
-        return Pair(message, docNo);
-      },
+      parser: _parseVisionSaveResult,
       body: jsonEncode(requestBody),
       headers: {HttpHeaders.contentTypeHeader: 'application/json'},
     );
@@ -83,42 +77,62 @@ class VisionPanelRepoImpl extends BaseApiRepository implements VisionPanelRepo {
 
     final response = await post(config);
     return response.processAsync((r) async {
-      return right(Pair(r.data!.first, r.data!.second));
+      return right(r.data!);
     });
   }
 
   @override
-  AsyncValueOf<String> updateVision(
+  AsyncValueOf<List<VisionPanelEntryLines>> getVisionPanelBoxSequence({
+    required String salesOrderNo,
+    required int noOfBoxes,
+  }) async {
+    final config = RequestConfig(
+      url: Urls.getVisionPanelBoxSequence,
+      parser: (json) {
+        final envelope = _requireVisionOk(json);
+        final data = envelope['data'] as Map<String, dynamic>? ?? {};
+        final rawBoxes = data['boxes'] as List<dynamic>? ?? [];
+        return rawBoxes
+            .whereType<Map<String, dynamic>>()
+            .map(VisionPanelEntryLines.fromJson)
+            .toList();
+      },
+      body: jsonEncode({
+        'sales_order_no': salesOrderNo,
+        'no_of_boxes': noOfBoxes,
+      }),
+      headers: {HttpHeaders.contentTypeHeader: 'application/json'},
+    );
+
+    $logger.devLog('getVisionPanelBoxSequence....$config');
+    final response = await post(config);
+    return response.process((r) => right(r.data!));
+  }
+
+  @override
+  AsyncValueOf<VisionPanelSaveResult> updateVision(
     String name, {
     String? productType,
     int? noOfBoxes,
-    required List<String> images,
+    List<Map<String, String>> images = const [],
   }) async {
-    final item = <String, dynamic>{
-      if (productType != null) 'product_type': productType,
-      if (noOfBoxes != null) 'no_of_boxes': noOfBoxes,
-      'images': images,
-    };
-
-    final requestBody = {
+    final requestBody = <String, dynamic>{
       'vision_panel_id': name,
-      'items': [item],
     };
+    if (images.isNotEmpty) {
+      requestBody['images'] = images;
+    } else if (productType != null) {
+      requestBody['items'] = [
+        {
+          'product_type': productType,
+          if (noOfBoxes != null) 'no_of_boxes': noOfBoxes,
+        },
+      ];
+    }
 
     final config = RequestConfig(
       url: Urls.updateVision,
-      parser: (json) {
-        final message = json['message'];
-        if (message is Map<String, dynamic>) {
-          final status = message['status'] as int?;
-          final text = message['message'] as String? ?? 'Update failed';
-          if (status != null && status >= 300) {
-            throw Failure(error: text, title: 'Update Failed', status: status);
-          }
-          return text;
-        }
-        return message as String;
-      },
+      parser: _parseVisionSaveResult,
       body: jsonEncode(requestBody),
       headers: {HttpHeaders.contentTypeHeader: 'application/json'},
     );
@@ -127,6 +141,48 @@ class VisionPanelRepoImpl extends BaseApiRepository implements VisionPanelRepo {
 
     final response = await post(config);
     return response.process((r) => right(r.data!));
+  }
+
+  VisionPanelSaveResult _parseVisionSaveResult(Map<String, dynamic> json) {
+    final envelope = _requireVisionOk(json);
+    final text = envelope['message'] as String? ?? 'Success';
+    final data = envelope['data'] as Map<String, dynamic>? ?? {};
+    final docNo = data['vision_panel_id'] as String? ??
+        data['name'] as String? ??
+        '';
+    final rawItems = data['items'] as List<dynamic>? ?? [];
+    final rawLines =
+        data['vision_panel_entry_lines'] as List<dynamic>? ?? [];
+    final pending = data['pending_boxes'] as List<dynamic>? ?? [];
+    final next = data['next_actions'] as List<dynamic>? ?? [];
+    return VisionPanelSaveResult(
+      message: text,
+      name: docNo,
+      items: rawItems
+          .whereType<Map<String, dynamic>>()
+          .map(VisionItems.fromJson)
+          .toList(),
+      entryLines: rawLines
+          .whereType<Map<String, dynamic>>()
+          .map(VisionPanelEntryLines.fromJson)
+          .toList(),
+      pendingBoxes: pending.map((e) => e.toString()).toList(),
+      nextActions: next.map((e) => e.toString()).toList(),
+    );
+  }
+
+  Map<String, dynamic> _requireVisionOk(Map<String, dynamic> json) {
+    final message = json['message'];
+    if (message is Map<String, dynamic>) {
+      final ok = message['ok'] == true;
+      final status = message['status'] as int?;
+      final text = message['message'] as String? ?? 'Request failed';
+      if (!ok || (status != null && status >= 300)) {
+        throw Exception(text);
+      }
+      return message;
+    }
+    throw Exception('Unsupported Vision Panel response');
   }
 
   @override
@@ -140,7 +196,7 @@ class VisionPanelRepoImpl extends BaseApiRepository implements VisionPanelRepo {
         final status = message['status'] as int?;
         final text = message['message'] as String? ?? 'Unknown error';
         if (status != null && status >= 300) {
-          throw Failure(error: text, title: 'Print Failed', status: status);
+          throw Exception(text);
         }
 
         return text;
@@ -228,8 +284,8 @@ class VisionPanelRepoImpl extends BaseApiRepository implements VisionPanelRepo {
         'filters': jsonEncode([
           ['parent', '=', itemName],
         ]),
-        'limit': 20,
-        'order_by': 'creation desc',
+        'limit': 100,
+        'order_by': 'idx asc',
         'doctype': 'Vision Panel Entry Lines',
         'parent': 'Vision Panel',
         'fields': jsonEncode(['*']),

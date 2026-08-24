@@ -75,7 +75,9 @@ class SuccessContent extends StatelessWidget {
               ),
               AppSpacer.p32(),
               ElevatedButton(
-                onPressed: onTapDismiss,
+                onPressed: () {
+                  Navigator.of(context, rootNavigator: true).pop();
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.green,
                   shape: RoundedRectangleBorder(
@@ -176,7 +178,9 @@ class ErrorContent extends StatelessWidget {
               ),
               AppSpacer.p32(),
               ElevatedButton(
-                onPressed: onTapDismiss,
+                onPressed: () {
+                  Navigator.of(context, rootNavigator: true).pop();
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.red,
                   shape: RoundedRectangleBorder(

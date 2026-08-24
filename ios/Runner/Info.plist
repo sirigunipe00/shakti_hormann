@@ -32,6 +32,10 @@
 	</array>
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>Allow local network access for debugging and device discovery.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Camera is used to scan MES packing stickers and capture packing photos.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Photos may be used for packing sticker images when required.</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>

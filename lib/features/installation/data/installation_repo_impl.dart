@@ -49,7 +49,7 @@ class InstallationRepoImpl extends BaseApiRepository implements InstallationRepo
   }
 
   @override
-  AsyncValueOf<Pair<String, String>> createInstallation(
+  AsyncValueOf<InstallationCreateResult> createInstallation(
     InstallationModel form,
   ) async {
     final formJson = form.toJson();
@@ -64,12 +64,18 @@ class InstallationRepoImpl extends BaseApiRepository implements InstallationRepo
       url: Urls.createInstallation,
       parser: (json) {
         final message = json['message']['message'] as String;
-
         final data = json['message']['data'] as Map<String, dynamic>;
-
         final docNo = data['name'] as String;
-
-        return Pair(message, docNo);
+        final rawItems = data['item'] as List<dynamic>? ?? [];
+        final items = rawItems
+            .whereType<Map<String, dynamic>>()
+            .map(InstallationLineItems.fromJson)
+            .toList();
+        return InstallationCreateResult(
+          message: message,
+          name: docNo,
+          items: items,
+        );
       },
       body: jsonEncode(requestBody),
       headers: {HttpHeaders.contentTypeHeader: 'application/json'},
@@ -79,12 +85,52 @@ class InstallationRepoImpl extends BaseApiRepository implements InstallationRepo
 
     final response = await post(config);
     return response.processAsync((r) async {
-      return right(Pair(r.data!.first, r.data!.second));
+      return right(r.data!);
     });
   }
+
   @override
-  AsyncValueOf<Pair<String,String>> updateInstallation(String name, List<String> images) async {
-    final requestBody = {'name': name, 'images': images};
+  AsyncValueOf<List<InstallationLineItems>> getInstallationBoxSequence({
+    required String salesOrderNo,
+    required int noOfBoxes,
+    String? excludeName,
+  }) async {
+    final requestBody = <String, dynamic>{
+      'sales_order_no': salesOrderNo,
+      'no_of_boxes': noOfBoxes,
+    };
+    if (excludeName != null && excludeName.isNotEmpty) {
+      requestBody['exclude_name'] = excludeName;
+    }
+
+    final config = RequestConfig(
+      url: Urls.getInstallationBoxSequence,
+      parser: (json) {
+        final data = json['message']['data'] as Map<String, dynamic>;
+        final rawBoxes = data['boxes'] as List<dynamic>? ?? [];
+        return rawBoxes
+            .whereType<Map<String, dynamic>>()
+            .map(InstallationLineItems.fromJson)
+            .toList();
+      },
+      body: jsonEncode(requestBody),
+      headers: {HttpHeaders.contentTypeHeader: 'application/json'},
+    );
+
+    $logger.devLog('getInstallationBoxSequence....$config');
+    final response = await post(config);
+    return response.process((r) => right(r.data!));
+  }
+
+  @override
+  AsyncValueOf<Pair<String,String>> updateInstallation(String name, {List<Map<String, String>>? images, int? noOfBoxes}) async {
+    final requestBody = <String, dynamic>{'name': name};
+    if (images != null && images.isNotEmpty) {
+      requestBody['images'] = images;
+    }
+    if (noOfBoxes != null) {
+      requestBody['no_of_boxes'] = noOfBoxes;
+    }
 
     final config = RequestConfig(
       url: Urls.updateInstallation,
@@ -176,7 +222,7 @@ AsyncValueOf<String> printinstallationSticker(String id) async {
           ['parent', '=', itemName],
         ]),
         'limit': 20,
-        'order_by': 'creation desc',
+        'order_by': 'idx asc',
         'doctype': 'Installation Entry Lines',
         'parent': 'Installation Entry',
         'fields': jsonEncode(['*']),

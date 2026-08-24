@@ -27,8 +27,7 @@ class PalletWidget extends StatelessWidget {
       return raw.substring(0, raw.length.clamp(0, 3)).toUpperCase();
     }
 
-    final last = digits.last;
-    return last.length >= 3 ? last.substring(last.length - 3) : last.padLeft(3, '0');
+    return digits.last;
   }
 
   @override
@@ -78,50 +77,55 @@ class PalletWidget extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                pallet.name ?? '',
-                                style: AppTextStyles.titleLarge(context).copyWith(
-                                  color: AppColors.black,
-                                  fontWeight: FontWeight.bold,
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  pallet.name ?? '',
+                                  style: AppTextStyles.titleLarge(context).copyWith(
+                                    color: AppColors.black,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(height: 5),
-                              Text(
-                                pallet.salesOrder ?? '',
-                                style: const TextStyle(
-                                  color: AppColors.grey,
-                                  fontWeight: FontWeight.normal,
-                                  letterSpacing: 0,
+                                const SizedBox(height: 5),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Flexible(
+                                      child: Text(
+                                        'Sales Order: ${pallet.salesOrder ?? ''}',
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(
+                                          color: AppColors.grey,
+                                          fontWeight: FontWeight.bold,
+                                          letterSpacing: 0,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                    ),
+                                    Row(
+                                      children: [
+                                        const Icon(
+                                          Icons.calendar_month,
+                                          size: 14,
+                                          color: Color(0xFF163A6B),
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          DFU.ddMMyyyyFromStr(pallet.creationDate ?? ''),
+                                          style: const TextStyle(
+                                            color: Color(0xFF163A6B),
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
                                 ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 5),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            children: [
-                              const Icon(
-                                Icons.calendar_month,
-                                size: 14,
-                                color: Color(0xFF163A6B),
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                DFU.ddMMyyyyFromStr(pallet.creationDate ?? ''),
-                                style: const TextStyle(
-                                  color: Color(0xFF163A6B),
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ],
                       ),
@@ -146,8 +150,14 @@ class PalletWidget extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Pallets : ${pallet.noofPallets} Units',
-                style: const TextStyle(color: Colors.orange,fontWeight: FontWeight.bold,fontSize: 15),),
+                Text(
+                  'Pallets : ${pallet.noofPallets} Units',
+                  style: const TextStyle(
+                    color: Colors.orange,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                  ),
+                ),
                 DocStatusWidget(
                   status: StringUtils.docStatus(pallet.docStatus ?? 0),
                 ),

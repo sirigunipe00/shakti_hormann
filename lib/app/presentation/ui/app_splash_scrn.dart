@@ -57,7 +57,8 @@ class _AppSplashScrnState extends State<AppSplashScrn> {
                   ),
                 ),
                 child: Image.asset(
-                  'assets/logo/doorlady-1 1 (1).png',
+                  // 'assets/logo/doorlady-1 1 (1).png',
+                  'assets/logo/doorlady.png',
                   fit: BoxFit.contain,
                 ),
               ),

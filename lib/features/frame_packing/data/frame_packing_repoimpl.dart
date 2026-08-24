@@ -435,7 +435,7 @@ AsyncValueOf<Pair<String, String>> updateFrame(
     url: Urls.updateFrame,
     parser: (json) {
       final data = json['message']['message'] as String;
-      return Pair(data, '');
+      return Pair(data, form.name ?? '');
     },
     body: jsonEncode(requestBody),
     headers: {
@@ -451,6 +451,45 @@ AsyncValueOf<Pair<String, String>> updateFrame(
     return right(Pair(r.data!.first, r.data!.second));
   });
 }
+
+  @override
+  AsyncValueOf<Pair<String, String>> freezeFrame(String framePackingId) async {
+    final requestBody = {
+      'frame_packing_id': framePackingId,
+      'freeze_quantity': 1,
+    };
+
+    final config = RequestConfig(
+      url: Urls.updateFrame,
+      parser: (json) {
+        final message = json['message'];
+        if (message is Map<String, dynamic>) {
+          final ok = message['ok'] as bool?;
+          final status = message['status'] as int?;
+          final text = message['message'] as String? ?? 'Freeze failed';
+          if (ok == false || (status != null && status >= 300)) {
+            throw Failure(
+              error: text,
+              title: 'Freeze Failed',
+              status: status,
+            );
+          }
+          return Pair(text, framePackingId);
+        }
+        return Pair(message.toString(), framePackingId);
+      },
+      body: jsonEncode(requestBody),
+      headers: {HttpHeaders.contentTypeHeader: 'application/json'},
+    );
+
+    $logger.devLog('freezeFrame requestConfig.....$config');
+
+    final response = await post(config);
+    return response.processAsync((r) async {
+      return right(Pair(r.data!.first, r.data!.second));
+    });
+  }
+
   @override
   AsyncValueOf<Pair<String, String>> submitFrame(FramePacking form) async {
     return await executeSafely(() async {
@@ -471,7 +510,7 @@ AsyncValueOf<Pair<String, String>> updateFrame(
         parser: (json) {
           return Pair(
             json['message']['message'] as String,
-            json['message']['status'].toString(),
+            ''
           );
         },
         body: jsonEncode({

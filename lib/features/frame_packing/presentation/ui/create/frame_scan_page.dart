@@ -1,19 +1,40 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:mobile_scanner/mobile_scanner.dart' hide BarcodeFormat;
+import 'package:shakti_hormann/core/utils/packing_sticker_decoder.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
+
 
 class ScanFramePage extends StatefulWidget {
-  const ScanFramePage({super.key});
+  const ScanFramePage({
+    super.key,
+    this.formats = const [BarcodeFormat.pdf417],
+    this.title = 'Scan Barcode',
+    this.hint = 'Point camera at the sticker barcode',
+  });
+
+  const ScanFramePage.qr({
+    super.key,
+    this.title = 'Scan QR',
+    this.hint = 'Point camera at the QR code',
+  }) : formats = const [BarcodeFormat.qrCode];
+
+  final List<BarcodeFormat> formats;
+  final String title;
+  final String hint;
 
   @override
   State<ScanFramePage> createState() => _ScanFramePageState();
 }
 
 class _ScanFramePageState extends State<ScanFramePage> {
-  final MobileScannerController _controller = MobileScannerController();
+  late final MobileScannerController _controller = MobileScannerController(
+    formats: widget.formats,
+  );
   bool _scanned = false;
+
+  bool get _isQrScan =>
+      widget.formats.length == 1 && widget.formats.first == BarcodeFormat.qrCode;
 
   @override
   void dispose() {
@@ -26,19 +47,27 @@ class _ScanFramePageState extends State<ScanFramePage> {
     final raw = capture.barcodes.firstOrNull?.rawValue;
     if (raw == null || raw.isEmpty) return;
 
+    // PDF417 stickers encode extra fields; keep only the printed 6-part ID.
+    // QR (e.g. pallet) codes are returned as-is.
+    final value =
+        _isQrScan ? raw : (extractPackingStickerCode(raw) ?? raw);
+
     _scanned = true;
     _controller.stop();
-    Navigator.of(context).pop(raw);
+    Navigator.of(context).pop(value);
   }
 
   @override
   Widget build(BuildContext context) {
+    final scanWidth = _isQrScan ? 260.0 : 300.0;
+    final scanHeight = _isQrScan ? 260.0 : 140.0;
+
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: const Color(0xFF1A3C6B),
         foregroundColor: Colors.white,
-        title: const Text('Scan Sticker'),
+        title: Text(widget.title),
         actions: [
           IconButton(
             icon: const Icon(Icons.flash_on),
@@ -60,11 +89,11 @@ class _ScanFramePageState extends State<ScanFramePage> {
                 Container(color: Colors.transparent),
                 Center(
                   child: Container(
-                    width: 260,
-                    height: 260,
+                    width: scanWidth,
+                    height: scanHeight,
                     decoration: BoxDecoration(
                       color: Colors.black,
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(12),
                     ),
                   ),
                 ),
@@ -74,19 +103,19 @@ class _ScanFramePageState extends State<ScanFramePage> {
 
           Center(
             child: SizedBox(
-              width: 260,
-              height: 260,
+              width: scanWidth,
+              height: scanHeight,
               child: CustomPaint(painter: _CornerBorderPainter()),
             ),
           ),
 
-          const Align(
+          Align(
             alignment: Alignment.bottomCenter,
             child: Padding(
-              padding: EdgeInsets.only(bottom: 80),
+              padding: const EdgeInsets.only(bottom: 80),
               child: Text(
-                'Point camera at the sticker QR code',
-                style: TextStyle(
+                widget.hint,
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
@@ -204,31 +233,14 @@ Future<Map<String, dynamic>?> captureAndDecodeShutterQrMulti(
 
   if (imagePaths == null || imagePaths.isEmpty) return null;
 
-  final extracted = await _decodeQrFromImage(imagePaths.first);
+  String? extracted;
+  for (final path in imagePaths) {
+    extracted = await decodePackingStickerCode(path);
+    if (extracted != null) break;
+  }
   if (extracted == null) return null;
 
   return {'qr': extracted, 'imagePaths': imagePaths};
-}
-Future<String?> _decodeQrFromImage(String imagePath) async {
-  final inputImage = InputImage.fromFile(File(imagePath));
-  final textRecognizer = TextRecognizer();
-
-  try {
-    final result = await textRecognizer.processImage(inputImage);
-    final fullText = result.text;
-    final normalized = fullText.replaceAll(RegExp(r'\s+'), '');
-
-    // final match = RegExp(
-    //   r'(\d+\/\d+\/[A-Z]+\/+\d+\/\d+)',
-    // ).firstMatch(normalized);
-final match = RegExp(
-      r'(\d+\/\d+\/[A-Za-z0-9]+(?:\/\d+){2,}(?:\/[A-Za-z0-9]+)*)',
-    ).firstMatch(normalized);
-    if (match == null) return null;
-    return match.group(0)!;
-  } finally {
-    await textRecognizer.close();
-  }
 }
 class MultiImageCapturePage extends StatefulWidget {
   const MultiImageCapturePage({super.key});
