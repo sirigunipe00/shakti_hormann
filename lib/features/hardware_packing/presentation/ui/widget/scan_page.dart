@@ -5,13 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shakti_hormann/features/hardware_packing/presentation/ui/widget/mes_sticker_validator.dart';
 
-/// MES sticker capture using Drive-style document scanner only.
-///
-/// Native ML Kit / VisionKit UI (edge detect, hold steady, auto crop).
-/// We enhance what the package allows:
-/// - Android: [AndroidScannerMode.base] = no enhance/B&W filter
-/// - Strict post-check for OR / MES / PAGE / BOX
-/// - Proceed only when all 4 are found (no "Use anyway")
 class ScanHardWarePage extends StatefulWidget {
   const ScanHardWarePage({super.key});
 
@@ -39,7 +32,6 @@ class _ScanHardWarePageState extends State<ScanHardWarePage> {
       final pictures = await CunningDocumentScanner.getPictures(
         noOfPages: 1,
         scannerSource: ScannerSource.camera,
-        // Critical: do NOT use full/enhance mode — it washes out Page/Box.
         androidScannerMode: AndroidScannerMode.base,
         iosScannerOptions: IosScannerOptions(
           imageFormat: IosImageFormat.jpg,

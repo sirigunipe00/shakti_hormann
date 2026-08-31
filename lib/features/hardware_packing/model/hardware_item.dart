@@ -11,6 +11,15 @@ part 'hardware_item.g.dart';
 class HardwareItem with _$HardwareItem {
   const factory HardwareItem({
     String? status,
+    /// Per-MES / box warehouse status (server-only).
+    @JsonKey(
+      name: 'allocation_status',
+      includeFromJson: true,
+      includeToJson: false,
+    )
+    String? allocationStatus,
+    @JsonKey(name: 'current_zone', includeFromJson: true, includeToJson: false)
+    String? currentZone,
     String? slNO,
     @JsonKey(name: 'name') String? name,
     @JsonKey(name: 'owner') String? owner,

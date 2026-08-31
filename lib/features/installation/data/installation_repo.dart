@@ -23,11 +23,6 @@ abstract interface class InstallationRepo {
   );
   AsyncValueOf<InstallationCreateResult> createInstallation(InstallationModel form);
   AsyncValueOf<List<InstallationLineItems>> fetchInstallationLines(String name);
-  AsyncValueOf<List<InstallationLineItems>> getInstallationBoxSequence({
-    required String salesOrderNo,
-    required int noOfBoxes,
-    String? excludeName,
-  });
   AsyncValueOf<Pair<String,String>> updateInstallation(String name, {List<Map<String, String>>? images, int? noOfBoxes});
   AsyncValueOf<Pair<String,String>> submitInstallation(String name);
   AsyncValueOf<String> printinstallationSticker(String id);

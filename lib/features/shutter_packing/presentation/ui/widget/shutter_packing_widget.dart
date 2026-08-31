@@ -22,7 +22,8 @@ class ShutterPackingWidget extends StatelessWidget {
     final raw = shutter.name;
     if (raw == null || raw.isEmpty) return '---';
 
-    final digits = RegExp(r'\d+').allMatches(raw).map((m) => m.group(0)!).toList();
+    final digits =
+        RegExp(r'\d+').allMatches(raw).map((m) => m.group(0)!).toList();
     if (digits.isEmpty) {
       return raw.substring(0, raw.length.clamp(0, 3)).toUpperCase();
     }
@@ -34,6 +35,8 @@ class ShutterPackingWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isUnallocated =
+        (shutter.allocationStatus ?? '').trim().toLowerCase() == 'unallocated';
     return GestureDetector(
       onTap: onTap,
       child: Card(
@@ -96,10 +99,14 @@ class ShutterPackingWidget extends StatelessWidget {
                                 vertical: 4,
                               ),
                               decoration: BoxDecoration(
-                                color: const Color(0xFF16A34A).withValues(alpha: 0.12),
+                                color: const Color(
+                                  0xFF16A34A,
+                                ).withValues(alpha: 0.12),
                                 borderRadius: BorderRadius.circular(6),
                                 border: Border.all(
-                                  color: const Color(0xFF16A34A).withValues(alpha: 0.3),
+                                  color: const Color(
+                                    0xFF16A34A,
+                                  ).withValues(alpha: 0.3),
                                 ),
                               ),
                               child: const Row(
@@ -132,12 +139,13 @@ class ShutterPackingWidget extends StatelessWidget {
                         children: [
                           Flexible(
                             child: Text(
-                              shutter.palletCode ?? '',
+                              'Sales Order: ${shutter.salesOrder ?? ''}',
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
                                 color: AppColors.grey,
-                                fontWeight: FontWeight.normal,
+                                fontWeight: FontWeight.bold,
                                 letterSpacing: 0,
+                                fontSize: 14,
                               ),
                             ),
                           ),
@@ -160,6 +168,64 @@ class ShutterPackingWidget extends StatelessWidget {
                             ],
                           ),
                         ],
+                      ),
+                      if ((shutter.palletCode ?? '').isNotEmpty) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          shutter.palletCode!,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: AppColors.grey,
+                            fontWeight: FontWeight.normal,
+                            letterSpacing: 0,
+                          ),
+                        ),
+                      ],
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 5,
+                        ),
+                        decoration: BoxDecoration(
+                          color:
+                              isUnallocated
+                                  ? const Color(0xFFFFF7E0)
+                                  : const Color(0xFFF0F5FF),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color:
+                                isUnallocated
+                                    ? const Color(0xFFFFD166)
+                                    : const Color(0xFFD6E2F5),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              isUnallocated
+                                  ? Icons.info_outline_rounded
+                                  : Icons.location_on_outlined,
+                              size: 15,
+                              color:
+                                  isUnallocated
+                                      ? const Color(0xFFB77900)
+                                      : const Color(0xFF2957A4),
+                            ),
+                            const SizedBox(width: 5),
+                            Text(
+                              shutter.allocationStatus ?? '',
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color:
+                                    isUnallocated
+                                        ? const Color(0xFF9A6700)
+                                        : const Color(0xFF2957A4),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),

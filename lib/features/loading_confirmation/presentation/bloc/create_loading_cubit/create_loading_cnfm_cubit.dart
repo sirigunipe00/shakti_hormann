@@ -83,13 +83,32 @@ class CreateLoadingCnfmCubit extends AppBaseCubit<CreateLaodingCnfmState> {
   }
 
   void addItem(ItemModel newItem) {
+    // Never keep SAP Sales Order line `name` on a newly added manual item.
+    final sanitized = ItemModel(
+      itemCode: newItem.itemCode,
+      itemName: newItem.itemName,
+      uomValue: newItem.uomValue ?? newItem.stockUom ?? newItem.salesUom,
+      qtyLoaded: newItem.qtyLoaded,
+      sampleQuantity: newItem.sampleQuantity,
+      qty: newItem.qty,
+      stockUom: newItem.stockUom,
+      imageFile: newItem.imageFile,
+      loadedItemPhoto: newItem.loadedItemPhoto,
+    );
+    final updatedItems = [...state.listitems, sanitized];
 
-    final updatedItems = [...state.listitems, newItem];
+    final hasExistingManualRows = state.listitems.any(
+      (e) =>
+          (e.name != null && e.name!.trim().isNotEmpty) ||
+          (e.itemrowName != null && e.itemrowName!.trim().isNotEmpty),
+    );
 
-
-    final stat = state.copyWith(listitems: updatedItems, view: LoadingView.create);
-
-    emitSafeState(stat);
+    emitSafeState(
+      state.copyWith(
+        listitems: updatedItems,
+        view: hasExistingManualRows ? LoadingView.edit : LoadingView.create,
+      ),
+    );
   }
   void addInitialItem(ItemModel newItem) {
 
@@ -223,10 +242,14 @@ void updateItem(int index, ItemModel updatedItem) {
   }
 
 Option<Pair<String, int?>> _validate() {
+  if (state.view == LoadingView.completed ||
+      state.view == LoadingView.sumitted) {
+    return none();
+  }
+
   final items = state.listitems;
 
-
-  if (items.isEmpty ) {
+  if (items.isEmpty) {
     return optionOf(const Pair('At least one item is required to submit', 0));
   }
 

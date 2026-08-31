@@ -12,7 +12,7 @@ import 'package:shakti_hormann/features/shutter_packing/model/shutter_lines.dart
 import 'package:shakti_hormann/features/shutter_packing/model/shutter_packing.dart';
 
 
-typedef ShutterCubit = InfiniteListCubit<ShutterPacking, Pair<int?, String?>, Pair<int?, String?>>;
+typedef ShutterCubit = InfiniteListCubit<ShutterPacking, Pair<String?, String?>, Pair<String?, String?>>;
 typedef ShutterCubitState = InfiniteListState<ShutterPacking>;
 typedef ShutterLinesCubit = NetworkRequestCubit<List<ShutterLines>, String>;
 typedef ShutterLinesCubitState = NetworkRequestState<List<ShutterLines>>;
@@ -52,7 +52,7 @@ class ShutterBlocProvider {
     onRequest: (params, state) => repo.getPalletSize(),
   );
    SalesOrdersCubit getSales() => SalesOrdersCubit(
-    onRequest: (params, state) => repo.getSales(),
+    onRequest: (params, state) => repo.getSales(q: params ?? ''),
   );
 
 }

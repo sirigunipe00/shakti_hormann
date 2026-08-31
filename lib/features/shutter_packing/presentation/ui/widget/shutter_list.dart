@@ -46,7 +46,7 @@ class _ShutterListScrnState extends State<ShutterListScrn> {
           final filters = context.read<ShutterFilterCubit>().state;
 
           return context.cubit<ShutterCubit>().fetchInitial(
-            Pair(StringUtils.docStatusInt(filters.status), filters.query),
+            Pair(filters.status, filters.query),
           );
         },
         child: BlocListener<ShutterFilterCubit, PageViewFilters>(
@@ -77,13 +77,13 @@ class _ShutterListScrnState extends State<ShutterListScrn> {
   void _fetchInital(BuildContext context) {
     final filters = context.read<ShutterFilterCubit>().state;
     context.cubit<ShutterCubit>().fetchInitial(
-        Pair(StringUtils.docStatusInt(filters.status), filters.query));
+        Pair(filters.status, filters.query));
   }
 
   void fetchMore(BuildContext context) {
     final filters = context.read<ShutterFilterCubit>().state;
 
     context.cubit<ShutterCubit>().fetchMore(
-        Pair(StringUtils.docStatusInt(filters.status), filters.query));
+        Pair(filters.status, filters.query));
   }
 }

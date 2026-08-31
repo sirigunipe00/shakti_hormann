@@ -10,7 +10,7 @@ import 'package:shakti_hormann/features/shutter_packing/model/shutter_packing.da
 abstract class ShutterPackingRepo{
   AsyncValueOf<List<ShutterPacking>> fetchShutterPacking(
     int start,
-    int? docStatus,
+    String? status,
     String? search,
   );
   AsyncValueOf<List<ShutterLines>> fetchShutterLines(
@@ -22,7 +22,11 @@ abstract class ShutterPackingRepo{
   AsyncValueOf<Pair<String,String>> submitShutter(ShutterPacking form);
   AsyncValueOf<List<Items>> fetchItems(String name,String index);
   AsyncValueOf<List<PalletSize>> getPalletSize();
-  AsyncValueOf<List<PalletModel>> getSales();
+  AsyncValueOf<List<PalletModel>> getSales({
+    String q = '',
+    int limit = 50,
+    int offset = 0,
+  });
   AsyncValueOf<String> printShutterSticker(String shutterPackingId);
   AsyncValueOf<List<String>> getShutterPalletCode(String salesOrder);
   AsyncValueOf<List<AttachementInvoices>> fetchAttachments(String gateEntryId);

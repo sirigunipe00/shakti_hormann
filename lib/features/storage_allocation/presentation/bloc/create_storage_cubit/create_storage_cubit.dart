@@ -125,11 +125,6 @@ Future<void> onQrScanned(String rawQr) async {
       emitSafeState(state.copyWith(isLoading: true, isSuccess: false));
       // final nextMode = StorageView.completed;
 
-      final status = switch (state.view) {
-        StorageView.create => 'Draft',
-        StorageView.completed => 'Submitted',
-      };
-
       if (state.view == StorageView.create) {
         final response = await repo.createStorage(state.form);
 
@@ -145,7 +140,9 @@ Future<void> onQrScanned(String rawQr) async {
                 isLoading: false,
                 isSuccess: true,
                 form: state.form.copyWith(
-                  status: status,
+                  status: 'Stored',
+                  allocationStatus: 'Allocated',
+                  currentZone: state.form.zoneQr ?? state.form.currentZone,
                   name: docstatus,
                   docStatus: 1,
                 ),

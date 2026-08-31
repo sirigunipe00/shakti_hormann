@@ -50,6 +50,8 @@ class Urls {
     static final updateLoading = '$cusWs/shaktihormann.api.update_items_loaded';
   static final submitLoadingConfirmation = '$cusWs/shaktihormann.api.submit_vehicle_loading';
   static final getLodedItems = '$cusWs/shaktihormann.api.get_loaded_items';
+  static final scanUnitForDispatch =
+      '$cusWs/shaktihormann.api.scan_unit_for_dispatch';
   static final createproofOfDelivery = '$cusWs/shaktihormann.api.createProofOfDelivery';
   static final submitproofOfDelivery = '$cusWs/shaktihormann.api.submitProofOfDelivery';
   static final creategateManagement = '$cusWs/shaktihormann.api.create_gate_management';
@@ -68,6 +70,8 @@ class Urls {
 
   static final storageAllocation = '$cusWs/shaktihormann.p2_api.create_storage_zone';
   static final getSales = '$cusWs/shaktihormann.p2_api.get_pallet_sales_orders';
+  static final getPackingSalesOrders =
+      '$cusWs/shaktihormann.p2_api.get_packing_sales_orders';
   static final zoneTransfer = '$cusWs/shaktihormann.p2_api.create_zone_transfer';
   static final scanPalletForZoneTransfer = '$cusWs/shaktihormann.p2_api.scan_pallet_for_zone_transfer';
   static final getPalletMovementHistory = '$cusWs/shaktihormann.p2_api.get_pallet_movement_history';

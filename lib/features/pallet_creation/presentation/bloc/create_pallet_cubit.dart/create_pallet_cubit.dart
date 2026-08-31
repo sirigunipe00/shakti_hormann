@@ -75,9 +75,7 @@ class CreatePalletCubit extends AppBaseCubit<CreatePalletState> {
         'Cancelled',
       );
       final mode =
-          (isSubmitted || isCancelled)
-              ? PalletView.completed
-              : PalletView.edit;
+          (isSubmitted || isCancelled) ? PalletView.completed : PalletView.edit;
 
       emitSafeState(
         state.copyWith(form: updatedForm, view: mode, isModified: false),
@@ -86,7 +84,6 @@ class CreatePalletCubit extends AppBaseCubit<CreatePalletState> {
     if (entry == null) return;
   }
 
-
   void addAllLines(List<PalletItems> lines) {
     emitSafeState(state.copyWith(lines: lines));
   }
@@ -94,17 +91,13 @@ class CreatePalletCubit extends AppBaseCubit<CreatePalletState> {
   void addPalletItem(PalletItems item) {
     shouldAskForConfirmation.value = true;
     emitSafeState(
-      state.copyWith(
-        lines: [...state.lines, item],
-        isModified: true,
-      ),
+      state.copyWith(lines: [...state.lines, item], isModified: true),
     );
   }
 
-
   void updatePalletItemAt(int index, PalletItems updatedItem) {
     if (index < 0 || index >= state.lines.length) return;
-     shouldAskForConfirmation.value = true;
+    shouldAskForConfirmation.value = true;
 
     final existing = state.lines[index];
     final merged = updatedItem.copyWith(idx: existing.idx);
@@ -115,12 +108,6 @@ class CreatePalletCubit extends AppBaseCubit<CreatePalletState> {
     emitSafeState(state.copyWith(lines: updatedLines, isModified: true));
   }
 
-  // void updateLinePhoto(int index, String localPath) {
-  //   final lines = [...state.lines];
-  //   lines[index] = lines[index].copyWith(shutterPhotoImg: File(localPath));
-  //   emitSafeState(state.copyWith(lines: lines, isModified: true));
-  // }
-
   void removeLineAt(int index) {
     final lines = [...state.lines]..removeAt(index);
     emitSafeState(state.copyWith(lines: lines, isModified: true));
@@ -129,11 +116,6 @@ class CreatePalletCubit extends AppBaseCubit<CreatePalletState> {
   void resetLines() {
     emitSafeState(state.copyWith(lines: []));
   }
-
-  // void clearVehiclePhoto() {
-  //   final form = state.form.copyWith(palletPhoto: null);
-  //   emitSafeState(state.copyWith(form: form));
-  // }
 
   void save() async {
     final validation = _validate();
@@ -155,7 +137,11 @@ class CreatePalletCubit extends AppBaseCubit<CreatePalletState> {
               state.copyWith(
                 isLoading: false,
                 isSuccess: true,
-                form: form.copyWith(status: 'Draft', name: docstatus,docStatus: 0),
+                form: form.copyWith(
+                  status: 'Draft',
+                  name: docstatus,
+                  docStatus: 0,
+                ),
                 successMsg: '${r.first}\n${r.second}',
                 view: PalletView.edit,
                 isModified: false,
@@ -163,7 +149,7 @@ class CreatePalletCubit extends AppBaseCubit<CreatePalletState> {
             );
           },
         );
-        }
+      }
 
       final response = await repo.updatePallet(form, state.lines);
       return response.fold(
@@ -184,31 +170,32 @@ class CreatePalletCubit extends AppBaseCubit<CreatePalletState> {
       );
     }, _emitError);
   }
+
   void submit() async {
-  final form = state.form;
-  final docName = form.name;
-  if (docName == null || docName.isEmpty) return;
+    final form = state.form;
+    final docName = form.name;
+    if (docName == null || docName.isEmpty) return;
 
-  emitSafeState(state.copyWith(isLoading: true, isSuccess: false));
+    emitSafeState(state.copyWith(isLoading: true, isSuccess: false));
 
-  final response = await repo.submitPallet(docName);
-  response.fold(
-    (l) => emitSafeState(state.copyWith(isLoading: false, error: l)),
-    (r) {
-      shouldAskForConfirmation.value = false;
-      emitSafeState(
-        state.copyWith(
-          isLoading: false,
-          isSuccess: true,
-          successMsg: '${r.first}\n${r.second}',
-          form: form.copyWith(docStatus: 1, status: 'Submitted'),
-          view: PalletView.completed,
-          isModified: false,
-        ),
-      );
-    },
-  );
-}
+    final response = await repo.submitPallet(docName);
+    response.fold(
+      (l) => emitSafeState(state.copyWith(isLoading: false, error: l)),
+      (r) {
+        shouldAskForConfirmation.value = false;
+        emitSafeState(
+          state.copyWith(
+            isLoading: false,
+            isSuccess: true,
+            successMsg: '${r.first}\n${r.second}',
+            form: form.copyWith(docStatus: 1, status: 'Submitted'),
+            view: PalletView.completed,
+            isModified: false,
+          ),
+        );
+      },
+    );
+  }
 
   void _emitError(Pair<String, int?> error) {
     final failure = Failure(

@@ -40,20 +40,20 @@ class _VisionPanelFormWidgetState extends State<VisionPanelFormWidget> {
       color: Colors.purple.shade100.withValues(alpha: 0.15),
       child: SingleChildScrollView(
         controller: _scrollController,
-        padding: const EdgeInsets.only(top: 16, bottom: 24),
+        padding: const EdgeInsets.only(top: 5, bottom: 24),
         child: SpacedColumn(
           crossAxisAlignment: CrossAxisAlignment.start,
           defaultHeight: 12,
           children: [
             const Padding(
-              padding: EdgeInsets.only(left: 16.0),
+              padding: EdgeInsets.only(left: 16.0,top: 0),
               child: SectionHeader(
                 title: 'SO Details',
                 assetIcon: 'assets/images/vehicleinvoicicon.svg',
               ),
             ),
             Container(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.only(top: 12, bottom: 0,left: 12,right: 12),
               width: MediaQuery.of(context).size.width,
               margin: const EdgeInsets.symmetric(horizontal: 18),
               decoration: BoxDecoration(
@@ -147,6 +147,8 @@ class _VisionPanelFormWidgetState extends State<VisionPanelFormWidget> {
                 ],
               ),
             ),
+            if(newform.docStatus != 1 && newform.docStatus != 0)
+            
             const Center(child: Text('**Please Add Atleast One Product To Save the Record**',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 15),)),
             const ProductSelectionTable(),
 

@@ -17,13 +17,23 @@ mixin StatusModeSelectionMixin {
       case PageMode2.gateManagement:
       case PageMode2.palletCreation:
        case PageMode2.visionPanel:
-        case PageMode2.shutterPacking:
-        case PageMode2.framePacking:
+        // case PageMode2.shutterPacking:
+        // case PageMode2.framePacking:
         case PageMode2.installation:
         case PageMode2.hardwarePackaging:
        
       
         filters = ['Draft', 'Submitted', 'All'];
+        break;
+        case PageMode2.shutterPacking:
+      case PageMode2.framePacking:
+        filters = [
+          'Draft',
+          'Unallocated',
+          'Allocated',
+          'Submitted',
+          'All',
+        ];
         break;
        
       

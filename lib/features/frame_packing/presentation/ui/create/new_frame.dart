@@ -158,7 +158,7 @@ class _NewFrameState extends State<NewFrame> {
                       context.read<FrameFliterCubit>().state;
                   context.cubit<FrameCubit>().fetchInitial(
                     Pair(
-                      StringUtils.docStatusInt(gateEntryFilters.status),
+                      gateEntryFilters.status,
                       gateEntryFilters.query,
                     ),
                   );

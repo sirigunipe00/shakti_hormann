@@ -34,8 +34,6 @@ class MesStickerScanResult {
 
   int get okCount => fields.where((f) => f.ok).length;
 }
-
-/// Validate a RAW sticker photo (no document-scanner enhance filter).
 Future<MesStickerScanResult> validateMesStickerImage(String imagePath) async {
   final input = InputImage.fromFile(File(imagePath));
   final textRecognizer = TextRecognizer();

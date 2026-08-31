@@ -45,8 +45,24 @@ mixin _$InstallationLineItems {
   String? get parentType => throw _privateConstructorUsedError;
   @JsonKey(name: 'box_no')
   String? get boxNo => throw _privateConstructorUsedError;
+  @JsonKey(name: 'box_index')
+  int? get boxIndex => throw _privateConstructorUsedError;
+  @JsonKey(name: 'box_code')
+  String? get boxCode => throw _privateConstructorUsedError;
   @JsonKey(name: 'image')
   String? get image => throw _privateConstructorUsedError;
+
+  /// Server-only zone allocation state for this box.
+  @JsonKey(
+    name: 'allocation_status',
+    includeFromJson: true,
+    includeToJson: false,
+  )
+  String? get allocationStatus => throw _privateConstructorUsedError;
+
+  /// Server-only current zone for this box.
+  @JsonKey(name: 'current_zone', includeFromJson: true, includeToJson: false)
+  String? get currentZone => throw _privateConstructorUsedError;
   @JsonKey(
     includeFromJson: true,
     includeToJson: false,
@@ -84,7 +100,17 @@ abstract class $InstallationLineItemsCopyWith<$Res> {
     @JsonKey(name: 'parentfield') String? parentField,
     @JsonKey(name: 'parenttype') String? parentType,
     @JsonKey(name: 'box_no') String? boxNo,
+    @JsonKey(name: 'box_index') int? boxIndex,
+    @JsonKey(name: 'box_code') String? boxCode,
     @JsonKey(name: 'image') String? image,
+    @JsonKey(
+      name: 'allocation_status',
+      includeFromJson: true,
+      includeToJson: false,
+    )
+    String? allocationStatus,
+    @JsonKey(name: 'current_zone', includeFromJson: true, includeToJson: false)
+    String? currentZone,
     @JsonKey(
       includeFromJson: true,
       includeToJson: false,
@@ -124,7 +150,11 @@ class _$InstallationLineItemsCopyWithImpl<
     Object? parentField = freezed,
     Object? parentType = freezed,
     Object? boxNo = freezed,
+    Object? boxIndex = freezed,
+    Object? boxCode = freezed,
     Object? image = freezed,
+    Object? allocationStatus = freezed,
+    Object? currentZone = freezed,
     Object? installtionPhotoImg = freezed,
   }) {
     return _then(
@@ -184,10 +214,30 @@ class _$InstallationLineItemsCopyWithImpl<
                     ? _value.boxNo
                     : boxNo // ignore: cast_nullable_to_non_nullable
                         as String?,
+            boxIndex:
+                freezed == boxIndex
+                    ? _value.boxIndex
+                    : boxIndex // ignore: cast_nullable_to_non_nullable
+                        as int?,
+            boxCode:
+                freezed == boxCode
+                    ? _value.boxCode
+                    : boxCode // ignore: cast_nullable_to_non_nullable
+                        as String?,
             image:
                 freezed == image
                     ? _value.image
                     : image // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            allocationStatus:
+                freezed == allocationStatus
+                    ? _value.allocationStatus
+                    : allocationStatus // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            currentZone:
+                freezed == currentZone
+                    ? _value.currentZone
+                    : currentZone // ignore: cast_nullable_to_non_nullable
                         as String?,
             installtionPhotoImg:
                 freezed == installtionPhotoImg
@@ -221,7 +271,17 @@ abstract class _$$InstallationLineItemsImplCopyWith<$Res>
     @JsonKey(name: 'parentfield') String? parentField,
     @JsonKey(name: 'parenttype') String? parentType,
     @JsonKey(name: 'box_no') String? boxNo,
+    @JsonKey(name: 'box_index') int? boxIndex,
+    @JsonKey(name: 'box_code') String? boxCode,
     @JsonKey(name: 'image') String? image,
+    @JsonKey(
+      name: 'allocation_status',
+      includeFromJson: true,
+      includeToJson: false,
+    )
+    String? allocationStatus,
+    @JsonKey(name: 'current_zone', includeFromJson: true, includeToJson: false)
+    String? currentZone,
     @JsonKey(
       includeFromJson: true,
       includeToJson: false,
@@ -258,7 +318,11 @@ class __$$InstallationLineItemsImplCopyWithImpl<$Res>
     Object? parentField = freezed,
     Object? parentType = freezed,
     Object? boxNo = freezed,
+    Object? boxIndex = freezed,
+    Object? boxCode = freezed,
     Object? image = freezed,
+    Object? allocationStatus = freezed,
+    Object? currentZone = freezed,
     Object? installtionPhotoImg = freezed,
   }) {
     return _then(
@@ -318,10 +382,30 @@ class __$$InstallationLineItemsImplCopyWithImpl<$Res>
                 ? _value.boxNo
                 : boxNo // ignore: cast_nullable_to_non_nullable
                     as String?,
+        boxIndex:
+            freezed == boxIndex
+                ? _value.boxIndex
+                : boxIndex // ignore: cast_nullable_to_non_nullable
+                    as int?,
+        boxCode:
+            freezed == boxCode
+                ? _value.boxCode
+                : boxCode // ignore: cast_nullable_to_non_nullable
+                    as String?,
         image:
             freezed == image
                 ? _value.image
                 : image // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        allocationStatus:
+            freezed == allocationStatus
+                ? _value.allocationStatus
+                : allocationStatus // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        currentZone:
+            freezed == currentZone
+                ? _value.currentZone
+                : currentZone // ignore: cast_nullable_to_non_nullable
                     as String?,
         installtionPhotoImg:
             freezed == installtionPhotoImg
@@ -348,7 +432,17 @@ class _$InstallationLineItemsImpl implements _InstallationLineItems {
     @JsonKey(name: 'parentfield') this.parentField,
     @JsonKey(name: 'parenttype') this.parentType,
     @JsonKey(name: 'box_no') this.boxNo,
+    @JsonKey(name: 'box_index') this.boxIndex,
+    @JsonKey(name: 'box_code') this.boxCode,
     @JsonKey(name: 'image') this.image,
+    @JsonKey(
+      name: 'allocation_status',
+      includeFromJson: true,
+      includeToJson: false,
+    )
+    this.allocationStatus,
+    @JsonKey(name: 'current_zone', includeFromJson: true, includeToJson: false)
+    this.currentZone,
     @JsonKey(
       includeFromJson: true,
       includeToJson: false,
@@ -395,8 +489,28 @@ class _$InstallationLineItemsImpl implements _InstallationLineItems {
   @JsonKey(name: 'box_no')
   final String? boxNo;
   @override
+  @JsonKey(name: 'box_index')
+  final int? boxIndex;
+  @override
+  @JsonKey(name: 'box_code')
+  final String? boxCode;
+  @override
   @JsonKey(name: 'image')
   final String? image;
+
+  /// Server-only zone allocation state for this box.
+  @override
+  @JsonKey(
+    name: 'allocation_status',
+    includeFromJson: true,
+    includeToJson: false,
+  )
+  final String? allocationStatus;
+
+  /// Server-only current zone for this box.
+  @override
+  @JsonKey(name: 'current_zone', includeFromJson: true, includeToJson: false)
+  final String? currentZone;
   @override
   @JsonKey(
     includeFromJson: true,
@@ -408,7 +522,7 @@ class _$InstallationLineItemsImpl implements _InstallationLineItems {
 
   @override
   String toString() {
-    return 'InstallationLineItems(name: $name, owner: $owner, creation: $creation, modified: $modified, modifiedBy: $modifiedBy, docStatus: $docStatus, idx: $idx, parent: $parent, parentField: $parentField, parentType: $parentType, boxNo: $boxNo, image: $image, installtionPhotoImg: $installtionPhotoImg)';
+    return 'InstallationLineItems(name: $name, owner: $owner, creation: $creation, modified: $modified, modifiedBy: $modifiedBy, docStatus: $docStatus, idx: $idx, parent: $parent, parentField: $parentField, parentType: $parentType, boxNo: $boxNo, boxIndex: $boxIndex, boxCode: $boxCode, image: $image, allocationStatus: $allocationStatus, currentZone: $currentZone, installtionPhotoImg: $installtionPhotoImg)';
   }
 
   @override
@@ -433,7 +547,14 @@ class _$InstallationLineItemsImpl implements _InstallationLineItems {
             (identical(other.parentType, parentType) ||
                 other.parentType == parentType) &&
             (identical(other.boxNo, boxNo) || other.boxNo == boxNo) &&
+            (identical(other.boxIndex, boxIndex) ||
+                other.boxIndex == boxIndex) &&
+            (identical(other.boxCode, boxCode) || other.boxCode == boxCode) &&
             (identical(other.image, image) || other.image == image) &&
+            (identical(other.allocationStatus, allocationStatus) ||
+                other.allocationStatus == allocationStatus) &&
+            (identical(other.currentZone, currentZone) ||
+                other.currentZone == currentZone) &&
             (identical(other.installtionPhotoImg, installtionPhotoImg) ||
                 other.installtionPhotoImg == installtionPhotoImg));
   }
@@ -453,7 +574,11 @@ class _$InstallationLineItemsImpl implements _InstallationLineItems {
     parentField,
     parentType,
     boxNo,
+    boxIndex,
+    boxCode,
     image,
+    allocationStatus,
+    currentZone,
     installtionPhotoImg,
   );
 
@@ -488,7 +613,17 @@ abstract class _InstallationLineItems implements InstallationLineItems {
     @JsonKey(name: 'parentfield') final String? parentField,
     @JsonKey(name: 'parenttype') final String? parentType,
     @JsonKey(name: 'box_no') final String? boxNo,
+    @JsonKey(name: 'box_index') final int? boxIndex,
+    @JsonKey(name: 'box_code') final String? boxCode,
     @JsonKey(name: 'image') final String? image,
+    @JsonKey(
+      name: 'allocation_status',
+      includeFromJson: true,
+      includeToJson: false,
+    )
+    final String? allocationStatus,
+    @JsonKey(name: 'current_zone', includeFromJson: true, includeToJson: false)
+    final String? currentZone,
     @JsonKey(
       includeFromJson: true,
       includeToJson: false,
@@ -535,8 +670,28 @@ abstract class _InstallationLineItems implements InstallationLineItems {
   @JsonKey(name: 'box_no')
   String? get boxNo;
   @override
+  @JsonKey(name: 'box_index')
+  int? get boxIndex;
+  @override
+  @JsonKey(name: 'box_code')
+  String? get boxCode;
+  @override
   @JsonKey(name: 'image')
   String? get image;
+
+  /// Server-only zone allocation state for this box.
+  @override
+  @JsonKey(
+    name: 'allocation_status',
+    includeFromJson: true,
+    includeToJson: false,
+  )
+  String? get allocationStatus;
+
+  /// Server-only current zone for this box.
+  @override
+  @JsonKey(name: 'current_zone', includeFromJson: true, includeToJson: false)
+  String? get currentZone;
   @override
   @JsonKey(
     includeFromJson: true,

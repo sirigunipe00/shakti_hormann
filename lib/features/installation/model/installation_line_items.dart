@@ -29,8 +29,20 @@ class InstallationLineItems with _$InstallationLineItems {
 
     @JsonKey(name: 'parenttype') String? parentType,
     @JsonKey(name: 'box_no') String? boxNo,
+    @JsonKey(name: 'box_index') int? boxIndex,
+    @JsonKey(name: 'box_code') String? boxCode,
 
     @JsonKey(name: 'image') String? image,
+    /// Server-only zone allocation state for this box.
+    @JsonKey(
+      name: 'allocation_status',
+      includeFromJson: true,
+      includeToJson: false,
+    )
+    String? allocationStatus,
+    /// Server-only current zone for this box.
+    @JsonKey(name: 'current_zone', includeFromJson: true, includeToJson: false)
+    String? currentZone,
     @JsonKey(
       includeFromJson: true,
       includeToJson: false,

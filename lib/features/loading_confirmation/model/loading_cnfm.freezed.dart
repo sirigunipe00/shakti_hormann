@@ -35,6 +35,8 @@ mixin _$LoadingCnfmForm {
   int? get docstatus => throw _privateConstructorUsedError;
   @JsonKey(name: 'idx')
   int? get idx => throw _privateConstructorUsedError;
+  @JsonKey(name: 'dispatch_loading_status')
+  String? get loadingStatus => throw _privateConstructorUsedError;
   @JsonKey(name: 'amended_from')
   String? get amendedFrom => throw _privateConstructorUsedError;
   @JsonKey(name: 'plant_name')
@@ -92,6 +94,7 @@ abstract class $LoadingCnfmFormCopyWith<$Res> {
     @JsonKey(name: 'modified_by') String? modifiedBy,
     @JsonKey(name: 'docstatus') int? docstatus,
     @JsonKey(name: 'idx') int? idx,
+    @JsonKey(name: 'dispatch_loading_status') String? loadingStatus,
     @JsonKey(name: 'amended_from') String? amendedFrom,
     @JsonKey(name: 'plant_name') String? plantName,
     @JsonKey(name: 'vehicle_reporting_entry_vre_date')
@@ -134,6 +137,7 @@ class _$LoadingCnfmFormCopyWithImpl<$Res, $Val extends LoadingCnfmForm>
     Object? modifiedBy = freezed,
     Object? docstatus = freezed,
     Object? idx = freezed,
+    Object? loadingStatus = freezed,
     Object? amendedFrom = freezed,
     Object? plantName = freezed,
     Object? vehicleReportingEntryVreDate = freezed,
@@ -187,6 +191,11 @@ class _$LoadingCnfmFormCopyWithImpl<$Res, $Val extends LoadingCnfmForm>
                     ? _value.idx
                     : idx // ignore: cast_nullable_to_non_nullable
                         as int?,
+            loadingStatus:
+                freezed == loadingStatus
+                    ? _value.loadingStatus
+                    : loadingStatus // ignore: cast_nullable_to_non_nullable
+                        as String?,
             amendedFrom:
                 freezed == amendedFrom
                     ? _value.amendedFrom
@@ -285,6 +294,7 @@ abstract class _$$LoadingCnfmFormImplCopyWith<$Res>
     @JsonKey(name: 'modified_by') String? modifiedBy,
     @JsonKey(name: 'docstatus') int? docstatus,
     @JsonKey(name: 'idx') int? idx,
+    @JsonKey(name: 'dispatch_loading_status') String? loadingStatus,
     @JsonKey(name: 'amended_from') String? amendedFrom,
     @JsonKey(name: 'plant_name') String? plantName,
     @JsonKey(name: 'vehicle_reporting_entry_vre_date')
@@ -326,6 +336,7 @@ class __$$LoadingCnfmFormImplCopyWithImpl<$Res>
     Object? modifiedBy = freezed,
     Object? docstatus = freezed,
     Object? idx = freezed,
+    Object? loadingStatus = freezed,
     Object? amendedFrom = freezed,
     Object? plantName = freezed,
     Object? vehicleReportingEntryVreDate = freezed,
@@ -379,6 +390,11 @@ class __$$LoadingCnfmFormImplCopyWithImpl<$Res>
                 ? _value.idx
                 : idx // ignore: cast_nullable_to_non_nullable
                     as int?,
+        loadingStatus:
+            freezed == loadingStatus
+                ? _value.loadingStatus
+                : loadingStatus // ignore: cast_nullable_to_non_nullable
+                    as String?,
         amendedFrom:
             freezed == amendedFrom
                 ? _value.amendedFrom
@@ -470,6 +486,7 @@ class _$LoadingCnfmFormImpl implements _LoadingCnfmForm {
     @JsonKey(name: 'modified_by') this.modifiedBy,
     @JsonKey(name: 'docstatus') this.docstatus,
     @JsonKey(name: 'idx') this.idx,
+    @JsonKey(name: 'dispatch_loading_status') this.loadingStatus,
     @JsonKey(name: 'amended_from') this.amendedFrom,
     @JsonKey(name: 'plant_name') this.plantName,
     @JsonKey(name: 'vehicle_reporting_entry_vre_date')
@@ -513,6 +530,9 @@ class _$LoadingCnfmFormImpl implements _LoadingCnfmForm {
   @override
   @JsonKey(name: 'idx')
   final int? idx;
+  @override
+  @JsonKey(name: 'dispatch_loading_status')
+  final String? loadingStatus;
   @override
   @JsonKey(name: 'amended_from')
   final String? amendedFrom;
@@ -560,7 +580,7 @@ class _$LoadingCnfmFormImpl implements _LoadingCnfmForm {
 
   @override
   String toString() {
-    return 'LoadingCnfmForm(name: $name, owner: $owner, creation: $creation, modified: $modified, modifiedBy: $modifiedBy, docstatus: $docstatus, idx: $idx, amendedFrom: $amendedFrom, plantName: $plantName, vehicleReportingEntryVreDate: $vehicleReportingEntryVreDate, transporterName: $transporterName, transporterName2: $transporterName2, arrivalDate: $arrivalDate, arrivalTime: $arrivalTime, arrivalDateAndTime: $arrivalDateAndTime, driverIdPhoto: $driverIdPhoto, loadedByUser: $loadedByUser, status: $status, linkedTransporterConfirmation: $linkedTransporterConfirmation, vehicleNumber: $vehicleNumber, driverContact: $driverContact, remarks: $remarks)';
+    return 'LoadingCnfmForm(name: $name, owner: $owner, creation: $creation, modified: $modified, modifiedBy: $modifiedBy, docstatus: $docstatus, idx: $idx, loadingStatus: $loadingStatus, amendedFrom: $amendedFrom, plantName: $plantName, vehicleReportingEntryVreDate: $vehicleReportingEntryVreDate, transporterName: $transporterName, transporterName2: $transporterName2, arrivalDate: $arrivalDate, arrivalTime: $arrivalTime, arrivalDateAndTime: $arrivalDateAndTime, driverIdPhoto: $driverIdPhoto, loadedByUser: $loadedByUser, status: $status, linkedTransporterConfirmation: $linkedTransporterConfirmation, vehicleNumber: $vehicleNumber, driverContact: $driverContact, remarks: $remarks)';
   }
 
   @override
@@ -579,6 +599,8 @@ class _$LoadingCnfmFormImpl implements _LoadingCnfmForm {
             (identical(other.docstatus, docstatus) ||
                 other.docstatus == docstatus) &&
             (identical(other.idx, idx) || other.idx == idx) &&
+            (identical(other.loadingStatus, loadingStatus) ||
+                other.loadingStatus == loadingStatus) &&
             (identical(other.amendedFrom, amendedFrom) ||
                 other.amendedFrom == amendedFrom) &&
             (identical(other.plantName, plantName) ||
@@ -628,6 +650,7 @@ class _$LoadingCnfmFormImpl implements _LoadingCnfmForm {
     modifiedBy,
     docstatus,
     idx,
+    loadingStatus,
     amendedFrom,
     plantName,
     vehicleReportingEntryVreDate,
@@ -671,6 +694,7 @@ abstract class _LoadingCnfmForm implements LoadingCnfmForm {
     @JsonKey(name: 'modified_by') final String? modifiedBy,
     @JsonKey(name: 'docstatus') final int? docstatus,
     @JsonKey(name: 'idx') final int? idx,
+    @JsonKey(name: 'dispatch_loading_status') final String? loadingStatus,
     @JsonKey(name: 'amended_from') final String? amendedFrom,
     @JsonKey(name: 'plant_name') final String? plantName,
     @JsonKey(name: 'vehicle_reporting_entry_vre_date')
@@ -714,6 +738,9 @@ abstract class _LoadingCnfmForm implements LoadingCnfmForm {
   @override
   @JsonKey(name: 'idx')
   int? get idx;
+  @override
+  @JsonKey(name: 'dispatch_loading_status')
+  String? get loadingStatus;
   @override
   @JsonKey(name: 'amended_from')
   String? get amendedFrom;

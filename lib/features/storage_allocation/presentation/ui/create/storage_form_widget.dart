@@ -70,9 +70,21 @@ class __StorageFormWidgetState extends State<StorageFormWidget> {
                   ),
                 ],
               ),
+              const SizedBox(height: 10),
+              const Center(
+                child: Text(
+                  '**Scan the Pallet Code after that Scan the Zone Code**',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 5),
+            ] else ...[
+              const SizedBox(height: 5),
             ],
-
-            const SizedBox(height: 20),
 
             const SectionHeader(
               title: 'Pallet Details',
@@ -107,21 +119,6 @@ class __StorageFormWidgetState extends State<StorageFormWidget> {
                     focusNode: focusNodes.elementAt(13),
                   ),
                   InputField(
-                    key: ValueKey('st_qty_${newform.totalQty}'),
-                    readOnly: true,
-                    initialValue: newform.totalQty?.toString() ?? '0',
-                    title: 'Total Quantity',
-                    hintText: 'Scan to add details',
-                    isRequired: true,
-                    borderColor: AppColors.grey,
-                    onChanged: (p0) {
-                      context.cubit<CreateZoneCubit>().onValueChanged(
-                        totalQty: int.tryParse(p0),
-                      );
-                    },
-                    focusNode: focusNodes.elementAt(13),
-                  ),
-                  InputField(
                     key: ValueKey('st_so_${newform.salesOrders}'),
                     readOnly: true,
                     initialValue: newform.salesOrders,
@@ -136,25 +133,53 @@ class __StorageFormWidgetState extends State<StorageFormWidget> {
                     },
                     focusNode: focusNodes.elementAt(13),
                   ),
-                  InputField(
-                    key: ValueKey('st_count_${newform.palletCount}'),
-                    readOnly: true,
-                    initialValue: newform.palletCount == null ? '' : newform.palletCount.toString(),
-                    title: 'Pallet Count',
-                    hintText: 'pallet count',
-                    isRequired: false,
-                    borderColor: AppColors.grey,
-                    onChanged: (p0) {
-                      context.cubit<CreateZoneCubit>().onValueChanged(
-                        palletCount: int.parse(p0),
-                      );
-                    },
-                    focusNode: focusNodes.elementAt(13),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: InputField(
+                          key: ValueKey('st_qty_${newform.totalQty}'),
+                          readOnly: true,
+                          initialValue: newform.totalQty?.toString() ?? '0',
+                          title: 'Total Quantity',
+                          hintText: 'Scan to add details',
+                          isRequired: true,
+                          borderColor: AppColors.grey,
+                          onChanged: (p0) {
+                            context.cubit<CreateZoneCubit>().onValueChanged(
+                              totalQty: int.tryParse(p0),
+                            );
+                          },
+                          focusNode: focusNodes.elementAt(13),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: InputField(
+                          key: ValueKey('st_count_${newform.palletCount}'),
+                          readOnly: true,
+                          initialValue:
+                              newform.palletCount == null
+                                  ? ''
+                                  : newform.palletCount.toString(),
+                          title: 'Pallet Count',
+                          hintText: 'pallet count',
+                          isRequired: true,
+                          borderColor: AppColors.grey,
+                          onChanged: (p0) {
+                            context.cubit<CreateZoneCubit>().onValueChanged(
+                              palletCount: int.parse(p0),
+                            );
+                          },
+                          focusNode: focusNodes.elementAt(13),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 5),
 
             const SectionHeader(
               title: 'Zone Details',
@@ -188,27 +213,29 @@ class __StorageFormWidgetState extends State<StorageFormWidget> {
                     },
                     focusNode: focusNodes.elementAt(13),
                   ),
-                  InputField(
-                    key: ValueKey('st_old_${newform.oldZone}'),
-                    readOnly: true,
-                    initialValue: newform.oldZone,
-                    title: 'Old Zone Name',
-                    hintText: 'old zone name',
-                    isRequired: false,
-                    borderColor: AppColors.grey,
-                    onChanged: (p0) {
-                      context.cubit<CreateZoneCubit>().onValueChanged(
-                        oldzone: p0,
-                      );
-                    },
-                    focusNode: focusNodes.elementAt(13),
-                  ),
+                  if (newform.oldZone != null &&
+                      newform.oldZone!.isNotEmpty) ...[
+                    InputField(
+                      key: ValueKey('st_old_${newform.oldZone}'),
+                      readOnly: true,
+                      initialValue: newform.oldZone,
+                      title: 'Last Zone No',
+                      hintText: 'last zone no',
+                      isRequired: false,
+                      borderColor: AppColors.grey,
+                      onChanged: (p0) {
+                        context.cubit<CreateZoneCubit>().onValueChanged(
+                          oldzone: p0,
+                        );
+                      },
+                      focusNode: focusNodes.elementAt(13),
+                    ),
+                  ],
 
                   // const SectionHeader(
                   //   title: 'Allocated Zone Photo',
                   //   assetIcon: 'assets/images/phot.svg',
                   // ),
-
                   DashedBorderBox(
                     borderRadius: 12,
                     child: Container(
@@ -227,15 +254,27 @@ class __StorageFormWidgetState extends State<StorageFormWidget> {
                             isRequired: true,
                             isReadOnly: isCompleted,
                             onFileCapture: (file) {
-                              context
-                                  .cubit<CreateZoneCubit>()
-                                  .onValueChanged(zonePhoto: file);
+                              context.cubit<CreateZoneCubit>().onValueChanged(
+                                zonePhoto: file,
+                              );
                             },
                           ),
                         ],
                       ),
                     ),
                   ),
+                  if (!isCompleted) ...[
+                    const Center(
+                      child: Text(
+                        '**Capture the Zone Image To Save the Form**',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -249,13 +288,12 @@ class __StorageFormWidgetState extends State<StorageFormWidget> {
     BuildContext context, {
     required bool isZoneScan,
   }) async {
-    if (context.read<CreateZoneCubit>().state.view ==
-        ZoneView.completed) {
+    if (context.read<CreateZoneCubit>().state.view == ZoneView.completed) {
       return;
     }
-    final raw = await Navigator.of(context).push<String>(
-      MaterialPageRoute(builder: (_) => const ScanFramePage.qr()),
-    );
+    final raw = await Navigator.of(
+      context,
+    ).push<String>(MaterialPageRoute(builder: (_) => const ScanFramePage.qr()));
 
     if (raw == null || !context.mounted) return;
 

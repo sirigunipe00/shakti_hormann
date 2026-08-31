@@ -228,7 +228,7 @@ class __HardwareFormWidgetState extends State<HardwareFormWidget> {
               ),
             ],
 
-            const SizedBox(height: 20),
+            const SizedBox(height: 3),
 
             const SectionHeader(
               title: 'QR Details',
@@ -316,7 +316,6 @@ class __HardwareFormWidgetState extends State<HardwareFormWidget> {
                 ],
               ),
             ),
-            const SizedBox(height: 20),
 
             if (formState.lines.isNotEmpty) ...[
               _CaptureProgressBanner(lines: formState.lines),

@@ -20,6 +20,7 @@ extension ActionType on ShutterView {
     };
   }
 }
+
 class _ParsedShutterQr {
   _ParsedShutterQr({
     required this.salesOrder,
@@ -32,7 +33,6 @@ class _ParsedShutterQr {
   final String itemIndex;
   final int seqNo;
   final int totalQty;
-
 
   String get groupKey => '$salesOrder/$itemIndex';
 
@@ -172,49 +172,39 @@ class CreateShutterCubit extends AppBaseCubit<CreateShutterState> {
 
   Future<void> _mergeAttachmentsIntoLines(String docName) async {
     final response = await repo.fetchAttachments(docName);
-    response.fold(
-      (l) => null,
-      (attachments) {
-        final Map<String, List<String>> byLineName = {};
-        for (final att in attachments) {
-          final lineName = att.attchedName;
-          final url = att.fileUrl;
-          if (lineName == null || url == null || url.isEmpty) continue;
-          byLineName.putIfAbsent(lineName, () => []).add(url);
-        }
+    response.fold((l) => null, (attachments) {
+      final Map<String, List<String>> byLineName = {};
+      for (final att in attachments) {
+        final lineName = att.attchedName;
+        final url = att.fileUrl;
+        if (lineName == null || url == null || url.isEmpty) continue;
+        byLineName.putIfAbsent(lineName, () => []).add(url);
+      }
 
-        final updatedLines = state.lines.map((line) {
-          final urls = byLineName[line.name];
-          if (urls == null || urls.isEmpty) return line;
-          return line.copyWith(shutterPhoto: urls);
-        }).toList();
+      final updatedLines =
+          state.lines.map((line) {
+            final urls = byLineName[line.name];
+            if (urls == null || urls.isEmpty) return line;
+            return line.copyWith(shutterPhoto: urls);
+          }).toList();
 
-        emitSafeState(state.copyWith(lines: updatedLines));
-      },
-    );
+      emitSafeState(state.copyWith(lines: updatedLines));
+    });
   }
+
   void createDocHandled() {
-  emitSafeState(state.copyWith(createSuccessMsg: null));
-}
+    emitSafeState(state.copyWith(createSuccessMsg: null));
+  }
 
   Future<void> getPalletCodes(String salesOrder) async {
-    emitSafeState(
-      state.copyWith(
-        isLoading: true,
-        palletCodes: [],
-      ),
-    );
+    emitSafeState(state.copyWith(isLoading: true, palletCodes: []));
 
     final result = await repo.getShutterPalletCode(salesOrder);
 
     result.fold(
       (failure) {
         emitSafeState(
-          state.copyWith(
-            isLoading: false,
-            palletCodes: [],
-            error: failure,
-          ),
+          state.copyWith(isLoading: false, palletCodes: [], error: failure),
         );
       },
       (codes) {
@@ -222,6 +212,7 @@ class CreateShutterCubit extends AppBaseCubit<CreateShutterState> {
       },
     );
   }
+
   Future<void> createDocument() async {
     final form = state.form;
 
@@ -229,9 +220,7 @@ class CreateShutterCubit extends AppBaseCubit<CreateShutterState> {
         form.salesOrder!.isEmpty ||
         form.palletCode == null ||
         form.palletCode!.isEmpty) {
-      _emitError(
-        const Pair('Please select Sales Order and Pallet Code', null),
-      );
+      _emitError(const Pair('Please select Sales Order and Pallet Code', null));
       return;
     }
     if (form.name != null && form.name!.isNotEmpty) return;
@@ -248,7 +237,13 @@ class CreateShutterCubit extends AppBaseCubit<CreateShutterState> {
         shouldAskForConfirmation.value = false;
         emitSafeState(
           state.copyWith(
-            form: form.copyWith(name: r.second, status: 'Draft',docStatus: 0),
+            form: form.copyWith(
+              name: r.second,
+              status: 'In Packing',
+              allocationStatus: 'Unallocated',
+              currentZone: '',
+              docStatus: 0,
+            ),
             isCreatingDoc: false,
             isModified: false,
             createSuccessMsg: '${r.first}\n${r.second}',
@@ -265,18 +260,18 @@ class CreateShutterCubit extends AppBaseCubit<CreateShutterState> {
       return;
     }
 
-  final selectedSalesOrder = state.form.salesOrder;
-  if (selectedSalesOrder != null &&
-      selectedSalesOrder.isNotEmpty &&
-      parsed.salesOrder != selectedSalesOrder) {
-    _emitError(
-      Pair(
-        'This item belongs to Sales Order ${parsed.salesOrder}, but the pallet is set to $selectedSalesOrder.',
-        null,
-      ),
-    );
-    return;
-  }
+    final selectedSalesOrder = state.form.salesOrder;
+    if (selectedSalesOrder != null &&
+        selectedSalesOrder.isNotEmpty &&
+        parsed.salesOrder != selectedSalesOrder) {
+      _emitError(
+        Pair(
+          'This item belongs to Sales Order ${parsed.salesOrder}, but the pallet is set to $selectedSalesOrder.',
+          null,
+        ),
+      );
+      return;
+    }
 
     final salesOrder = parsed.salesOrder;
     final itemIndex = parsed.itemIndex;
@@ -323,21 +318,20 @@ class CreateShutterCubit extends AppBaseCubit<CreateShutterState> {
       return;
     }
 
-    emitSafeState(state.copyWith(isLoading: true));
+    emitSafeState(state.copyWith(isProcessingScan: true));
 
     final result = await repo.fetchItems(salesOrder, itemIndex);
     await result.fold(
       (failure) async {
-        emitSafeState(state.copyWith(isLoading: false, error: failure));
+        emitSafeState(
+          state.copyWith(isProcessingScan: false, error: failure),
+        );
       },
       (items) async {
         if (items.isEmpty) {
-          emitSafeState(state.copyWith(isLoading: false));
+          emitSafeState(state.copyWith(isProcessingScan: false));
           _emitError(
-            Pair(
-              'No item found for SO: $salesOrder at index $itemIndex',
-              null,
-            ),
+            Pair('No item found for SO: $salesOrder at index $itemIndex', null),
           );
           return;
         }
@@ -357,7 +351,7 @@ class CreateShutterCubit extends AppBaseCubit<CreateShutterState> {
         emitSafeState(
           state.copyWith(
             lines: updated,
-            isLoading: false,
+            isProcessingScan: false,
             isModified: true,
             newLines: newItems,
           ),
@@ -366,90 +360,59 @@ class CreateShutterCubit extends AppBaseCubit<CreateShutterState> {
       },
     );
   }
+
   Future<void> _syncLineToServer() async {
-  if (_isSyncingLine) return;
-  _isSyncingLine = true;
+    if (_isSyncingLine) return;
+    _isSyncingLine = true;
 
-  try {
-    final form = state.form;
-    final docExists = form.name != null && form.name!.isNotEmpty;
+    try {
+      final form = state.form;
+      final docExists = form.name != null && form.name!.isNotEmpty;
 
-    if (!docExists) {
-      _emitError(
-        const Pair(
-          'Please save the Sales Order and Pallet Code before scanning items.',
-          null,
-        ),
-      );
-      return;
-    }
-
-    final pending = state.newLines;
-    final allItems = state.lines;
-    if (allItems.isEmpty) return;
-
-    final response = await repo.updateShutter(form, allItems);
-    response.fold(
-      (failure) {
-        final failedQrs = pending
-            .map((l) => l.shutterBarcodeQr)
-            .whereType<String>()
-            .toSet();
-
-        final rolledBackLines = state.lines
-            .where((l) => !failedQrs.contains(l.shutterBarcodeQr))
-            .toList();
-
-        emitSafeState(
-          state.copyWith(
-            lines: rolledBackLines,
-            newLines: [],
-            error: failure,
+      if (!docExists) {
+        _emitError(
+          const Pair(
+            'Please save the Sales Order and Pallet Code before scanning items.',
+            null,
           ),
         );
-      },
-      (_) {
-        emitSafeState(state.copyWith(newLines: []));
-      },
-    );
-  } finally {
-    _isSyncingLine = false;
+        return;
+      }
+
+      final pending = state.newLines;
+      final allItems = state.lines;
+      if (allItems.isEmpty) return;
+
+      final response = await repo.updateShutter(form, allItems);
+      response.fold(
+        (failure) {
+          final failedQrs =
+              pending
+                  .map((l) => l.shutterBarcodeQr)
+                  .whereType<String>()
+                  .toSet();
+
+          final rolledBackLines =
+              state.lines
+                  .where((l) => !failedQrs.contains(l.shutterBarcodeQr))
+                  .toList();
+
+          emitSafeState(
+            state.copyWith(
+              lines: rolledBackLines,
+              newLines: [],
+              error: failure,
+            ),
+          );
+        },
+        (_) {
+          emitSafeState(state.copyWith(newLines: []));
+        },
+      );
+    } finally {
+      _isSyncingLine = false;
+    }
   }
-}
-  // Future<void> _syncLineToServer() async {
-  //   if (_isSyncingLine) return;
-  //   _isSyncingLine = true;
-
-  //   try {
-  //     final form = state.form;
-  //     final docExists = form.name != null && form.name!.isNotEmpty;
-
-  //     if (!docExists) {
-  //       _emitError(
-  //         const Pair(
-  //           'Please save the Sales Order and Pallet Code before scanning items.',
-  //           null,
-  //         ),
-  //       );
-  //       return;
-  //     }
-
-  //     final pending = state.newLines;
-  //     if (pending.isEmpty) return;
-
-  //     final response = await repo.updateShutter(form, pending);
-  //     response.fold(
-  //       (failure) {
-  //         emitSafeState(state.copyWith(error: failure));
-  //       },
-  //       (_) {
-  //         emitSafeState(state.copyWith(newLines: []));
-  //       },
-  //     );
-  //   } finally {
-  //     _isSyncingLine = false;
-  //   }
-  // }
 
   void addLinePhotos(int index, List<String> localPaths) {
     final lines = [...state.lines];
@@ -481,13 +444,11 @@ class CreateShutterCubit extends AppBaseCubit<CreateShutterState> {
     final removed = state.lines[lineIndex];
     final updatedLines = [...state.lines]..removeAt(lineIndex);
 
-    // Keep newLines in sync so validation / submit logic sees the change.
     final updatedNewLines = [...state.newLines];
     final qr = removed.shutterBarcodeQr;
     if (qr != null && qr.isNotEmpty) {
       updatedNewLines.removeWhere((l) => l.shutterBarcodeQr == qr);
     } else {
-      // Fallback: best-effort by index.
       if (lineIndex >= 0 && lineIndex < updatedNewLines.length) {
         updatedNewLines.removeAt(lineIndex);
       }
@@ -520,11 +481,7 @@ class CreateShutterCubit extends AppBaseCubit<CreateShutterState> {
       },
       (_) {
         emitSafeState(
-          state.copyWith(
-            isLoading: false,
-            newLines: [],
-            isModified: false,
-          ),
+          state.copyWith(isLoading: false, newLines: [], isModified: false),
         );
       },
     );
@@ -544,11 +501,6 @@ class CreateShutterCubit extends AppBaseCubit<CreateShutterState> {
       final form = state.form;
       final isNew = form.name == null || form.name!.isEmpty;
       final isDraft = form.docStatus == null || form.docStatus == 0;
-      final status = switch (state.view) {
-        ShutterView.create => 'Draft',
-        ShutterView.edit => 'Draft',
-        ShutterView.completed => 'Submitted',
-      };
 
       if (isNew) {
         final response = await repo.createShutter(form, state.lines);
@@ -561,7 +513,13 @@ class CreateShutterCubit extends AppBaseCubit<CreateShutterState> {
               state.copyWith(
                 isLoading: false,
                 isSuccess: true,
-                form: form.copyWith(status: status, name: docstatus),
+                form: form.copyWith(
+                  status: 'In Packing',
+                  allocationStatus: 'Unallocated',
+                  currentZone: '',
+                  name: docstatus,
+                  docStatus: 0,
+                ),
                 successMsg: '${r.first}\n${r.second}',
                 view: ShutterView.edit,
                 isModified: false,
@@ -576,12 +534,15 @@ class CreateShutterCubit extends AppBaseCubit<CreateShutterState> {
           (l) => emitSafeState(state.copyWith(isLoading: false, error: l)),
           (r) {
             shouldAskForConfirmation.value = false;
-            final updatedName =
-                (r.second.isNotEmpty) ? r.second : form.name;
+            final updatedName = (r.second.isNotEmpty) ? r.second : form.name;
             emitSafeState(
               state.copyWith(
                 isLoading: false,
-                form: form.copyWith(status: status, name: updatedName),
+                form: form.copyWith(
+                  status: 'In Packing',
+                  allocationStatus: form.allocationStatus ?? 'Unallocated',
+                  name: updatedName,
+                ),
                 isSuccess: true,
                 successMsg: '${r.first}\n${updatedName ?? ''}',
                 isModified: false,
@@ -601,7 +562,11 @@ class CreateShutterCubit extends AppBaseCubit<CreateShutterState> {
               state.copyWith(
                 isLoading: false,
                 isSuccess: true,
-                form: form.copyWith(docStatus: 1),
+                form: form.copyWith(
+                  docStatus: 1,
+                  status: 'Frozen',
+                  allocationStatus: form.allocationStatus ?? 'Unallocated',
+                ),
                 successMsg: '${r.first}\n${r.second}',
                 view: ShutterView.completed,
                 isModified: false,
@@ -619,7 +584,9 @@ class CreateShutterCubit extends AppBaseCubit<CreateShutterState> {
       title: 'Missing Fields',
       status: error.second,
     );
-    emitSafeState(state.copyWith(error: failure, isLoading: false));
+    emitSafeState(
+      state.copyWith(error: failure, isLoading: false, isProcessingScan: false),
+    );
   }
 
   void errorHandled() {
@@ -627,6 +594,7 @@ class CreateShutterCubit extends AppBaseCubit<CreateShutterState> {
       state.copyWith(
         error: null,
         isLoading: false,
+        isProcessingScan: false,
         isSuccess: false,
         successMsg: null,
       ),
@@ -711,8 +679,7 @@ class CreateShutterCubit extends AppBaseCubit<CreateShutterState> {
     final isSubmit = state.view == ShutterView.edit && !state.isModified;
     if (form.salesOrder == null || form.salesOrder!.isEmpty) {
       return optionOf(const Pair('Sales Order is required', 0));
-    }
-    else if (form.palletCode == null || form.palletCode!.isEmpty) {
+    } else if (form.palletCode == null || form.palletCode!.isEmpty) {
       return optionOf(const Pair('Pallet Code is required', 0));
     }
 
@@ -739,6 +706,7 @@ class CreateShutterState with _$CreateShutterState {
     @Default(false) bool isFrozen,
     @Default(false) bool isPrinting,
     @Default(false) bool isCreatingDoc,
+    @Default(false) bool isProcessingScan,
     @Default([]) List<String> palletCodes,
     String? printSuccessMsg,
     String? freezeSuccessMsg,

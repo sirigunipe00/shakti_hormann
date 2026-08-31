@@ -22,13 +22,16 @@ class StorageRepoImp extends BaseApiRepository implements StorageRepo {
     String? search,
   ) async {
     final filters = <List<dynamic>>[];
+    final orFilters = <List<dynamic>>[];
 
     if (docStatus != null && docStatus != 2) {
       filters.add(['docstatus', '=', docStatus]);
     }
 
     if (search != null && search.isNotEmpty) {
-      filters.add(['name', 'like', '%$search%']);
+      orFilters
+        ..add(['name', 'like', '%$search%'])
+        ..add(['sales_order', 'like', '%$search%']);
     }
 
     final requestConfig = RequestConfig(
@@ -39,6 +42,7 @@ class StorageRepoImp extends BaseApiRepository implements StorageRepo {
       },
       reqParams: {
         'filters': jsonEncode(filters),
+        if (orFilters.isNotEmpty) 'or_filters': jsonEncode(orFilters),
         'limit_start': start,
         'limit_page_length': 'None',
         'order_by': 'creation desc',
@@ -55,8 +59,6 @@ class StorageRepoImp extends BaseApiRepository implements StorageRepo {
   }
   @override
   AsyncValueOf<Pair<String,String>> createStorage(Storage form) async {
-    final formJson = form.toJson();
-    formJson['status'] = ['Draft'];
      Uint8List? zonecompressedBytes;
 
     if (form.locationPhotoImg != null) {
@@ -70,13 +72,14 @@ class StorageRepoImp extends BaseApiRepository implements StorageRepo {
         form.locationPhoto ?? '',
       );
     }
+    final photo = zonecompressedBytes == null
+        ? null
+        : 'data:image/jpeg;base64,${base64Encode(zonecompressedBytes)}';
     final Map<String, dynamic> requestBody = {
       'pallet__box_qr_scan': form.palletBoxQr,
       'zone_qr': form.zoneQr,
-      'location_photo': zonecompressedBytes == null
-              ? null
-              : base64Encode(zonecompressedBytes),
-              };
+      'location_photo': photo,
+    };
     final config = RequestConfig(
       url: Urls.storageAllocation,
       parser: (json) {

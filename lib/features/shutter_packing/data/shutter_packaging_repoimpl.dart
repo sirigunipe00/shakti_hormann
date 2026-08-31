@@ -23,17 +23,32 @@ class ShutterPackingRepoImpl extends BaseApiRepository
   @override
   AsyncValueOf<List<ShutterPacking>> fetchShutterPacking(
     int start,
-    int? docStatus,
+    String? status,
     String? search,
   ) async {
     final filters = <List<dynamic>>[];
+    final orFilters = <List<dynamic>>[];
 
-    if (docStatus != null && docStatus != 2) {
-      filters.add(['docstatus', '=', docStatus]);
+    switch ((status ?? '').trim().toLowerCase()) {
+      case 'draft':
+        filters.add(['docstatus', '=', 0]);
+      case 'submitted':
+        filters.add(['docstatus', '=', 1]);
+      case 'unallocated':
+        filters.add(['allocation_status', '=', 'Unallocated']);
+      case 'allocated':
+        filters.add(['allocation_status', '=', 'Allocated']);
+      case 'all':
+      case '':
+        break;
+      default:
+        filters.add(['docstatus', '=', 0]);
     }
 
     if (search != null && search.isNotEmpty) {
-      filters.add(['name', 'like', '%$search%']);
+      orFilters
+        ..add(['name', 'like', '%$search%'])
+        ..add(['sales_order', 'like', '%$search%']);
     }
     final requestConfig = RequestConfig(
       url: Urls.getList,
@@ -43,6 +58,7 @@ class ShutterPackingRepoImpl extends BaseApiRepository
       },
       reqParams: {
         'filters': jsonEncode(filters),
+        if (orFilters.isNotEmpty) 'or_filters': jsonEncode(orFilters),
         'limit_start': start,
         'limit_page_length': 'None',
         'order_by': 'creation desc',
@@ -70,15 +86,10 @@ class ShutterPackingRepoImpl extends BaseApiRepository
           return listdata.map((e) => PalletSize.fromJson(e)).toList();
         },
         reqParams: {
-          // 'filters': [
-          //   ['sales_order', '=', name],
-          // ],
           'limit_start': 0,
           'limit_page_length': 'None',
           'oreder_by': 'creat desc',
           'doctype': 'Pallet Size',
-          // 'parent': 'Pallet',
-          // 'fields': ['*'],
         },
 
         headers: {HttpHeaders.contentTypeHeader: 'application/json'},
@@ -91,48 +102,73 @@ class ShutterPackingRepoImpl extends BaseApiRepository
       });
     });
   }
-   @override
-AsyncValueOf<List<PalletModel>> getSales() async {
-  return await executeSafely(() async {
-    final reqParams = {
-      'limit_start': 0,
-      'limit_page_length': 'None',
-      'order_by': 'creation desc',
-      'doctype': 'Pallet',
-      'fields': jsonEncode(['sales_order']), 
-    };
 
-    final config = RequestConfig(
-      url: Urls.getList,
-      parser: (json) {
-        final data = json['message'] as List<dynamic>;
+  @override
+  AsyncValueOf<List<PalletModel>> getSales({
+    String q = '',
+    int limit = 50,
+    int offset = 0,
+  }) async {
+    return await executeSafely(() async {
+      final requestBody = <String, dynamic>{
+        'product_type': 'Shutter',
+        'q': q,
+        'limit': limit,
+        'offset': offset,
+      };
 
-        final seenSalesOrders = <String>{};
-        final uniqueList = <PalletModel>[];
+      final config = RequestConfig(
+        url: Urls.getPackingSalesOrders,
+        parser: (json) => _parsePackingSalesOrders(json),
+        body: jsonEncode(requestBody),
+        headers: {HttpHeaders.contentTypeHeader: 'application/json'},
+      );
 
-        for (final item in data) {
-          final model = PalletModel.fromJson(item as Map<String, dynamic>);
-          final salesOrder = model.salesOrder?.trim();
-
-          if (salesOrder != null && salesOrder.isNotEmpty && !seenSalesOrders.contains(salesOrder)) {
-            seenSalesOrders.add(salesOrder);
-            uniqueList.add(model);
-          }
-        }
-
-        return uniqueList;
-      },
-      reqParams: reqParams,
-      headers: {HttpHeaders.contentTypeHeader: 'application/json'},
-    );
-
-    $logger.devLog('salesinvoice.....$config');
-    final response = await get(config);
-    return response.processAsync((r) async {
-      return right(r.data!);
+      $logger.devLog('get_packing_sales_orders.....$config');
+      final response = await post(config);
+      return response.processAsync((r) async {
+        return right(r.data!);
+      });
     });
-  });
-}
+  }
+
+  List<PalletModel> _parsePackingSalesOrders(Map<String, dynamic> json) {
+    final message = json['message'];
+    List<dynamic> raw = const [];
+
+    if (message is List) {
+      raw = message;
+    } else if (message is Map<String, dynamic>) {
+      final data = message['data'];
+      if (data is List) {
+        raw = data;
+      } else if (data is Map<String, dynamic>) {
+        raw = (data['orders'] as List?) ??
+            (data['sales_orders'] as List?) ??
+            (data['data'] as List?) ??
+            const [];
+      }
+    }
+
+    final seen = <String>{};
+    final out = <PalletModel>[];
+    for (final item in raw) {
+      if (item is! Map) continue;
+      final map = Map<String, dynamic>.from(item);
+      final so = (map['sales_order'] ?? map['name'] ?? '').toString().trim();
+      if (so.isEmpty || seen.contains(so)) continue;
+      seen.add(so);
+      out.add(
+        PalletModel(
+          salesOrder: so,
+          name: so,
+          customerName: map['customer_name'] as String?,
+          orderDate: map['order_date'] as String?,
+        ),
+      );
+    }
+    return out;
+  }
 
   @override
   AsyncValueOf<List<Items>> fetchItems(String itemName, String index) async {
@@ -184,100 +220,59 @@ AsyncValueOf<List<PalletModel>> getSales() async {
     return response.process((r) => right(r.data!));
   }
 
-@override
-AsyncValueOf<String> printShutterSticker(String shutterPackingId) async {
-  final Map<String, dynamic> requestBody = {
-    'docname': shutterPackingId,
-  };
+  @override
+  AsyncValueOf<String> printShutterSticker(String shutterPackingId) async {
+    final Map<String, dynamic> requestBody = {'docname': shutterPackingId};
 
-  final config = RequestConfig(
-    url: Urls.printShutterSticker,
-    parser: (json) {
-      final message = json['message'] as Map<String, dynamic>;
-      final status = message['status'] as int?;
-      final text = message['message'] as String? ?? 'Unknown error';
-      if (status != null && status >= 300) {
-        throw Failure(error: text, title: 'Print Failed', status: status);
-      }
+    final config = RequestConfig(
+      url: Urls.printShutterSticker,
+      parser: (json) {
+        final message = json['message'] as Map<String, dynamic>;
+        final status = message['status'] as int?;
+        final text = message['message'] as String? ?? 'Unknown error';
+        if (status != null && status >= 300) {
+          throw Failure(error: text, title: 'Print Failed', status: status);
+        }
 
-      return text;
-    },
-    body: jsonEncode(requestBody),
-    headers: {HttpHeaders.contentTypeHeader: 'application/json'},
-  );
+        return text;
+      },
+      body: jsonEncode(requestBody),
+      headers: {HttpHeaders.contentTypeHeader: 'application/json'},
+    );
 
-  $logger.devLog('printShutterSticker requestConfig.....$config');
+    $logger.devLog('printShutterSticker requestConfig.....$config');
 
-  final response = await post(config);
-  $logger.devLog('response.......$response');
-  return response.processAsync((r) async {
-    return right(r.data!);
-  });
-}
-@override
-AsyncValueOf<List<String>> getShutterPalletCode(String salesOrder) async {
-  final config = RequestConfig(
-    url: Urls.getPalletCode,
-    reqParams: {
-      'sales_order': salesOrder,
-      'product_type': 'Shutter',
-    },
-    parser: (json) {
-      final data = json['message']['data'];
-      if (data is! List) return <String>[];
+    final response = await post(config);
+    $logger.devLog('response.......$response');
+    return response.processAsync((r) async {
+      return right(r.data!);
+    });
+  }
 
-      return data
-          .whereType<Map>()
-          .map((e) => e['pallet_code']?.toString() ?? '')
-          .where((code) => code.isNotEmpty)
-          .toList();
-    },
-    headers: {
-      HttpHeaders.contentTypeHeader: 'application/json',
-    },
-  );
+  @override
+  AsyncValueOf<List<String>> getShutterPalletCode(String salesOrder) async {
+    final config = RequestConfig(
+      url: Urls.getPalletCode,
+      reqParams: {'sales_order': salesOrder, 'product_type': 'Shutter'},
+      parser: (json) {
+        final data = json['message']['data'];
+        if (data is! List) return <String>[];
 
-  final response = await get(config);
+        return data
+            .whereType<Map>()
+            .map((e) => e['pallet_code']?.toString() ?? '')
+            .where((code) => code.isNotEmpty)
+            .toList();
+      },
+      headers: {HttpHeaders.contentTypeHeader: 'application/json'},
+    );
 
-  return response.processAsync((r) async => right(r.data!));
-}
-  // @override
-  // AsyncValueOf<Pair<String, String>> createShutter(
-  //   ShutterPacking form,
-  //   List<ShutterLines> lines,
-  // ) async {
-  //   final formJson = form.toJson();
-  //   formJson['status'] = 'Draft';
+    final response = await get(config);
 
-  //   final Map<String, dynamic> requestBody = {
-  //     'sales_order': form.salesOrder,
-  //     'pallet_code': form.palletCode,
-  //     'items': lines,
-  //   };
+    return response.processAsync((r) async => right(r.data!));
+  }
 
-  //   final config = RequestConfig(
-  //     url: Urls.createShutter,
-  //     parser: (json) {
-  //       final message = json['message']['message'] as String;
-
-  //       final data = json['message']['data'] as Map<String, dynamic>;
-
-  //       final docNo = data['shutter_packing_id'] as String;
-
-  //       return Pair(message, docNo);
-  //     },
-  //     body: jsonEncode(requestBody),
-  //     headers: {HttpHeaders.contentTypeHeader: 'application/json'},
-  //   );
-
-  //   $logger.devLog('requestConfig.....$config');
-
-  //   final response = await post(config);
-  //   return response.processAsync((r) async {
-  //     return right(Pair(r.data!.first, r.data!.second));
-  //   });
-  // }
-    @override
+  @override
   AsyncValueOf<List<AttachementInvoices>> fetchAttachments(
     String gateEntryId,
   ) async {
@@ -285,7 +280,6 @@ AsyncValueOf<List<String>> getShutterPalletCode(String salesOrder) async {
       final filters = [
         ['attached_to_doctype', '=', 'Shutter Packing'],
         ['attached_to_name', '=', gateEntryId],
-        // ['attached_to_field', '=', 'vendor_invoice_photo'],
       ];
 
       final config = RequestConfig(
@@ -311,166 +305,93 @@ AsyncValueOf<List<String>> getShutterPalletCode(String salesOrder) async {
       return response.process((r) => right(r.data!));
     });
   }
-@override
-AsyncValueOf<Pair<String, String>> createShutter(
-  ShutterPacking form,
-  List<ShutterLines> lines,
-) async {
-  final itemsJson = <Map<String, dynamic>>[];
 
-  for (final line in lines) {
-    List<String>? shutterPhotoBase64List;
-    final images = line.shutterPhotoImg;
-    
-    if (images != null && images.isNotEmpty) {
-      shutterPhotoBase64List = [];
-      for (final file in images) {
-        if (!file.existsSync()) continue;
-        
-        // Downscale target width/height and lower quality to prevent RAM bloat
-        final compressed = await FlutterImageCompress.compressWithFile(
-          file.path,
-          minWidth: 1024,
-          minHeight: 1024,
-          quality: 40,
-        );
-        
-        if (compressed != null) {
-          shutterPhotoBase64List.add(base64Encode(compressed));
-        }
-      }
+  @override
+  AsyncValueOf<Pair<String, String>> createShutter(
+    ShutterPacking form,
+    List<ShutterLines> lines,
+  ) async {
+    final requestBody = <String, dynamic>{
+      'sales_order': form.salesOrder,
+      'pallet_code': form.palletCode,
+    };
+    if (form.remarks != null && form.remarks!.trim().isNotEmpty) {
+      requestBody['remarks'] = form.remarks;
     }
 
-    final json = line.toJson();
-    json['shutter_photo'] = shutterPhotoBase64List;
-    itemsJson.add(json);
+    final config = RequestConfig(
+      url: Urls.createShutter,
+      parser: (json) {
+        final message = json['message']['message'] as String;
+        final data = json['message']['data'] as Map<String, dynamic>;
+        final docNo = data['shutter_packing_id'] as String;
+        return Pair(message, docNo);
+      },
+      body: jsonEncode(requestBody),
+      headers: {HttpHeaders.contentTypeHeader: 'application/json'},
+    );
+
+    $logger.devLog('requestConfig.....$config');
+
+    final response = await post(config);
+    return response.processAsync((r) async {
+      return right(Pair(r.data!.first, r.data!.second));
+    });
   }
 
-  final Map<String, dynamic> requestBody = {
-    'sales_order': form.salesOrder,
-    'pallet_code': form.palletCode,
-    'items': itemsJson, 
-  };
+  @override
+  AsyncValueOf<Pair<String, String>> updateShutter(
+    ShutterPacking form,
+    List<ShutterLines> lines,
+  ) async {
+    final itemsJson = <Map<String, dynamic>>[];
 
-  final config = RequestConfig(
-    url: Urls.createShutter,
-    parser: (json) {
-      final message = json['message']['message'] as String;
-      final data = json['message']['data'] as Map<String, dynamic>;
-      final docNo = data['shutter_packing_id'] as String;
-      return Pair(message, docNo);
-    },
-    body: jsonEncode(requestBody),
-    headers: {HttpHeaders.contentTypeHeader: 'application/json'},
-  );
+    for (final line in lines) {
+      List<String>? shutterPhotoBase64List;
 
-  $logger.devLog('requestConfig.....$config');
-
-  final response = await post(config);
-  return response.processAsync((r) async {
-    return right(Pair(r.data!.first, r.data!.second));
-  });
-}
-  // @override
-  // AsyncValueOf<Pair<String, String>> updateShutter(
-  //   ShutterPacking form,
-  //   List<ShutterLines> lines,
-  // ) async {
-  //   final formJson = form.toJson();
-  //   formJson['status'] = 'Draft';
-  //   final itemsJson = <Map<String, dynamic>>[];
-
-  //   for (final line in lines) {
-  //     String? shutterPhotoBase64;
-
-  //     if (line.shutterPhotoImg != null) {
-  //       final compressed = await FlutterImageCompress.compressWithFile(
-  //         line.shutterPhotoImg!.path,
-  //         quality: 50,
-  //       );
-
-  //       if (compressed != null) {
-  //         shutterPhotoBase64 = base64Encode(compressed);
-  //       }
-  //     }
-
-  //     final json = line.toJson();
-
-  //     json['shutter_photo'] = shutterPhotoBase64;
-
-  //     itemsJson.add(json);
-  //   }
-
-  //   final requestBody = {'shutter_packing_id': form.name, 'items': itemsJson};
-  //   final config = RequestConfig(
-  //     url: Urls.updateShutter,
-  //     parser: (json) {
-  //       final data = json['message']['message'] as String;
-
-  //       return Pair(data, '');
-  //     },
-
-  //     body: jsonEncode(requestBody),
-  //     headers: {HttpHeaders.contentTypeHeader: 'application/json'},
-  //   );
-
-  //   $logger.devLog('requestConfig.....$config');
-
-  //   final response = await post(config);
-  //   return response.processAsync((r) async {
-  //     return right(Pair(r.data!.first, r.data!.second));
-  //   });
-  // }
-@override
-AsyncValueOf<Pair<String, String>> updateShutter(
-  ShutterPacking form,
-  List<ShutterLines> lines,
-) async {
-  final formJson = form.toJson();
-  formJson['status'] = 'Draft';
-  final itemsJson = <Map<String, dynamic>>[];
-
-  for (final line in lines) {
-    List<String>? shutterPhotoBase64List;
-
-    final images = line.shutterPhotoImg;
-    if (images != null && images.isNotEmpty) {
-      shutterPhotoBase64List = [];
-      for (final file in images) {
-        final compressed = await FlutterImageCompress.compressWithFile(
-          file.path,
-          quality: 50,
-        );
-        if (compressed != null) {
-          shutterPhotoBase64List.add(base64Encode(compressed));
+      final images = line.shutterPhotoImg;
+      if (images != null && images.isNotEmpty) {
+        shutterPhotoBase64List = [];
+        for (final file in images) {
+          final compressed = await FlutterImageCompress.compressWithFile(
+            file.path,
+            quality: 50,
+          );
+          if (compressed != null) {
+            shutterPhotoBase64List.add(base64Encode(compressed));
+          }
         }
       }
+
+      final item = <String, dynamic>{
+        'shutter_barcode__qr': line.shutterBarcodeQr,
+        'item_code': line.itemCode,
+        'sales_order': line.salesOrder ?? form.salesOrder,
+      };
+      if (shutterPhotoBase64List != null && shutterPhotoBase64List.isNotEmpty) {
+        item['shutter_photo'] = shutterPhotoBase64List;
+      }
+      itemsJson.add(item);
     }
 
-    final json = line.toJson();
-    json['shutter_photo'] = shutterPhotoBase64List;
+    final requestBody = {'shutter_packing_id': form.name, 'items': itemsJson};
+    final config = RequestConfig(
+      url: Urls.updateShutter,
+      parser: (json) {
+        final data = json['message']['message'] as String;
+        return Pair(data, form.name ?? '');
+      },
+      body: jsonEncode(requestBody),
+      headers: {HttpHeaders.contentTypeHeader: 'application/json'},
+    );
 
-    itemsJson.add(json);
+    $logger.devLog('requestConfig.....$config');
+
+    final response = await post(config);
+    return response.processAsync((r) async {
+      return right(Pair(r.data!.first, r.data!.second));
+    });
   }
-
-  final requestBody = {'shutter_packing_id': form.name, 'items': itemsJson};
-  final config = RequestConfig(
-    url: Urls.updateShutter,
-    parser: (json) {
-      final data = json['message']['message'] as String;
-      return Pair(data, form.name ?? '');
-    },
-    body: jsonEncode(requestBody),
-    headers: {HttpHeaders.contentTypeHeader: 'application/json'},
-  );
-
-  $logger.devLog('requestConfig.....$config');
-
-  final response = await post(config);
-  return response.processAsync((r) async {
-    return right(Pair(r.data!.first, r.data!.second));
-  });
-}
 
   @override
   AsyncValueOf<Pair<String, String>> freezeShutter(
@@ -490,11 +411,7 @@ AsyncValueOf<Pair<String, String>> updateShutter(
           final status = message['status'] as int?;
           final text = message['message'] as String? ?? 'Freeze failed';
           if (ok == false || (status != null && status >= 300)) {
-            throw Failure(
-              error: text,
-              title: 'Freeze Failed',
-              status: status,
-            );
+            throw Failure(error: text, title: 'Freeze Failed', status: status);
           }
           return Pair(text, shutterPackingId);
         }
@@ -530,17 +447,14 @@ AsyncValueOf<Pair<String, String>> updateShutter(
       final config = RequestConfig(
         url: Urls.submitShutter,
         parser: (json) {
-          return Pair(
-            json['message']['message'] as String,
-            ''
-          );
+          return Pair(json['message']['message'] as String, '');
         },
         body: jsonEncode({
           'shutter_packing_id': form.name,
           'pallet_photo':
               palletcompressedBytes == null
                   ? null
-                  : base64Encode(palletcompressedBytes),
+                  : 'data:image/jpeg;base64,${base64Encode(palletcompressedBytes)}',
         }),
         headers: {HttpHeaders.contentTypeHeader: 'application/json'},
       );

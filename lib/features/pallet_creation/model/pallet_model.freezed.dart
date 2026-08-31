@@ -38,6 +38,10 @@ mixin _$PalletModel {
   int? get idx => throw _privateConstructorUsedError;
   @JsonKey(name: 'sales_order')
   String? get salesOrder => throw _privateConstructorUsedError;
+  @JsonKey(name: 'customer_name')
+  String? get customerName => throw _privateConstructorUsedError;
+  @JsonKey(name: 'order_date')
+  String? get orderDate => throw _privateConstructorUsedError;
   @JsonKey(name: 'no_of_pallets')
   int? get noofPallets => throw _privateConstructorUsedError;
 
@@ -68,6 +72,8 @@ abstract class $PalletModelCopyWith<$Res> {
     @JsonKey(name: 'modified_by') String? modifiedBy,
     @JsonKey(name: 'idx') int? idx,
     @JsonKey(name: 'sales_order') String? salesOrder,
+    @JsonKey(name: 'customer_name') String? customerName,
+    @JsonKey(name: 'order_date') String? orderDate,
     @JsonKey(name: 'no_of_pallets') int? noofPallets,
   });
 }
@@ -96,6 +102,8 @@ class _$PalletModelCopyWithImpl<$Res, $Val extends PalletModel>
     Object? modifiedBy = freezed,
     Object? idx = freezed,
     Object? salesOrder = freezed,
+    Object? customerName = freezed,
+    Object? orderDate = freezed,
     Object? noofPallets = freezed,
   }) {
     return _then(
@@ -145,6 +153,16 @@ class _$PalletModelCopyWithImpl<$Res, $Val extends PalletModel>
                     ? _value.salesOrder
                     : salesOrder // ignore: cast_nullable_to_non_nullable
                         as String?,
+            customerName:
+                freezed == customerName
+                    ? _value.customerName
+                    : customerName // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            orderDate:
+                freezed == orderDate
+                    ? _value.orderDate
+                    : orderDate // ignore: cast_nullable_to_non_nullable
+                        as String?,
             noofPallets:
                 freezed == noofPallets
                     ? _value.noofPallets
@@ -175,6 +193,8 @@ abstract class _$$PalletModelImplCopyWith<$Res>
     @JsonKey(name: 'modified_by') String? modifiedBy,
     @JsonKey(name: 'idx') int? idx,
     @JsonKey(name: 'sales_order') String? salesOrder,
+    @JsonKey(name: 'customer_name') String? customerName,
+    @JsonKey(name: 'order_date') String? orderDate,
     @JsonKey(name: 'no_of_pallets') int? noofPallets,
   });
 }
@@ -202,6 +222,8 @@ class __$$PalletModelImplCopyWithImpl<$Res>
     Object? modifiedBy = freezed,
     Object? idx = freezed,
     Object? salesOrder = freezed,
+    Object? customerName = freezed,
+    Object? orderDate = freezed,
     Object? noofPallets = freezed,
   }) {
     return _then(
@@ -251,6 +273,16 @@ class __$$PalletModelImplCopyWithImpl<$Res>
                 ? _value.salesOrder
                 : salesOrder // ignore: cast_nullable_to_non_nullable
                     as String?,
+        customerName:
+            freezed == customerName
+                ? _value.customerName
+                : customerName // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        orderDate:
+            freezed == orderDate
+                ? _value.orderDate
+                : orderDate // ignore: cast_nullable_to_non_nullable
+                    as String?,
         noofPallets:
             freezed == noofPallets
                 ? _value.noofPallets
@@ -274,6 +306,8 @@ class _$PalletModelImpl implements _PalletModel {
     @JsonKey(name: 'modified_by') this.modifiedBy,
     @JsonKey(name: 'idx') this.idx,
     @JsonKey(name: 'sales_order') this.salesOrder,
+    @JsonKey(name: 'customer_name') this.customerName,
+    @JsonKey(name: 'order_date') this.orderDate,
     @JsonKey(name: 'no_of_pallets') this.noofPallets,
   });
 
@@ -307,12 +341,18 @@ class _$PalletModelImpl implements _PalletModel {
   @JsonKey(name: 'sales_order')
   final String? salesOrder;
   @override
+  @JsonKey(name: 'customer_name')
+  final String? customerName;
+  @override
+  @JsonKey(name: 'order_date')
+  final String? orderDate;
+  @override
   @JsonKey(name: 'no_of_pallets')
   final int? noofPallets;
 
   @override
   String toString() {
-    return 'PalletModel(status: $status, name: $name, owner: $owner, creationDate: $creationDate, docStatus: $docStatus, modifiedDate: $modifiedDate, modifiedBy: $modifiedBy, idx: $idx, salesOrder: $salesOrder, noofPallets: $noofPallets)';
+    return 'PalletModel(status: $status, name: $name, owner: $owner, creationDate: $creationDate, docStatus: $docStatus, modifiedDate: $modifiedDate, modifiedBy: $modifiedBy, idx: $idx, salesOrder: $salesOrder, customerName: $customerName, orderDate: $orderDate, noofPallets: $noofPallets)';
   }
 
   @override
@@ -334,6 +374,10 @@ class _$PalletModelImpl implements _PalletModel {
             (identical(other.idx, idx) || other.idx == idx) &&
             (identical(other.salesOrder, salesOrder) ||
                 other.salesOrder == salesOrder) &&
+            (identical(other.customerName, customerName) ||
+                other.customerName == customerName) &&
+            (identical(other.orderDate, orderDate) ||
+                other.orderDate == orderDate) &&
             (identical(other.noofPallets, noofPallets) ||
                 other.noofPallets == noofPallets));
   }
@@ -351,6 +395,8 @@ class _$PalletModelImpl implements _PalletModel {
     modifiedBy,
     idx,
     salesOrder,
+    customerName,
+    orderDate,
     noofPallets,
   );
 
@@ -379,6 +425,8 @@ abstract class _PalletModel implements PalletModel {
     @JsonKey(name: 'modified_by') final String? modifiedBy,
     @JsonKey(name: 'idx') final int? idx,
     @JsonKey(name: 'sales_order') final String? salesOrder,
+    @JsonKey(name: 'customer_name') final String? customerName,
+    @JsonKey(name: 'order_date') final String? orderDate,
     @JsonKey(name: 'no_of_pallets') final int? noofPallets,
   }) = _$PalletModelImpl;
 
@@ -411,6 +459,12 @@ abstract class _PalletModel implements PalletModel {
   @override
   @JsonKey(name: 'sales_order')
   String? get salesOrder;
+  @override
+  @JsonKey(name: 'customer_name')
+  String? get customerName;
+  @override
+  @JsonKey(name: 'order_date')
+  String? get orderDate;
   @override
   @JsonKey(name: 'no_of_pallets')
   int? get noofPallets;

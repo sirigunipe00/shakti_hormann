@@ -46,7 +46,7 @@ class _FrameListScrnState extends State<FrameListScrn> {
           final filters = context.read<FrameFliterCubit>().state;
 
           return context.cubit<FrameCubit>().fetchInitial(
-            Pair(StringUtils.docStatusInt(filters.status), filters.query),
+            Pair(filters.status, filters.query),
           );
         },
         child: BlocListener<FrameFliterCubit, PageViewFilters>(
@@ -77,13 +77,13 @@ class _FrameListScrnState extends State<FrameListScrn> {
   void _fetchInital(BuildContext context) {
     final filters = context.read<FrameFliterCubit>().state;
     context.cubit<FrameCubit>().fetchInitial(
-        Pair(StringUtils.docStatusInt(filters.status), filters.query));
+        Pair(filters.status, filters.query));
   }
 
   void fetchMore(BuildContext context) {
     final filters = context.read<FrameFliterCubit>().state;
 
     context.cubit<FrameCubit>().fetchMore(
-        Pair(StringUtils.docStatusInt(filters.status), filters.query));
+        Pair(filters.status, filters.query));
   }
 }

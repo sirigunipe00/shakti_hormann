@@ -25,6 +25,15 @@ class VisionPanelEntryLines with _$VisionPanelEntryLines {
     @JsonKey(name: 'box_code') String? boxCode,
      int? itemIndex,
     @JsonKey(name: 'image') String? image,
+    /// Per-box warehouse status (server-only). Unallocated / Allocated / Dispatched.
+    @JsonKey(
+      name: 'allocation_status',
+      includeFromJson: true,
+      includeToJson: false,
+    )
+    String? allocationStatus,
+    @JsonKey(name: 'current_zone', includeFromJson: true, includeToJson: false)
+    String? currentZone,
      @JsonKey(
         includeFromJson: true,
         includeToJson: false,

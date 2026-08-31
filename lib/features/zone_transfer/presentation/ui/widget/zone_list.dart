@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shakti_hormann/app/presentation/widgets/app_page_view2.dart';
 import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/core/model/page_view_filters.dart';
-import 'package:shakti_hormann/features/frame_packing/presentation/bloc/bloc_provider.dart';
 import 'package:shakti_hormann/features/storage_allocation/model/storage.dart';
 import 'package:shakti_hormann/features/zone_transfer/presentation/bloc/bloc_provider.dart';
 import 'package:shakti_hormann/features/zone_transfer/presentation/bloc/zone_filter_cubit.dart';
@@ -46,7 +45,7 @@ class _ZoneListScrnState extends State<ZoneListScrn> {
         onRefresh: () {
           final filters = context.read<ZoneFilterCubit>().state;
 
-          return context.cubit<FrameCubit>().fetchInitial(
+          return context.cubit<ZoneCubit>().fetchInitial(
             Pair(StringUtils.docStatusInt(filters.status), filters.query),
           );
         },

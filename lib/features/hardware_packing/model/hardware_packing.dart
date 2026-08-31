@@ -9,6 +9,15 @@ part 'hardware_packing.g.dart';
 class HardwarePacking with _$HardwarePacking {
   const factory HardwarePacking({
     String? status,
+    /// Header = Box 1 MES warehouse status (server-only).
+    @JsonKey(
+      name: 'allocation_status',
+      includeFromJson: true,
+      includeToJson: false,
+    )
+    String? allocationStatus,
+    @JsonKey(name: 'current_zone', includeFromJson: true, includeToJson: false)
+    String? currentZone,
     @JsonKey(name: 'name') String? name,
     @JsonKey(name: 'owner') String? owner,
     @JsonKey(name: 'creation') String? creation,

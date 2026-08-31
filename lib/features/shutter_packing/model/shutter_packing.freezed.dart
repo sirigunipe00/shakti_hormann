@@ -22,6 +22,16 @@ ShutterPacking _$ShutterPackingFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$ShutterPacking {
   String? get status => throw _privateConstructorUsedError;
+
+  /// Unallocated / Allocated / Dispatched (warehouse allocation lifecycle).
+  @JsonKey(
+    name: 'allocation_status',
+    includeFromJson: true,
+    includeToJson: false,
+  )
+  String? get allocationStatus => throw _privateConstructorUsedError;
+  @JsonKey(name: 'current_zone', includeFromJson: true, includeToJson: false)
+  String? get currentZone => throw _privateConstructorUsedError;
   @JsonKey(name: 'name')
   String? get name => throw _privateConstructorUsedError;
   @JsonKey(name: 'owner')
@@ -91,6 +101,14 @@ abstract class $ShutterPackingCopyWith<$Res> {
   @useResult
   $Res call({
     String? status,
+    @JsonKey(
+      name: 'allocation_status',
+      includeFromJson: true,
+      includeToJson: false,
+    )
+    String? allocationStatus,
+    @JsonKey(name: 'current_zone', includeFromJson: true, includeToJson: false)
+    String? currentZone,
     @JsonKey(name: 'name') String? name,
     @JsonKey(name: 'owner') String? owner,
     @JsonKey(name: 'creation') String? creation,
@@ -139,6 +157,8 @@ class _$ShutterPackingCopyWithImpl<$Res, $Val extends ShutterPacking>
   @override
   $Res call({
     Object? status = freezed,
+    Object? allocationStatus = freezed,
+    Object? currentZone = freezed,
     Object? name = freezed,
     Object? owner = freezed,
     Object? creation = freezed,
@@ -168,6 +188,16 @@ class _$ShutterPackingCopyWithImpl<$Res, $Val extends ShutterPacking>
                 freezed == status
                     ? _value.status
                     : status // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            allocationStatus:
+                freezed == allocationStatus
+                    ? _value.allocationStatus
+                    : allocationStatus // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            currentZone:
+                freezed == currentZone
+                    ? _value.currentZone
+                    : currentZone // ignore: cast_nullable_to_non_nullable
                         as String?,
             name:
                 freezed == name
@@ -296,6 +326,14 @@ abstract class _$$ShutterPackingImplCopyWith<$Res>
   @useResult
   $Res call({
     String? status,
+    @JsonKey(
+      name: 'allocation_status',
+      includeFromJson: true,
+      includeToJson: false,
+    )
+    String? allocationStatus,
+    @JsonKey(name: 'current_zone', includeFromJson: true, includeToJson: false)
+    String? currentZone,
     @JsonKey(name: 'name') String? name,
     @JsonKey(name: 'owner') String? owner,
     @JsonKey(name: 'creation') String? creation,
@@ -343,6 +381,8 @@ class __$$ShutterPackingImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? status = freezed,
+    Object? allocationStatus = freezed,
+    Object? currentZone = freezed,
     Object? name = freezed,
     Object? owner = freezed,
     Object? creation = freezed,
@@ -372,6 +412,16 @@ class __$$ShutterPackingImplCopyWithImpl<$Res>
             freezed == status
                 ? _value.status
                 : status // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        allocationStatus:
+            freezed == allocationStatus
+                ? _value.allocationStatus
+                : allocationStatus // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        currentZone:
+            freezed == currentZone
+                ? _value.currentZone
+                : currentZone // ignore: cast_nullable_to_non_nullable
                     as String?,
         name:
             freezed == name
@@ -493,6 +543,14 @@ class __$$ShutterPackingImplCopyWithImpl<$Res>
 class _$ShutterPackingImpl implements _ShutterPacking {
   const _$ShutterPackingImpl({
     this.status,
+    @JsonKey(
+      name: 'allocation_status',
+      includeFromJson: true,
+      includeToJson: false,
+    )
+    this.allocationStatus,
+    @JsonKey(name: 'current_zone', includeFromJson: true, includeToJson: false)
+    this.currentZone,
     @JsonKey(name: 'name') this.name,
     @JsonKey(name: 'owner') this.owner,
     @JsonKey(name: 'creation') this.creation,
@@ -529,6 +587,18 @@ class _$ShutterPackingImpl implements _ShutterPacking {
 
   @override
   final String? status;
+
+  /// Unallocated / Allocated / Dispatched (warehouse allocation lifecycle).
+  @override
+  @JsonKey(
+    name: 'allocation_status',
+    includeFromJson: true,
+    includeToJson: false,
+  )
+  final String? allocationStatus;
+  @override
+  @JsonKey(name: 'current_zone', includeFromJson: true, includeToJson: false)
+  final String? currentZone;
   @override
   @JsonKey(name: 'name')
   final String? name;
@@ -608,7 +678,7 @@ class _$ShutterPackingImpl implements _ShutterPacking {
 
   @override
   String toString() {
-    return 'ShutterPacking(status: $status, name: $name, owner: $owner, creation: $creation, modified: $modified, modifiedBy: $modifiedBy, docStatus: $docStatus, idx: $idx, packingDate: $packingDate, shift: $shift, operator: $operator, palletNo: $palletNo, palletCode: $palletCode, freezeQuantity: $freezeQuantity, salesOrder: $salesOrder, palletPhoto: $palletPhoto, palletPhotoImg: $palletPhotoImg, totalShuttersOnPallet: $totalShuttersOnPallet, totalBoxesOnPallet: $totalBoxesOnPallet, palletQrPrinted: $palletQrPrinted, remarks: $remarks, amendedFrom: $amendedFrom, deletedLines: $deletedLines)';
+    return 'ShutterPacking(status: $status, allocationStatus: $allocationStatus, currentZone: $currentZone, name: $name, owner: $owner, creation: $creation, modified: $modified, modifiedBy: $modifiedBy, docStatus: $docStatus, idx: $idx, packingDate: $packingDate, shift: $shift, operator: $operator, palletNo: $palletNo, palletCode: $palletCode, freezeQuantity: $freezeQuantity, salesOrder: $salesOrder, palletPhoto: $palletPhoto, palletPhotoImg: $palletPhotoImg, totalShuttersOnPallet: $totalShuttersOnPallet, totalBoxesOnPallet: $totalBoxesOnPallet, palletQrPrinted: $palletQrPrinted, remarks: $remarks, amendedFrom: $amendedFrom, deletedLines: $deletedLines)';
   }
 
   @override
@@ -617,6 +687,10 @@ class _$ShutterPackingImpl implements _ShutterPacking {
         (other.runtimeType == runtimeType &&
             other is _$ShutterPackingImpl &&
             (identical(other.status, status) || other.status == status) &&
+            (identical(other.allocationStatus, allocationStatus) ||
+                other.allocationStatus == allocationStatus) &&
+            (identical(other.currentZone, currentZone) ||
+                other.currentZone == currentZone) &&
             (identical(other.name, name) || other.name == name) &&
             (identical(other.owner, owner) || other.owner == owner) &&
             (identical(other.creation, creation) ||
@@ -665,6 +739,8 @@ class _$ShutterPackingImpl implements _ShutterPacking {
   int get hashCode => Object.hashAll([
     runtimeType,
     status,
+    allocationStatus,
+    currentZone,
     name,
     owner,
     creation,
@@ -709,6 +785,14 @@ class _$ShutterPackingImpl implements _ShutterPacking {
 abstract class _ShutterPacking implements ShutterPacking {
   const factory _ShutterPacking({
     final String? status,
+    @JsonKey(
+      name: 'allocation_status',
+      includeFromJson: true,
+      includeToJson: false,
+    )
+    final String? allocationStatus,
+    @JsonKey(name: 'current_zone', includeFromJson: true, includeToJson: false)
+    final String? currentZone,
     @JsonKey(name: 'name') final String? name,
     @JsonKey(name: 'owner') final String? owner,
     @JsonKey(name: 'creation') final String? creation,
@@ -745,6 +829,18 @@ abstract class _ShutterPacking implements ShutterPacking {
 
   @override
   String? get status;
+
+  /// Unallocated / Allocated / Dispatched (warehouse allocation lifecycle).
+  @override
+  @JsonKey(
+    name: 'allocation_status',
+    includeFromJson: true,
+    includeToJson: false,
+  )
+  String? get allocationStatus;
+  @override
+  @JsonKey(name: 'current_zone', includeFromJson: true, includeToJson: false)
+  String? get currentZone;
   @override
   @JsonKey(name: 'name')
   String? get name;

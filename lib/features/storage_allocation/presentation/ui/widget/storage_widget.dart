@@ -1,4 +1,3 @@
-import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/material.dart';
 import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/features/storage_allocation/model/storage.dart';
@@ -15,16 +14,17 @@ class StorageWidget extends StatelessWidget {
   });
   final Storage gateEntry;
   final VoidCallback onTap;
- String get _palletDisplayNumber {
+  String get _palletDisplayNumber {
     final raw = gateEntry.name;
     if (raw == null || raw.isEmpty) return '---';
 
-    final digits = RegExp(r'\d+').allMatches(raw).map((m) => m.group(0)!).toList();
+    final digits =
+        RegExp(r'\d+').allMatches(raw).map((m) => m.group(0)!).toList();
     if (digits.isEmpty) {
       return raw.substring(0, raw.length.clamp(0, 3)).toUpperCase();
     }
 
-    return digits.last; 
+    return digits.last;
   }
 
   @override
@@ -39,8 +39,9 @@ class StorageWidget extends StatelessWidget {
           side: const BorderSide(color: AppColors.white),
         ),
         child: SpacedColumn(
-          defaultHeight: 2,
-          margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+          defaultHeight: 6,
+          // margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+          margin: const EdgeInsets.fromLTRB(4, 14, 4, 4),
           children: [
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -69,47 +70,21 @@ class StorageWidget extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                      Wrap(
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        spacing: 8,
+                        runSpacing: 4,
                         children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                gateEntry.name ?? '',
-                                style: AppTextStyles.titleLarge(
-                                  context,
-                                ).copyWith(
-                                  color: AppColors.black,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(height: 5),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    'Total Qty : ${gateEntry.totalQty.toString()}',
-                                    style: const TextStyle(
-                                      color: AppColors.grey,
-                                      fontWeight: FontWeight.bold,
-                                      letterSpacing: 0,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
+                          Text(
+                            gateEntry.name ?? '',
+                            style: AppTextStyles.titleLarge(context).copyWith(
+                              color: AppColors.black,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                        ],
-                      ),
-
-                      const SizedBox(height: 5),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
+                          const SizedBox(width: 4),
                           Row(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
                               const Icon(
                                 Icons.calendar_today,
@@ -126,7 +101,38 @@ class StorageWidget extends StatelessWidget {
                               ),
                             ],
                           ),
-
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Total Qty : ${gateEntry.totalQty.toString()}',
+                        style: const TextStyle(
+                          color: AppColors.grey,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 0,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      // Sales Order + Doc Status now sit right below
+                      // Total Qty, aligned with the rest of the text
+                      // column instead of spanning the full card width.
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Flexible(
+                            child: Text(
+                              'Sales Order: ${gateEntry.salesOrders ?? ''}',
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                              style: const TextStyle(
+                                color: Colors.orange,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 0,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
                           DocStatusWidget(
                             status: StringUtils.framePackingStatus(
                               gateEntry.docStatus ?? 0,
@@ -135,30 +141,6 @@ class StorageWidget extends StatelessWidget {
                         ],
                       ),
                     ],
-                  ),
-                ),
-              ],
-            ),
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 4.0),
-              child: DottedLine(
-                direction: Axis.horizontal,
-                lineLength: double.infinity,
-                lineThickness: 0.5,
-                dashLength: 6.0,
-                dashColor: Color.fromARGB(255, 184, 184, 192),
-                dashGapLength: 4.0,
-              ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Text(
-                  'Sales Order: ${gateEntry.salesOrders ?? ''}',
-                  style: const TextStyle(
-                    color: Colors.orange,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 0,
                   ),
                 ),
               ],

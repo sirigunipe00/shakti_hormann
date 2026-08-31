@@ -25,6 +25,8 @@ _$VisionPanelEntryLinesImpl _$$VisionPanelEntryLinesImplFromJson(
   boxCode: json['box_code'] as String?,
   itemIndex: (json['itemIndex'] as num?)?.toInt(),
   image: json['image'] as String?,
+  allocationStatus: json['allocation_status'] as String?,
+  currentZone: json['current_zone'] as String?,
   visionPhotoImg: toNull(json['visionPhotoImg']),
 );
 

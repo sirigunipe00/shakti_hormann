@@ -9,6 +9,8 @@ part of 'hardware_item.dart';
 _$HardwareItemImpl _$$HardwareItemImplFromJson(Map<String, dynamic> json) =>
     _$HardwareItemImpl(
       status: json['status'] as String?,
+      allocationStatus: json['allocation_status'] as String?,
+      currentZone: json['current_zone'] as String?,
       slNO: json['slNO'] as String?,
       name: json['name'] as String?,
       owner: json['owner'] as String?,

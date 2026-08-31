@@ -64,8 +64,16 @@ class CreateInstallationEntryCubit extends AppBaseCubit<CreateInstallationState>
       isStickerPrinted: isStickerPrinted ?? form.isStickerPrinted,
     );
 
-    emitSafeState(state.copyWith(form: newForm, isModified: true));
-    _previewBoxSequence();
+    final isCreated = newForm.name != null && newForm.name!.isNotEmpty;
+
+    emitSafeState(
+      state.copyWith(
+        form: newForm,
+        isModified: true,
+        // Box rows come from server only after Save (fetchInstallationLines).
+        lines: isCreated ? state.lines : [],
+      ),
+    );
   }
 
 void initDetails(Object? entry) async {
@@ -217,37 +225,27 @@ List<InstallationLineItems> _withFallbackBoxNos(
 bool _hasServerBoxNos(List<InstallationLineItems> lines) =>
     lines.any((l) => l.boxNo != null && l.boxNo!.isNotEmpty);
 
-Future<void> _previewBoxSequence() async {
-  final form = state.form;
-  final isCreated = form.name != null && form.name!.isNotEmpty;
-  if (isCreated || form.isStickerPrinted == 1) return;
-
-  final salesOrder = form.salesOrderNo?.trim();
-  final boxCount = form.noOfBoxes;
-  if (salesOrder == null || salesOrder.isEmpty || boxCount == null || boxCount <= 0) {
-    emitSafeState(state.copyWith(lines: []));
-    return;
-  }
-
-  final response = await repo.getInstallationBoxSequence(
-    salesOrderNo: salesOrder,
-    noOfBoxes: boxCount,
-  );
-  if (state.form.salesOrderNo?.trim() != salesOrder ||
-      state.form.noOfBoxes != boxCount) {
-    return;
-  }
-
-  response.fold(
+Future<List<InstallationLineItems>> _fetchBoxLinesForDoc({
+  required String docName,
+  required int boxCount,
+  List<InstallationLineItems> fromCreate = const [],
+}) async {
+  final response = await repo.fetchInstallationLines(docName);
+  return response.fold(
     (_) {
-      emitSafeState(state.copyWith(lines: _generatedBoxes(boxCount)));
+      if (fromCreate.isNotEmpty) {
+        return _withFallbackBoxNos(fromCreate, boxCount);
+      }
+      return boxCount > 0 ? _generatedBoxes(boxCount) : <InstallationLineItems>[];
     },
-    (boxes) {
-      emitSafeState(
-        state.copyWith(
-          lines: boxes.isNotEmpty ? boxes : _generatedBoxes(boxCount),
-        ),
-      );
+    (fetched) {
+      if (fetched.isNotEmpty) {
+        return _withFallbackBoxNos(fetched, boxCount);
+      }
+      if (fromCreate.isNotEmpty) {
+        return _withFallbackBoxNos(fromCreate, boxCount);
+      }
+      return boxCount > 0 ? _generatedBoxes(boxCount) : <InstallationLineItems>[];
     },
   );
 }
@@ -268,19 +266,30 @@ Future<void> createEntry() async {
 
   final createResponse = await repo.createInstallation(form);
 
-  createResponse.fold(
-    (l) => emitSafeState(state.copyWith(isLoading: false, error: l)),
-    (r) {
+  await createResponse.fold(
+    (l) async {
+      emitSafeState(state.copyWith(isLoading: false, error: l));
+    },
+    (r) async {
       shouldAskForConfirmation.value = false;
+      final lines = await _fetchBoxLinesForDoc(
+        docName: r.name,
+        boxCount: boxCount,
+        fromCreate: r.items,
+      );
       emitSafeState(
         state.copyWith(
           isLoading: false,
           isSuccess: true,
           successMsg: r.message,
-          lines: r.items.isNotEmpty
-              ? r.items
-              : (state.lines.isNotEmpty ? state.lines : _generatedBoxes(boxCount)),
-          form: form.copyWith(name: r.name, docStatus: 0),
+          lines: lines,
+          form: form.copyWith(
+            name: r.name,
+            docStatus: 0,
+            status: 'In Packing',
+          ),
+          view: InstallationView.edit,
+          isModified: false,
         ),
       );
     },
@@ -324,60 +333,6 @@ Future<void> printSticker() async {
     },
   );
 }
-
-  // Future<void> printSticker() async {
-  //   final form = state.form;
-
-  //   if (form.salesOrderNo.isNull || form.salesOrderNo!.trim().isEmpty) {
-  //     return _emitError(const Pair('Select Sales Order', 0));
-  //   }
-  //   final boxCount = form.noOfBoxes;
-  //   if (boxCount == null || boxCount <= 0) {
-  //     return _emitError(const Pair('Enter No of Boxes', 0));
-  //   }
-
-  //   emitSafeState(state.copyWith(isLoading: true, isSuccess: false));
-
-  //   final createResponse = await repo.createInstallation(form);
-
-  //   await createResponse.fold(
-  //     (l) async => emitSafeState(state.copyWith(isLoading: false, error: l)),
-  //     (r) async {
-  //       final docNo = r.second;
-
-  //       final printResponse = await repo.printinstallationSticker(docNo);
-
-  //       printResponse.fold(
-  //         (l) => emitSafeState(
-  //           state.copyWith(
-  //             isLoading: false,
-  //             error: l,
-  //             form: form.copyWith(name: docNo),
-  //           ),
-  //         ),
-  //         (printMsg) {
-  //           final generatedLines = List.generate(
-  //             boxCount,
-  //             (i) => InstallationLineItems(idx: i + 1),
-  //           );
-
-  //           shouldAskForConfirmation.value = false;
-  //           emitSafeState(
-  //             state.copyWith(
-  //               isLoading: false,
-  //               isSuccess: true,
-  //               successMsg: printMsg,
-  //               lines: generatedLines,
-  //               form: form.copyWith(name: docNo, isStickerPrinted: 1),
-  //               view: InstallationView.edit,
-  //             ),
-  //           );
-  //         },
-  //       );
-  //     },
-  //   );
-  // }
-
   void onBoxNoChanged(int index, String boxNo) {
     if (index < 0 || index >= state.lines.length) return;
     final updated = [...state.lines];
@@ -480,7 +435,10 @@ Future<void> _autoUpdateInstallation() async {
           isSuccess: true,
           isModified: false,
           successMsg: '${msg.first}\n${msg.second}',
-          form: state.form.copyWith(docStatus: 1),
+          form: state.form.copyWith(
+            docStatus: 1,
+            status: 'Frozen',
+          ),
           view: InstallationView.completed,
         ),
       ),

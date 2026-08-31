@@ -13,7 +13,7 @@ class HardwareItemWidget extends StatelessWidget {
   final ValueChanged<int> onDelete;
   final bool isCompleted;
 
-  static const List<int> _flexes = [1, 2, 4, 3, 2, 2];
+  static const List<int> _flexes = [1, 2, 4, 3, 2, 2, 3];
   static const Color _lineColor = Color(0xFFE2E8F0);
   static const Color _headerColor = Color(0xFF1A3C6B);
 
@@ -36,6 +36,7 @@ class HardwareItemWidget extends StatelessWidget {
               'MES Sticker',
               'Qty',
               'UOM',
+              'Allocation',
             ],
             isHeader: true,
           ),
@@ -64,6 +65,7 @@ class HardwareItemWidget extends StatelessWidget {
                   items[i].mesNumber ?? '—',
                   items[i].qtySticker.toString(),
                   items[i].uom.toString(),
+                  _allocationText(items[i]),
                 ],
                 isHeader: false,
                 isLastRow: i == items.length - 1,
@@ -71,6 +73,12 @@ class HardwareItemWidget extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String _allocationText(HardwareItem item) {
+    final status = item.allocationStatus ?? 'Unallocated';
+    final zone = item.currentZone?.trim() ?? '';
+    return zone.isEmpty ? status : '$status\n$zone';
   }
 
   Widget _buildRow({

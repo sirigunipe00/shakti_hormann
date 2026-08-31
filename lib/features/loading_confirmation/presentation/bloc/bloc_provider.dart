@@ -4,6 +4,7 @@ import 'package:shakti_hormann/core/cubit/network_request/network_request_cubit.
 import 'package:shakti_hormann/core/di/injector.dart';
 import 'package:shakti_hormann/core/model/model.dart';
 import 'package:shakti_hormann/features/loading_confirmation/data/loading_cnfm_repo.dart';
+import 'package:shakti_hormann/features/loading_confirmation/model/dispatch_loading.dart';
 import 'package:shakti_hormann/features/loading_confirmation/model/item_model.dart';
 import 'package:shakti_hormann/features/loading_confirmation/model/loading_cnfm.dart';
 import 'package:shakti_hormann/features/loading_confirmation/model/logistic.dart';
@@ -15,8 +16,8 @@ typedef ItemList = NetworkRequestCubit<List<ItemModel>, List<LogisticModel>>;
 typedef ItemState = NetworkRequestState<List<ItemModel>>;
 
 
-typedef GetLoadedList = NetworkRequestCubit<List<ItemModel>, String>;
-typedef GetLoadedState= NetworkRequestState<List<ItemModel>>;
+typedef GetLoadedList = NetworkRequestCubit<DispatchLoadedData, String>;
+typedef GetLoadedState = NetworkRequestState<DispatchLoadedData>;
 
 
 typedef Logistic
@@ -50,8 +51,8 @@ class LoadingCnfmBlocProvider {
 );
 
 
-  GetLoadedList  getItems() => GetLoadedList(
-    onRequest: (params, state) => repo.getItems(params ?? ''),
+  GetLoadedList getItems() => GetLoadedList(
+    onRequest: (params, state) => repo.getDispatchLoadedItems(params ?? ''),
   );
 
    Logistic getLogisticList() => Logistic(

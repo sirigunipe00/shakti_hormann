@@ -12,6 +12,7 @@ class LoadingCnfmForm with _$LoadingCnfmForm {
     @JsonKey(name: 'modified_by') String? modifiedBy,
     @JsonKey(name: 'docstatus') int? docstatus,
     @JsonKey(name: 'idx') int? idx,
+    @JsonKey(name: 'dispatch_loading_status') String? loadingStatus,
 
     @JsonKey(name: 'amended_from') String? amendedFrom,
     @JsonKey(name: 'plant_name') String? plantName,

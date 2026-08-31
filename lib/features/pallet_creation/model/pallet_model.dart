@@ -15,6 +15,8 @@ class PalletModel with _$PalletModel {
     @JsonKey(name: 'modified_by') String? modifiedBy,
     @JsonKey(name: 'idx') int? idx,
     @JsonKey(name: 'sales_order') String? salesOrder,
+    @JsonKey(name: 'customer_name') String? customerName,
+    @JsonKey(name: 'order_date') String? orderDate,
     @JsonKey(name: 'no_of_pallets') int? noofPallets,
      }) = _PalletModel;
   factory PalletModel.fromJson(Map<String, dynamic> json) =>

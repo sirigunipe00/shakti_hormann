@@ -19,13 +19,16 @@ class PalletRepoImpl extends BaseApiRepository implements PalletRepo {
     String? search,
   ) async {
     final filters = <List<dynamic>>[];
+    final orFilters = <List<dynamic>>[];
 
     if (docStatus != null && docStatus != 2) {
       filters.add(['docstatus', '=', docStatus]);
     }
 
     if (search != null && search.isNotEmpty) {
-      filters.add(['name', 'like', '%$search%']);
+      orFilters
+        ..add(['name', 'like', '%$search%'])
+        ..add(['sales_order', 'like', '%$search%']);
     }
     final requestConfig = RequestConfig(
       url: Urls.getList,
@@ -35,6 +38,7 @@ class PalletRepoImpl extends BaseApiRepository implements PalletRepo {
       },
       reqParams: {
         'filters': jsonEncode(filters),
+        if (orFilters.isNotEmpty) 'or_filters': jsonEncode(orFilters),
         'limit_start': start,
         'limit_page_length': 'None',
         'order_by': 'creation desc',
@@ -49,7 +53,8 @@ class PalletRepoImpl extends BaseApiRepository implements PalletRepo {
     final response = await get(requestConfig);
     return response.process((r) => right(r.data!));
   }
-      @override
+
+  @override
   AsyncValueOf<List<SalesOrderForm>> salesOrder() async {
     return await executeSafely(() async {
       final reqParams = {
@@ -58,7 +63,6 @@ class PalletRepoImpl extends BaseApiRepository implements PalletRepo {
         'order_by': 'creation desc',
         'doctype': 'SAP Sales Order',
         'fields': jsonEncode(['name', 'customer_name', 'order_date']),
-        // 'filters': jsonEncode(filters),
       };
 
       final config = RequestConfig(
@@ -132,39 +136,23 @@ class PalletRepoImpl extends BaseApiRepository implements PalletRepo {
 
         return Pair(message, data?['pallet_id'] as String? ?? '');
       },
-      // body: jsonEncode({
-      //   'pallet_id': form.name,
-      //   'pallet_details':
-      //       lines.map((e) {
-      //         final map = <String, dynamic>{};
-      //         if (e.idx != null) {
-      //           map['idx'] = e.idx;
-      //           map['no_of_pallets'] = e.noOfPallets;
-      //         } else {
-      //           map['product_type'] = e.productType;
-      //           map['size'] = e.size;
-      //           map['no_of_pallets'] = e.noOfPallets;
-      //         }
 
-      //         return map;
-      //       }).toList(),
-      // }),
       body: jsonEncode({
-  'pallet_id': form.name,
-  'pallet_details':
-      lines.map((e) {
-        final map = <String, dynamic>{
-          'product_type': e.productType,
-          'size': e.size,
-          'no_of_pallets': e.noOfPallets,
-        };
-        if (e.idx != null) {
-          map['idx'] = e.idx;
-        }
+        'pallet_id': form.name,
+        'pallet_details':
+            lines.map((e) {
+              final map = <String, dynamic>{
+                'product_type': e.productType,
+                'size': e.size,
+                'no_of_pallets': e.noOfPallets,
+              };
+              if (e.idx != null) {
+                map['idx'] = e.idx;
+              }
 
-        return map;
-      }).toList(),
-}),
+              return map;
+            }).toList(),
+      }),
       headers: {HttpHeaders.contentTypeHeader: 'application/json'},
     );
 
@@ -175,14 +163,15 @@ class PalletRepoImpl extends BaseApiRepository implements PalletRepo {
       return right(r.data!);
     });
   }
-    @override
-  AsyncValueOf<Pair<String,String>> submitPallet(String name) async {
+
+  @override
+  AsyncValueOf<Pair<String, String>> submitPallet(String name) async {
     final requestBody = {'pallet_id': name};
 
     final config = RequestConfig(
-      url: Urls.submitPallet, 
+      url: Urls.submitPallet,
       // parser: (json) => json['message']['message'] as String,
-      parser: (json){
+      parser: (json) {
         final result = json['message'] as Map<String, dynamic>;
         final message = result['message'] as String? ?? '';
         final data = result['data'] as Map<String, dynamic>?;

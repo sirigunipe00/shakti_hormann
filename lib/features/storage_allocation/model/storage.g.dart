@@ -9,6 +9,8 @@ part of 'storage.dart';
 _$StorageImpl _$$StorageImplFromJson(Map<String, dynamic> json) =>
     _$StorageImpl(
       status: json['status'] as String?,
+      allocationStatus: json['allocation_status'] as String?,
+      currentZone: json['current_zone'] as String?,
       name: json['name'] as String?,
       storedBy: json['stored_by'] as String?,
       storageTimeStamp: json['storage_timestamp'] as String?,

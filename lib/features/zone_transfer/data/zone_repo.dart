@@ -7,6 +7,7 @@ class ZonePalletScanResult {
     this.salesOrder,
     this.totalQty,
     this.oldZoneName,
+    this.allocationStatus,
     this.isNewPallet = false,
     this.movementCount = 0,
     this.transferCount = 0,
@@ -17,6 +18,7 @@ class ZonePalletScanResult {
   final String? salesOrder;
   final int? totalQty;
   final String? oldZoneName;
+  final String? allocationStatus;
   final bool isNewPallet;
   final int movementCount;
   final int transferCount;

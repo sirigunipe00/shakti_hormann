@@ -1,9 +1,13 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:image_picker/image_picker.dart';
+
 import 'package:shakti_hormann/core/core.dart';
+import 'package:shakti_hormann/features/loading_confirmation/model/dispatch_loading.dart';
 import 'package:shakti_hormann/features/loading_confirmation/model/item_model.dart';
 import 'package:shakti_hormann/features/loading_confirmation/model/loading_cnfm.dart';
 import 'package:shakti_hormann/features/loading_confirmation/model/logistic.dart';
@@ -20,6 +24,7 @@ import 'package:shakti_hormann/widgets/inputs/time_picker.dart';
 import 'package:shakti_hormann/widgets/loading_indicator.dart';
 import 'package:shakti_hormann/widgets/sectionheader.dart';
 import 'package:shakti_hormann/widgets/spaced_column.dart';
+import 'package:simple_barcode_scanner/simple_barcode_scanner.dart';
 
 class LoadingCnfmFormWidget extends StatefulWidget {
   const LoadingCnfmFormWidget({super.key});
@@ -317,13 +322,6 @@ class _LoadingCnfmFormWidget extends State<LoadingCnfmFormWidget> {
               ),
 
               const SizedBox(height: 12),
-              const Padding(
-                padding: EdgeInsets.only(left: 16.0),
-                child: SectionHeader(
-                  title: 'Item Details',
-                  assetIcon: 'assets/images/remarksicon.svg',
-                ),
-              ),
               BlocBuilder<GetLoadedList, GetLoadedState>(
                 builder: (context, state) {
                   return state.maybeWhen(
@@ -331,8 +329,9 @@ class _LoadingCnfmFormWidget extends State<LoadingCnfmFormWidget> {
                     loading: () => const LoadingIndicator(),
                     success: (data) {
                       return ItemLoadedTable(
-                        initialData: data,
+                        dispatchData: data,
                         docstatus: formState.form.docstatus,
+                        vrName: formState.form.name,
                       );
                     },
                   );
@@ -358,11 +357,13 @@ String? formatTime(String? backendTime) {
 class ItemLoadedTable extends StatefulWidget {
   const ItemLoadedTable({
     super.key,
-    required this.initialData,
+    required this.dispatchData,
     required this.docstatus,
+    this.vrName,
   });
-  final List<ItemModel> initialData;
+  final DispatchLoadedData dispatchData;
   final int? docstatus;
+  final String? vrName;
 
   @override
   State<ItemLoadedTable> createState() => _ItemLoadedTableState();
@@ -371,27 +372,283 @@ class ItemLoadedTable extends StatefulWidget {
 class _ItemLoadedTableState extends State<ItemLoadedTable> {
   final ImagePicker _picker = ImagePicker();
   List<Map<String, dynamic>> rows = [];
+  late DispatchLoadedData _dispatchData;
+  bool _isScanning = false;
+  bool _isRefreshing = false;
+  String? _activePalletQr;
+  bool _cubitSeeded = false;
+  final Map<String, String> _scannedLocalPhotos = {};
+  String? _photoUploadingRowName;
+
+  bool get _canEdit => widget.docstatus != 1 && !_dispatchData.isDispatched;
 
   @override
   void initState() {
     super.initState();
+    _dispatchData = widget.dispatchData;
+    _applyDispatchData(widget.dispatchData, seedCubit: true);
+  }
 
-    rows =
-        widget.initialData.map((item) {
-          return {
-            'itemCode': item.itemCode,
-            'itemName': item.itemName,
-            'qty': item.qtyLoaded?.toString() ?? '',
-            'uom': item.uomValue,
-            'photo': item.loadedItemPhoto ?? '',
-          };
-        }).toList();
+  @override
+  void didUpdateWidget(covariant ItemLoadedTable oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.dispatchData != widget.dispatchData) {
+      _applyDispatchData(widget.dispatchData);
+    }
+  }
 
-    Future.microtask(() {
-      for (final item in widget.initialData) {
+  void _applyDispatchData(DispatchLoadedData data, {bool seedCubit = false}) {
+    final manualItems = data.toManualItems();
+    setState(() {
+      _dispatchData = data;
+      rows =
+          manualItems
+              .map(
+                (item) => {
+                  'itemCode': item.itemCode,
+                  'itemName': item.itemName,
+                  'qty': item.qtyLoaded?.toString() ?? '',
+                  'uom': item.uomValue,
+                  'photo': item.loadedItemPhoto ?? '',
+                },
+              )
+              .toList();
+      _activePalletQr =
+          data.lastScannedPallet ??
+          (data.palletRows.isNotEmpty
+              ? data.palletRows.last.scanQr
+              : _activePalletQr);
+    });
+
+    if (seedCubit && !_cubitSeeded) {
+      _cubitSeeded = true;
+      for (final item in manualItems) {
         context.read<CreateLoadingCnfmCubit>().addInitialItem(item);
       }
+    }
+  }
+
+  void _showSnack(String message, {bool isError = false}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: isError ? Colors.red : Colors.green,
+      ),
+    );
+  }
+
+  bool _scannedRowHasPhoto(LoadedRow row) {
+    final rowName = row.itemRowName;
+    if (rowName != null && _scannedLocalPhotos[rowName] != null) {
+      return true;
+    }
+    final remote = row.loadedItemPhoto;
+    return remote != null && remote.isNotEmpty;
+  }
+
+  LoadedRow? _scannedRowMissingPhoto() {
+    for (final row in _dispatchData.scannedRows) {
+      if (row.isDispatched) continue;
+      if (!_scannedRowHasPhoto(row)) return row;
+    }
+    return null;
+  }
+
+  Future<void> _scanAndAddUnit() async {
+    if (!_canEdit || _isScanning) return;
+
+    final rowNeedingPhoto = _scannedRowMissingPhoto();
+    if (rowNeedingPhoto != null) {
+      final qr = rowNeedingPhoto.scanQr?.trim();
+      _showSnack(
+        qr != null && qr.isNotEmpty
+            ? 'Please capture a photo for $qr before scanning another item.'
+            : 'Please capture a photo for the scanned item before scanning another item.',
+        isError: true,
+      );
+      return;
+    }
+
+    final vrName = widget.vrName;
+    if (vrName == null || vrName.isEmpty) {
+      _showSnack('Vehicle Reporting ID is missing.', isError: true);
+      return;
+    }
+
+    final result = await Navigator.push<String>(
+      context,
+      MaterialPageRoute(
+        builder:
+            (_) => const SimpleBarcodeScannerPage(
+              appBarTitle: 'Scan Pallet / Box',
+              isShowFlashIcon: true,
+            ),
+      ),
+    );
+    if (result == null || result == '-1' || !mounted) return;
+
+    final scanned = result.trim();
+    if (scanned.isEmpty) return;
+
+    setState(() => _isScanning = true);
+
+    final repo = LoadingCnfmBlocProvider.get().repo;
+    final parentPalletQr = isPalletQr(scanned) ? null : _activePalletQr;
+
+    final lookup = await repo.scanUnitForDispatch(
+      qr: scanned,
+      vrName: vrName,
+      parentPalletQr: parentPalletQr,
+    );
+
+    if (!mounted) return;
+
+    await lookup.fold(
+      (failure) async {
+        setState(() => _isScanning = false);
+        _showSnack(failure.error, isError: true);
+      },
+      (scanResult) async {
+        if (scanResult.scannedOnThisVehicle) {
+          setState(() => _isScanning = false);
+          _showSnack(
+            scanResult.popupMessage ??
+                'This unit is already scanned on this vehicle.',
+            isError: true,
+          );
+          return;
+        }
+
+        final item = <String, dynamic>{'scan_qr': scanned};
+        if (!isPalletQr(scanned) &&
+            parentPalletQr != null &&
+            parentPalletQr.isNotEmpty) {
+          item['parent_pallet_qr'] = parentPalletQr;
+        }
+
+        final addResult = await repo.updateScannedItems(vrName, [item]);
+        if (!mounted) return;
+
+        addResult.fold(
+          (failure) {
+            setState(() => _isScanning = false);
+            _showSnack(failure.error, isError: true);
+          },
+          (data) {
+            setState(() => _isScanning = false);
+            _applyDispatchData(data);
+            _showSnack(
+              data.popupMessage ??
+                  scanResult.popupMessage ??
+                  'Scanned successfully.',
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Future<void> _deleteScannedRow(String itemRowName) async {
+    final vrName = widget.vrName;
+    if (vrName == null || !_canEdit) return;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder:
+          (ctx) => AlertDialog(
+            title: const Text('Remove scan?'),
+            content: const Text(
+              'Remove this scanned item from the vehicle loading?',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx, false),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(ctx, true),
+                child: const Text('Remove'),
+              ),
+            ],
+          ),
+    );
+    if (confirmed != true || !mounted) return;
+
+    setState(() => _isRefreshing = true);
+    final response = await LoadingCnfmBlocProvider.get().repo
+        .updateScannedItems(vrName, [
+          {'item_row_name': itemRowName, 'action': 'delete'},
+        ]);
+
+    if (!mounted) return;
+    response.fold(
+      (failure) {
+        setState(() => _isRefreshing = false);
+        _showSnack(failure.error, isError: true);
+      },
+      (data) {
+        setState(() => _isRefreshing = false);
+        _applyDispatchData(data);
+        _showSnack(data.popupMessage ?? 'Item removed.');
+      },
+    );
+  }
+
+  Future<void> _captureScannedPhoto(LoadedRow row) async {
+    final vrName = widget.vrName;
+    final rowName = row.itemRowName;
+    if (!_canEdit || vrName == null || rowName == null || rowName.isEmpty) {
+      return;
+    }
+
+    final XFile? photo = await _picker.pickImage(source: ImageSource.camera);
+    if (photo == null || !mounted) return;
+
+    setState(() {
+      _scannedLocalPhotos[rowName] = photo.path;
+      _photoUploadingRowName = rowName;
     });
+
+    String? base64Photo;
+    try {
+      final compressed = await FlutterImageCompress.compressWithFile(
+        photo.path,
+        quality: 50,
+      );
+      if (compressed != null) {
+        base64Photo = base64Encode(compressed);
+      }
+    } catch (_) {
+      base64Photo = null;
+    }
+
+    if (base64Photo == null) {
+      if (!mounted) return;
+      setState(() => _photoUploadingRowName = null);
+      _showSnack('Could not process photo. Try again.', isError: true);
+      return;
+    }
+
+    final response = await LoadingCnfmBlocProvider.get().repo
+        .updateScannedItems(vrName, [
+          {
+            'item_row_name': rowName,
+            'loaded_item_photo': base64Photo,
+          },
+        ]);
+
+    if (!mounted) return;
+    response.fold(
+      (failure) {
+        setState(() => _photoUploadingRowName = null);
+        _showSnack(failure.error, isError: true);
+      },
+      (data) {
+        setState(() => _photoUploadingRowName = null);
+        _applyDispatchData(data);
+        _showSnack(data.popupMessage ?? 'Photo saved.');
+      },
+    );
   }
 
   Future<void> _openCamera(int index) async {
@@ -446,8 +703,6 @@ class _ItemLoadedTableState extends State<ItemLoadedTable> {
       },
     );
 
-
-
     if (result != null) {
       final row = result['row'] as Map<String, dynamic>;
       final lineItem = result['model'] as ItemModel;
@@ -463,7 +718,7 @@ class _ItemLoadedTableState extends State<ItemLoadedTable> {
           qtyLoaded: lineItem.qtyLoaded ?? oldItem.qtyLoaded,
           sampleQuantity: lineItem.sampleQuantity ?? oldItem.sampleQuantity,
           loadedItemPhoto: lineItem.loadedItemPhoto ?? oldItem.loadedItemPhoto,
-          imageFile: lineItem.imageFile, 
+          imageFile: lineItem.imageFile,
         );
 
         setState(() {
@@ -472,7 +727,6 @@ class _ItemLoadedTableState extends State<ItemLoadedTable> {
 
         cubit.updateItem(index, updatedItem);
       } else {
-
         setState(() {
           rows.add(row);
         });
@@ -483,77 +737,158 @@ class _ItemLoadedTableState extends State<ItemLoadedTable> {
 
   @override
   Widget build(BuildContext context) {
+    final scannedRows = _dispatchData.scannedRows;
+
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: SingleChildScrollView(
-            scrollDirection: Axis.vertical,
-            child: DataTable(
-              border: TableBorder.all(color: Colors.grey.shade300),
-              headingRowColor: WidgetStateProperty.all(AppColors.darkBlue),
-              headingTextStyle: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
+        Padding(
+          padding: const EdgeInsets.only(left: 4, right: 4, bottom: 8),
+          child: Row(
+            children: [
+              const Expanded(
+                child: SectionHeader(
+                  title: 'Item Details',
+                  assetIcon: 'assets/images/remarksicon.svg',
+                ),
               ),
-              columns: [
-                const DataColumn(label: Text('Sl. No')),
-                const DataColumn(label: Text('Item Code')),
-                const DataColumn(label: Text('Item Name')),
-                const DataColumn(label: Text('Quantity Loaded')),
-                const DataColumn(label: Text('UOM')),
-                const DataColumn(label: Text('Loaded Item Photo')),
-                // DataColumn(label: Text('Edit')),
-                if (widget.docstatus != 1)
-                  const DataColumn(label: Text('Edit')),
-              ],
-              rows: List.generate(rows.length, (index) {
-                return DataRow(
-                  cells: [
-                    DataCell(Text((index + 1).toString())),
-                    DataCell(Text(rows[index]['itemCode'] ?? '')),
-                    DataCell(Text(rows[index]['itemName'] ?? '')),
-                    DataCell(Text(rows[index]['qty'] ?? '')),
-                    DataCell(Text(rows[index]['uom'] ?? '')),
-                    DataCell(
-                      Center(
+              if (_canEdit)
+                Tooltip(
+                  message: 'Scan pallet / box',
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: _isScanning ? null : _scanAndAddUnit,
+                      borderRadius: BorderRadius.circular(12),
+                      child: Ink(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 25,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [
+                              Color.fromARGB(255, 242, 171, 6),
+                              Color.fromARGB(255, 247, 175, 7),
+                            ],
+                          ),
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.yellow.withValues(alpha: 0.45),
+                              blurRadius: 8,
+                              offset: const Offset(0, 3),
+                            ),
+                          ],
+                        ),
                         child:
-                            rows[index]['photo'] == null
-                                ? IconButton(
-                                  icon: const Icon(
-                                    Icons.camera_alt,
-                                    color: Colors.white,
+                            _isScanning
+                                ? const SizedBox(
+                                  width: 22,
+                                  height: 22,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: AppColors.darkBlue,
                                   ),
-                                  style: ButtonStyle(
-                                    backgroundColor: WidgetStateProperty.all(
-                                      AppColors.darkBlue,
-                                    ),
-                                  ),
-                                  onPressed: () => _openCamera(index),
                                 )
-                                : _buildImage(
-                                  rows[index]['photo'],
-                                  context: context,
+                                : const Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.qr_code_scanner,
+                                      color: AppColors.darkBlue,
+                                      size: 32,
+                                    ),
+                                    SizedBox(width: 6),
+                                    Text(
+                                      'Scan',
+                                      style: TextStyle(
+                                        color: AppColors.darkBlue,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 18,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                       ),
                     ),
-                    if (widget.docstatus !=
-                        1) 
-                      DataCell(
-                        TextButton.icon(
-                          onPressed: () => addRow(index: index),
-                          icon: const Icon(Icons.edit, color: Colors.blue),
-                          label: const Text('Edit'),
-                        ),
-                      ),
-                  ],
-                );
-              }),
+                  ),
+                ),
+            ],
+          ),
+        ),
+        if (_isRefreshing)
+          const Padding(
+            padding: EdgeInsets.all(12),
+            child: Center(child: CircularProgressIndicator()),
+          ),
+        // if (_dispatchData.pendingNotes.isNotEmpty)
+        //   Padding(
+        //     padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+        //     child: Column(
+        //       crossAxisAlignment: CrossAxisAlignment.start,
+        //       children:
+        //           _dispatchData.pendingNotes
+        //               .map(
+        //                 (note) => Padding(
+        //                   padding: const EdgeInsets.only(bottom: 4),
+        //                   child: Text(
+        //                     note,
+        //                     style: TextStyle(
+        //                       color: Colors.orange.shade800,
+        //                       fontWeight: FontWeight.w600,
+        //                       fontSize: 12,
+        //                     ),
+        //                   ),
+        //                 ),
+        //               )
+        //               .toList(),
+        //     ),
+        //   ),
+        if (scannedRows.isNotEmpty)
+          _ScannedItemsTable(
+            rows: scannedRows,
+            canEdit: _canEdit,
+            activePalletQr: _activePalletQr,
+            localPhotos: _scannedLocalPhotos,
+            photoUploadingRowName: _photoUploadingRowName,
+            onSelectPallet: (qr) => setState(() => _activePalletQr = qr),
+            onDelete: _deleteScannedRow,
+            onCapturePhoto: _captureScannedPhoto,
+            buildPhoto: (path) => _buildImage(path, context: context),
+          ),
+        if (scannedRows.isEmpty && _canEdit)
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+            child: Text(
+              'Scan a Pallet (FR-/SH-/CO-), then scan Installation (INST-), Accessories (VP-), and Hardware (MES-) against it.',
+              style: TextStyle(color: Colors.black54, fontSize: 12),
+            ),
+          ),
+        const SizedBox(height: 12),
+        const Padding(
+          padding: EdgeInsets.only(left: 8, bottom: 6),
+          child: Text(
+            'Manual Added Item : ',
+            style: TextStyle(
+              fontWeight: FontWeight.w800,
+              fontSize: 20,
+              color: AppColors.darkBlue,
             ),
           ),
         ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          child: _ManualItemsTable(
+            rows: rows,
+            canEdit: widget.docstatus != 1,
+            onEdit: (index) => addRow(index: index),
+            onCamera: _openCamera,
+            buildPhoto: (path) => _buildImage(path, context: context),
+          ),
+        ),
         const SizedBox(height: 10),
-        if (widget.docstatus != 1) ...[
+        if (_canEdit) ...[
           Align(
             alignment: Alignment.centerLeft,
             child: ElevatedButton.icon(
@@ -567,7 +902,353 @@ class _ItemLoadedTableState extends State<ItemLoadedTable> {
             ),
           ),
         ],
+        const SizedBox(height: 8),
       ],
+    );
+  }
+}
+
+class _ManualItemsTable extends StatelessWidget {
+  const _ManualItemsTable({
+    required this.rows,
+    required this.canEdit,
+    required this.onEdit,
+    required this.onCamera,
+    required this.buildPhoto,
+  });
+
+  final List<Map<String, dynamic>> rows;
+  final bool canEdit;
+  final void Function(int index) onEdit;
+  final void Function(int index) onCamera;
+  final Widget Function(String path) buildPhoto;
+
+  @override
+  Widget build(BuildContext context) {
+    Widget headerCell(String text) => Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
+      child: Text(
+        text,
+        style: const TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+          fontSize: 11,
+        ),
+        softWrap: true,
+        textAlign: TextAlign.center,
+      ),
+    );
+
+    Widget dataText(String text) => Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+      child: Center(
+        child: Text(
+          text,
+          style: const TextStyle(fontSize: 11),
+          softWrap: true,
+          maxLines: 4,
+        ),
+      ),
+    );
+
+    Widget dataWidget(Widget child) => Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+      child: child,
+    );
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Table(
+          border: TableBorder.all(color: Colors.grey.shade300),
+          columnWidths: {
+            0: const FixedColumnWidth(28),
+            1: const FlexColumnWidth(1.1),
+            2: const FlexColumnWidth(2.0),
+            3: const FlexColumnWidth(0.7),
+            4: const FlexColumnWidth(0.6),
+            5: const FlexColumnWidth(0.8),
+            if (canEdit) 6: const FlexColumnWidth(0.5),
+          },
+          defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+          children: [
+            TableRow(
+              decoration: const BoxDecoration(color: AppColors.darkBlue),
+              children: [
+                headerCell('#'),
+                headerCell('Item Code'),
+                headerCell('Item Name'),
+                headerCell('Qty'),
+                headerCell('UOM'),
+                headerCell('Photo'),
+                if (canEdit) headerCell('Edit'),
+              ],
+            ),
+            ...List.generate(rows.length, (index) {
+              final row = rows[index];
+              final photo = row['photo'] as String?;
+              final hasPhoto = photo != null && photo.isNotEmpty;
+
+              return TableRow(
+                children: [
+                  dataText('${index + 1}'),
+                  dataText(row['itemCode']?.toString() ?? ''),
+                  dataText(row['itemName']?.toString() ?? ''),
+                  dataText(row['qty']?.toString() ?? ''),
+                  dataText(row['uom']?.toString() ?? ''),
+                  dataWidget(
+                    Center(
+                      child:
+                          hasPhoto
+                              ? buildPhoto(photo)
+                              : IconButton(
+                                padding: EdgeInsets.zero,
+                                constraints: const BoxConstraints(
+                                  minWidth: 36,
+                                  minHeight: 36,
+                                ),
+                                icon: const Icon(
+                                  Icons.camera_alt,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
+                                style: ButtonStyle(
+                                  backgroundColor: WidgetStateProperty.all(
+                                    AppColors.darkBlue,
+                                  ),
+                                ),
+                                onPressed: () => onCamera(index),
+                              ),
+                    ),
+                  ),
+                  if (canEdit)
+                    dataWidget(
+                      IconButton(
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(
+                          minWidth: 36,
+                          minHeight: 36,
+                        ),
+                        onPressed: () => onEdit(index),
+                        icon: const Icon(Icons.edit, color: Colors.blue),
+                      ),
+                    ),
+                ],
+              );
+            }),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _ScannedItemsTable extends StatelessWidget {
+  const _ScannedItemsTable({
+    required this.rows,
+    required this.canEdit,
+    required this.activePalletQr,
+    required this.localPhotos,
+    this.photoUploadingRowName,
+    required this.onSelectPallet,
+    required this.onDelete,
+    required this.onCapturePhoto,
+    required this.buildPhoto,
+  });
+
+  final List<LoadedRow> rows;
+  final bool canEdit;
+  final String? activePalletQr;
+  final Map<String, String> localPhotos;
+  final String? photoUploadingRowName;
+  final void Function(String qr) onSelectPallet;
+  final void Function(String itemRowName) onDelete;
+  final void Function(LoadedRow row) onCapturePhoto;
+  final Widget Function(String path) buildPhoto;
+
+  String? _photoPath(LoadedRow row) {
+    final rowName = row.itemRowName;
+    if (rowName != null && localPhotos[rowName] != null) {
+      return localPhotos[rowName];
+    }
+    final remote = row.loadedItemPhoto;
+    if (remote != null && remote.isNotEmpty) return remote;
+    return null;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Padding(
+            padding: EdgeInsets.only(left: 4, bottom: 6),
+            child: Text(
+              'Scanned Items :',
+              style: TextStyle(
+                fontWeight: FontWeight.w800,
+                fontSize: 20,
+                color: AppColors.darkBlue,
+              ),
+            ),
+          ),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              Widget headerCell(String text) => Padding(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 10,
+                  horizontal: 3,
+                ),
+                child: Text(
+                  text,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 10.5,
+                  ),
+                  softWrap: true,
+                  textAlign: TextAlign.center,
+                ),
+              );
+
+              Widget dataCell(
+                String text, {
+                FontWeight fontWeight = FontWeight.normal,
+                Color? color,
+              }) => Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 3),
+                child: Text(
+                  text,
+                  style: TextStyle(
+                    fontSize: 10.5,
+                    fontWeight: fontWeight,
+                    color: color,
+                  ),
+                  softWrap: true,
+                  maxLines: 4,
+                  textAlign: TextAlign.center,
+                ),
+              );
+
+              Widget dataWidget(Widget child) => Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 2),
+                child: child,
+              );
+
+              return Table(
+                border: TableBorder.all(color: Colors.grey.shade300),
+                columnWidths: const {
+                  0: FixedColumnWidth(24),
+                  1: FlexColumnWidth(2.2),
+                  2: FlexColumnWidth(1.2),
+                  3: FlexColumnWidth(1.0),
+                  4: FlexColumnWidth(0.7),
+                  5: FlexColumnWidth(0.8),
+                },
+                defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+                children: [
+                  TableRow(
+                    decoration: const BoxDecoration(color: AppColors.darkBlue),
+                    children: [
+                      headerCell('#'),
+                      headerCell('Scan QR'),
+                      headerCell('Product'),
+                      headerCell('Size'),
+                      headerCell('Qty'),
+                      headerCell('Photo'),
+                    ],
+                  ),
+                  ...List.generate(rows.length, (index) {
+                    final row = rows[index];
+                    final isPallet = row.isPallet;
+                    final isActive = isPallet && activePalletQr == row.scanQr;
+                    final bgColor =
+                        isActive
+                            ? AppColors.darkBlue.withValues(alpha: 0.08)
+                            : null;
+                    final photoPath = _photoPath(row);
+                    final hasPhoto =
+                        photoPath != null && photoPath.isNotEmpty;
+                    final isPhotoUploading =
+                        row.itemRowName != null &&
+                        row.itemRowName == photoUploadingRowName;
+
+                    return TableRow(
+                      decoration:
+                          bgColor != null
+                              ? BoxDecoration(color: bgColor)
+                              : null,
+                      children: [
+                        GestureDetector(
+                          onTap:
+                              isPallet && row.scanQr != null
+                                  ? () => onSelectPallet(row.scanQr!)
+                                  : null,
+                          child: dataCell('${index + 1}'),
+                        ),
+                        GestureDetector(
+                          onTap:
+                              isPallet && row.scanQr != null
+                                  ? () => onSelectPallet(row.scanQr!)
+                                  : null,
+                          child: dataCell(row.scanQr ?? ''),
+                        ),
+                        dataCell(row.productType ?? ''),
+                        dataCell(row.palletSize ?? '-'),
+                        dataCell(row.qtyLoaded?.toString() ?? ''),
+                        dataWidget(
+                          Center(
+                            child:
+                                isPhotoUploading
+                                    ? const SizedBox(
+                                      width: 28,
+                                      height: 28,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: AppColors.darkBlue,
+                                      ),
+                                    )
+                                    : hasPhoto
+                                    ? GestureDetector(
+                                      onTap:
+                                          canEdit && !row.isDispatched
+                                              ? () => onCapturePhoto(row)
+                                              : null,
+                                      child: buildPhoto(photoPath),
+                                    )
+                                    : canEdit && !row.isDispatched
+                                    ? IconButton(
+                                      padding: EdgeInsets.zero,
+                                      constraints: const BoxConstraints(
+                                        minWidth: 36,
+                                        minHeight: 36,
+                                      ),
+                                      icon: const Icon(
+                                        Icons.camera_alt,
+                                        color: Colors.white,
+                                        size: 18,
+                                      ),
+                                      style: ButtonStyle(
+                                        backgroundColor:
+                                            WidgetStateProperty.all(
+                                          AppColors.darkBlue,
+                                        ),
+                                      ),
+                                      onPressed: () => onCapturePhoto(row),
+                                    )
+                                    : const SizedBox.shrink(),
+                          ),
+                        ),
+                      ],
+                    );
+                  }),
+                ],
+              );
+            },
+          ),
+        ],
+      ),
     );
   }
 }
@@ -603,7 +1284,6 @@ Widget _buildImage(String path, {BuildContext? context}) {
   } else {
     imageWidget = const Icon(Icons.broken_image);
   }
-
 
   return GestureDetector(
     onTap:
@@ -648,7 +1328,6 @@ class _ItemDialogWidgetState extends State<ItemDialogWidget> {
   @override
   void initState() {
     super.initState();
-
 
     selectedCode = widget.initialRow?['itemCode'];
     itemNameController = TextEditingController(
@@ -708,8 +1387,9 @@ class _ItemDialogWidgetState extends State<ItemDialogWidget> {
                   key: UniqueKey(),
                   title: 'Item Code',
                   hint: 'Search Item Code',
-                  color: AppColors.white,
+                  color: Colors.black,
                   items: allData,
+                  isRequired: true,
                   defaultSelection: itemFrom,
                   isloading: state.isLoading,
                   futureRequest: (query) async {
@@ -902,6 +1582,7 @@ class _ItemDialogWidgetState extends State<ItemDialogWidget> {
             final lineItem = ItemModel(
               itemCode: selectedCode,
               itemName: itemNameController.text,
+              uomValue: uomController.text,
               sampleQuantity: qtyValue.toInt(),
               stockUom: uomController.text,
               imageFile: photoFile,

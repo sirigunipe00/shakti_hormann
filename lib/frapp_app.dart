@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shakti_hormann/app/presentation/bloc/geo_permission/geo_permission_handler.dart';
 import 'package:shakti_hormann/core/core.dart';
@@ -140,6 +141,7 @@ class _ShaktiHormannState extends State<ShaktiHormann>
                 authenticated: () {
                   // routerCtxt.cubit<GeoPermissionHandler>().checkPermission();
                     final filters = Pair(StringUtils.docStatusInt('Draft'), null);
+                  final shutterFrameFilters = const Pair('Draft', null);
                   final filter = Pair(
                     StringUtils.docStatuslogistic('Draft'),
                     null,
@@ -168,8 +170,8 @@ class _ShaktiHormannState extends State<ShaktiHormann>
                   routerCtxt.cubit<HardwareCubit>().fetchInitial(filters);
                   routerCtxt.cubit<StorageCubit>().fetchInitial(filters);
                   routerCtxt.cubit<ZoneCubit>().fetchInitial(filters);
-                  routerCtxt.cubit<ShutterCubit>().fetchInitial(filters);
-                  routerCtxt.cubit<FrameCubit>().fetchInitial(filters);
+                  routerCtxt.cubit<ShutterCubit>().fetchInitial(shutterFrameFilters);
+                  routerCtxt.cubit<FrameCubit>().fetchInitial(shutterFrameFilters);
                   routerCtxt.cubit<PalletCubit>().fetchInitial(filters);
                   routerCtxt.cubit<VisionPanelCubit>().fetchInitial(filters);
                   routerCtxt.cubit<InstallationCubit>().fetchInitial(filters);
@@ -224,6 +226,12 @@ class _ShaktiHormannState extends State<ShaktiHormann>
           darkTheme: AppMaterialTheme.lightTheme,
           routerConfig: AppRouterConfig.router,
           debugShowCheckedModeBanner: false,
+          builder: (context, child) {
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.dark,
+      child: child!,
+    );
+  },
         ),
       ),
     );

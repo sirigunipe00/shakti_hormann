@@ -8,11 +8,12 @@ import 'package:shakti_hormann/features/frame_packing/data/frame_packing_repo.da
 import 'package:shakti_hormann/features/frame_packing/model/frame_items.dart';
 import 'package:shakti_hormann/features/frame_packing/model/frame_lines.dart';
 import 'package:shakti_hormann/features/frame_packing/model/frame_packing.dart';
+import 'package:shakti_hormann/features/pallet_creation/model/pallet_model.dart';
 import 'package:shakti_hormann/features/shutter_packing/model/pallet_size.dart';
 
 
 
-typedef FrameCubit = InfiniteListCubit<FramePacking, Pair<int?, String?>, Pair<int?, String?>>;
+typedef FrameCubit = InfiniteListCubit<FramePacking, Pair<String?, String?>, Pair<String?, String?>>;
 typedef FrameCubitState = InfiniteListState<FramePacking>;
 typedef FrameLinesCubit = NetworkRequestCubit<List<FrameLines>, String>;
 typedef FrameLinesCubitState = NetworkRequestState<List<FrameLines>>;
@@ -20,6 +21,8 @@ typedef FrameItemsCubit = NetworkRequestCubit<List<FrameItems>, Pair<String,Stri
 typedef FrameItemsCubitState = NetworkRequestState<List<FrameItems>>;
 typedef PalletSizeCubit = NetworkRequestCubit<List<PalletSize>, String>;
 typedef PalletSizeCubitState = NetworkRequestState<List<PalletSize>>;
+typedef FrameSalesOrdersCubit = NetworkRequestCubit<List<PalletModel>, String>;
+typedef FrameSalesOrderCubitState = NetworkRequestState<List<PalletModel>>;
 
 
 @lazySingleton
@@ -47,6 +50,9 @@ class FrameBlocProvider {
   );
   PalletSizeCubit fetchPalletSize() => PalletSizeCubit(
     onRequest: (params, state) => repo.fetchPalletSize(),
+  );
+  FrameSalesOrdersCubit getSales() => FrameSalesOrdersCubit(
+    onRequest: (params, state) => repo.getSales(q: params ?? ''),
   );
 
 }

@@ -22,6 +22,16 @@ Storage _$StorageFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$Storage {
   String? get status => throw _privateConstructorUsedError;
+
+  /// Unallocated / Allocated / Dispatched.
+  @JsonKey(
+    name: 'allocation_status',
+    includeFromJson: true,
+    includeToJson: false,
+  )
+  String? get allocationStatus => throw _privateConstructorUsedError;
+  @JsonKey(name: 'current_zone', includeFromJson: true, includeToJson: false)
+  String? get currentZone => throw _privateConstructorUsedError;
   @JsonKey(name: 'name')
   String? get name => throw _privateConstructorUsedError;
   @JsonKey(name: 'stored_by')
@@ -74,6 +84,14 @@ abstract class $StorageCopyWith<$Res> {
   @useResult
   $Res call({
     String? status,
+    @JsonKey(
+      name: 'allocation_status',
+      includeFromJson: true,
+      includeToJson: false,
+    )
+    String? allocationStatus,
+    @JsonKey(name: 'current_zone', includeFromJson: true, includeToJson: false)
+    String? currentZone,
     @JsonKey(name: 'name') String? name,
     @JsonKey(name: 'stored_by') String? storedBy,
     @JsonKey(name: 'storage_timestamp') String? storageTimeStamp,
@@ -114,6 +132,8 @@ class _$StorageCopyWithImpl<$Res, $Val extends Storage>
   @override
   $Res call({
     Object? status = freezed,
+    Object? allocationStatus = freezed,
+    Object? currentZone = freezed,
     Object? name = freezed,
     Object? storedBy = freezed,
     Object? storageTimeStamp = freezed,
@@ -136,6 +156,16 @@ class _$StorageCopyWithImpl<$Res, $Val extends Storage>
                 freezed == status
                     ? _value.status
                     : status // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            allocationStatus:
+                freezed == allocationStatus
+                    ? _value.allocationStatus
+                    : allocationStatus // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            currentZone:
+                freezed == currentZone
+                    ? _value.currentZone
+                    : currentZone // ignore: cast_nullable_to_non_nullable
                         as String?,
             name:
                 freezed == name
@@ -228,6 +258,14 @@ abstract class _$$StorageImplCopyWith<$Res> implements $StorageCopyWith<$Res> {
   @useResult
   $Res call({
     String? status,
+    @JsonKey(
+      name: 'allocation_status',
+      includeFromJson: true,
+      includeToJson: false,
+    )
+    String? allocationStatus,
+    @JsonKey(name: 'current_zone', includeFromJson: true, includeToJson: false)
+    String? currentZone,
     @JsonKey(name: 'name') String? name,
     @JsonKey(name: 'stored_by') String? storedBy,
     @JsonKey(name: 'storage_timestamp') String? storageTimeStamp,
@@ -267,6 +305,8 @@ class __$$StorageImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? status = freezed,
+    Object? allocationStatus = freezed,
+    Object? currentZone = freezed,
     Object? name = freezed,
     Object? storedBy = freezed,
     Object? storageTimeStamp = freezed,
@@ -289,6 +329,16 @@ class __$$StorageImplCopyWithImpl<$Res>
             freezed == status
                 ? _value.status
                 : status // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        allocationStatus:
+            freezed == allocationStatus
+                ? _value.allocationStatus
+                : allocationStatus // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        currentZone:
+            freezed == currentZone
+                ? _value.currentZone
+                : currentZone // ignore: cast_nullable_to_non_nullable
                     as String?,
         name:
             freezed == name
@@ -375,6 +425,14 @@ class __$$StorageImplCopyWithImpl<$Res>
 class _$StorageImpl implements _Storage {
   const _$StorageImpl({
     this.status,
+    @JsonKey(
+      name: 'allocation_status',
+      includeFromJson: true,
+      includeToJson: false,
+    )
+    this.allocationStatus,
+    @JsonKey(name: 'current_zone', includeFromJson: true, includeToJson: false)
+    this.currentZone,
     @JsonKey(name: 'name') this.name,
     @JsonKey(name: 'stored_by') this.storedBy,
     @JsonKey(name: 'storage_timestamp') this.storageTimeStamp,
@@ -403,6 +461,18 @@ class _$StorageImpl implements _Storage {
 
   @override
   final String? status;
+
+  /// Unallocated / Allocated / Dispatched.
+  @override
+  @JsonKey(
+    name: 'allocation_status',
+    includeFromJson: true,
+    includeToJson: false,
+  )
+  final String? allocationStatus;
+  @override
+  @JsonKey(name: 'current_zone', includeFromJson: true, includeToJson: false)
+  final String? currentZone;
   @override
   @JsonKey(name: 'name')
   final String? name;
@@ -456,7 +526,7 @@ class _$StorageImpl implements _Storage {
 
   @override
   String toString() {
-    return 'Storage(status: $status, name: $name, storedBy: $storedBy, storageTimeStamp: $storageTimeStamp, remarks: $remarks, locationPhoto: $locationPhoto, docStatus: $docStatus, salesOrders: $salesOrders, zoneName: $zoneName, totalQty: $totalQty, creation: $creation, palletCount: $palletCount, oldZone: $oldZone, locationPhotoImg: $locationPhotoImg, zoneQr: $zoneQr, palletBoxQr: $palletBoxQr)';
+    return 'Storage(status: $status, allocationStatus: $allocationStatus, currentZone: $currentZone, name: $name, storedBy: $storedBy, storageTimeStamp: $storageTimeStamp, remarks: $remarks, locationPhoto: $locationPhoto, docStatus: $docStatus, salesOrders: $salesOrders, zoneName: $zoneName, totalQty: $totalQty, creation: $creation, palletCount: $palletCount, oldZone: $oldZone, locationPhotoImg: $locationPhotoImg, zoneQr: $zoneQr, palletBoxQr: $palletBoxQr)';
   }
 
   @override
@@ -465,6 +535,10 @@ class _$StorageImpl implements _Storage {
         (other.runtimeType == runtimeType &&
             other is _$StorageImpl &&
             (identical(other.status, status) || other.status == status) &&
+            (identical(other.allocationStatus, allocationStatus) ||
+                other.allocationStatus == allocationStatus) &&
+            (identical(other.currentZone, currentZone) ||
+                other.currentZone == currentZone) &&
             (identical(other.name, name) || other.name == name) &&
             (identical(other.storedBy, storedBy) ||
                 other.storedBy == storedBy) &&
@@ -498,6 +572,8 @@ class _$StorageImpl implements _Storage {
   int get hashCode => Object.hash(
     runtimeType,
     status,
+    allocationStatus,
+    currentZone,
     name,
     storedBy,
     storageTimeStamp,
@@ -532,6 +608,14 @@ class _$StorageImpl implements _Storage {
 abstract class _Storage implements Storage {
   const factory _Storage({
     final String? status,
+    @JsonKey(
+      name: 'allocation_status',
+      includeFromJson: true,
+      includeToJson: false,
+    )
+    final String? allocationStatus,
+    @JsonKey(name: 'current_zone', includeFromJson: true, includeToJson: false)
+    final String? currentZone,
     @JsonKey(name: 'name') final String? name,
     @JsonKey(name: 'stored_by') final String? storedBy,
     @JsonKey(name: 'storage_timestamp') final String? storageTimeStamp,
@@ -559,6 +643,18 @@ abstract class _Storage implements Storage {
 
   @override
   String? get status;
+
+  /// Unallocated / Allocated / Dispatched.
+  @override
+  @JsonKey(
+    name: 'allocation_status',
+    includeFromJson: true,
+    includeToJson: false,
+  )
+  String? get allocationStatus;
+  @override
+  @JsonKey(name: 'current_zone', includeFromJson: true, includeToJson: false)
+  String? get currentZone;
   @override
   @JsonKey(name: 'name')
   String? get name;

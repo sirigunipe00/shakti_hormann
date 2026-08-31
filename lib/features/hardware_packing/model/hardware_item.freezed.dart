@@ -22,6 +22,16 @@ HardwareItem _$HardwareItemFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$HardwareItem {
   String? get status => throw _privateConstructorUsedError;
+
+  /// Per-MES / box warehouse status (server-only).
+  @JsonKey(
+    name: 'allocation_status',
+    includeFromJson: true,
+    includeToJson: false,
+  )
+  String? get allocationStatus => throw _privateConstructorUsedError;
+  @JsonKey(name: 'current_zone', includeFromJson: true, includeToJson: false)
+  String? get currentZone => throw _privateConstructorUsedError;
   String? get slNO => throw _privateConstructorUsedError;
   @JsonKey(name: 'name')
   String? get name => throw _privateConstructorUsedError;
@@ -84,6 +94,14 @@ abstract class $HardwareItemCopyWith<$Res> {
   @useResult
   $Res call({
     String? status,
+    @JsonKey(
+      name: 'allocation_status',
+      includeFromJson: true,
+      includeToJson: false,
+    )
+    String? allocationStatus,
+    @JsonKey(name: 'current_zone', includeFromJson: true, includeToJson: false)
+    String? currentZone,
     String? slNO,
     @JsonKey(name: 'name') String? name,
     @JsonKey(name: 'owner') String? owner,
@@ -129,6 +147,8 @@ class _$HardwareItemCopyWithImpl<$Res, $Val extends HardwareItem>
   @override
   $Res call({
     Object? status = freezed,
+    Object? allocationStatus = freezed,
+    Object? currentZone = freezed,
     Object? slNO = freezed,
     Object? name = freezed,
     Object? owner = freezed,
@@ -155,6 +175,16 @@ class _$HardwareItemCopyWithImpl<$Res, $Val extends HardwareItem>
                 freezed == status
                     ? _value.status
                     : status // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            allocationStatus:
+                freezed == allocationStatus
+                    ? _value.allocationStatus
+                    : allocationStatus // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            currentZone:
+                freezed == currentZone
+                    ? _value.currentZone
+                    : currentZone // ignore: cast_nullable_to_non_nullable
                         as String?,
             slNO:
                 freezed == slNO
@@ -268,6 +298,14 @@ abstract class _$$HardwareItemImplCopyWith<$Res>
   @useResult
   $Res call({
     String? status,
+    @JsonKey(
+      name: 'allocation_status',
+      includeFromJson: true,
+      includeToJson: false,
+    )
+    String? allocationStatus,
+    @JsonKey(name: 'current_zone', includeFromJson: true, includeToJson: false)
+    String? currentZone,
     String? slNO,
     @JsonKey(name: 'name') String? name,
     @JsonKey(name: 'owner') String? owner,
@@ -312,6 +350,8 @@ class __$$HardwareItemImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? status = freezed,
+    Object? allocationStatus = freezed,
+    Object? currentZone = freezed,
     Object? slNO = freezed,
     Object? name = freezed,
     Object? owner = freezed,
@@ -338,6 +378,16 @@ class __$$HardwareItemImplCopyWithImpl<$Res>
             freezed == status
                 ? _value.status
                 : status // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        allocationStatus:
+            freezed == allocationStatus
+                ? _value.allocationStatus
+                : allocationStatus // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        currentZone:
+            freezed == currentZone
+                ? _value.currentZone
+                : currentZone // ignore: cast_nullable_to_non_nullable
                     as String?,
         slNO:
             freezed == slNO
@@ -444,6 +494,14 @@ class __$$HardwareItemImplCopyWithImpl<$Res>
 class _$HardwareItemImpl implements _HardwareItem {
   const _$HardwareItemImpl({
     this.status,
+    @JsonKey(
+      name: 'allocation_status',
+      includeFromJson: true,
+      includeToJson: false,
+    )
+    this.allocationStatus,
+    @JsonKey(name: 'current_zone', includeFromJson: true, includeToJson: false)
+    this.currentZone,
     this.slNO,
     @JsonKey(name: 'name') this.name,
     @JsonKey(name: 'owner') this.owner,
@@ -477,6 +535,18 @@ class _$HardwareItemImpl implements _HardwareItem {
 
   @override
   final String? status;
+
+  /// Per-MES / box warehouse status (server-only).
+  @override
+  @JsonKey(
+    name: 'allocation_status',
+    includeFromJson: true,
+    includeToJson: false,
+  )
+  final String? allocationStatus;
+  @override
+  @JsonKey(name: 'current_zone', includeFromJson: true, includeToJson: false)
+  final String? currentZone;
   @override
   final String? slNO;
   @override
@@ -546,7 +616,7 @@ class _$HardwareItemImpl implements _HardwareItem {
 
   @override
   String toString() {
-    return 'HardwareItem(status: $status, slNO: $slNO, name: $name, owner: $owner, creation: $creation, modified: $modified, modifiedBy: $modifiedBy, boxCount: $boxCount, mesBarCode: $mesBarCode, uom: $uom, productName: $productName, qtySticker: $qtySticker, materialCode: $materialCode, mesNumber: $mesNumber, mesStcikerImage: $mesStcikerImage, mesStickerImage: $mesStickerImage, box: $box, page: $page, boxType: $boxType, deletedLines: $deletedLines)';
+    return 'HardwareItem(status: $status, allocationStatus: $allocationStatus, currentZone: $currentZone, slNO: $slNO, name: $name, owner: $owner, creation: $creation, modified: $modified, modifiedBy: $modifiedBy, boxCount: $boxCount, mesBarCode: $mesBarCode, uom: $uom, productName: $productName, qtySticker: $qtySticker, materialCode: $materialCode, mesNumber: $mesNumber, mesStcikerImage: $mesStcikerImage, mesStickerImage: $mesStickerImage, box: $box, page: $page, boxType: $boxType, deletedLines: $deletedLines)';
   }
 
   @override
@@ -555,6 +625,10 @@ class _$HardwareItemImpl implements _HardwareItem {
         (other.runtimeType == runtimeType &&
             other is _$HardwareItemImpl &&
             (identical(other.status, status) || other.status == status) &&
+            (identical(other.allocationStatus, allocationStatus) ||
+                other.allocationStatus == allocationStatus) &&
+            (identical(other.currentZone, currentZone) ||
+                other.currentZone == currentZone) &&
             (identical(other.slNO, slNO) || other.slNO == slNO) &&
             (identical(other.name, name) || other.name == name) &&
             (identical(other.owner, owner) || other.owner == owner) &&
@@ -595,6 +669,8 @@ class _$HardwareItemImpl implements _HardwareItem {
   int get hashCode => Object.hashAll([
     runtimeType,
     status,
+    allocationStatus,
+    currentZone,
     slNO,
     name,
     owner,
@@ -633,6 +709,14 @@ class _$HardwareItemImpl implements _HardwareItem {
 abstract class _HardwareItem implements HardwareItem {
   const factory _HardwareItem({
     final String? status,
+    @JsonKey(
+      name: 'allocation_status',
+      includeFromJson: true,
+      includeToJson: false,
+    )
+    final String? allocationStatus,
+    @JsonKey(name: 'current_zone', includeFromJson: true, includeToJson: false)
+    final String? currentZone,
     final String? slNO,
     @JsonKey(name: 'name') final String? name,
     @JsonKey(name: 'owner') final String? owner,
@@ -666,6 +750,18 @@ abstract class _HardwareItem implements HardwareItem {
 
   @override
   String? get status;
+
+  /// Per-MES / box warehouse status (server-only).
+  @override
+  @JsonKey(
+    name: 'allocation_status',
+    includeFromJson: true,
+    includeToJson: false,
+  )
+  String? get allocationStatus;
+  @override
+  @JsonKey(name: 'current_zone', includeFromJson: true, includeToJson: false)
+  String? get currentZone;
   @override
   String? get slNO;
   @override

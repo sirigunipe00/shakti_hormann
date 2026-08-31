@@ -9,6 +9,8 @@ part of 'frame_packing.dart';
 _$FramePackingImpl _$$FramePackingImplFromJson(Map<String, dynamic> json) =>
     _$FramePackingImpl(
       status: json['status'] as String?,
+      allocationStatus: json['allocation_status'] as String?,
+      currentZone: json['current_zone'] as String?,
       name: json['name'] as String?,
       owner: json['owner'] as String?,
       creation: json['creation'] as String?,

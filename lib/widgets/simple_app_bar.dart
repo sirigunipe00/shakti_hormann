@@ -40,7 +40,7 @@ class SimpleAppBar extends StatelessWidget implements PreferredSizeWidget {
             topRight: Radius.circular(20.0),
           ),
         ),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,

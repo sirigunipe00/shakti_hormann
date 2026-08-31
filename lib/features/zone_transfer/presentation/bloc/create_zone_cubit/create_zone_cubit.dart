@@ -182,6 +182,8 @@ Future<void> onQrScanned(String rawQr) async {
             salesOrders: scan.salesOrder ?? '',
             totalQty: scan.totalQty,
             oldZone: scan.oldZoneName ?? '',
+            currentZone: scan.oldZoneName ?? '',
+            allocationStatus: scan.allocationStatus,
             palletCount: transferCount,
           ),
         ),
@@ -196,11 +198,6 @@ Future<void> onQrScanned(String rawQr) async {
       emitSafeState(state.copyWith(isLoading: true, isSuccess: false));
       // final nextMode = ZoneView.completed;
 
-      final status = switch (state.view) {
-        ZoneView.create => 'Draft',
-        ZoneView.completed => 'Submitted',
-      };
-
       if (state.view == ZoneView.create) {
         final response = await repo.createZone(state.form);
 
@@ -211,12 +208,17 @@ Future<void> onQrScanned(String rawQr) async {
           (r) {
             shouldAskForConfirmation.value = false;
             final docstatus = r.second;
+            final isFirstAllocation =
+                state.form.oldZone == null ||
+                state.form.oldZone!.trim().isEmpty;
             emitSafeState(
               state.copyWith(
                 isLoading: false,
                 isSuccess: true,
                 form: state.form.copyWith(
-                  status: status,
+                  status: isFirstAllocation ? 'Stored' : 'Transferred',
+                  allocationStatus: 'Allocated',
+                  currentZone: state.form.zoneQr,
                   name: docstatus,
                   docStatus: 1,
                 ),

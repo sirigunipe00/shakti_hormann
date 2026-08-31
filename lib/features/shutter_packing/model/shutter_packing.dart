@@ -10,6 +10,15 @@ part 'shutter_packing.g.dart';
 class ShutterPacking with _$ShutterPacking {
   const factory ShutterPacking({
     String? status,
+    /// Unallocated / Allocated / Dispatched (warehouse allocation lifecycle).
+    @JsonKey(
+      name: 'allocation_status',
+      includeFromJson: true,
+      includeToJson: false,
+    )
+    String? allocationStatus,
+    @JsonKey(name: 'current_zone', includeFromJson: true, includeToJson: false)
+    String? currentZone,
     @JsonKey(name: 'name') String? name,
     @JsonKey(name: 'owner') String? owner,
     @JsonKey(name: 'creation') String? creation,

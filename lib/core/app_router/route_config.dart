@@ -905,10 +905,7 @@ class AppRouterConfig {
                   GoRoute(
                     path: _getPath(AppRoute.shutterPackaging),
                     builder: (ctxt, state) {
-                      final filters = Pair(
-                        StringUtils.docStatusInt('Draft'),
-                        null,
-                      );
+                      const filters = Pair('Draft', null);
                       return BlocProvider(
                         create:
                             (context) =>
@@ -974,10 +971,7 @@ class AppRouterConfig {
                   GoRoute(
                     path: _getPath(AppRoute.framePackaging),
                     builder: (ctxt, state) {
-                      final filters = Pair(
-                        StringUtils.docStatusInt('Draft'),
-                        null,
-                      );
+                      const filters = Pair('Draft', null);
                       return BlocProvider(
                         create:
                             (context) =>
@@ -1012,8 +1006,7 @@ class AppRouterConfig {
                               BlocProvider(
                                 create:
                                     (_) =>
-                                        ShutterBlocProvider.get()
-                                            .getSales()
+                                        blocprovider.getSales()
                                           ..request(''),
                               ),
                               BlocProvider(

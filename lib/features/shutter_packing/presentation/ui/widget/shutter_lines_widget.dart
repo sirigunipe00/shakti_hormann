@@ -1,9 +1,10 @@
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shakti_hormann/core/consts/urls.dart';
 import 'package:shakti_hormann/features/shutter_packing/presentation/bloc/create_shutter_cubit.dart/create_shutter_cubit.dart';
-import 'package:shakti_hormann/styles/app_color.dart';
+import 'package:shakti_hormann/widgets/packing_sticker_image_preview.dart';
 
 class ShutterLinesWidget extends StatefulWidget {
   const ShutterLinesWidget({super.key});
@@ -209,8 +210,6 @@ class _ShutterLinesWidgetState extends State<ShutterLinesWidget> {
     return Text(
       text,
       textAlign: TextAlign.center,
-      // No overflow/maxLines limit — long values wrap onto extra lines
-      // instead of being cut off with an ellipsis, so nothing is hidden.
       softWrap: true,
       style: const TextStyle(fontSize: 12, color: Colors.black87),
     );
@@ -219,117 +218,10 @@ class _ShutterLinesWidgetState extends State<ShutterLinesWidget> {
   void _showPhotoDialog(BuildContext context, List<String> photoUrls) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => ImageGalleryPreviewPage(photoUrls: photoUrls),
+        builder: (_) => PackingStickerGalleryPage(photoUrls: photoUrls),
       ),
     );
   }
-}
-
-/// Gallery version of the old single-image ImagePreviewPage.
-class ImageGalleryPreviewPage extends StatefulWidget {
-  const ImageGalleryPreviewPage({
-    super.key,
-    required this.photoUrls,
-    this.initialIndex = 0,
-  });
-
-  final List<String> photoUrls;
-  final int initialIndex;
-
-  @override
-  State<ImageGalleryPreviewPage> createState() =>
-      _ImageGalleryPreviewPageState();
-}
-
-class _ImageGalleryPreviewPageState extends State<ImageGalleryPreviewPage> {
-  late final PageController _controller = PageController(
-    initialPage: widget.initialIndex,
-  );
-  late int _currentIndex = widget.initialIndex;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF1A3C6B),
-        foregroundColor: Colors.white,
-        title: Text('Photo ${_currentIndex + 1} of ${widget.photoUrls.length}'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-      ),
-      body: PageView.builder(
-        controller: _controller,
-        itemCount: widget.photoUrls.length,
-        onPageChanged: (i) => setState(() => _currentIndex = i),
-        itemBuilder: (_, i) {
-          final photoUrl = widget.photoUrls[i];
-          return Center(
-            child: InteractiveViewer(
-              panEnabled: true,
-              scaleEnabled: true,
-              minScale: 0.5,
-              maxScale: 4.0,
-              child:
-                  photoUrl.startsWith('http')
-                      ? Image.network(
-                        photoUrl,
-                        fit: BoxFit.cover,
-                        loadingBuilder: (_, child, progress) {
-                          if (progress == null) return child;
-                          return const Center(
-                            child: CircularProgressIndicator(
-                              color: Colors.white,
-                            ),
-                          );
-                        },
-                        errorBuilder: (_, __, ___) => _brokenImage(),
-                      )
-                      : Image.file(
-                        File(photoUrl),
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => _brokenImage(),
-                      ),
-            ),
-          );
-        },
-      ),
-      bottomNavigationBar: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: ElevatedButton(
-            onPressed: () => Navigator.of(context).pop(),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.darkBlue,
-              padding: const EdgeInsets.symmetric(vertical: 14),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-            child: const Text(
-              'Close',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _brokenImage() => const Column(
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: [
-      Icon(Icons.broken_image, size: 80, color: Colors.white54),
-      SizedBox(height: 12),
-      Text('Failed to load image', style: TextStyle(color: Colors.white54)),
-    ],
-  );
 }
 
 class _ViewButton extends StatelessWidget {

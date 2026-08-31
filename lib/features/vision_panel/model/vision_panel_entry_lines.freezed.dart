@@ -54,6 +54,16 @@ mixin _$VisionPanelEntryLines {
   int? get itemIndex => throw _privateConstructorUsedError;
   @JsonKey(name: 'image')
   String? get image => throw _privateConstructorUsedError;
+
+  /// Per-box warehouse status (server-only). Unallocated / Allocated / Dispatched.
+  @JsonKey(
+    name: 'allocation_status',
+    includeFromJson: true,
+    includeToJson: false,
+  )
+  String? get allocationStatus => throw _privateConstructorUsedError;
+  @JsonKey(name: 'current_zone', includeFromJson: true, includeToJson: false)
+  String? get currentZone => throw _privateConstructorUsedError;
   @JsonKey(
     includeFromJson: true,
     includeToJson: false,
@@ -96,6 +106,14 @@ abstract class $VisionPanelEntryLinesCopyWith<$Res> {
     @JsonKey(name: 'box_code') String? boxCode,
     int? itemIndex,
     @JsonKey(name: 'image') String? image,
+    @JsonKey(
+      name: 'allocation_status',
+      includeFromJson: true,
+      includeToJson: false,
+    )
+    String? allocationStatus,
+    @JsonKey(name: 'current_zone', includeFromJson: true, includeToJson: false)
+    String? currentZone,
     @JsonKey(
       includeFromJson: true,
       includeToJson: false,
@@ -140,6 +158,8 @@ class _$VisionPanelEntryLinesCopyWithImpl<
     Object? boxCode = freezed,
     Object? itemIndex = freezed,
     Object? image = freezed,
+    Object? allocationStatus = freezed,
+    Object? currentZone = freezed,
     Object? visionPhotoImg = freezed,
   }) {
     return _then(
@@ -224,6 +244,16 @@ class _$VisionPanelEntryLinesCopyWithImpl<
                     ? _value.image
                     : image // ignore: cast_nullable_to_non_nullable
                         as String?,
+            allocationStatus:
+                freezed == allocationStatus
+                    ? _value.allocationStatus
+                    : allocationStatus // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            currentZone:
+                freezed == currentZone
+                    ? _value.currentZone
+                    : currentZone // ignore: cast_nullable_to_non_nullable
+                        as String?,
             visionPhotoImg:
                 freezed == visionPhotoImg
                     ? _value.visionPhotoImg
@@ -261,6 +291,14 @@ abstract class _$$VisionPanelEntryLinesImplCopyWith<$Res>
     @JsonKey(name: 'box_code') String? boxCode,
     int? itemIndex,
     @JsonKey(name: 'image') String? image,
+    @JsonKey(
+      name: 'allocation_status',
+      includeFromJson: true,
+      includeToJson: false,
+    )
+    String? allocationStatus,
+    @JsonKey(name: 'current_zone', includeFromJson: true, includeToJson: false)
+    String? currentZone,
     @JsonKey(
       includeFromJson: true,
       includeToJson: false,
@@ -302,6 +340,8 @@ class __$$VisionPanelEntryLinesImplCopyWithImpl<$Res>
     Object? boxCode = freezed,
     Object? itemIndex = freezed,
     Object? image = freezed,
+    Object? allocationStatus = freezed,
+    Object? currentZone = freezed,
     Object? visionPhotoImg = freezed,
   }) {
     return _then(
@@ -386,6 +426,16 @@ class __$$VisionPanelEntryLinesImplCopyWithImpl<$Res>
                 ? _value.image
                 : image // ignore: cast_nullable_to_non_nullable
                     as String?,
+        allocationStatus:
+            freezed == allocationStatus
+                ? _value.allocationStatus
+                : allocationStatus // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        currentZone:
+            freezed == currentZone
+                ? _value.currentZone
+                : currentZone // ignore: cast_nullable_to_non_nullable
+                    as String?,
         visionPhotoImg:
             freezed == visionPhotoImg
                 ? _value.visionPhotoImg
@@ -416,6 +466,14 @@ class _$VisionPanelEntryLinesImpl implements _VisionPanelEntryLines {
     @JsonKey(name: 'box_code') this.boxCode,
     this.itemIndex,
     @JsonKey(name: 'image') this.image,
+    @JsonKey(
+      name: 'allocation_status',
+      includeFromJson: true,
+      includeToJson: false,
+    )
+    this.allocationStatus,
+    @JsonKey(name: 'current_zone', includeFromJson: true, includeToJson: false)
+    this.currentZone,
     @JsonKey(
       includeFromJson: true,
       includeToJson: false,
@@ -475,6 +533,18 @@ class _$VisionPanelEntryLinesImpl implements _VisionPanelEntryLines {
   @override
   @JsonKey(name: 'image')
   final String? image;
+
+  /// Per-box warehouse status (server-only). Unallocated / Allocated / Dispatched.
+  @override
+  @JsonKey(
+    name: 'allocation_status',
+    includeFromJson: true,
+    includeToJson: false,
+  )
+  final String? allocationStatus;
+  @override
+  @JsonKey(name: 'current_zone', includeFromJson: true, includeToJson: false)
+  final String? currentZone;
   @override
   @JsonKey(
     includeFromJson: true,
@@ -486,7 +556,7 @@ class _$VisionPanelEntryLinesImpl implements _VisionPanelEntryLines {
 
   @override
   String toString() {
-    return 'VisionPanelEntryLines(name: $name, owner: $owner, creation: $creation, modified: $modified, modifiedBy: $modifiedBy, docStatus: $docStatus, idx: $idx, parent: $parent, parentField: $parentField, parentType: $parentType, productType: $productType, boxNo: $boxNo, boxIndex: $boxIndex, boxCode: $boxCode, itemIndex: $itemIndex, image: $image, visionPhotoImg: $visionPhotoImg)';
+    return 'VisionPanelEntryLines(name: $name, owner: $owner, creation: $creation, modified: $modified, modifiedBy: $modifiedBy, docStatus: $docStatus, idx: $idx, parent: $parent, parentField: $parentField, parentType: $parentType, productType: $productType, boxNo: $boxNo, boxIndex: $boxIndex, boxCode: $boxCode, itemIndex: $itemIndex, image: $image, allocationStatus: $allocationStatus, currentZone: $currentZone, visionPhotoImg: $visionPhotoImg)';
   }
 
   @override
@@ -519,13 +589,17 @@ class _$VisionPanelEntryLinesImpl implements _VisionPanelEntryLines {
             (identical(other.itemIndex, itemIndex) ||
                 other.itemIndex == itemIndex) &&
             (identical(other.image, image) || other.image == image) &&
+            (identical(other.allocationStatus, allocationStatus) ||
+                other.allocationStatus == allocationStatus) &&
+            (identical(other.currentZone, currentZone) ||
+                other.currentZone == currentZone) &&
             (identical(other.visionPhotoImg, visionPhotoImg) ||
                 other.visionPhotoImg == visionPhotoImg));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     runtimeType,
     name,
     owner,
@@ -543,8 +617,10 @@ class _$VisionPanelEntryLinesImpl implements _VisionPanelEntryLines {
     boxCode,
     itemIndex,
     image,
+    allocationStatus,
+    currentZone,
     visionPhotoImg,
-  );
+  ]);
 
   /// Create a copy of VisionPanelEntryLines
   /// with the given fields replaced by the non-null parameter values.
@@ -582,6 +658,14 @@ abstract class _VisionPanelEntryLines implements VisionPanelEntryLines {
     @JsonKey(name: 'box_code') final String? boxCode,
     final int? itemIndex,
     @JsonKey(name: 'image') final String? image,
+    @JsonKey(
+      name: 'allocation_status',
+      includeFromJson: true,
+      includeToJson: false,
+    )
+    final String? allocationStatus,
+    @JsonKey(name: 'current_zone', includeFromJson: true, includeToJson: false)
+    final String? currentZone,
     @JsonKey(
       includeFromJson: true,
       includeToJson: false,
@@ -641,6 +725,18 @@ abstract class _VisionPanelEntryLines implements VisionPanelEntryLines {
   @override
   @JsonKey(name: 'image')
   String? get image;
+
+  /// Per-box warehouse status (server-only). Unallocated / Allocated / Dispatched.
+  @override
+  @JsonKey(
+    name: 'allocation_status',
+    includeFromJson: true,
+    includeToJson: false,
+  )
+  String? get allocationStatus;
+  @override
+  @JsonKey(name: 'current_zone', includeFromJson: true, includeToJson: false)
+  String? get currentZone;
   @override
   @JsonKey(
     includeFromJson: true,

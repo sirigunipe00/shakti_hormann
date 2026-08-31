@@ -4,13 +4,14 @@ import 'package:shakti_hormann/features/frame_packing/model/frame_items.dart';
 import 'package:shakti_hormann/features/frame_packing/model/frame_lines.dart';
 import 'package:shakti_hormann/features/frame_packing/model/frame_packing.dart';
 import 'package:shakti_hormann/features/gate_entry/model/attachement.dart';
+import 'package:shakti_hormann/features/pallet_creation/model/pallet_model.dart';
 import 'package:shakti_hormann/features/shutter_packing/model/pallet_size.dart';
 
 
 abstract class FramePackingRepo{
   AsyncValueOf<List<FramePacking>> fetchFramePacking(
     int start,
-    int? docStatus,
+    String? status,
     String? search,
   );
   AsyncValueOf<List<FrameLines>> fetchFrameLines(
@@ -22,6 +23,12 @@ abstract class FramePackingRepo{
   AsyncValueOf<Pair<String,String>> submitFrame(FramePacking form);
   AsyncValueOf<List<FrameItems>> fetchItems(String name,String index);
   AsyncValueOf<List<PalletSize>> fetchPalletSize();
+  /// Packing SO picker — [q] searches order no / customer.
+  AsyncValueOf<List<PalletModel>> getSales({
+    String q = '',
+    int limit = 50,
+    int offset = 0,
+  });
   AsyncValueOf<List<String>> getFramePalletCode(String salesOrder);
   AsyncValueOf<String> printFrameSticker(String framePackingId);
   AsyncValueOf<List<AttachementInvoices>> fetchAttachments(String gateEntryId);

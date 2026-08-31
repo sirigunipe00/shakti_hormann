@@ -37,8 +37,12 @@ class FrappeApiResponseParser<T> implements ApiResponseParser<T> {
           final rawMessage = messageObj['message'];
           final code = messageObj['code'] as String?;
           final data = messageObj['data'];
+          final popup =
+              data is Map ? data['popup_message'] as String? : null;
           final buffer = StringBuffer(
-            rawMessage is String && rawMessage.isNotEmpty
+            popup != null && popup.isNotEmpty
+                ? popup
+                : rawMessage is String && rawMessage.isNotEmpty
                 ? rawMessage
                 : defErrorMessage,
           );
@@ -46,6 +50,19 @@ class FrappeApiResponseParser<T> implements ApiResponseParser<T> {
               data is Map &&
               data['existing_record'] != null) {
             buffer.write('\nExisting record: ${data['existing_record']}');
+          }
+          if (code == 'ALREADY_STORED' && data is Map) {
+            final zone = data['current_zone'];
+            if (zone != null && zone.toString().isNotEmpty) {
+              buffer.write('\nCurrent zone: $zone');
+            }
+            buffer.write('\nUse Zone Transfer to move this pallet.');
+          }
+          if (code == 'SAME_ZONE' && data is Map) {
+            final zone = data['current_zone'];
+            if (zone != null && zone.toString().isNotEmpty) {
+              buffer.write('\nCurrent zone: $zone');
+            }
           }
           final mappedStatus = status == 409 ? 409 : 400;
           return ApiResponse.failure(buffer.toString(), status: mappedStatus);

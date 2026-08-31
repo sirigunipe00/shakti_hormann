@@ -7,6 +7,7 @@ import 'package:injectable/injectable.dart';
 import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/features/auth/model/logged_in_user.dart';
 import 'package:shakti_hormann/features/loading_confirmation/data/loading_cnfm_repo.dart';
+import 'package:shakti_hormann/features/loading_confirmation/model/dispatch_loading.dart';
 import 'package:shakti_hormann/features/loading_confirmation/model/item_model.dart';
 import 'package:shakti_hormann/features/loading_confirmation/model/loading_cnfm.dart';
 import 'package:shakti_hormann/features/loading_confirmation/model/logistic.dart';
@@ -177,12 +178,14 @@ final result = childResponse.process((r) => right(r.data ?? []));
   ) async {
     final cleanedItems = await Future.wait(
       items.map((e) async {
-        final map = removeNullValues(e.toJson());
-
-        if (map.containsKey('sample_quantity')) {
-          map['qty_loaded'] = map['sample_quantity'];
-          map.remove('sample_quantity');
-        }
+        // create_items_loaded creates NEW child rows. Do not send `name` /
+        // `item_row_name` — those are SAP SO line ids and cause ROW_NOT_FOUND.
+        final map = <String, dynamic>{
+          'item_code': e.itemCode,
+          'item_name': e.itemName,
+          'uom': e.uomValue ?? e.stockUom ?? e.salesUom,
+          'qty_loaded': e.qtyLoaded ?? e.sampleQuantity ?? e.qty,
+        };
 
         if (e.imageFile != null) {
           final compressed = await FlutterImageCompress.compressWithFile(
@@ -193,21 +196,38 @@ final result = childResponse.process((r) => right(r.data ?? []));
           map['loaded_item_photo'] =
               compressed == null ? null : base64Encode(compressed);
         } else if (e.loadedItemPhoto != null && e.loadedItemPhoto!.isNotEmpty) {
-          try {
-            final base = Urls.baseUrl.replaceAll('/api', '');
-            final uri = Uri.parse('$base${e.loadedItemPhoto}');
+          if (e.loadedItemPhoto!.startsWith('/files/') ||
+              e.loadedItemPhoto!.startsWith('http')) {
+            try {
+              final base = Urls.baseUrl.replaceAll('/api', '');
+              final uri =
+                  e.loadedItemPhoto!.startsWith('http')
+                      ? Uri.parse(e.loadedItemPhoto!)
+                      : Uri.parse('$base${e.loadedItemPhoto}');
 
-            final response = await http.get(uri);
-            if (response.statusCode == 200) {
-              map['loaded_item_photo'] = base64Encode(response.bodyBytes);
-            } else {
-              map['loaded_item_photo'] = null;
+              final response = await http.get(uri);
+              if (response.statusCode == 200) {
+                map['loaded_item_photo'] = base64Encode(response.bodyBytes);
+              }
+            } catch (err) {
+              map.remove('loaded_item_photo');
             }
-          } catch (err) {
-            map['loaded_item_photo'] = null;
+          } else if (File(e.loadedItemPhoto!).existsSync()) {
+            final compressed = await FlutterImageCompress.compressWithFile(
+              e.loadedItemPhoto!,
+              quality: 50,
+            );
+            map['loaded_item_photo'] =
+                compressed == null ? null : base64Encode(compressed);
           }
         }
 
+        map.removeWhere(
+          (key, value) =>
+              value == null ||
+              (value is String && value.trim().isEmpty) ||
+              value == 'null',
+        );
         return map;
       }),
     );
@@ -368,36 +388,109 @@ final result = childResponse.process((r) => right(r.data ?? []));
 
   @override
   AsyncValueOf<List<ItemModel>> getItems(String name) async {
-    return await executeSafely(() async {
-        $logger.devLog('Itemlist name.....$name');
+    final result = await getDispatchLoadedItems(name);
+    return result.fold(left, (data) => right(_legacyItemsFromDispatch(data)));
+  }
+
+  List<ItemModel> _legacyItemsFromDispatch(DispatchLoadedData data) {
+    return data.loadedRows
+        .where((r) => r.scanQr == null || r.scanQr!.trim().isEmpty)
+        .map(
+          (r) => ItemModel(
+            itemCode: r.itemCode,
+            itemName: r.itemName,
+            uomValue: r.uom,
+            qtyLoaded: r.qtyLoaded?.toDouble(),
+            loadedItemPhoto: r.loadedItemPhoto,
+            name: r.itemRowName,
+            itemrowName: r.itemRowName,
+          ),
+        )
+        .toList();
+  }
+
+  @override
+  AsyncValueOf<DispatchLoadedData> getDispatchLoadedItems(String name) async {
+    return executeSafely(() async {
+      $logger.devLog('getDispatchLoadedItems.....$name');
       final config = RequestConfig(
         url: Urls.getLodedItems,
-
-        parser: (json) {
-          final data = json['message']['data'];
-          final listdata = data as List<dynamic>;
-
-          return listdata
-              .map(
-                (e) => ItemModel.fromJson(
-                  e,
-                ).copyWith(itemrowName: e['name'] ?? ''),
-              )
-              .toList();
-        },
-
-        reqParams: {'docname': name},
+        parser: (json) => _parseDispatchLoadedData(json),
+        body: jsonEncode({'docname': name}),
         headers: {HttpHeaders.contentTypeHeader: 'application/json'},
       );
-      $logger.devLog('Itemlist config.....$config');
-      final response = await get(config);
-
-      $logger.devLog('Itemlist response.....$response');
-    
-
-      return response.processAsync((r) async {
-        return right((r.data!));
-      });
+      final response = await post(config);
+      return response.processAsync((r) async => right(r.data!));
     });
+  }
+
+  @override
+  AsyncValueOf<DispatchScanResult> scanUnitForDispatch({
+    required String qr,
+    required String vrName,
+    String? parentPalletQr,
+  }) async {
+    return executeSafely(() async {
+      final body = <String, dynamic>{
+        'pallet__box_qr_scan': qr.trim(),
+        'vr_name': vrName,
+      };
+      if (parentPalletQr != null && parentPalletQr.isNotEmpty) {
+        body['parent_pallet_qr'] = parentPalletQr;
+      }
+      final config = RequestConfig(
+        url: Urls.scanUnitForDispatch,
+        parser: (json) {
+          final envelope = _dispatchEnvelope(json);
+          final data = envelope['data'] as Map<String, dynamic>? ?? {};
+          return DispatchScanResult.fromJson(data);
+        },
+        body: jsonEncode(body),
+        headers: {HttpHeaders.contentTypeHeader: 'application/json'},
+      );
+      $logger.devLog('scanUnitForDispatch.....$config');
+     
+      final response = await post(config); $logger.devLog('scanUnitForDispatch body.....$response');
+      return response.processAsync((r) async => right(r.data!));
+    });
+  }
+
+  @override
+  AsyncValueOf<DispatchLoadedData> updateScannedItems(
+    String vrName,
+    List<Map<String, dynamic>> items,
+  ) async {
+    return executeSafely(() async {
+      final config = RequestConfig(
+        url: Urls.updateLoading,
+        parser: (json) => _parseDispatchLoadedData(json),
+        body: jsonEncode({'vr_name': vrName, 'items': items}),
+        headers: {HttpHeaders.contentTypeHeader: 'application/json'},
+      );
+      $logger.devLog('updateScannedItems.....$config');
+      final response = await post(config);
+      $logger.devLog('updateScannedItems body.....$response');
+      return response.processAsync((r) async => right(r.data!));
+    });
+  }
+
+  Map<String, dynamic> _dispatchEnvelope(Map<String, dynamic> json) {
+    final message = json['message'];
+    if (message is Map<String, dynamic>) {
+      return message;
+    }
+    throw Exception('Unexpected dispatch API response');
+  }
+
+  DispatchLoadedData _parseDispatchLoadedData(Map<String, dynamic> json) {
+    final envelope = _dispatchEnvelope(json);
+    final data = envelope['data'];
+    if (data is List<dynamic>) {
+      return DispatchLoadedData.fromLegacyList(data);
+    }
+    if (data is Map<String, dynamic>) {
+      return DispatchLoadedData.fromJson(data);
+    }
+    return DispatchLoadedData.empty();
   }
 }

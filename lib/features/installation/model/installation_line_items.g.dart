@@ -20,7 +20,11 @@ _$InstallationLineItemsImpl _$$InstallationLineItemsImplFromJson(
   parentField: json['parentfield'] as String?,
   parentType: json['parenttype'] as String?,
   boxNo: json['box_no'] as String?,
+  boxIndex: (json['box_index'] as num?)?.toInt(),
+  boxCode: json['box_code'] as String?,
   image: json['image'] as String?,
+  allocationStatus: json['allocation_status'] as String?,
+  currentZone: json['current_zone'] as String?,
   installtionPhotoImg: toNull(json['installtionPhotoImg']),
 );
 
@@ -38,5 +42,7 @@ Map<String, dynamic> _$$InstallationLineItemsImplToJson(
   'parentfield': instance.parentField,
   'parenttype': instance.parentType,
   'box_no': instance.boxNo,
+  'box_index': instance.boxIndex,
+  'box_code': instance.boxCode,
   'image': instance.image,
 };

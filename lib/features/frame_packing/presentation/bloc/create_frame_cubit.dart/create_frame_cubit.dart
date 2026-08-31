@@ -264,7 +264,13 @@ class CreateFrameCubit extends AppBaseCubit<CreateFrameState> {
         shouldAskForConfirmation.value = false;
         emitSafeState(
           state.copyWith(
-            form: form.copyWith(name: r.second, status: 'Draft', docStatus: 0),
+            form: form.copyWith(
+              name: r.second,
+              status: 'In Packing',
+              allocationStatus: 'Unallocated',
+              currentZone: '',
+              docStatus: 0,
+            ),
             isCreatingDoc: false,
             isModified: false,
             view: FrameView.edit,
@@ -377,17 +383,19 @@ class CreateFrameCubit extends AppBaseCubit<CreateFrameState> {
       );
       return;
     }
-    emitSafeState(state.copyWith(isLoading: true));
+    emitSafeState(state.copyWith(isProcessingScan: true));
 
     final result = await repo.fetchItems(salesOrder, itemIndex);
 
     await result.fold(
       (failure) async {
-        emitSafeState(state.copyWith(isLoading: false, error: failure));
+        emitSafeState(
+          state.copyWith(isProcessingScan: false, error: failure),
+        );
       },
       (items) async {
         if (items.isEmpty) {
-          emitSafeState(state.copyWith(isLoading: false));
+          emitSafeState(state.copyWith(isProcessingScan: false));
           _emitError(
             Pair(
               'No item found for SO: $salesOrder at index $itemIndex',
@@ -412,7 +420,7 @@ class CreateFrameCubit extends AppBaseCubit<CreateFrameState> {
         emitSafeState(
           state.copyWith(
             lines: updated,
-            isLoading: false,
+            isProcessingScan: false,
             isModified: true,
             newLines: newItems,
           ),
@@ -478,40 +486,6 @@ class CreateFrameCubit extends AppBaseCubit<CreateFrameState> {
   }
 }
 
-  // Future<void> _syncLineToServer() async {
-  //   if (_isSyncingLine) return;
-  //   _isSyncingLine = true;
-
-  //   try {
-  //     final form = state.form;
-  //     final docExists = form.name != null && form.name!.isNotEmpty;
-
-  //     if (!docExists) {
-  //       _emitError(
-  //         const Pair(
-  //           'Please save the Sales Order and Pallet Code before scanning items.',
-  //           null,
-  //         ),
-  //       );
-  //       return;
-  //     }
-
-  //     final pending = state.newLines;
-  //     if (pending.isEmpty) return;
-
-  //     final response = await repo.updateFrame(form, pending);
-  //     response.fold(
-  //       (failure) {
-  //         emitSafeState(state.copyWith(error: failure));
-  //       },
-  //       (_) {
-  //         emitSafeState(state.copyWith(newLines: []));
-  //       },
-  //     );
-  //   } finally {
-  //     _isSyncingLine = false;
-  //   }
-  // }
 
   void addLinePhotos(int index, List<String> localPaths) {
     final lines = [...state.lines];
@@ -609,11 +583,6 @@ class CreateFrameCubit extends AppBaseCubit<CreateFrameState> {
       final form = state.form;
       final isNew = form.name == null || form.name!.isEmpty;
       final isDraft = form.docStatus == null || form.docStatus == 0;
-      final status = switch (state.view) {
-        FrameView.create => 'Draft',
-        FrameView.edit => 'Draft',
-        FrameView.completed => 'Submitted',
-      };
 
       if (isNew) {
         final response = await repo.createFrame(form, state.lines);
@@ -626,7 +595,13 @@ class CreateFrameCubit extends AppBaseCubit<CreateFrameState> {
               state.copyWith(
                 isLoading: false,
                 isSuccess: true,
-                form: form.copyWith(status: status, name: docstatus),
+                form: form.copyWith(
+                  status: 'In Packing',
+                  allocationStatus: 'Unallocated',
+                  currentZone: '',
+                  name: docstatus,
+                  docStatus: 0,
+                ),
                 successMsg: '${r.first}\n${r.second}',
                 view: FrameView.edit,
                 isModified: false,
@@ -649,7 +624,11 @@ class CreateFrameCubit extends AppBaseCubit<CreateFrameState> {
             emitSafeState(
               state.copyWith(
                 isLoading: false,
-                form: form.copyWith(status: status, name: updatedName),
+                form: form.copyWith(
+                  status: 'In Packing',
+                  allocationStatus: form.allocationStatus ?? 'Unallocated',
+                  name: updatedName,
+                ),
                 isSuccess: true,
                 successMsg: '${r.first}\n${updatedName ?? ''}',
                 isModified: false,
@@ -674,7 +653,11 @@ class CreateFrameCubit extends AppBaseCubit<CreateFrameState> {
               state.copyWith(
                 isLoading: false,
                 isSuccess: true,
-                form: form.copyWith(docStatus: 1),
+                form: form.copyWith(
+                  docStatus: 1,
+                  status: 'Frozen',
+                  allocationStatus: form.allocationStatus ?? 'Unallocated',
+                ),
                 successMsg: '${r.first}\n${r.second}',
                 view: FrameView.completed,
                 isModified: false,
@@ -692,7 +675,9 @@ class CreateFrameCubit extends AppBaseCubit<CreateFrameState> {
       title: 'Missing Fields',
       status: error.second,
     );
-    emitSafeState(state.copyWith(error: failure, isLoading: false));
+    emitSafeState(
+      state.copyWith(error: failure, isLoading: false, isProcessingScan: false),
+    );
   }
 
   Future<void> freezeFrameQuantity() async {
@@ -735,6 +720,7 @@ class CreateFrameCubit extends AppBaseCubit<CreateFrameState> {
       state.copyWith(
         error: null,
         isLoading: false,
+        isProcessingScan: false,
         isSuccess: false,
         successMsg: null,
       ),
@@ -776,6 +762,7 @@ class CreateFrameState with _$CreateFrameState {
     @Default(false) bool isFreezing,
     @Default(false) bool isFrozen,
     @Default(false) bool isCreatingDoc,
+    @Default(false) bool isProcessingScan,
     String? freezeSuccessMsg,
     String? successMsg,
     String? createSuccessMsg,

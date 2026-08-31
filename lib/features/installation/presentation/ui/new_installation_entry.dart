@@ -76,8 +76,6 @@ class _NewInstallationEntryState extends State<NewInstallationEntry> {
                           CreateInstallationState>(
                           builder: (context, state) {
                             final cubit = context.cubit<CreateInstallationEntryCubit>();
-                            
-                            // Button is only enabled once all box photos are captured and uploaded (isUpdated)
                             final bool canSubmit = state.isUpdated && !state.isLoading;
 
                             return AppButton(
@@ -90,7 +88,7 @@ class _NewInstallationEntryState extends State<NewInstallationEntry> {
                                   ? () {
                                       cubit.submit();
                                     }
-                                  : null, // Keeps button disabled until all images are captured
+                                  : null, 
                             );
                           },
                         ),

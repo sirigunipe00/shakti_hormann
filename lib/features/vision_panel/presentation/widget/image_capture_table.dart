@@ -33,8 +33,6 @@ class _ImageCaptureTableState extends State<ImageCaptureTable> {
           final line = state.imageLines[i];
           final hasPhoto = line.visionPhotoImg != null ||
               (line.image != null && line.image!.isNotEmpty);
-
-          // Keep captured photos; drop blank leftover rows for uploaded items.
           if (hasPhoto) {
             validEntries.add(MapEntry(i, line));
           } else if (line.itemIndex != null &&
@@ -42,11 +40,6 @@ class _ImageCaptureTableState extends State<ImageCaptureTable> {
             validEntries.add(MapEntry(i, line));
           }
         }
-
-        // if (validEntries.isEmpty) {
-        //   return const SizedBox.shrink();
-        // }
-
         return _BoxDetailsTable(
           entries: validEntries,
           activeIndex: activeIndex,
@@ -124,6 +117,11 @@ class _BoxDetailsTable extends StatelessWidget {
       line.visionPhotoImg != null ||
       (line.image != null && line.image!.isNotEmpty);
 
+  String _zoneText(VisionPanelEntryLines line) {
+    final zone = line.currentZone?.trim() ?? '';
+    return zone.isEmpty ? '-' : zone;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -140,8 +138,10 @@ class _BoxDetailsTable extends StatelessWidget {
         ),
         columnWidths: const {
           0: FixedColumnWidth(44),
-          1: FlexColumnWidth(1.2),
-          2: FlexColumnWidth(1.6),
+          1: FlexColumnWidth(1.1),
+          2: FlexColumnWidth(1.7),
+          3: FlexColumnWidth(1.5),
+          4: FlexColumnWidth(1.6),
         },
         children: [
           const TableRow(
@@ -149,6 +149,8 @@ class _BoxDetailsTable extends StatelessWidget {
             children: [
               _HeaderCell('#'),
               _HeaderCell('Box No.'),
+              _HeaderCell('Box Code'),
+              _HeaderCell('Allocation'),
               _HeaderCell('Photo'),
             ],
           ),
@@ -170,6 +172,33 @@ class _BoxDetailsTable extends StatelessWidget {
                 _Cell(
                   child: Text(
                     entries[displayIndex].value.boxNo ?? '',
+                  ),
+                ),
+                _Cell(
+                  child: Text(
+                    entries[displayIndex].value.boxCode ?? '-',
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                _Cell(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        entries[displayIndex].value.allocationStatus ??
+                            'Unallocated',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                      Text(
+                        _zoneText(entries[displayIndex].value),
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.grey.shade700,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 _Cell(child: _buildPhotoCell(entries[displayIndex])),

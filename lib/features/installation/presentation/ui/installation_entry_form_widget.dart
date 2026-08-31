@@ -1,6 +1,6 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shakti_hormann/core/core.dart';
@@ -63,7 +63,6 @@ class _InstallationEntryFormWidgetState
         builder: (context, formState) {
           final cubit = context.cubit<CreateInstallationEntryCubit>();
           final newform = formState.form;
-          $logger.devLog('newform$newform');
           final status = newform.docStatus;
           final printed = newform.isStickerPrinted == 1;
           final isSubmitted = status == 1;
@@ -80,7 +79,7 @@ class _InstallationEntryFormWidgetState
             backgroundColor: Colors.purple.shade100.withValues(alpha: 0.15),
             body: SingleChildScrollView(
               controller: _scrollController,
-              padding: const EdgeInsets.only(top: 16, bottom: 24),
+              padding: const EdgeInsets.only(top: 5, bottom: 24),
               child: SpacedColumn(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 defaultHeight: 0,
@@ -93,7 +92,12 @@ class _InstallationEntryFormWidgetState
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.all(12),
+                    padding: const EdgeInsets.only(
+                      top: 12,
+                      bottom: 0,
+                      left: 12,
+                      right: 12,
+                    ),
                     width: MediaQuery.of(context).size.width,
                     margin: const EdgeInsets.symmetric(horizontal: 18),
                     decoration: BoxDecoration(
@@ -152,26 +156,26 @@ class _InstallationEntryFormWidgetState
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
-                    listItemBuilder:
-                                      (_, item, __, ___) => Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            'Sales Order: ${item.name ?? ''}',
-                                            style: const TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                          if (item.customerName != null)
-                                            Text(
-                                              'Customer Name : ${item.customerName}',
-                                            ),
-                                          Text(
-                                            'Order Date: ${DFU.ddMMyyyyFromStr(item.orderDate ?? '')} ',
-                                          ),
-                                        ],
+                              listItemBuilder:
+                                  (_, item, __, ___) => Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Sales Order: ${item.name ?? ''}',
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                        ),
                                       ),
+                                      if (item.customerName != null)
+                                        Text(
+                                          'Customer Name : ${item.customerName}',
+                                        ),
+                                      Text(
+                                        'Order Date: ${DFU.ddMMyyyyFromStr(item.orderDate ?? '')} ',
+                                      ),
+                                    ],
+                                  ),
                               onSelected: (selected) {
                                 setState(() {
                                   invoiceform = selected;
@@ -193,6 +197,10 @@ class _InstallationEntryFormWidgetState
                           borderColor: AppColors.grey,
                           inputType: TextInputType.number,
                           initialValue: newform.noOfBoxes?.toString() ?? '',
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                            LengthLimitingTextInputFormatter(3),
+                          ],
                           onChanged: (p0) {
                             final trimmed = p0.trim();
                             if (trimmed.isEmpty) {
@@ -205,28 +213,62 @@ class _InstallationEntryFormWidgetState
                             }
                           },
                         ),
-                        const Text('**Please Save the Sales Order & No Of Boxes before Printing the stickers**'),
-                        if (!isSubmitted)
+                        const Text(
+                          '**Please Save the Sales Order & No Of Boxes before Printing the stickers**',
+                        ),
+                        if (printed)
+                          // Once printed, always show this confirmation — even after the
+                          // record is submitted — instead of hiding the print state entirely.
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFECFDF5),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: const Color(
+                                  0xFF16A34A,
+                                ).withValues(alpha: 0.3),
+                              ),
+                            ),
+                            child: const Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.check_circle,
+                                  color: Color(0xFF16A34A),
+                                  size: 20,
+                                ),
+                                SizedBox(width: 8),
+                                Text(
+                                  'Sticker Printed',
+                                  style: TextStyle(
+                                    color: Color(0xFF16A34A),
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
+                        else if (!isSubmitted)
                           SizedBox(
                             width: double.infinity,
                             child: ElevatedButton.icon(
                               onPressed:
-                                  (isCreated &&
-                                          !formState.isPrintLoading &&
-                                          !printed)
+                                  (isCreated && !formState.isPrintLoading)
                                       ? () => _confirmPrint(
                                         context,
                                         formState,
                                         cubit,
                                       )
                                       : null,
-                              icon: Icon(
-                                printed ? Icons.check_circle : Icons.print,
+                              icon: const Icon(
+                                Icons.print,
                                 color: Colors.green,
                               ),
                               label:
-                                  formState
-                                          .isPrintLoading 
+                                  formState.isPrintLoading
                                       ? const SizedBox(
                                         height: 18,
                                         width: 18,
@@ -235,21 +277,17 @@ class _InstallationEntryFormWidgetState
                                           color: Colors.white,
                                         ),
                                       )
-                                      : Text(
-                                        printed
-                                            ? 'Sticker Printed'
-                                            : 'Print Sticker',
-                                        style: const TextStyle(
+                                      : const Text(
+                                        'Print Sticker',
+                                        style: TextStyle(
                                           color: Colors.black,
                                           fontWeight: FontWeight.bold,
-                                          fontSize: 18
+                                          fontSize: 18,
                                         ),
                                       ),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor:
-                                    printed
-                                        ? Colors.grey.shade400
-                                        : isCreated
+                                    isCreated
                                         ? const Color(0xFF5CB88F)
                                         : Colors.grey.shade400,
                                 padding: const EdgeInsets.symmetric(
@@ -267,7 +305,7 @@ class _InstallationEntryFormWidgetState
 
                   // Box Details Table Section Only (No inline Submit button)
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 15.0),
                     child: SpacedColumn(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       defaultHeight: 6,
@@ -541,19 +579,23 @@ class _BoxDetailsTable extends StatelessWidget {
       line.installtionPhotoImg != null ||
       (line.image != null && line.image!.isNotEmpty);
 
+  String _zoneText(InstallationLineItems line) {
+    final zone = line.currentZone?.trim() ?? '';
+    return zone.isEmpty ? '-' : zone;
+  }
+
   @override
   Widget build(BuildContext context) {
-    for (int i = 0; i < lines.length; i++) {
-      print("$i -> ${lines[i].installtionPhotoImg?.path} | ${lines[i].image}");
-    }
     return ClipRRect(
       borderRadius: BorderRadius.circular(10),
       child: Table(
         border: TableBorder.all(color: Colors.grey.shade400),
         columnWidths: const {
           0: FixedColumnWidth(44),
-          1: FlexColumnWidth(1.2),
-          2: FlexColumnWidth(1.6),
+          1: FlexColumnWidth(1.1),
+          2: FlexColumnWidth(1.7),
+          3: FlexColumnWidth(1.6),
+          4: FlexColumnWidth(1.4),
         },
         children: [
           const TableRow(
@@ -561,6 +603,8 @@ class _BoxDetailsTable extends StatelessWidget {
             children: [
               _HeaderCell('#'),
               _HeaderCell('Box No.'),
+              _HeaderCell('Box Code'),
+              _HeaderCell('Allocation'),
               _HeaderCell('Photo'),
             ],
           ),
@@ -583,6 +627,32 @@ class _BoxDetailsTable extends StatelessWidget {
                   ),
                 ),
                 _Cell(
+                  child: Text(
+                    lines[i].boxCode ?? '-',
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                _Cell(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        lines[i].allocationStatus ?? 'Unallocated',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                      Text(
+                        _zoneText(lines[i]),
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.grey.shade700,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                _Cell(
                   child:
                       _hasPhoto(lines[i])
                           ? InkWell(
@@ -592,11 +662,13 @@ class _BoxDetailsTable extends StatelessWidget {
                               color: const Color(0xFF5CB88F),
                               padding: const EdgeInsets.symmetric(vertical: 10),
                               alignment: Alignment.center,
-                              child: const Text(
-                                'View Image',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
+                              child: const Center(
+                                child: Text(
+                                  'View Image',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                               ),
                             ),

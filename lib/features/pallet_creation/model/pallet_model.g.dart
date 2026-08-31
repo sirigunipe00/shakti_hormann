@@ -17,6 +17,8 @@ _$PalletModelImpl _$$PalletModelImplFromJson(Map<String, dynamic> json) =>
       modifiedBy: json['modified_by'] as String?,
       idx: (json['idx'] as num?)?.toInt(),
       salesOrder: json['sales_order'] as String?,
+      customerName: json['customer_name'] as String?,
+      orderDate: json['order_date'] as String?,
       noofPallets: (json['no_of_pallets'] as num?)?.toInt(),
     );
 
@@ -31,5 +33,7 @@ Map<String, dynamic> _$$PalletModelImplToJson(_$PalletModelImpl instance) =>
       'modified_by': instance.modifiedBy,
       'idx': instance.idx,
       'sales_order': instance.salesOrder,
+      'customer_name': instance.customerName,
+      'order_date': instance.orderDate,
       'no_of_pallets': instance.noofPallets,
     };

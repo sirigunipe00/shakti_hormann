@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shakti_hormann/core/core.dart';
+import 'package:shakti_hormann/core/utils/packing_sticker_decoder.dart';
+import 'package:shakti_hormann/core/utils/packing_sticker_document_capture.dart';
 import 'package:shakti_hormann/features/logistic_request/model/sales_order_form.dart';
 import 'package:shakti_hormann/features/pallet_creation/model/pallet_model.dart';
 import 'package:shakti_hormann/features/shutter_packing/model/pallet_code.dart';
@@ -11,10 +13,11 @@ import 'package:shakti_hormann/features/shutter_packing/presentation/ui/create/s
 import 'package:shakti_hormann/features/shutter_packing/presentation/ui/widget/border_painter.dart';
 import 'package:shakti_hormann/features/shutter_packing/presentation/ui/widget/shutter_lines_widget.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
+import 'package:shakti_hormann/widgets/packing_scan_processing_overlay.dart';
 import 'package:shakti_hormann/widgets/dailogs/app_dialogs.dart';
 import 'package:shakti_hormann/widgets/inputs/new_upload_photo_widget.dart';
 import 'package:shakti_hormann/widgets/inputs/search_dropdown_widget.dart';
-import 'package:shakti_hormann/widgets/sectionheader.dart';
+// import 'package:shakti_hormann/widgets/sectionheader.dart';
 import 'package:simple_barcode_scanner/simple_barcode_scanner.dart';
 
 class ShutterPackingFormWidget extends StatefulWidget {
@@ -29,6 +32,7 @@ class __ShutterPackingFormWidgetState extends State<ShutterPackingFormWidget> {
   final ScrollController _scrollController = ScrollController();
   SalesOrderForm? invoiceform;
   PalletSize? palletSize;
+  bool _isDecodingSticker = false;
 
   @override
   void dispose() {
@@ -45,13 +49,20 @@ class __ShutterPackingFormWidgetState extends State<ShutterPackingFormWidget> {
     final isFrozen = formState.isFrozen || newform.freezeQuantity == 1;
     final isDocCreated = newform.name != null && newform.name!.isNotEmpty;
     final isDropdownLocked = isFrozen || isCompleted || isDocCreated;
-    final isScanningDisabled = isCompleted || isFrozen || !isDocCreated;
+    final isScanningDisabled =
+        isCompleted ||
+        isFrozen ||
+        !isDocCreated ||
+        formState.isProcessingScan ||
+        _isDecodingSticker;
     final hasPalletImage =
         newform.palletPhotoImg != null ||
         (newform.palletPhoto != null && newform.palletPhoto!.isNotEmpty);
     final isSubmitted = newform.docStatus == 1;
-
-    return MultiBlocListener(
+    final isStickerPrinted = isPalletPrinted || isSubmitted || isCompleted;
+    return Stack(
+      children: [
+        MultiBlocListener(
       listeners: [
         BlocListener<CreateShutterCubit, CreateShutterState>(
           listenWhen:
@@ -73,7 +84,7 @@ class __ShutterPackingFormWidgetState extends State<ShutterPackingFormWidget> {
       ],
       child: SingleChildScrollView(
         controller: _scrollController,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -106,7 +117,23 @@ class __ShutterPackingFormWidgetState extends State<ShutterPackingFormWidget> {
                         orElse: () => <PalletModel>[],
                         success: (data) => data,
                       );
+                      final savedSo = newform.salesOrder?.trim();
                       final names = allData.toList();
+                      // Reopened doc: keep saved SO visible even if not in picker API.
+                      if (savedSo != null &&
+                          savedSo.isNotEmpty &&
+                          !names.any((e) => e.salesOrder == savedSo)) {
+                        names.insert(
+                          0,
+                          PalletModel(salesOrder: savedSo, name: savedSo),
+                        );
+                      }
+                      final PalletModel? defaultSelection =
+                          (savedSo == null || savedSo.isEmpty)
+                              ? null
+                              : names.firstWhere(
+                                (g) => g.salesOrder == savedSo,
+                              );
                       return SearchDropDownList<PalletModel>(
                         title: 'Sales Order No.',
                         hint: 'Select Sales Order',
@@ -115,10 +142,7 @@ class __ShutterPackingFormWidgetState extends State<ShutterPackingFormWidget> {
                         items: names,
                         isRequired: true,
                         readOnly: isDropdownLocked,
-                        defaultSelection: names.firstWhere(
-                          (g) => g.salesOrder == newform.salesOrder,
-                          orElse: () => const PalletModel(),
-                        ),
+                        defaultSelection: defaultSelection,
                         isloading: state.isLoading,
                         futureRequest: (query) async {
                           if (query.isEmpty) return names;
@@ -155,6 +179,12 @@ class __ShutterPackingFormWidgetState extends State<ShutterPackingFormWidget> {
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
+                                  if ((item.customerName ?? '').isNotEmpty)
+                                    Text('Customer: ${item.customerName}'),
+                                  if ((item.orderDate ?? '').isNotEmpty)
+                                    Text(
+                                      'Order Date: ${DFU.ddMMyyyyFromStr(item.orderDate!)}',
+                                    ),
                                 ],
                               ),
                             ),
@@ -255,7 +285,7 @@ class __ShutterPackingFormWidgetState extends State<ShutterPackingFormWidget> {
                                 onTap: () => _scanPalletCode(context),
                                 child: Container(
                                   width: 48,
-                                  height: 48,
+                                  height: 54,
                                   decoration: BoxDecoration(
                                     color: const Color(0xFF1A3C6B),
                                     borderRadius: BorderRadius.circular(8),
@@ -280,13 +310,13 @@ class __ShutterPackingFormWidgetState extends State<ShutterPackingFormWidget> {
               const SizedBox(height: 12),
               const _StepHint(
                 text:
-                    'Select Sales Order and Pallet Code, then tap Save to proceed.',
+                    '**Select Sales Order and Pallet Code, then tap Save to proceed**',
               ),
             ],
 
             // ── Step 2: Scan & Items (visible after Save) ──
             if (isDocCreated) ...[
-              const SizedBox(height: 24),
+              const SizedBox(height: 10),
               _StepIndicator(
                 stepNumber: 2,
                 title: 'Scan & Items',
@@ -311,7 +341,7 @@ class __ShutterPackingFormWidgetState extends State<ShutterPackingFormWidget> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: _ScanCard(
-                        icon: Icons.camera_alt_outlined,
+                        icon: Icons.document_scanner_outlined,
                         label: 'Upload Shutter\nImage',
                         isDisabled: isScanningDisabled,
                         onTap:
@@ -323,16 +353,18 @@ class __ShutterPackingFormWidgetState extends State<ShutterPackingFormWidget> {
                   ],
                 ),
                 const SizedBox(height: 10),
-                const Text(
-                  'If Sticker is Not available , Please Upload the Image',
+                const Center(
+                  child: Text(
+                    '**If Sticker is Not available , Please Upload the Image**',
+                  ),
                 ),
                 const SizedBox(height: 10),
               ],
 
-              const SectionHeader(
-                title: 'Shutter Details',
-                assetIcon: 'assets/images/palleticon.svg',
-              ),
+              // const SectionHeader(
+              //   title: 'Shutter Details',
+              //   assetIcon: 'assets/images/palleticon.svg',
+              // ),
               const SizedBox(height: 8),
               const ShutterLinesWidget(),
               const SizedBox(height: 16),
@@ -420,10 +452,9 @@ class __ShutterPackingFormWidgetState extends State<ShutterPackingFormWidget> {
                 ),
               ],
             ],
-
             // ── Step 3: Print Sticker (visible after Freeze) ──
             if (isFrozen || isSubmitted || isCompleted) ...[
-              const SizedBox(height: 24),
+              const SizedBox(height: 10),
               _StepIndicator(
                 stepNumber: 3,
                 title: 'Print Sticker',
@@ -431,39 +462,62 @@ class __ShutterPackingFormWidgetState extends State<ShutterPackingFormWidget> {
                 isActive: isFrozen && !isPalletPrinted,
               ),
               const SizedBox(height: 8),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: _ScanCard(
-                      icon: Icons.print,
-                      label:
-                          (isPalletPrinted || isSubmitted || isCompleted)
-                              ? 'Sticker Printed'
-                              : (formState.isPrinting
-                                  ? 'Printing...'
-                                  : 'Print Sticker'),
-                      isDisabled:
-                          formState.isPrinting ||
-                          isPalletPrinted ||
-                          isSubmitted ||
-                          isCompleted,
-                      onTap:
-                          (formState.isPrinting ||
-                                  isPalletPrinted ||
-                                  isSubmitted ||
-                                  isCompleted)
-                              ? null
-                              : () => _onPrintQr(context),
+              if (isStickerPrinted)
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFECFDF5),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: const Color(0xFF16A34A).withValues(alpha: 0.3),
                     ),
                   ),
-                ],
-              ),
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.check_circle,
+                        color: Color(0xFF16A34A),
+                        size: 20,
+                      ),
+                      SizedBox(width: 8),
+                      Text(
+                        'Sticker Printed',
+                        style: TextStyle(
+                          color: Color(0xFF16A34A),
+                          fontWeight: FontWeight.w600,
+                          fontSize: 15,
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              else
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: _ScanCard(
+                        icon: Icons.print,
+                        label:
+                            formState.isPrinting
+                                ? 'Printing...'
+                                : 'Print Sticker',
+                        isDisabled: formState.isPrinting,
+                        onTap:
+                            formState.isPrinting
+                                ? null
+                                : () => _onPrintQr(context),
+                      ),
+                    ),
+                  ],
+                ),
             ],
 
             // ── Step 4: Pallet Image (visible after Print) ──
             if (isPalletPrinted || isSubmitted || isCompleted) ...[
-              const SizedBox(height: 24),
+              const SizedBox(height: 10),
               _StepIndicator(
                 stepNumber: 4,
                 title: 'Pallet Image',
@@ -535,14 +589,13 @@ class __ShutterPackingFormWidgetState extends State<ShutterPackingFormWidget> {
                 ),
               ],
             ],
-
-            // ── Completed state ──
-            if (isCompleted || isSubmitted) ...[const SizedBox(height: 24)],
-
-            const SizedBox(height: 24),
           ],
         ),
       ),
+    ),
+        if (formState.isProcessingScan || _isDecodingSticker)
+          const PackingScanProcessingOverlay(),
+      ],
     );
   }
 
@@ -696,6 +749,7 @@ class __ShutterPackingFormWidgetState extends State<ShutterPackingFormWidget> {
     if (salesOrder == null || salesOrder.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
+          duration: Duration(seconds: 2),
           content: Text('Please select a Sales Order first.'),
           backgroundColor: Colors.red,
         ),
@@ -718,39 +772,13 @@ class __ShutterPackingFormWidgetState extends State<ShutterPackingFormWidget> {
     final scanned = result.trim();
     if (scanned.isEmpty) return;
 
-    final match = RegExp(r'^SH-(\d+)-').firstMatch(scanned);
-
-    if (match == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('"$scanned" is not a valid pallet code.'),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return;
-    }
-
-    final scannedSalesOrder = match.group(1)!;
-
-    if (scannedSalesOrder != salesOrder) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'This pallet belongs to Sales Order "$scannedSalesOrder", '
-            'not the selected Sales Order "$salesOrder".',
-          ),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return;
-    }
-
     final validCodes = cubit.state.palletCodes;
-    final isValid = validCodes.any(
+    final matchedCode = validCodes.firstWhere(
       (code) => code.trim().toLowerCase() == scanned.toLowerCase(),
+      orElse: () => '',
     );
 
-    if (!isValid) {
+    if (matchedCode.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
@@ -762,28 +790,47 @@ class __ShutterPackingFormWidgetState extends State<ShutterPackingFormWidget> {
       return;
     }
 
-    context.read<CreateShutterCubit>().onValueChanged(palletCode: scanned);
+    context.read<CreateShutterCubit>().onValueChanged(palletCode: matchedCode);
   }
 
   Future<void> _onUploadImage(BuildContext context) async {
-    final result = await captureAndDecodeShutterQrMulti(context);
+    final imagePaths = await Navigator.of(context).push<List<String>>(
+      MaterialPageRoute(
+        builder:
+            (_) => const PackingStickerDocumentCapturePage(
+              title: 'Shutter Images',
+            ),
+      ),
+    );
 
     if (!context.mounted) return;
+    if (imagePaths == null || imagePaths.isEmpty) return;
 
-    if (result == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Could not read sticker. Please try again.'),
-          backgroundColor: Colors.red,
-        ),
+    setState(() => _isDecodingSticker = true);
+    try {
+      String? extracted;
+      for (final path in imagePaths) {
+        extracted = await decodePackingStickerCode(path);
+        if (extracted != null) break;
+      }
+      if (!context.mounted) return;
+      if (extracted == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Could not read sticker. Please try again.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+
+      await context.cubit<CreateShutterCubit>().onQrScanned(
+        extracted,
+        imagePaths: imagePaths,
       );
-      return;
+    } finally {
+      if (mounted) setState(() => _isDecodingSticker = false);
     }
-
-    context.cubit<CreateShutterCubit>().onQrScanned(
-      result['qr'] as String,
-      imagePaths: result['imagePaths'] as List<String>,
-    );
   }
 }
 
@@ -853,9 +900,10 @@ class _StepHint extends StatelessWidget {
       text,
       textAlign: TextAlign.center,
       style: const TextStyle(
-        fontSize: 12,
-        color: Color(0xFF94A3B8),
-        fontStyle: FontStyle.italic,
+        fontSize: 15,
+        color: AppColors.black,
+        fontStyle: FontStyle.normal,
+        fontWeight: FontWeight.bold,
       ),
     );
   }

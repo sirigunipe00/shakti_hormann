@@ -17,13 +17,16 @@ class InstallationRepoImpl extends BaseApiRepository implements InstallationRepo
     String? search,
   ) async {
     final filters = <List<dynamic>>[];
+    final orFilters = <List<dynamic>>[];
 
     if (docStatus != null && docStatus != 2) {
       filters.add(['docstatus', '=', docStatus]);
     }
 
     if (search != null && search.isNotEmpty) {
-      filters.add(['name', 'like', '%$search%']);
+      orFilters
+        ..add(['name', 'like', '%$search%'])
+        ..add(['sales_order_no', 'like', '%$search%']);
     }
     final requestConfig = RequestConfig(
       url: Urls.getList,
@@ -33,6 +36,7 @@ class InstallationRepoImpl extends BaseApiRepository implements InstallationRepo
       },
       reqParams: {
         'filters': jsonEncode(filters),
+        if (orFilters.isNotEmpty) 'or_filters': jsonEncode(orFilters),
         'limit_start': start,
         'limit_page_length': 'None',
         'order_by': 'creation desc',
@@ -87,39 +91,6 @@ class InstallationRepoImpl extends BaseApiRepository implements InstallationRepo
     return response.processAsync((r) async {
       return right(r.data!);
     });
-  }
-
-  @override
-  AsyncValueOf<List<InstallationLineItems>> getInstallationBoxSequence({
-    required String salesOrderNo,
-    required int noOfBoxes,
-    String? excludeName,
-  }) async {
-    final requestBody = <String, dynamic>{
-      'sales_order_no': salesOrderNo,
-      'no_of_boxes': noOfBoxes,
-    };
-    if (excludeName != null && excludeName.isNotEmpty) {
-      requestBody['exclude_name'] = excludeName;
-    }
-
-    final config = RequestConfig(
-      url: Urls.getInstallationBoxSequence,
-      parser: (json) {
-        final data = json['message']['data'] as Map<String, dynamic>;
-        final rawBoxes = data['boxes'] as List<dynamic>? ?? [];
-        return rawBoxes
-            .whereType<Map<String, dynamic>>()
-            .map(InstallationLineItems.fromJson)
-            .toList();
-      },
-      body: jsonEncode(requestBody),
-      headers: {HttpHeaders.contentTypeHeader: 'application/json'},
-    );
-
-    $logger.devLog('getInstallationBoxSequence....$config');
-    final response = await post(config);
-    return response.process((r) => right(r.data!));
   }
 
   @override
@@ -221,7 +192,8 @@ AsyncValueOf<String> printinstallationSticker(String id) async {
         'filters': jsonEncode([
           ['parent', '=', itemName],
         ]),
-        'limit': 20,
+        'limit_page_length': 'None',
+        'limit_start': 0,
         'order_by': 'idx asc',
         'doctype': 'Installation Entry Lines',
         'parent': 'Installation Entry',

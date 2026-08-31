@@ -69,14 +69,14 @@ class _AppPageView2State<T extends PageViewFiltersCubit>
     PageMode2.loadingConfirmation => 'Search VRE',
     PageMode2.proofOfDelivery => 'Search POD',
     PageMode2.gateManagement => 'Search GM',
-    PageMode2.storageAllocation => 'Search ID',
-    PageMode2.hardwarePackaging => 'Search ID',
+    PageMode2.storageAllocation => 'Search ID / SO',
+    PageMode2.hardwarePackaging => 'Search ID / SO',
     PageMode2.zoneTransfer => 'Search ZT',
-    PageMode2.framePacking => 'Search ID',
-    PageMode2.shutterPacking => 'Search ID',
-    PageMode2.palletCreation => 'Search ID',
-    PageMode2.visionPanel => 'Serach ID',
-    PageMode2.installation => 'Serach ID',
+    PageMode2.framePacking => 'Search ID / SO',
+    PageMode2.shutterPacking => 'Search ID / SO',
+    PageMode2.palletCreation => 'Search ID / SO',
+    PageMode2.visionPanel => 'Serach ID / SO',
+    PageMode2.installation => 'Serach ID / SO',
   };
 
   Color get bgColor => switch (widget.mode) {
@@ -107,32 +107,28 @@ class _AppPageView2State<T extends PageViewFiltersCubit>
       case PageMode2.gateexit:
       case PageMode2.proofOfDelivery:
       case PageMode2.gateManagement:
-      
-      
-
-      
-       case PageMode2.palletCreation:
-        case PageMode2.visionPanel:
-        case PageMode2.shutterPacking:
-         case PageMode2.framePacking:
-         case PageMode2.installation:
-         case PageMode2.hardwarePackaging:
-        
+      case PageMode2.palletCreation:
+      case PageMode2.visionPanel:
+      case PageMode2.installation:
+      case PageMode2.hardwarePackaging:
         filters = ['Draft', 'Submitted', 'All'];
         break;
-        case PageMode2.storageAllocation:
-        case PageMode2.zoneTransfer:
-        
-        
-       
 
-        filters = ['Completed'];
+      case PageMode2.shutterPacking:
+      case PageMode2.framePacking:
+        filters = [
+          'Draft',
+          'Submitted',
+          'Unallocated',
+          'Allocated',
+          'All',
+        ];
         break;
 
-       
-     
-      // filters = ['Submitted'];
-      // break;
+      case PageMode2.storageAllocation:
+      case PageMode2.zoneTransfer:
+        filters = ['Completed'];
+        break;
 
       case PageMode2.logisticRequest:
         filters = [

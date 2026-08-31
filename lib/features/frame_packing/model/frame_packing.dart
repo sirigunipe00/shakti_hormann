@@ -9,6 +9,15 @@ part 'frame_packing.g.dart';
 class FramePacking with _$FramePacking {
   const factory FramePacking({
     String? status,
+    /// Warehouse Status (server-only). Unallocated / Allocated / Dispatched.
+    @JsonKey(
+      name: 'allocation_status',
+      includeFromJson: true,
+      includeToJson: false,
+    )
+    String? allocationStatus,
+    @JsonKey(name: 'current_zone', includeFromJson: true, includeToJson: false)
+    String? currentZone,
     @JsonKey(name: 'name') String? name,
     @JsonKey(name: 'owner') String? owner,
     @JsonKey(name: 'creation') String? creation,

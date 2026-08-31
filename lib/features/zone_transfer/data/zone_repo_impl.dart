@@ -84,11 +84,13 @@ class ZoneRepoImp extends BaseApiRepository implements ZoneRepo{
     final config = RequestConfig(
       url: Urls.zoneTransfer,
       parser: (json) {
-       final message = json['message']['message'] as String;
-
-        final data = json['message']['data'] as Map<String, dynamic>;
-
-        final docNo = data['zone_transfer_id'] as String;
+        final envelope = json['message'];
+        if (envelope is! Map<String, dynamic>) {
+          throw Exception('Unsupported Zone Transfer response');
+        }
+        final message = envelope['message'] as String? ?? 'Success';
+        final data = envelope['data'] as Map<String, dynamic>? ?? {};
+        final docNo = data['zone_transfer_id'] as String? ?? '';
         return Pair(message, docNo);
       },
       body: jsonEncode(requestBody),
@@ -122,6 +124,7 @@ class ZoneRepoImp extends BaseApiRepository implements ZoneRepo{
           totalQty: (data['total_qty'] as num?)?.toInt(),
           oldZoneName: data['old_zone_name'] as String? ??
               data['current_zone'] as String?,
+          allocationStatus: data['allocation_status'] as String?,
           isNewPallet: isNew,
           movementCount: movement,
           transferCount: isNew ? 0 : (movement > 0 ? movement - 1 : 0),

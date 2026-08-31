@@ -16,6 +16,7 @@ _$LoadingCnfmFormImpl _$$LoadingCnfmFormImplFromJson(
   modifiedBy: json['modified_by'] as String?,
   docstatus: (json['docstatus'] as num?)?.toInt(),
   idx: (json['idx'] as num?)?.toInt(),
+  loadingStatus: json['dispatch_loading_status'] as String?,
   amendedFrom: json['amended_from'] as String?,
   plantName: json['plant_name'] as String?,
   vehicleReportingEntryVreDate:
@@ -45,6 +46,7 @@ Map<String, dynamic> _$$LoadingCnfmFormImplToJson(
   'modified_by': instance.modifiedBy,
   'docstatus': instance.docstatus,
   'idx': instance.idx,
+  'dispatch_loading_status': instance.loadingStatus,
   'amended_from': instance.amendedFrom,
   'plant_name': instance.plantName,
   'vehicle_reporting_entry_vre_date': instance.vehicleReportingEntryVreDate,

@@ -10,6 +10,15 @@ part 'storage.g.dart';
 class Storage with _$Storage {
   const factory Storage({
     String? status,
+    /// Unallocated / Allocated / Dispatched.
+    @JsonKey(
+      name: 'allocation_status',
+      includeFromJson: true,
+      includeToJson: false,
+    )
+    String? allocationStatus,
+    @JsonKey(name: 'current_zone', includeFromJson: true, includeToJson: false)
+    String? currentZone,
     @JsonKey(name: 'name') String? name,
     @JsonKey(name: 'stored_by') String? storedBy,
     @JsonKey(name: 'storage_timestamp') String? storageTimeStamp,

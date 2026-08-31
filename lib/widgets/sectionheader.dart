@@ -43,7 +43,7 @@ class SectionHeader extends StatelessWidget {
 
         Expanded(
           child: Padding(
-            padding: const EdgeInsets.only(top: 8),
+            padding: const EdgeInsets.only(top: 16),
             child: Text(
               title,
               style: const TextStyle(
