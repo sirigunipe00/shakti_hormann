@@ -32,7 +32,8 @@ class GateManagementWidget extends StatelessWidget {
         ),
         child: SpacedColumn(
           defaultHeight: 2,
-          margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+          // margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+          margin: const EdgeInsets.fromLTRB(10, 10, 10, 10),
           children: [
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -61,62 +62,22 @@ class GateManagementWidget extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                gateEntry.name ?? '',
-                                style: AppTextStyles.titleLarge(
-                                  context,
-                                ).copyWith(
-                                  color: AppColors.black,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                          Expanded(
+                            child: Text(
+                              gateEntry.name ?? '',
+                              style: AppTextStyles.titleLarge(context).copyWith(
+                                color: AppColors.black,
+                                fontWeight: FontWeight.bold,
                               ),
-                              const SizedBox(height: 5),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    purchaseOrderForm?.supplier ?? '',
-                                    style: const TextStyle(
-                                      color: AppColors.grey,
-                                      fontWeight: FontWeight.normal,
-                                      letterSpacing: 0,
-                                    ),
-                                  ),
-                                  Text(
-                                    gateEntry.vehicleNo ?? '',
-                                    style: const TextStyle(
-                                      color: AppColors.grey,
-                                      fontWeight: FontWeight.normal,
-                                      letterSpacing: 0,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
-
-                          // Text(
-                          //   '(SHM)',
-                          //   style: AppTextStyles.titleLarge(context).copyWith(
-                          //     color: const Color(0xFF2957A4),
-                          //     fontWeight: FontWeight.bold,
-                          //   ),
-                          // ),
-                        ],
-                      ),
-
-                      const SizedBox(height: 5),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
+                          const SizedBox(width: 10),
                           Row(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
                               const Icon(
                                 Icons.calendar_today,
@@ -128,6 +89,8 @@ class GateManagementWidget extends StatelessWidget {
                                 DFU.ddMMyyyyFromStr(
                                   gateEntry.gateeEntrydate ?? '',
                                 ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                                 style: AppTextStyles.titleMedium(
                                   context,
                                   const Color(0xFF163A6B),
@@ -135,25 +98,31 @@ class GateManagementWidget extends StatelessWidget {
                               ),
                             ],
                           ),
-                           DocStatusWidget(
-                  status: StringUtils.docStatus(gateEntry.docStatus ?? 0),
-                ),
-
-                          //         Row(
-                          //           children: [
-                          //          Image.asset(
-                          //           'assets/images/timeicon.png'
-                          //  ,
-                          //          ),
-                          //             Text(
-                          //               DFU.timeFromStr(gateEntry.creationDate ?? ''),
-                          //               style: AppTextStyles.titleMedium(
-                          //                 context,
-                          //                 AppColors.darkBlue,
-                          //               ).copyWith(color: AppColors.litecyan),
-                          //             ),
-                          //           ],
-                          //         ),
+                        ],
+                      ),
+                      const SizedBox(height: 5),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Flexible(
+                            child: Text(
+                              gateEntry.vehicleNo ?? '',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                color: AppColors.grey,
+                                fontWeight: FontWeight.normal,
+                                letterSpacing: 0,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          DocStatusWidget(
+                            status: StringUtils.docStatus(
+                              gateEntry.docStatus ?? 0,
+                            ),
+                          ),
                         ],
                       ),
                     ],
@@ -161,59 +130,6 @@ class GateManagementWidget extends StatelessWidget {
                 ),
               ],
             ),
-            // const Padding(
-            //   padding: EdgeInsets.symmetric(vertical: 4.0),
-            //   child: DottedLine(
-            //     direction: Axis.horizontal,
-            //     lineLength: double.infinity,
-            //     lineThickness: 0.5,
-            //     dashLength: 6.0,
-            //     dashColor: Color.fromARGB(255, 184, 184, 192),
-            //     dashGapLength: 4.0,
-            //   ),
-            // ),
-
-            // Row(
-            //   mainAxisAlignment: MainAxisAlignment.end,
-            //   crossAxisAlignment: CrossAxisAlignment.end,
-            //   children: [
-            //     // BlocBuilder<Purchase, PurchaseState>(
-            //     //   builder: (context, state) {
-            //     //     return state.maybeWhen(
-            //     //       success: (data) {
-            //     //         context.read<CreateGateManagementCubit>().addpurchseorders(
-            //     //           purchaseorder: data,
-            //     //         );
-            //     //         return Expanded(
-            //     //           child: Wrap(
-            //     //             runSpacing: 2,
-            //     //             spacing: 2,
-            //     //             children: [
-            //     //               Text(
-            //     //                 data
-            //     //                     .map((po) => po.name ?? '')
-            //     //                     .where((e) => e.isNotEmpty)
-            //     //                     .join(', '),
-            //     //                 style: const TextStyle(
-            //     //                   color: Color(0xFF2957A4),
-            //     //                   fontWeight: FontWeight.bold,
-            //     //                   fontSize: 14,
-            //     //                 ),
-            //     //               ),
-            //     //             ],
-            //     //           ),
-            //     //         );
-            //     //       },
-            //     //       orElse: () => const SizedBox(),
-            //     //     );
-            //     //   },
-            //     // ),
-
-            //     DocStatusWidget(
-            //       status: StringUtils.docStatus(gateEntry.docStatus ?? 0),
-            //     ),
-            //   ],
-            // ),
           ],
         ),
       ),

@@ -38,6 +38,8 @@ class FramePackingRepoImpl extends BaseApiRepository
         filters.add(['allocation_status', '=', 'Unallocated']);
       case 'allocated':
         filters.add(['allocation_status', '=', 'Allocated']);
+      case 'dispatched':
+        filters.add(['allocation_status', '=', 'Dispatched']);
       case 'all':
       case '':
         break;

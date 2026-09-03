@@ -731,10 +731,7 @@ class AppRouterConfig {
                   GoRoute(
                     path: _getPath(AppRoute.hardwarePackaging),
                     builder: (ctxt, state) {
-                      final filters = Pair(
-                        StringUtils.docStatusInt('Draft'),
-                        null,
-                      );
+                      const filters = Pair('Draft', null);
                       return BlocProvider(
                         create:
                             (context) =>

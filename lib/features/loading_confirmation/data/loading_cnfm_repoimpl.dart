@@ -450,7 +450,8 @@ final result = childResponse.process((r) => right(r.data ?? []));
       );
       $logger.devLog('scanUnitForDispatch.....$config');
      
-      final response = await post(config); $logger.devLog('scanUnitForDispatch body.....$response');
+      final response = await post(config); 
+      $logger.devLog('scanUnitForDispatch body.....$response');
       return response.processAsync((r) async => right(r.data!));
     });
   }

@@ -5,7 +5,7 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 class ScanFramePage extends StatefulWidget {
   const ScanFramePage({
     super.key,
-    this.formats = const [BarcodeFormat.pdf417],
+    this.formats = const [BarcodeFormat.pdf417,BarcodeFormat.qrCode],
     this.title = 'Scan Barcode',
     this.hint = 'Point camera at the sticker barcode',
   });

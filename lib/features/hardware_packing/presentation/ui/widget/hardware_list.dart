@@ -46,7 +46,7 @@ class _HardwareListScrnState extends State<HardwareListScrn> {
           final filters = context.read<HardWareFilterCubit>().state;
 
           return context.cubit<HardwareCubit>().fetchInitial(
-            Pair(StringUtils.docStatusInt(filters.status), filters.query),
+            Pair(filters.status, filters.query),
           );
         },
         child: BlocListener<HardWareFilterCubit, PageViewFilters>(
@@ -77,13 +77,13 @@ class _HardwareListScrnState extends State<HardwareListScrn> {
   void _fetchInital(BuildContext context) {
     final filters = context.read<HardWareFilterCubit>().state;
     context.cubit<HardwareCubit>().fetchInitial(
-        Pair(StringUtils.docStatusInt(filters.status), filters.query));
+        Pair(filters.status, filters.query));
   }
 
   void fetchMore(BuildContext context) {
     final filters = context.read<HardWareFilterCubit>().state;
 
     context.cubit<HardwareCubit>().fetchMore(
-        Pair(StringUtils.docStatusInt(filters.status), filters.query));
+        Pair(filters.status, filters.query));
   }
 }

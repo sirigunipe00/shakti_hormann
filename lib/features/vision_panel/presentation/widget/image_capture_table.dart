@@ -45,7 +45,7 @@ class _ImageCaptureTableState extends State<ImageCaptureTable> {
           activeIndex: activeIndex,
           isSubmitted: isSubmitted,
           isUpdating:
-              state.isLoading && cubit.allBoxesCaptured && !state.isUpdated,
+              state.isLoading && !state.isUpdated && state.isModified,
           onCapture: (globalIndex) =>
               _captureBoxPhoto(context, cubit, globalIndex),
           onViewImage: (line) => _previewImage(context, line),

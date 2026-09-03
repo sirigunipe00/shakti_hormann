@@ -8,6 +8,7 @@ import 'package:shakti_hormann/features/shutter_packing/presentation/ui/create/s
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/widgets/buttons/app_btn.dart';
 import 'package:shakti_hormann/widgets/dailogs/app_dialogs.dart';
+import 'package:shakti_hormann/widgets/packing_scan_processing_overlay.dart';
 import 'package:shakti_hormann/widgets/simple_app_bar.dart';
 import 'package:shakti_hormann/widgets/title_status_app_bar.dart';
 
@@ -20,6 +21,13 @@ class NewShutter extends StatefulWidget {
 
 class _NewShutterState extends State<NewShutter> {
   int _formRefreshToken = 0;
+  final ValueNotifier<bool> _isDecodingUploadSticker = ValueNotifier(false);
+
+  @override
+  void dispose() {
+    _isDecodingUploadSticker.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +39,12 @@ class _NewShutterState extends State<NewShutter> {
         final isCompletedView = gateEntryState.view == ShutterView.completed;
         final isSubmitted = status == 1;
 
-        return Scaffold(
+        return ValueListenableBuilder<bool>(
+          valueListenable: _isDecodingUploadSticker,
+          builder: (context, isDecodingUploadSticker, _) {
+            return PopScope(
+              canPop: !isDecodingUploadSticker,
+              child: Scaffold(
           backgroundColor: AppColors.white,
           appBar:
               status == null
@@ -103,7 +116,7 @@ class _NewShutterState extends State<NewShutter> {
                                           !isPrinted
                                               ? const Color(0xFFCBD5E1)
                                               : AppColors.green,
-                                      isLoading: state.isLoading,
+                                      isLoading: state.isSubmitting,
                                       label:
                                           state.newLines.isNotEmpty
                                               ? 'Update'
@@ -117,7 +130,10 @@ class _NewShutterState extends State<NewShutter> {
                                 ),
                       )
                       as PreferredSizeWidget,
-          body: MultiBlocListener(
+          body: Stack(
+            fit: StackFit.expand,
+            children: [
+              MultiBlocListener(
             listeners: [
               BlocListener<CreateShutterCubit, CreateShutterState>(
                 listenWhen:
@@ -198,12 +214,29 @@ class _NewShutterState extends State<NewShutter> {
             child: BlocProvider(
               create: (context) => ShutterBlocProvider.get().getItemsLines(),
               child: ShutterPackingFormWidget(
+                isDecodingUploadSticker: _isDecodingUploadSticker,
                 key: ValueKey(
                   '${name}_${status}_${gateEntryState.view}_$_formRefreshToken',
                 ),
               ),
             ),
           ),
+              BlocBuilder<CreateShutterCubit, CreateShutterState>(
+                buildWhen:
+                    (previous, current) =>
+                        previous.isProcessingScan != current.isProcessingScan,
+                builder: (context, state) {
+                  if (!state.isProcessingScan && !isDecodingUploadSticker) {
+                    return const SizedBox.shrink();
+                  }
+                  return const PackingScanProcessingOverlay();
+                },
+              ),
+            ],
+          ),
+        ),
+            );
+          },
         );
       },
     );

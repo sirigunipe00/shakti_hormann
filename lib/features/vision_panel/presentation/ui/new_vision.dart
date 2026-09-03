@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/features/vision_panel/presentation/bloc/bloc_provider.dart';
@@ -8,6 +9,7 @@ import 'package:shakti_hormann/features/vision_panel/presentation/ui/vision_pane
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/widgets/buttons/app_btn.dart';
 import 'package:shakti_hormann/widgets/dailogs/app_dialogs.dart';
+import 'package:shakti_hormann/widgets/form_page_loading_stack.dart';
 import 'package:shakti_hormann/widgets/simple_app_bar.dart';
 import 'package:shakti_hormann/widgets/title_status_app_bar.dart';
 
@@ -19,6 +21,31 @@ class NewVision extends StatefulWidget {
 }
 
 class _NewVisionState extends State<NewVision> {
+  /// True only for user-triggered Save / Submit (not open-existing fetch).
+  bool _actionBusy = false;
+
+  String _loadingMessage(CreateVisionPanelState state) {
+    if (state.isUpdated) return 'Submitting document...';
+    if (state.isModified &&
+        state.form.name != null &&
+        state.form.name!.isNotEmpty) {
+      return 'Uploading box images...';
+    }
+    return 'Saving document...';
+  }
+
+  void _startAction(VoidCallback action) {
+    setState(() => _actionBusy = true);
+    action();
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final loading = context.read<CreateVisionPanelCubit>().state.isLoading;
+      if (!loading && _actionBusy) {
+        setState(() => _actionBusy = false);
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<CreateVisionPanelCubit, CreateVisionPanelState>(
@@ -27,13 +54,24 @@ class _NewVisionState extends State<NewVision> {
         final status = form.docStatus;
         final docName = form.name;
 
+        if (!visionState.isLoading && _actionBusy) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted && _actionBusy) {
+              setState(() => _actionBusy = false);
+            }
+          });
+        }
+
         return Scaffold(
           backgroundColor: AppColors.white,
           appBar:
               (docName == null || docName.isEmpty)
                   ? SimpleAppBar(
                     title: 'New Accessories Packing',
-                    actionButton: BlocBuilder<CreateVisionPanelCubit,CreateVisionPanelState>(
+                    actionButton: BlocBuilder<
+                      CreateVisionPanelCubit,
+                      CreateVisionPanelState
+                    >(
                       builder: (context, state) {
                         final hasSO =
                             (state.form.salesOrderNo?.trim().isNotEmpty ??
@@ -55,13 +93,16 @@ class _NewVisionState extends State<NewVision> {
                             fontSize: 15,
                           ),
                           isLoading: state.isLoading,
+                          useRootLoadingOverlay: false,
                           label: 'Save',
                           onPressed:
                               canSave
-                                  ? () =>
-                                      context
-                                          .cubit<CreateVisionPanelCubit>()
-                                          .createEntry()
+                                  ? () => _startAction(
+                                    () =>
+                                        context
+                                            .cubit<CreateVisionPanelCubit>()
+                                            .createEntry(),
+                                  )
                                   : null,
                         );
                       },
@@ -77,72 +118,115 @@ class _NewVisionState extends State<NewVision> {
                         actionButton:
                             (form.docStatus == 1)
                                 ? null
-                                : BlocBuilder<CreateVisionPanelCubit,CreateVisionPanelState>(
+                                : BlocBuilder<
+                                  CreateVisionPanelCubit,
+                                  CreateVisionPanelState
+                                >(
                                   builder: (context, state) {
                                     final canSubmit =
                                         state.isUpdated && !state.isLoading;
 
                                     return AppButton(
                                       borderColor: Colors.grey,
-                                      isLoading: state.isLoading,
+                                      bgColor:
+                                          canSubmit
+                                              ? AppColors.green
+                                              : const Color(0xFFCBD5E1),
+                                      textStyle:
+                                          canSubmit
+                                              ? const TextStyle(
+                                                color: AppColors.white,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 18,
+                                              )
+                                              : null,
+                                      isLoading:
+                                          state.isLoading && state.isUpdated,
+                                      useRootLoadingOverlay: false,
                                       label: 'Submit',
                                       onPressed:
                                           canSubmit
-                                              ? () =>
-                                                  context
-                                                      .cubit<
-                                                        CreateVisionPanelCubit
-                                                      >()
-                                                      .submit()
+                                              ? () => _startAction(
+                                                () =>
+                                                    context
+                                                        .cubit<
+                                                          CreateVisionPanelCubit
+                                                        >()
+                                                        .submit(),
+                                              )
                                               : null,
                                     );
                                   },
                                 ),
                       )
                       as PreferredSizeWidget,
-          body: BlocListener<CreateVisionPanelCubit, CreateVisionPanelState>(
-            listener: (_, state) async {
-              if (state.isSuccess && state.successMsg.isNotNull) {
-                await AppDialog.showSuccessDialog(
-                  context,
-                  title: 'Success',
-                  content: state.successMsg.valueOrEmpty,
-                  onTapDismiss: () {
-                    Navigator.of(context, rootNavigator: true).pop();
+          body: BlocBuilder<CreateVisionPanelCubit, CreateVisionPanelState>(
+            builder: (context, overlayState) {
+              final isImageUploading =
+                  overlayState.isLoading &&
+                  overlayState.isModified &&
+                  !overlayState.isUpdated;
+
+              final showFormOverlay =
+                  overlayState.isLoading &&
+                  (_actionBusy || isImageUploading);
+
+              return FormPageLoadingStack(
+                isLoading: showFormOverlay,
+                message: _loadingMessage(overlayState),
+                statusLabel: 'Processing...',
+                child: BlocListener<
+                  CreateVisionPanelCubit,
+                  CreateVisionPanelState
+                >(
+                  listener: (_, state) async {
+                    if (state.isSuccess && state.successMsg.isNotNull) {
+                      if (!context.mounted) return;
+                      await AppDialog.showSuccessDialog(
+                        context,
+                        title: 'Success',
+                        content: state.successMsg.valueOrEmpty,
+                        onTapDismiss: () {
+                          Navigator.of(context, rootNavigator: true).pop();
+                        },
+                      );
+
+                      if (!context.mounted) return;
+                      context.cubit<CreateVisionPanelCubit>().errorHandled();
+
+                      if (state.form.docStatus == 1) {
+                        shouldAskForConfirmation.value = false;
+                        final filters =
+                            context.read<VisionPanelFilterCubit>().state;
+                        context.cubit<VisionPanelCubit>().fetchInitial(
+                          Pair(
+                            StringUtils.docStatusInt(filters.status),
+                            filters.query,
+                          ),
+                        );
+                        Navigator.pop(context, true);
+                      }
+                    }
+
+                    if (state.error.isNotNull) {
+                      if (!context.mounted) return;
+                      await AppDialog.showErrorDialog(
+                        context,
+                        title: state.error?.title,
+                        content: state.error!.error,
+                        onTapDismiss: () {
+                          Navigator.of(context, rootNavigator: true).pop();
+                        },
+                      );
+
+                      if (!context.mounted) return;
+                      context.cubit<CreateVisionPanelCubit>().errorHandled();
+                    }
                   },
-                );
-
-                if (!context.mounted) return;
-                context.cubit<CreateVisionPanelCubit>().errorHandled();
-
-                if (state.form.docStatus == 1) {
-                  shouldAskForConfirmation.value = false;
-                  final filters = context.read<VisionPanelFilterCubit>().state;
-                  context.cubit<VisionPanelCubit>().fetchInitial(
-                    Pair(
-                      StringUtils.docStatusInt(filters.status),
-                      filters.query,
-                    ),
-                  );
-                  Navigator.pop(context, true);
-                }
-              }
-
-              if (state.error.isNotNull) {
-                await AppDialog.showErrorDialog(
-                  context,
-                  title: state.error?.title,
-                  content: state.error!.error,
-                  onTapDismiss: () {
-                    Navigator.of(context, rootNavigator: true).pop();
-                  },
-                );
-
-                if (!context.mounted) return;
-                context.cubit<CreateVisionPanelCubit>().errorHandled();
-              }
+                  child: const VisionPanelFormWidget(),
+                ),
+              );
             },
-            child: const VisionPanelFormWidget(),
           ),
         );
       },

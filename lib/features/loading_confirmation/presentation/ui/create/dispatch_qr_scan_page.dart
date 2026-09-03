@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:shakti_hormann/core/utils/packing_sticker_decoder.dart';
+import 'package:flutter/services.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
-class ScanShutterPage extends StatefulWidget {
-  const ScanShutterPage({super.key});
+class DispatchQrScanPage extends StatefulWidget {
+  const DispatchQrScanPage({super.key});
 
   @override
-  State<ScanShutterPage> createState() => _ScanShutterPageState();
+  State<DispatchQrScanPage> createState() => _DispatchQrScanPageState();
 }
 
-class _ScanShutterPageState extends State<ScanShutterPage> {
+class _DispatchQrScanPageState extends State<DispatchQrScanPage> {
   final MobileScannerController _controller = MobileScannerController(
-    formats: [BarcodeFormat.pdf417,BarcodeFormat.qrCode],
+    formats: [BarcodeFormat.qrCode, BarcodeFormat.pdf417],
+    detectionSpeed: DetectionSpeed.unrestricted,
+    returnImage: false,
   );
   bool _scanned = false;
 
@@ -23,23 +25,25 @@ class _ScanShutterPageState extends State<ScanShutterPage> {
 
   void _onDetect(BarcodeCapture capture) {
     if (_scanned) return;
-    final raw = capture.barcodes.firstOrNull?.rawValue;
+    final raw = capture.barcodes.firstOrNull?.rawValue?.trim();
     if (raw == null || raw.isEmpty) return;
-    final value = extractPackingStickerCode(raw) ?? raw;
 
     _scanned = true;
     _controller.stop();
-    Navigator.of(context).pop(value);
+    HapticFeedback.mediumImpact();
+    Navigator.of(context).pop(raw);
   }
 
   @override
   Widget build(BuildContext context) {
+    const scanSize = 260.0;
+
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: const Color(0xFF1A3C6B),
         foregroundColor: Colors.white,
-        title: const Text('Scan Shutter Barcode'),
+        title: const Text('Scan QR Code'),
         actions: [
           IconButton(
             icon: const Icon(Icons.flash_on),
@@ -50,7 +54,6 @@ class _ScanShutterPageState extends State<ScanShutterPage> {
       body: Stack(
         children: [
           MobileScanner(controller: _controller, onDetect: _onDetect),
-
           ColorFiltered(
             colorFilter: ColorFilter.mode(
               Colors.black.withValues(alpha: 0.55),
@@ -61,8 +64,8 @@ class _ScanShutterPageState extends State<ScanShutterPage> {
                 Container(color: Colors.transparent),
                 Center(
                   child: Container(
-                    width: 300,
-                    height: 140,
+                    width: scanSize,
+                    height: scanSize,
                     decoration: BoxDecoration(
                       color: Colors.black,
                       borderRadius: BorderRadius.circular(12),
@@ -72,21 +75,19 @@ class _ScanShutterPageState extends State<ScanShutterPage> {
               ],
             ),
           ),
-
           Center(
             child: SizedBox(
-              width: 350,
-              height: 140,
+              width: scanSize,
+              height: scanSize,
               child: CustomPaint(painter: _CornerBorderPainter()),
             ),
           ),
-
           const Align(
             alignment: Alignment.bottomCenter,
             child: Padding(
               padding: EdgeInsets.only(bottom: 80),
               child: Text(
-                'Point camera at the shutter sticker barcode',
+                'Point camera at the QR code',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 14,

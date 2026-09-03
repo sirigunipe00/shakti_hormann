@@ -431,6 +431,7 @@ class _ItemLoadedTableState extends State<ItemLoadedTable> {
   void _showSnack(String message, {bool isError = false}) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
+        duration: const Duration(seconds: 2),
         content: Text(message),
         backgroundColor: isError ? Colors.red : Colors.green,
       ),
@@ -856,14 +857,6 @@ class _ItemLoadedTableState extends State<ItemLoadedTable> {
             onDelete: _deleteScannedRow,
             onCapturePhoto: _captureScannedPhoto,
             buildPhoto: (path) => _buildImage(path, context: context),
-          ),
-        if (scannedRows.isEmpty && _canEdit)
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-            child: Text(
-              'Scan a Pallet (FR-/SH-/CO-), then scan Installation (INST-), Accessories (VP-), and Hardware (MES-) against it.',
-              style: TextStyle(color: Colors.black54, fontSize: 12),
-            ),
           ),
         const SizedBox(height: 12),
         const Padding(

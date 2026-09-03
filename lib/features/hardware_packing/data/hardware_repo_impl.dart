@@ -18,14 +18,28 @@ class HardWareRepoImp extends BaseApiRepository implements HardWareRepo {
   @override
   AsyncValueOf<List<HardwarePacking>> fetchHardware(
     int start,
-    int? docStatus,
+    String? status,
     String? search,
   ) async {
     final filters = <List<dynamic>>[];
     final orFilters = <List<dynamic>>[];
 
-    if (docStatus != null && docStatus != 2) {
-      filters.add(['docstatus', '=', docStatus]);
+    switch ((status ?? '').trim().toLowerCase()) {
+      case 'draft':
+        filters.add(['docstatus', '=', 0]);
+      case 'submitted':
+        filters.add(['docstatus', '=', 1]);
+      case 'unallocated':
+        filters.add(['allocation_status', '=', 'Unallocated']);
+      case 'allocated':
+        filters.add(['allocation_status', '=', 'Allocated']);
+      case 'dispatched':
+        filters.add(['allocation_status', '=', 'Dispatched']);
+      case 'all':
+      case '':
+        break;
+      default:
+        filters.add(['docstatus', '=', 0]);
     }
 
     if (search != null && search.isNotEmpty) {

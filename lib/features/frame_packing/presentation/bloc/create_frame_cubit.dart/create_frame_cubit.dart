@@ -216,7 +216,7 @@ class CreateFrameCubit extends AppBaseCubit<CreateFrameState> {
   Future<void> getPalletCodes(String salesOrder) async {
     emitSafeState(
       state.copyWith(
-        isLoading: true,
+        isLoadingPalletCodes: true,
         palletCodes: [],
       ),
     );
@@ -227,14 +227,16 @@ class CreateFrameCubit extends AppBaseCubit<CreateFrameState> {
       (failure) {
         emitSafeState(
           state.copyWith(
-            isLoading: false,
+            isLoadingPalletCodes: false,
             palletCodes: [],
             error: failure,
           ),
         );
       },
       (codes) {
-        emitSafeState(state.copyWith(isLoading: false, palletCodes: codes));
+        emitSafeState(
+          state.copyWith(isLoadingPalletCodes: false, palletCodes: codes),
+        );
       },
     );
   }
@@ -538,14 +540,14 @@ class CreateFrameCubit extends AppBaseCubit<CreateFrameState> {
 
     if (!docExists) return;
 
-    emitSafeState(state.copyWith(isLoading: true));
+    emitSafeState(state.copyWith(isSubmitting: true));
 
     final response = await repo.updateFrame(state.form, updatedLines);
     final didUpdate = response.fold(
       (failure) {
         emitSafeState(
           state.copyWith(
-            isLoading: false,
+            isSubmitting: false,
             lines: previousLines,
             newLines: previousNewLines,
             error: failure,
@@ -556,7 +558,7 @@ class CreateFrameCubit extends AppBaseCubit<CreateFrameState> {
       (_) {
         emitSafeState(
           state.copyWith(
-            isLoading: false,
+            isSubmitting: false,
             newLines: [],
             isModified: false,
           ),
@@ -578,7 +580,7 @@ class CreateFrameCubit extends AppBaseCubit<CreateFrameState> {
     final validation = _validate();
     final hasNewItems = state.newLines.isNotEmpty;
     return validation.fold(() async {
-      emitSafeState(state.copyWith(isLoading: true, isSuccess: false));
+      emitSafeState(state.copyWith(isSubmitting: true, isSuccess: false));
 
       final form = state.form;
       final isNew = form.name == null || form.name!.isEmpty;
@@ -587,13 +589,13 @@ class CreateFrameCubit extends AppBaseCubit<CreateFrameState> {
       if (isNew) {
         final response = await repo.createFrame(form, state.lines);
         return response.fold(
-          (l) => emitSafeState(state.copyWith(isLoading: false, error: l)),
+          (l) => emitSafeState(state.copyWith(isSubmitting: false, error: l)),
           (r) {
             shouldAskForConfirmation.value = false;
             final docstatus = r.second;
             emitSafeState(
               state.copyWith(
-                isLoading: false,
+                isSubmitting: false,
                 isSuccess: true,
                 form: form.copyWith(
                   status: 'In Packing',
@@ -614,7 +616,7 @@ class CreateFrameCubit extends AppBaseCubit<CreateFrameState> {
         final response = await repo.updateFrame(form, state.lines);
         final didUpdate = response.fold(
           (l) {
-            emitSafeState(state.copyWith(isLoading: false, error: l));
+            emitSafeState(state.copyWith(isSubmitting: false, error: l));
             return false;
           },
           (r) {
@@ -623,7 +625,7 @@ class CreateFrameCubit extends AppBaseCubit<CreateFrameState> {
                 (r.second.isNotEmpty) ? r.second : form.name;
             emitSafeState(
               state.copyWith(
-                isLoading: false,
+                isSubmitting: false,
                 form: form.copyWith(
                   status: 'In Packing',
                   allocationStatus: form.allocationStatus ?? 'Unallocated',
@@ -646,12 +648,12 @@ class CreateFrameCubit extends AppBaseCubit<CreateFrameState> {
       } else {
         final response = await repo.submitFrame(form);
         return response.fold(
-          (l) => emitSafeState(state.copyWith(isLoading: false, error: l)),
+          (l) => emitSafeState(state.copyWith(isSubmitting: false, error: l)),
           (r) {
             shouldAskForConfirmation.value = false;
             emitSafeState(
               state.copyWith(
-                isLoading: false,
+                isSubmitting: false,
                 isSuccess: true,
                 form: form.copyWith(
                   docStatus: 1,
@@ -676,7 +678,12 @@ class CreateFrameCubit extends AppBaseCubit<CreateFrameState> {
       status: error.second,
     );
     emitSafeState(
-      state.copyWith(error: failure, isLoading: false, isProcessingScan: false),
+      state.copyWith(
+        error: failure,
+        isSubmitting: false,
+        isLoadingPalletCodes: false,
+        isProcessingScan: false,
+      ),
     );
   }
 
@@ -719,7 +726,8 @@ class CreateFrameCubit extends AppBaseCubit<CreateFrameState> {
     emitSafeState(
       state.copyWith(
         error: null,
-        isLoading: false,
+        isSubmitting: false,
+        isLoadingPalletCodes: false,
         isProcessingScan: false,
         isSuccess: false,
         successMsg: null,
@@ -762,6 +770,8 @@ class CreateFrameState with _$CreateFrameState {
     @Default(false) bool isFreezing,
     @Default(false) bool isFrozen,
     @Default(false) bool isCreatingDoc,
+    @Default(false) bool isSubmitting,
+    @Default(false) bool isLoadingPalletCodes,
     @Default(false) bool isProcessingScan,
     String? freezeSuccessMsg,
     String? successMsg,

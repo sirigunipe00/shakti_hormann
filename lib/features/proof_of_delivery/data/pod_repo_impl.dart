@@ -22,13 +22,16 @@ class PodRepoImpl extends BaseApiRepository implements ProofOfDeliveryRepo {
     String? search,
   ) async {
     final filters = <List<dynamic>>[];
+       final orFilters = <List<dynamic>>[];
 
     if (docStatus != null && docStatus != 2) {
       filters.add(['docstatus', '=', docStatus]);
     }
 
     if (search != null && search.isNotEmpty) {
-      filters.add(['name', 'like', '%$search%']);
+      orFilters
+        ..add(['name', 'like', '%$search%'])
+        ..add(['sales_invoice_no', 'like', '%$search%']);
     }
          
      final users = $sl.get<LoggedInUser>();
@@ -47,6 +50,7 @@ class PodRepoImpl extends BaseApiRepository implements ProofOfDeliveryRepo {
       },
       reqParams: {
         'filters': jsonEncode(filters),
+        if (orFilters.isNotEmpty) 'or_filters': jsonEncode(orFilters),
         'limit_start': start,
         'limit_page_length': 'None',
         'order_by': 'creation desc',

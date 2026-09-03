@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/styles/app_text_styles.dart';
+import 'package:shakti_hormann/widgets/form_submit_loading_overlay.dart';
 
 enum DocNoAlignment { vertical, horizontal }
 
@@ -29,7 +31,7 @@ enum PageMode2 {
   final String name;
 }
 
-class TitleStatusAppBar extends StatelessWidget implements PreferredSizeWidget {
+class TitleStatusAppBar extends StatefulWidget implements PreferredSizeWidget {
   const TitleStatusAppBar({
     super.key,
     this.title = '',
@@ -66,12 +68,86 @@ class TitleStatusAppBar extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback onReject;
 
   @override
-  Widget build(BuildContext context) {
-    final cleanedStatus = status.trim().toLowerCase();
+  State<TitleStatusAppBar> createState() => _TitleStatusAppBarState();
 
-    final String submitLabel = pageMode == PageMode2.logisticRequest
+  @override
+  Size get preferredSize {
+    return Size.fromHeight(
+      dropdown != null ? 180 : 70,
+    );
+  }
+}
+
+class _TitleStatusAppBarState extends State<TitleStatusAppBar> {
+  bool _overlayShownByThis = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _scheduleSyncOverlay();
+  }
+
+  @override
+  void didUpdateWidget(covariant TitleStatusAppBar oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final wasBusy = oldWidget.isSubmitting || oldWidget.isRejecting;
+    final isBusy = widget.isSubmitting || widget.isRejecting;
+
+    if (wasBusy && !isBusy && _overlayShownByThis) {
+      FormLoadingOverlay.hide();
+      _overlayShownByThis = false;
+      return;
+    }
+
+    if (!wasBusy && isBusy) {
+      _scheduleSyncOverlay();
+    }
+  }
+
+  void _scheduleSyncOverlay() {
+    SchedulerBinding.instance.addPostFrameCallback((_) => _syncOverlay());
+  }
+
+  void _syncOverlay() {
+    if (!mounted) return;
+
+    final shouldShow = widget.isSubmitting || widget.isRejecting;
+    if (shouldShow) {
+      if (_overlayShownByThis) return;
+      FormLoadingOverlay.show(
+        context,
+        message:
+            widget.isRejecting
+                ? 'Processing rejection...'
+                : 'Submitting document...',
+        statusLabel: 'Processing...',
+      );
+      _overlayShownByThis = true;
+      return;
+    }
+
+    if (_overlayShownByThis) {
+      FormLoadingOverlay.hide();
+      _overlayShownByThis = false;
+    }
+  }
+
+  @override
+  void dispose() {
+    if (_overlayShownByThis) {
+      FormLoadingOverlay.hide();
+      _overlayShownByThis = false;
+    }
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cleanedStatus = widget.status.trim().toLowerCase();
+
+    final String submitLabel = widget.pageMode == PageMode2.logisticRequest
         ? 'Send for\nApproval'
-        : pageMode == PageMode2.transportConfirmation
+        : widget.pageMode == PageMode2.transportConfirmation
             ? 'Accept'
             : 'Submit';
 
@@ -99,34 +175,34 @@ class TitleStatusAppBar extends StatelessWidget implements PreferredSizeWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    title,
+                    widget.title,
                     style: AppTextStyles.titleLarge(context).copyWith(
                       color: Colors.white,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
-                if (actionButton != null) ...[
+                if (widget.actionButton != null) ...[
                   const SizedBox(width: 8),
-                  actionButton!,
-                ] else if (status != 'Submitted' &&
-                    status != 'Reported' &&
-                    status != 'Rejected') ...[
+                  widget.actionButton!,
+                ] else if (widget.status != 'Submitted' &&
+                    widget.status != 'Reported' &&
+                    widget.status != 'Rejected') ...[
                   _buildDefaultButtons(cleanedStatus, submitLabel),
                 ],
               ],
             ),
 
             /// Dropdown row with optional scanner (like SimpleAppBar)
-            if (dropdown != null) ...[
+            if (widget.dropdown != null) ...[
               const SizedBox(height: 12),
               Row(
                 children: [
-                  Expanded(child: dropdown!), 
-                  if (showScanner) ...[
+                  Expanded(child: widget.dropdown!),
+                  if (widget.showScanner) ...[
                     const SizedBox(width: 8),
                     GestureDetector(
-                      onTap: onScan,
+                      onTap: widget.onScan,
                       child: Padding(
                         padding: const EdgeInsets.only(top: 20.0),
                         child: Container(
@@ -155,11 +231,11 @@ class TitleStatusAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget _buildDefaultButtons(String cleanedStatus, String submitLabel) {
     String? buttonLabel;
 
-    if (pageMode == PageMode2.logisticRequest && cleanedStatus != 'draft') {
+    if (widget.pageMode == PageMode2.logisticRequest && cleanedStatus != 'draft') {
       buttonLabel = 'Send for\nApproval';
-    } else if (pageMode == PageMode2.transportConfirmation) {
+    } else if (widget.pageMode == PageMode2.transportConfirmation) {
       buttonLabel = 'Approve';
-    } else if (pageMode == PageMode2.vehicleReporting) {
+    } else if (widget.pageMode == PageMode2.vehicleReporting) {
       buttonLabel = 'Accept\nVehicle';
     }
 
@@ -168,23 +244,24 @@ class TitleStatusAppBar extends StatelessWidget implements PreferredSizeWidget {
         if (buttonLabel != null) ...[
           _buildActionButton(
             buttonLabel,
-            onSubmit,
-            status == 'submitted' ? Colors.grey : Colors.green,
-            isLoading: isSubmitting,
+            widget.onSubmit,
+            widget.status == 'submitted' ? Colors.grey : Colors.green,
+            isLoading: widget.isSubmitting,
           ),
           const SizedBox(width: 8),
         ],
-        if (showRejectButton &&
-            pageMode != PageMode2.logisticRequest &&
-            pageMode != PageMode2.gateentry && pageMode != PageMode2.gateManagement && 
-            pageMode != PageMode2.gateexit)
+        if (widget.showRejectButton &&
+            widget.pageMode != PageMode2.logisticRequest &&
+            widget.pageMode != PageMode2.gateentry &&
+            widget.pageMode != PageMode2.gateManagement &&
+            widget.pageMode != PageMode2.gateexit)
           _buildActionButton(
-            pageMode == PageMode2.vehicleReporting
+            widget.pageMode == PageMode2.vehicleReporting
                 ? 'Reject\nVehicle'
                 : 'Reject',
-            onReject,
+            widget.onReject,
             Colors.red,
-            isLoading: isRejecting,
+            isLoading: widget.isRejecting,
           ),
       ],
     );
@@ -207,23 +284,14 @@ class TitleStatusAppBar extends StatelessWidget implements PreferredSizeWidget {
         minimumSize: const Size(100, 36),
         padding: const EdgeInsets.symmetric(horizontal: 12),
       ),
-      child: isLoading
-          ? const SizedBox(
-              width: 18,
-              height: 18,
-              child: CircularProgressIndicator(
-                color: Colors.white,
-                strokeWidth: 2,
-              ),
-            )
-          : Text(
-              text,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
+      child: Text(
+        text,
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
     );
   }
 
@@ -247,11 +315,5 @@ class TitleStatusAppBar extends StatelessWidget implements PreferredSizeWidget {
     );
   }
 
- @override
-Size get preferredSize {
-  return Size.fromHeight(
-    dropdown != null ? 180 : 70,
-  );
-}
 }
 

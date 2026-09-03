@@ -33,7 +33,8 @@ class LogisticRequestWidget extends StatelessWidget {
         ),
         child: SpacedColumn(
           defaultHeight: 4,
-          margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+          // margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+          margin: const EdgeInsets.fromLTRB(10, 10, 10, 10),
           children: [
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -63,46 +64,24 @@ class LogisticRequestWidget extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                logistic.name,
-                                style: AppTextStyles.titleLarge(
-                                  context,
-                                ).copyWith(
-                                  color: AppColors.black,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                          Expanded(
+                            child: Text(
+                              logistic.name,
+                              style: AppTextStyles.titleLarge(
+                                context,
+                              ).copyWith(
+                                color: AppColors.black,
+                                fontWeight: FontWeight.bold,
                               ),
-                              const SizedBox(height: 5),
-
-                                Text(
-                                  [
-                                        logistic.transporterName,
-                                        logistic.transporterNAme2,
-                                      ]
-                                      .where((e) => e != null && e.isNotNull)
-                                      .join(' - '),
-                                  style: const TextStyle(
-                                    color: AppColors.grey,
-                                    fontWeight: FontWeight.normal,
-                                    letterSpacing: 0,
-                                  ),
-                                ),
-                            ],
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
-                        ],
-                      ),
-
-                      const SizedBox(height: 5),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
+                          const SizedBox(width: 10),
                           Row(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
                               const Icon(
                                 Icons.calendar_month,
@@ -114,6 +93,8 @@ class LogisticRequestWidget extends StatelessWidget {
                                 DFU.ddMMyyyyFromStr(
                                   logistic.requestedDeliveryDate ?? '',
                                 ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                                 style: const TextStyle(
                                   color: Color(0xFF163A6B),
                                   fontSize: 11,
@@ -122,18 +103,34 @@ class LogisticRequestWidget extends StatelessWidget {
                               ),
                             ],
                           ),
-                          Row(
-                            children: [
-                              Image.asset('assets/images/timeicon.png'),
-                              Text(
-                                formatTime(logistic.requestedDeliveryTime) ??
-                                    '',
-                                style: AppTextStyles.titleMedium(
-                                  context,
-                                  AppColors.darkBlue,
-                                ).copyWith(color: AppColors.litecyan),
-                              ),
-                            ],
+                        ],
+                      ),
+                      const SizedBox(height: 5),
+                      Text(
+                        [
+                              logistic.transporterName,
+                              logistic.transporterNAme2,
+                            ]
+                            .where((e) => e != null && e.isNotNull)
+                            .join(' - '),
+                        style: const TextStyle(
+                          color: AppColors.grey,
+                          fontWeight: FontWeight.normal,
+                          letterSpacing: 0,
+                        ),
+                      ),
+                      const SizedBox(height: 5),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Image.asset('assets/images/timeicon.png'),
+                          Text(
+                            formatTime(logistic.requestedDeliveryTime) ??
+                                '',
+                            style: AppTextStyles.titleMedium(
+                              context,
+                              AppColors.darkBlue,
+                            ).copyWith(color: AppColors.litecyan),
                           ),
                         ],
                       ),

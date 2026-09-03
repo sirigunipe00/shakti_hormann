@@ -212,6 +212,7 @@ class VisionPanelRepoImpl extends BaseApiRepository implements VisionPanelRepo {
     $logger.devLog('printShutterSticker requestConfig.....$config');
 
     final response = await post(config);
+    $logger.devLog('printShutterSticker response.....$response');
     return response.processAsync((r) async {
       return right(r.data!);
     });

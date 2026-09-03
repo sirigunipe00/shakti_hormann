@@ -6,7 +6,7 @@ import 'package:shakti_hormann/features/hardware_packing/model/hardware_packing_
 abstract class HardWareRepo{
   AsyncValueOf<List<HardwarePacking>> fetchHardware(
     int start,
-    int? docStatus,
+    String? status,
     String? search,
   );
   AsyncValueOf<Pair<String,String>> createHardware(HardwarePacking form,List<HardwareItem> lines);

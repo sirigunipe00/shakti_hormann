@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/styles/text_styles.dart';
-import 'package:shakti_hormann/widgets/loading_indicator.dart';
+import 'package:shakti_hormann/widgets/form_submit_loading_overlay.dart';
 
-class AppButton extends StatelessWidget {
+class AppButton extends StatefulWidget {
   const AppButton({
     super.key,
     this.margin,
@@ -18,8 +19,8 @@ class AppButton extends StatelessWidget {
     this.width,
     this.onReject,
     this.borderColor,
-    
     this.icon = const SizedBox.shrink(),
+    this.useRootLoadingOverlay = true,
   });
 
   final String label;
@@ -35,41 +36,104 @@ class AppButton extends StatelessWidget {
   final Color? borderColor;
   final double? height;
 
+  /// When false, the button does not open the root full-screen overlay
+  /// (use a page-level [FormPageLoadingStack] over the form instead).
+  final bool useRootLoadingOverlay;
+
+  @override
+  State<AppButton> createState() => _AppButtonState();
+}
+
+class _AppButtonState extends State<AppButton> {
+  bool _actionStarted = false;
+  bool _overlayShownByThis = false;
+
+  @override
+  void didUpdateWidget(covariant AppButton oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // API finished → hide overlay immediately (no fixed delay / cycle wait).
+    if (oldWidget.isLoading && !widget.isLoading && _overlayShownByThis) {
+      _hideOverlay();
+      _actionStarted = false;
+    }
+  }
+
+  void _showOverlay() {
+    if (!widget.useRootLoadingOverlay) return;
+    if (_overlayShownByThis || !mounted) return;
+    FormLoadingOverlay.show(
+      context,
+      message: formLoadingMessageForLabel(
+        widget.label,
+        loadingText: widget.loadingText,
+      ),
+      statusLabel: 'Processing...',
+    );
+    _overlayShownByThis = true;
+  }
+
+  void _hideOverlay() {
+    if (!_overlayShownByThis) return;
+    FormLoadingOverlay.hide();
+    _overlayShownByThis = false;
+  }
+
+  void _onPressed() {
+    if (widget.onPressed == null || widget.isLoading) return;
+
+    _actionStarted = true;
+    if (widget.useRootLoadingOverlay) {
+      _showOverlay();
+    }
+    widget.onPressed!();
+
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      if (_actionStarted && !widget.isLoading && _overlayShownByThis) {
+        _hideOverlay();
+        _actionStarted = false;
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _hideOverlay();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: margin ?? EdgeInsets.zero,
+      padding: widget.margin ?? EdgeInsets.zero,
       child: ElevatedButton.icon(
         style: ElevatedButton.styleFrom(
-          backgroundColor: bgColor,
-
+          backgroundColor: widget.bgColor,
           disabledBackgroundColor: AppColors.chimneySweep,
-          fixedSize: Size(width ?? 120, height ?? 46),
+          fixedSize: Size(widget.width ?? 120, widget.height ?? 46),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8.0),
-          
-
             side: BorderSide(
-              color: borderColor ?? ( onPressed == null ? AppColors.chimneySweep : bgColor),
+              color:
+                  widget.borderColor ??
+                  (widget.onPressed == null
+                      ? AppColors.chimneySweep
+                      : widget.bgColor),
               width: 1.5,
             ),
           ),
           padding: const EdgeInsets.all(4.0),
         ),
-        onPressed: isLoading ? null : onPressed,
-        icon: icon,
-        label:
-            (isLoading && loadingText.doesNotHaveValue)
-                ? const LoadingIndicator(color: AppColors.white)
-                : Text(
-                  isLoading ? loadingText.valueOrEmpty : label,
-                  style: (textStyle ?? TextStyles.btnTextStyle(context))
-                      .copyWith(
-                        color: onPressed.isNull ? AppColors.grey : null,
-                        
-                      ),
-                      textAlign: TextAlign.center,
-                ),
+        onPressed:
+            (widget.isLoading || widget.onPressed == null) ? null : _onPressed,
+        icon: widget.icon,
+        label: Text(
+          widget.label,
+          style: (widget.textStyle ?? TextStyles.btnTextStyle(context)).copyWith(
+            color: widget.onPressed.isNull ? AppColors.grey : null,
+          ),
+          textAlign: TextAlign.center,
+        ),
       ),
     );
   }

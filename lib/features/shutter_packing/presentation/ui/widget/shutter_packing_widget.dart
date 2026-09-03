@@ -48,7 +48,7 @@ class ShutterPackingWidget extends StatelessWidget {
         ),
         child: SpacedColumn(
           defaultHeight: 2,
-          margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+          margin: const EdgeInsets.fromLTRB(10, 10, 10, 10),
           children: [
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -69,6 +69,8 @@ class ShutterPackingWidget extends StatelessWidget {
                         color: Color(0xFF2957A4),
                         letterSpacing: 1.5,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ),
@@ -79,7 +81,6 @@ class ShutterPackingWidget extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Expanded(
@@ -88,6 +89,49 @@ class ShutterPackingWidget extends StatelessWidget {
                               style: AppTextStyles.titleLarge(context).copyWith(
                                 color: AppColors.black,
                                 fontWeight: FontWeight.bold,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(
+                                Icons.calendar_month,
+                                size: 14,
+                                color: Color(0xFF163A6B),
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                DFU.ddMMyyyyFromStr(shutter.packingDate ?? ''),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  color: Color(0xFF163A6B),
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 5),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              'Sales Order: ${shutter.salesOrder ?? ''}',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                color: AppColors.grey,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 0,
+                                fontSize: 14,
                               ),
                             ),
                           ),
@@ -132,47 +176,11 @@ class ShutterPackingWidget extends StatelessWidget {
                           ],
                         ],
                       ),
-                      const SizedBox(height: 5),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Flexible(
-                            child: Text(
-                              'Sales Order: ${shutter.salesOrder ?? ''}',
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                color: AppColors.grey,
-                                fontWeight: FontWeight.bold,
-                                letterSpacing: 0,
-                                fontSize: 14,
-                              ),
-                            ),
-                          ),
-                          Row(
-                            children: [
-                              const Icon(
-                                Icons.calendar_month,
-                                size: 14,
-                                color: Color(0xFF163A6B),
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                DFU.ddMMyyyyFromStr(shutter.packingDate ?? ''),
-                                style: const TextStyle(
-                                  color: Color(0xFF163A6B),
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
                       if ((shutter.palletCode ?? '').isNotEmpty) ...[
                         const SizedBox(height: 4),
                         Text(
                           shutter.palletCode!,
+                          maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
                             color: AppColors.grey,
@@ -181,52 +189,6 @@ class ShutterPackingWidget extends StatelessWidget {
                           ),
                         ),
                       ],
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 5,
-                        ),
-                        decoration: BoxDecoration(
-                          color:
-                              isUnallocated
-                                  ? const Color(0xFFFFF7E0)
-                                  : const Color(0xFFF0F5FF),
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(
-                            color:
-                                isUnallocated
-                                    ? const Color(0xFFFFD166)
-                                    : const Color(0xFFD6E2F5),
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              isUnallocated
-                                  ? Icons.info_outline_rounded
-                                  : Icons.location_on_outlined,
-                              size: 15,
-                              color:
-                                  isUnallocated
-                                      ? const Color(0xFFB77900)
-                                      : const Color(0xFF2957A4),
-                            ),
-                            const SizedBox(width: 5),
-                            Text(
-                              shutter.allocationStatus ?? '',
-                              style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                                color:
-                                    isUnallocated
-                                        ? const Color(0xFF9A6700)
-                                        : const Color(0xFF2957A4),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
                     ],
                   ),
                 ),
@@ -244,16 +206,62 @@ class ShutterPackingWidget extends StatelessWidget {
                 dashGapLength: 4.0,
               ),
             ),
-
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text(
                   'Quantity : ${shutter.totalShuttersOnPallet} Units',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     color: Colors.orange,
                     fontWeight: FontWeight.bold,
                     fontSize: 15,
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 5,
+                  ),
+                  decoration: BoxDecoration(
+                    color: isUnallocated
+                        ? const Color(0xFFFFF7E0)
+                        : const Color(0xFFF0F5FF),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: isUnallocated
+                          ? const Color(0xFFFFD166)
+                          : const Color(0xFFD6E2F5),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        isUnallocated
+                            ? Icons.info_outline_rounded
+                            : Icons.location_on_outlined,
+                        size: 15,
+                        color: isUnallocated
+                            ? const Color(0xFFB77900)
+                            : const Color(0xFF2957A4),
+                      ),
+                      const SizedBox(width: 5),
+                      Text(
+                        shutter.allocationStatus ?? '',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: isUnallocated
+                              ? const Color(0xFF9A6700)
+                              : const Color(0xFF2957A4),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 DocStatusWidget(

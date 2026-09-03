@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shakti_hormann/features/dashboard/model/gate_dashboard_response.dart';
 import 'package:shakti_hormann/features/dashboard/presentation/bloc_provider.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
+import 'package:shakti_hormann/widgets/door_loading_gate.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
 class AppDashboardPage extends StatefulWidget {
@@ -53,20 +54,30 @@ class _AppDashboardPageState extends State<AppDashboardPage> {
       body: BlocBuilder<DashBoardList, DashBoardState>(
         bloc: dashboardCubit,
         builder: (context, state) {
-          return state.when(
-            loading: () => const Center(child: CircularProgressIndicator()),
-            failure: (err) => Center(child: Text('Error: $err')),
-            success: (data) {
-              final jaipur =
-                  data.message.data['Shakti Hormann Private Limited Jaipur'] ??
-                  PlantDashboardExtension.empty();
-              final medchal =
-                  data.message.data['Shakti Hormann Private Limited Medchal'] ??
-                  PlantDashboardExtension.empty();
+          final isContentReady = state.maybeWhen(
+            success: (_) => true,
+            failure: (_) => true,
+            orElse: () => false,
+          );
 
-              return _buildDashboardUI(jaipur, medchal);
-            },
-            initial: () => const SizedBox.shrink(),
+          return DoorLoadingGate(
+            isContentReady: isContentReady,
+            expand: true,
+            child: state.when(
+              loading: () => const SizedBox.shrink(),
+              failure: (err) => Center(child: Text('Error: $err')),
+              success: (data) {
+                final jaipur =
+                    data.message.data['Shakti Hormann Private Limited Jaipur'] ??
+                    PlantDashboardExtension.empty();
+                final medchal =
+                    data.message.data['Shakti Hormann Private Limited Medchal'] ??
+                    PlantDashboardExtension.empty();
+
+                return _buildDashboardUI(jaipur, medchal);
+              },
+              initial: () => const SizedBox.shrink(),
+            ),
           );
         },
       ),

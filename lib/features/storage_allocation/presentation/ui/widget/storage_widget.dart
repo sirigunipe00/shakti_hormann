@@ -41,7 +41,7 @@ class StorageWidget extends StatelessWidget {
         child: SpacedColumn(
           defaultHeight: 6,
           // margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
-          margin: const EdgeInsets.fromLTRB(4, 14, 4, 4),
+          margin: const EdgeInsets.fromLTRB(10, 10, 10, 10),
           children: [
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -82,7 +82,7 @@ class StorageWidget extends StatelessWidget {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          const SizedBox(width: 4),
+                          const SizedBox(width: 8),
                           Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
@@ -113,9 +113,6 @@ class StorageWidget extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 4),
-                      // Sales Order + Doc Status now sit right below
-                      // Total Qty, aligned with the rest of the text
-                      // column instead of spanning the full card width.
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.center,

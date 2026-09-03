@@ -30,7 +30,7 @@ class HardwareWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-      final isUnallocated =
+    final isUnallocated =
         (hardware.allocationStatus ?? '').trim().toLowerCase() == 'unallocated';
     return GestureDetector(
       onTap: onTap,
@@ -43,7 +43,7 @@ class HardwareWidget extends StatelessWidget {
         ),
         child: SpacedColumn(
           defaultHeight: 2,
-          margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+          margin: const EdgeInsets.fromLTRB(10, 10, 10, 10),
           children: [
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -64,6 +64,8 @@ class HardwareWidget extends StatelessWidget {
                         color: Color(0xFF2957A4),
                         letterSpacing: 1.5,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ),
@@ -73,116 +75,53 @@ class HardwareWidget extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Wrap(
-                                  crossAxisAlignment:
-                                      WrapCrossAlignment.center,
-                                  spacing: 8,
-                                  runSpacing: 4,
-                                  children: [
-                                    Text(
-                                      hardware.name ?? '',
-                                      style: AppTextStyles.titleLarge(
-                                        context,
-                                      ).copyWith(
-                                        color: AppColors.black,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 4),
-                                    Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        const Icon(
-                                          Icons.calendar_today,
-                                          size: 14,
-                                          color: Color(0xFF163A6B),
-                                        ),
-                                        const SizedBox(width: 4),
-                                        Text(
-                                          DFU.ddMMyyyyFromStr(
-                                            hardware.creation ?? '',
-                                          ),
-                                          style: AppTextStyles.titleMedium(
-                                            context,
-                                            const Color(0xFF163A6B),
-                                          ).copyWith(
-                                            color: const Color(0xFF163A6B),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  'Sales Order  : ${hardware.salesOrderNo}',
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 1,
-                                  style: const TextStyle(
-                                    color: Colors.grey,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 14,
-                                    letterSpacing: 0,
-                                  ),
-                                ),
-                                Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 5,
-                        ),
-                        decoration: BoxDecoration(
-                          color:
-                              isUnallocated
-                                  ? const Color(0xFFFFF7E0)
-                                  : const Color(0xFFF0F5FF),
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(
-                            color:
-                                isUnallocated
-                                    ? const Color(0xFFFFD166)
-                                    : const Color(0xFFD6E2F5),
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              isUnallocated
-                                  ? Icons.info_outline_rounded
-                                  : Icons.location_on_outlined,
-                              size: 15,
-                              color:
-                                  isUnallocated
-                                      ? const Color(0xFFB77900)
-                                      : const Color(0xFF2957A4),
-                            ),
-                            const SizedBox(width: 5),
-                            Text(
-                              hardware.allocationStatus ?? '',
-                              style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                                color:
-                                    isUnallocated
-                                        ? const Color(0xFF9A6700)
-                                        : const Color(0xFF2957A4),
+                            child: Text(
+                              hardware.name ?? '',
+                              style: AppTextStyles.titleLarge(context).copyWith(
+                                color: AppColors.black,
+                                fontWeight: FontWeight.bold,
                               ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
-                          ],
-                        ),
-                      ),
-                              ],
-                              
-                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(
+                                Icons.calendar_today,
+                                size: 14,
+                                color: Color(0xFF163A6B),
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                DFU.ddMMyyyyFromStr(hardware.creation ?? ''),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: AppTextStyles.titleMedium(
+                                  context,
+                                  const Color(0xFF163A6B),
+                                ).copyWith(color: const Color(0xFF163A6B)),
+                              ),
+                            ],
                           ),
                         ],
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Sales Order  : ${hardware.salesOrderNo}',
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                        style: const TextStyle(
+                          color: Colors.grey,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                          letterSpacing: 0,
+                        ),
                       ),
                     ],
                   ),
@@ -202,20 +141,59 @@ class HardwareWidget extends StatelessWidget {
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                Text(
+                  'Box Count : ${hardware.boxCount}',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: Colors.orange,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 5,
+                  ),
+                  decoration: BoxDecoration(
+                    color: isUnallocated
+                        ? const Color(0xFFFFF7E0)
+                        : const Color(0xFFF0F5FF),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: isUnallocated
+                          ? const Color(0xFFFFD166)
+                          : const Color(0xFFD6E2F5),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
+                      Icon(
+                        isUnallocated
+                            ? Icons.info_outline_rounded
+                            : Icons.location_on_outlined,
+                        size: 15,
+                        color: isUnallocated
+                            ? const Color(0xFFB77900)
+                            : const Color(0xFF2957A4),
+                      ),
+                      const SizedBox(width: 5),
                       Text(
-                        'Box Count : ${hardware.boxCount}',
-                        style: const TextStyle(
-                          color: Colors.orange,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 15,
+                        hardware.allocationStatus ?? '',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: isUnallocated
+                              ? const Color(0xFF9A6700)
+                              : const Color(0xFF2957A4),
                         ),
                       ),
-                      
                     ],
                   ),
                 ),

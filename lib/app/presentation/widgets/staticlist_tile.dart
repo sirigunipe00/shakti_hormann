@@ -16,21 +16,18 @@ mixin StatusModeSelectionMixin {
       case PageMode2.proofOfDelivery:
       case PageMode2.gateManagement:
       case PageMode2.palletCreation:
-       case PageMode2.visionPanel:
-        // case PageMode2.shutterPacking:
-        // case PageMode2.framePacking:
-        case PageMode2.installation:
-        case PageMode2.hardwarePackaging:
-       
-      
+      case PageMode2.visionPanel:
+      case PageMode2.installation:
         filters = ['Draft', 'Submitted', 'All'];
         break;
-        case PageMode2.shutterPacking:
+      case PageMode2.shutterPacking:
       case PageMode2.framePacking:
+      case PageMode2.hardwarePackaging:
         filters = [
           'Draft',
           'Unallocated',
           'Allocated',
+          'Dispatched',
           'Submitted',
           'All',
         ];
@@ -84,7 +81,12 @@ mixin StatusModeSelectionMixin {
       backgroundColor: Colors.transparent,
       context: context,
       builder:
-          (_) => Column(
+          (sheetContext) => Theme(
+            data: Theme.of(sheetContext).copyWith(
+              splashColor: Colors.black.withValues(alpha: 0.08),
+              highlightColor: Colors.black.withValues(alpha: 0.04),
+            ),
+            child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
@@ -112,6 +114,7 @@ mixin StatusModeSelectionMixin {
               const SizedBox(height: 10),
             ],
           ),
+          ),
     );
   }
 }
@@ -125,22 +128,27 @@ class _StatusListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CheckboxListTile(
-      value: value == mode,
-      onChanged: (_) => onTap?.call(),
-      checkColor: AppColors.white,
-      activeColor: AppColors.green,
-      controlAffinity: ListTileControlAffinity.leading,
-      visualDensity: const VisualDensity(vertical: -3),
-      contentPadding: EdgeInsets.zero,
-      checkboxShape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(25),
-      ),
-      title: Text(
-        mode,
-        style: const TextStyle(
-          color: AppColors.black,
-          fontWeight: FontWeight.bold,
+    return Material(
+      color: Colors.white,
+      child: CheckboxListTile(
+        value: value == mode,
+        onChanged: (_) => onTap?.call(),
+        checkColor: AppColors.white,
+        activeColor: AppColors.green,
+        // tileColor: Colors.white,
+        selectedTileColor: const Color(0xFFF8FAFC),
+        controlAffinity: ListTileControlAffinity.leading,
+        visualDensity: const VisualDensity(vertical: -3),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+        checkboxShape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(25),
+        ),
+        title: Text(
+          mode,
+          style: const TextStyle(
+            color: AppColors.black,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
     );

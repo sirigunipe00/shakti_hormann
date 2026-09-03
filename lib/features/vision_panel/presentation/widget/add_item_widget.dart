@@ -127,8 +127,10 @@ class _AddVisionItemDialogState extends State<AddVisionItemDialog> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: AppButton(
+                        bgColor: AppColors.darkBlue,
                         label: 'Add',
                         isLoading: false,
+                        useRootLoadingOverlay: false,
                         onPressed:
                             _canSubmit
                                 ? () => Navigator.of(context).pop((

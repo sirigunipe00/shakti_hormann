@@ -1080,8 +1080,7 @@ class CreateVisionPanelCubit extends AppBaseCubit<CreateVisionPanelState> {
     final name = state.form.name;
     if (name.isNull || name!.isEmpty) return;
 
-    emitSafeState(state.copyWith(isLoading: true, isSuccess: false));
-
+    // Sync row to server without form loading overlay.
     final response = await repo.updateVision(
       name,
       productType: productType,
@@ -1091,7 +1090,6 @@ class CreateVisionPanelCubit extends AppBaseCubit<CreateVisionPanelState> {
     response.fold(
       (l) => emitSafeState(
         state.copyWith(
-          isLoading: false,
           error: l,
           isUpdated: false,
           items: updatedItems.sublist(0, updatedItems.length - 1),
@@ -1106,12 +1104,10 @@ class CreateVisionPanelCubit extends AppBaseCubit<CreateVisionPanelState> {
         }
         emitSafeState(
           state.copyWith(
-            isLoading: false,
-            isSuccess: true,
-            successMsg: result.message,
             items: items,
             imageLines: _visiblePrintedLines(items),
             isUpdated: false,
+            isModified: true,
           ),
         );
       },

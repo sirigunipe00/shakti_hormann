@@ -104,7 +104,7 @@ class _AppHomePageState extends State<AppHomePage> {
     DashboardItem(
       title: 'Gate Management',
       icon: AppIcons.gatemanagement,
-      iconSize: const Size(140, 80),
+      iconSize: const Size(150, 100),
       onTap: (context) {
         AppRoute.gateManagement.push<bool?>(context);
       },

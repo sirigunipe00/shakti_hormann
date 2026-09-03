@@ -36,7 +36,8 @@ class GateEntryWidget extends StatelessWidget {
         ),
         child: SpacedColumn(
           defaultHeight: 2,
-          margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+          // margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+          margin: const EdgeInsets.fromLTRB(10, 10, 10, 10),
           children: [
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -65,56 +66,24 @@ class GateEntryWidget extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                gateEntry.name ?? '',
-                                style: AppTextStyles.titleLarge(
-                                  context,
-                                ).copyWith(
-                                  color: AppColors.black,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                          Expanded(
+                            child: Text(
+                              gateEntry.name ?? '',
+                              style: AppTextStyles.titleLarge(
+                                context,
+                              ).copyWith(
+                                color: AppColors.black,
+                                fontWeight: FontWeight.bold,
                               ),
-                              const SizedBox(height: 5),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    purchaseOrderForm?.supplier ?? '',
-                                    style: const TextStyle(
-                                      color: AppColors.grey,
-                                      fontWeight: FontWeight.normal,
-                                      letterSpacing: 0,
-                                    ),
-                                  ),
-                                  Text(
-                                    gateEntry.vehicleNo ?? '',
-                                    style: const TextStyle(
-                                      color: AppColors.grey,
-                                      fontWeight: FontWeight.normal,
-                                      letterSpacing: 0,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
-
-
-                        ],
-                      ),
-
-                      const SizedBox(height: 5),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
+                          const SizedBox(width: 10),
                           Row(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
                               const Icon(
                                 Icons.calendar_today,
@@ -126,6 +95,8 @@ class GateEntryWidget extends StatelessWidget {
                                 DFU.ddMMyyyyFromStr(
                                   gateEntry.gateEntryDate ?? '',
                                 ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                                 style: AppTextStyles.titleMedium(
                                   context,
                                   const Color(0xFF163A6B),
@@ -133,8 +104,28 @@ class GateEntryWidget extends StatelessWidget {
                               ),
                             ],
                           ),
-
-
+                        ],
+                      ),
+                      const SizedBox(height: 5),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          // Text(
+                          //   purchaseOrderForm?.supplier ?? '',
+                          //   style: const TextStyle(
+                          //     color: AppColors.grey,
+                          //     fontWeight: FontWeight.normal,
+                          //     letterSpacing: 0,
+                          //   ),
+                          // ),
+                          Text(
+                            gateEntry.vehicleNo ?? '',
+                            style: const TextStyle(
+                              color: AppColors.grey,
+                              fontWeight: FontWeight.normal,
+                              letterSpacing: 0,
+                            ),
+                          ),
                         ],
                       ),
                     ],

@@ -18,7 +18,7 @@ class AppIcons {
   static const vehicleReporting = AppIcon('$imagesPath/vehiclereportings.svg');
   static const pod = AppIcon('$imagesPath/loadingconfirmation.svg');
   static const loadingConfirmation = AppIcon('$imagesPath/pod.svg');
-  static const gatemanagement = AppIcon('$imagesPath/gatemanagement.png');
+  static const gatemanagement = AppIcon('$imagesPath/gate_management.png');
   static const storage = AppIcon('$imagesPath/storage_allocations.png');
   static const zone = AppIcon('$imagesPath/zone.png');
   static const shutter = AppIcon('$imagesPath/shutter_packings.png');

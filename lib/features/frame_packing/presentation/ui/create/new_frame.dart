@@ -8,6 +8,7 @@ import 'package:shakti_hormann/features/frame_packing/presentation/ui/create/fra
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/widgets/buttons/app_btn.dart';
 import 'package:shakti_hormann/widgets/dailogs/app_dialogs.dart';
+import 'package:shakti_hormann/widgets/packing_scan_processing_overlay.dart';
 import 'package:shakti_hormann/widgets/simple_app_bar.dart';
 import 'package:shakti_hormann/widgets/title_status_app_bar.dart';
 
@@ -20,6 +21,13 @@ class NewFrame extends StatefulWidget {
 
 class _NewFrameState extends State<NewFrame> {
   int _formRefreshToken = 0;
+  final ValueNotifier<bool> _isDecodingUploadSticker = ValueNotifier(false);
+
+  @override
+  void dispose() {
+    _isDecodingUploadSticker.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +38,12 @@ class _NewFrameState extends State<NewFrame> {
         final name = newform.name;
         final isCompletedView = gateEntryState.view == FrameView.completed;
         final isSubmitted = status == 1;
-        return Scaffold(
+        return ValueListenableBuilder<bool>(
+          valueListenable: _isDecodingUploadSticker,
+          builder: (context, isDecodingUploadSticker, _) {
+            return PopScope(
+              canPop: !isDecodingUploadSticker,
+              child: Scaffold(
           backgroundColor: AppColors.white,
           appBar:
               status == null
@@ -94,7 +107,7 @@ class _NewFrameState extends State<NewFrame> {
                                           !isPrinted
                                               ? const Color(0xFFCBD5E1)
                                               : AppColors.green,
-                                      isLoading: state.isLoading,
+                                      isLoading: state.isSubmitting,
                                       label:
                                           state.newLines.isNotEmpty
                                               ? 'Update'
@@ -108,7 +121,10 @@ class _NewFrameState extends State<NewFrame> {
                                 ),
                       )
                       as PreferredSizeWidget,
-          body: MultiBlocListener(
+          body: Stack(
+            fit: StackFit.expand,
+            children: [
+              MultiBlocListener(
             listeners: [
               BlocListener<CreateFrameCubit, CreateFrameState>(
                 listenWhen:
@@ -194,12 +210,29 @@ class _NewFrameState extends State<NewFrame> {
             child: BlocProvider(
               create: (context) => FrameBlocProvider.get().getFrameItems(),
               child: FrameFormWidget(
+                isDecodingUploadSticker: _isDecodingUploadSticker,
                 key: ValueKey(
                   '${name}_${status}_${gateEntryState.view}_$_formRefreshToken',
                 ),
               ),
             ),
           ),
+              BlocBuilder<CreateFrameCubit, CreateFrameState>(
+                buildWhen:
+                    (previous, current) =>
+                        previous.isProcessingScan != current.isProcessingScan,
+                builder: (context, state) {
+                  if (!state.isProcessingScan && !isDecodingUploadSticker) {
+                    return const SizedBox.shrink();
+                  }
+                  return const PackingScanProcessingOverlay();
+                },
+              ),
+            ],
+          ),
+        ),
+            );
+          },
         );
       },
     );

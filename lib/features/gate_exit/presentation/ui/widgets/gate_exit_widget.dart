@@ -33,7 +33,8 @@ class GateExitWidget extends StatelessWidget {
         ),
         child: SpacedColumn(
           defaultHeight: 2,
-          margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+          // margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+          margin: const EdgeInsets.fromLTRB(10, 10, 10, 10),
           children: [
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -61,42 +62,24 @@ class GateExitWidget extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                gateExit.name ?? '',
-                                style: AppTextStyles.titleLarge(
-                                  context,
-                                ).copyWith(
-                                  color: AppColors.black,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                          Expanded(
+                            child: Text(
+                              gateExit.name ?? '',
+                              style: AppTextStyles.titleLarge(
+                                context,
+                              ).copyWith(
+                                color: AppColors.black,
+                                fontWeight: FontWeight.bold,
                               ),
-                              const SizedBox(height: 5),
-                              Text(
-                                gateExit.vehicleNo ?? '',
-                                style: const TextStyle(
-                                  color: AppColors.grey,
-                                  fontWeight: FontWeight.normal,
-                                  letterSpacing: 0,
-                                ),
-                              ),
-                            ],
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
-
-                       
-                        ],
-                      ),
-
-                      const SizedBox(height: 5),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
+                          const SizedBox(width: 10),
                           Row(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
                               const Icon(
                                 Icons.calendar_month,
@@ -108,6 +91,8 @@ class GateExitWidget extends StatelessWidget {
                                 DFU.ddMMyyyyFromStr(
                                   gateExit.gateEntryDate ?? '',
                                 ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                                 style: const TextStyle(
                                   color: Color(0xFF163A6B),
                                   fontSize: 11,
@@ -116,8 +101,16 @@ class GateExitWidget extends StatelessWidget {
                               ),
                             ],
                           ),
-
                         ],
+                      ),
+                      const SizedBox(height: 5),
+                      Text(
+                        gateExit.vehicleNo ?? '',
+                        style: const TextStyle(
+                          color: AppColors.grey,
+                          fontWeight: FontWeight.normal,
+                          letterSpacing: 0,
+                        ),
                       ),
                     ],
                   ),

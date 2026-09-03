@@ -197,18 +197,26 @@ class CreateShutterCubit extends AppBaseCubit<CreateShutterState> {
   }
 
   Future<void> getPalletCodes(String salesOrder) async {
-    emitSafeState(state.copyWith(isLoading: true, palletCodes: []));
+    emitSafeState(
+      state.copyWith(isLoadingPalletCodes: true, palletCodes: []),
+    );
 
     final result = await repo.getShutterPalletCode(salesOrder);
 
     result.fold(
       (failure) {
         emitSafeState(
-          state.copyWith(isLoading: false, palletCodes: [], error: failure),
+          state.copyWith(
+            isLoadingPalletCodes: false,
+            palletCodes: [],
+            error: failure,
+          ),
         );
       },
       (codes) {
-        emitSafeState(state.copyWith(isLoading: false, palletCodes: codes));
+        emitSafeState(
+          state.copyWith(isLoadingPalletCodes: false, palletCodes: codes),
+        );
       },
     );
   }
@@ -465,14 +473,14 @@ class CreateShutterCubit extends AppBaseCubit<CreateShutterState> {
 
     if (!docExists) return;
 
-    emitSafeState(state.copyWith(isLoading: true));
+    emitSafeState(state.copyWith(isSubmitting: true));
 
     final response = await repo.updateShutter(state.form, updatedLines);
     response.fold(
       (failure) {
         emitSafeState(
           state.copyWith(
-            isLoading: false,
+            isSubmitting: false,
             lines: previousLines,
             newLines: previousNewLines,
             error: failure,
@@ -481,7 +489,7 @@ class CreateShutterCubit extends AppBaseCubit<CreateShutterState> {
       },
       (_) {
         emitSafeState(
-          state.copyWith(isLoading: false, newLines: [], isModified: false),
+          state.copyWith(isSubmitting: false, newLines: [], isModified: false),
         );
       },
     );
@@ -496,7 +504,7 @@ class CreateShutterCubit extends AppBaseCubit<CreateShutterState> {
     final validation = _validate();
     final hasNewItems = state.newLines.isNotEmpty;
     return validation.fold(() async {
-      emitSafeState(state.copyWith(isLoading: true, isSuccess: false));
+      emitSafeState(state.copyWith(isSubmitting: true, isSuccess: false));
 
       final form = state.form;
       final isNew = form.name == null || form.name!.isEmpty;
@@ -505,13 +513,13 @@ class CreateShutterCubit extends AppBaseCubit<CreateShutterState> {
       if (isNew) {
         final response = await repo.createShutter(form, state.lines);
         return response.fold(
-          (l) => emitSafeState(state.copyWith(isLoading: false, error: l)),
+          (l) => emitSafeState(state.copyWith(isSubmitting: false, error: l)),
           (r) {
             shouldAskForConfirmation.value = false;
             final docstatus = r.second;
             emitSafeState(
               state.copyWith(
-                isLoading: false,
+                isSubmitting: false,
                 isSuccess: true,
                 form: form.copyWith(
                   status: 'In Packing',
@@ -531,13 +539,13 @@ class CreateShutterCubit extends AppBaseCubit<CreateShutterState> {
       } else if (isDraft && hasNewItems) {
         final response = await repo.updateShutter(form, state.lines);
         return response.fold(
-          (l) => emitSafeState(state.copyWith(isLoading: false, error: l)),
+          (l) => emitSafeState(state.copyWith(isSubmitting: false, error: l)),
           (r) {
             shouldAskForConfirmation.value = false;
             final updatedName = (r.second.isNotEmpty) ? r.second : form.name;
             emitSafeState(
               state.copyWith(
-                isLoading: false,
+                isSubmitting: false,
                 form: form.copyWith(
                   status: 'In Packing',
                   allocationStatus: form.allocationStatus ?? 'Unallocated',
@@ -555,12 +563,12 @@ class CreateShutterCubit extends AppBaseCubit<CreateShutterState> {
       } else {
         final response = await repo.submitShutter(form);
         return response.fold(
-          (l) => emitSafeState(state.copyWith(isLoading: false, error: l)),
+          (l) => emitSafeState(state.copyWith(isSubmitting: false, error: l)),
           (r) {
             shouldAskForConfirmation.value = false;
             emitSafeState(
               state.copyWith(
-                isLoading: false,
+                isSubmitting: false,
                 isSuccess: true,
                 form: form.copyWith(
                   docStatus: 1,
@@ -585,7 +593,12 @@ class CreateShutterCubit extends AppBaseCubit<CreateShutterState> {
       status: error.second,
     );
     emitSafeState(
-      state.copyWith(error: failure, isLoading: false, isProcessingScan: false),
+      state.copyWith(
+        error: failure,
+        isSubmitting: false,
+        isLoadingPalletCodes: false,
+        isProcessingScan: false,
+      ),
     );
   }
 
@@ -593,7 +606,8 @@ class CreateShutterCubit extends AppBaseCubit<CreateShutterState> {
     emitSafeState(
       state.copyWith(
         error: null,
-        isLoading: false,
+        isSubmitting: false,
+        isLoadingPalletCodes: false,
         isProcessingScan: false,
         isSuccess: false,
         successMsg: null,
@@ -706,6 +720,8 @@ class CreateShutterState with _$CreateShutterState {
     @Default(false) bool isFrozen,
     @Default(false) bool isPrinting,
     @Default(false) bool isCreatingDoc,
+    @Default(false) bool isSubmitting,
+    @Default(false) bool isLoadingPalletCodes,
     @Default(false) bool isProcessingScan,
     @Default([]) List<String> palletCodes,
     String? printSuccessMsg,

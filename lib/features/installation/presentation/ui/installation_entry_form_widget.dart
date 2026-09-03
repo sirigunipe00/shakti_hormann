@@ -323,8 +323,8 @@ class _InstallationEntryFormWidgetState
                           isSubmitted: isSubmitted,
                           isUpdating:
                               formState.isLoading &&
-                              cubit.allBoxesCaptured &&
-                              !formState.isUpdated,
+                              !formState.isUpdated &&
+                              formState.isModified,
                           onCapture:
                               (index) =>
                                   _captureBoxPhoto(context, cubit, index),

@@ -151,7 +151,7 @@ class _NewHardwareState extends State<NewHardware> {
                 final filters = context.read<HardWareFilterCubit>().state;
                 context.cubit<HardwareCubit>().fetchInitial(
                   Pair(
-                    StringUtils.docStatusInt(filters.status),
+                    filters.status,
                     filters.query,
                   ),
                 );

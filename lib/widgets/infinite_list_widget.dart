@@ -5,6 +5,7 @@ import 'package:shakti_hormann/core/cubit/infinite_list/infinite_list_cubit.dart
 import 'package:shakti_hormann/core/model/failure.dart';
 import 'package:shakti_hormann/widgets/app_failure_widget.dart';
 import 'package:shakti_hormann/widgets/app_spacer.dart';
+import 'package:shakti_hormann/widgets/door_loading_gate.dart';
 import 'package:shakti_hormann/widgets/empty_data_widget.dart';
 import 'package:shakti_hormann/widgets/loading_indicator.dart';
 
@@ -29,35 +30,46 @@ class InfiniteListViewWidget<T extends StateStreamable<InfiniteListState<D>>, D>
   Widget build(BuildContext context) {
     return BlocBuilder<T, InfiniteListState<D>>(
       builder: (_, InfiniteListState<D> state) {
-        return state.when(
-          initial: () => const Center(child: LoadingIndicator()),
-          loading: () => const Center(child: LoadingIndicator()),
-          success: (
-            List<D> data,
-            bool hasReachedMax,
-            bool isloadingMore,
-            Failure? failure,
-          ) {
-            log('data----:${data.length}');
-            if (data.isEmpty) {
-              return EmptyDataWidget(
-                emptyText: emptyListText,
-                onRefresh: fetchInitial,
-              );
-            }
+        final isContentReady = state.maybeWhen(
+          success: (_, __, ___, ____) => true,
+          failed: (_) => true,
+          orElse: () => false,
+        );
 
-            return _InfiniteListView<D>(
-              data: data,
-              childBuilder: childBuilder,
-              fetchInitial: fetchInitial,
-              fetchMore: fetchMore,
-              hasReachedMax: hasReachedMax,
-              failure: failure,
-            );
-          },
-          failed:
-              (Failure f) =>
-                  AppFailureWidget(message: f.error, onPress: fetchInitial),
+        return DoorLoadingGate(
+          isContentReady: isContentReady,
+          child: state.when(
+            initial: () => const SizedBox.shrink(),
+            loading: () => const SizedBox.shrink(),
+            success: (
+              List<D> data,
+              bool hasReachedMax,
+              bool isloadingMore,
+              Failure? failure,
+            ) {
+              log('data----:${data.length}');
+              if (data.isEmpty) {
+                return EmptyDataWidget(
+                  emptyText: emptyListText,
+                  onRefresh: fetchInitial,
+                );
+              }
+
+              return _InfiniteListView<D>(
+                data: data,
+                childBuilder: childBuilder,
+                fetchInitial: fetchInitial,
+                fetchMore: fetchMore,
+                hasReachedMax: hasReachedMax,
+                failure: failure,
+              );
+            },
+            failed:
+                (Failure f) => AppFailureWidget(
+                  message: f.error,
+                  onPress: fetchInitial,
+                ),
+          ),
         );
       },
     );
@@ -131,7 +143,7 @@ class _InfiniteListViewState<T> extends State<_InfiniteListView<T>> {
               );
             }
 
-            return const Center(child: LoadingIndicator());
+            return const LoadingIndicator(compact: true);
           }
 
           return widget.childBuilder(context, data[idx]);

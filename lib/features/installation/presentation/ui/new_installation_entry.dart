@@ -8,6 +8,7 @@ import 'package:shakti_hormann/features/installation/presentation/ui/installatio
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/widgets/buttons/app_btn.dart';
 import 'package:shakti_hormann/widgets/dailogs/app_dialogs.dart';
+import 'package:shakti_hormann/widgets/form_page_loading_stack.dart';
 import 'package:shakti_hormann/widgets/simple_app_bar.dart';
 import 'package:shakti_hormann/widgets/title_status_app_bar.dart';
 
@@ -80,7 +81,11 @@ class _NewInstallationEntryState extends State<NewInstallationEntry> {
 
                             return AppButton(
                               borderColor: Colors.grey,
-                              isLoading: state.isLoading,
+                              bgColor:
+                                  canSubmit
+                                      ? AppColors.green
+                                      : const Color(0xFFCBD5E1),
+                              isLoading: state.isLoading && state.isUpdated,
                               label: state.newLines.isNotEmpty
                                   ? 'Update'
                                   : 'Submit',
@@ -93,10 +98,28 @@ class _NewInstallationEntryState extends State<NewInstallationEntry> {
                           },
                         ),
                 ) as PreferredSizeWidget,
-          body: BlocListener<CreateInstallationEntryCubit,
-              CreateInstallationState>(
+          body: BlocBuilder<CreateInstallationEntryCubit, CreateInstallationState>(
+            builder: (context, overlayState) {
+              final isSubmitted = overlayState.form.docStatus == 1;
+              final isCreated =
+                  overlayState.form.name != null &&
+                  overlayState.form.name!.isNotEmpty;
+              final isDraftImageUploading =
+                  !isSubmitted &&
+                  isCreated &&
+                  overlayState.isLoading &&
+                  !overlayState.isUpdated &&
+                  overlayState.isModified;
+
+              return FormBusyOverlayBinder(
+                isBusy: isDraftImageUploading,
+                message: 'Uploading box images...',
+                statusLabel: 'Processing...',
+                child: BlocListener<CreateInstallationEntryCubit,
+                    CreateInstallationState>(
             listener: (_, state) async {
               if (state.isSuccess && state.successMsg.isNotNull) {
+                if (!context.mounted) return;
                 await AppDialog.showSuccessDialog(
                   context,
                   title: 'Success',
@@ -124,6 +147,7 @@ class _NewInstallationEntryState extends State<NewInstallationEntry> {
               }
 
               if (state.error.isNotNull) {
+                if (!context.mounted) return;
                 await AppDialog.showErrorDialog(
                   context,
                   title: state.error?.title,
@@ -138,6 +162,9 @@ class _NewInstallationEntryState extends State<NewInstallationEntry> {
               }
             },
             child: InstallationEntryFormWidget(key: ValueKey(status)),
+          ),
+              );
+            },
           ),
         );
       },

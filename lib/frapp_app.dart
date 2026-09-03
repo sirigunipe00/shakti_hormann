@@ -167,7 +167,7 @@ class _ShaktiHormannState extends State<ShaktiHormann>
                   routerCtxt.cubit<LoadingCnfmCubit>().fetchInitial(filtersslogistic);
                   routerCtxt.cubit<ProofOfDeliveryCubit>().fetchInitial(filters);
                   routerCtxt.cubit<GateMangementCubit>().fetchInitial(filters);
-                  routerCtxt.cubit<HardwareCubit>().fetchInitial(filters);
+                  routerCtxt.cubit<HardwareCubit>().fetchInitial(shutterFrameFilters);
                   routerCtxt.cubit<StorageCubit>().fetchInitial(filters);
                   routerCtxt.cubit<ZoneCubit>().fetchInitial(filters);
                   routerCtxt.cubit<ShutterCubit>().fetchInitial(shutterFrameFilters);

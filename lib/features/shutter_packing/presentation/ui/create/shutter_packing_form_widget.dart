@@ -13,7 +13,6 @@ import 'package:shakti_hormann/features/shutter_packing/presentation/ui/create/s
 import 'package:shakti_hormann/features/shutter_packing/presentation/ui/widget/border_painter.dart';
 import 'package:shakti_hormann/features/shutter_packing/presentation/ui/widget/shutter_lines_widget.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
-import 'package:shakti_hormann/widgets/packing_scan_processing_overlay.dart';
 import 'package:shakti_hormann/widgets/dailogs/app_dialogs.dart';
 import 'package:shakti_hormann/widgets/inputs/new_upload_photo_widget.dart';
 import 'package:shakti_hormann/widgets/inputs/search_dropdown_widget.dart';
@@ -21,7 +20,12 @@ import 'package:shakti_hormann/widgets/inputs/search_dropdown_widget.dart';
 import 'package:simple_barcode_scanner/simple_barcode_scanner.dart';
 
 class ShutterPackingFormWidget extends StatefulWidget {
-  const ShutterPackingFormWidget({super.key});
+  const ShutterPackingFormWidget({
+    super.key,
+    required this.isDecodingUploadSticker,
+  });
+
+  final ValueNotifier<bool> isDecodingUploadSticker;
 
   @override
   State<ShutterPackingFormWidget> createState() =>
@@ -32,7 +36,6 @@ class __ShutterPackingFormWidgetState extends State<ShutterPackingFormWidget> {
   final ScrollController _scrollController = ScrollController();
   SalesOrderForm? invoiceform;
   PalletSize? palletSize;
-  bool _isDecodingSticker = false;
 
   @override
   void dispose() {
@@ -42,6 +45,9 @@ class __ShutterPackingFormWidgetState extends State<ShutterPackingFormWidget> {
 
   @override
   Widget build(BuildContext context) {
+    return ValueListenableBuilder<bool>(
+      valueListenable: widget.isDecodingUploadSticker,
+      builder: (context, isDecodingUploadSticker, _) {
     final formState = context.watch<CreateShutterCubit>().state;
     final isCompleted = formState.view == ShutterView.completed;
     final newform = formState.form;
@@ -54,7 +60,7 @@ class __ShutterPackingFormWidgetState extends State<ShutterPackingFormWidget> {
         isFrozen ||
         !isDocCreated ||
         formState.isProcessingScan ||
-        _isDecodingSticker;
+        isDecodingUploadSticker;
     final hasPalletImage =
         newform.palletPhotoImg != null ||
         (newform.palletPhoto != null && newform.palletPhoto!.isNotEmpty);
@@ -244,8 +250,7 @@ class __ShutterPackingFormWidgetState extends State<ShutterPackingFormWidget> {
                               ),
                               readOnly: isDropdownLocked,
                               isRequired: true,
-                              isloading:
-                                  state.isLoading && state.palletCodes.isEmpty,
+                              isloading: state.isLoadingPalletCodes,
                               color: AppColors.black,
                               defaultSelection: selection,
                               futureRequest: (query) async {
@@ -593,9 +598,9 @@ class __ShutterPackingFormWidgetState extends State<ShutterPackingFormWidget> {
         ),
       ),
     ),
-        if (formState.isProcessingScan || _isDecodingSticker)
-          const PackingScanProcessingOverlay(),
       ],
+    );
+      },
     );
   }
 
@@ -806,31 +811,32 @@ class __ShutterPackingFormWidgetState extends State<ShutterPackingFormWidget> {
     if (!context.mounted) return;
     if (imagePaths == null || imagePaths.isEmpty) return;
 
-    setState(() => _isDecodingSticker = true);
+    widget.isDecodingUploadSticker.value = true;
+    String? extracted;
     try {
-      String? extracted;
       for (final path in imagePaths) {
         extracted = await decodePackingStickerCode(path);
         if (extracted != null) break;
       }
-      if (!context.mounted) return;
-      if (extracted == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Could not read sticker. Please try again.'),
-            backgroundColor: Colors.red,
-          ),
-        );
-        return;
-      }
-
-      await context.cubit<CreateShutterCubit>().onQrScanned(
-        extracted,
-        imagePaths: imagePaths,
-      );
     } finally {
-      if (mounted) setState(() => _isDecodingSticker = false);
+      widget.isDecodingUploadSticker.value = false;
     }
+
+    if (!context.mounted) return;
+    if (extracted == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Could not read sticker. Please try again.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    await context.cubit<CreateShutterCubit>().onQrScanned(
+      extracted,
+      imagePaths: imagePaths,
+    );
   }
 }
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shakti_hormann/widgets/dailogs/dialog_content.dart';
 import 'package:shakti_hormann/widgets/dailogs/success_content.dart';
+import 'package:shakti_hormann/widgets/form_submit_loading_overlay.dart';
 
 enum DialogType { normal, error, confirmRetry }
 
@@ -13,20 +14,23 @@ class AppDialog {
     DialogType type = DialogType.normal,
     String buttonText = 'Okay',
     bool barrierDismissible = true,
-  }) async =>
-      await showGeneralDialog<T?>(
-        context: context,
-        barrierDismissible: barrierDismissible,
-        barrierLabel: 'Dialog',
-        useRootNavigator: true,
-        pageBuilder: (_, __, ___) => DialogWidget(
-          title: title,
-          content: content,
-          buttonText: buttonText,
-          onTapDismiss: onTapOkay,
-          dialogType: type,
-        ),
-      );
+  }) async {
+    await FormLoadingOverlay.dismissBeforeDialog();
+    if (!context.mounted) return null;
+    return showGeneralDialog<T?>(
+      context: context,
+      barrierDismissible: barrierDismissible,
+      barrierLabel: 'Dialog',
+      useRootNavigator: true,
+      pageBuilder: (_, __, ___) => DialogWidget(
+        title: title,
+        content: content,
+        buttonText: buttonText,
+        onTapDismiss: onTapOkay,
+        dialogType: type,
+      ),
+    );
+  }
 
   static Future<T?> showErrorDialog<T>(
     BuildContext context, {
@@ -35,21 +39,23 @@ class AppDialog {
     required VoidCallback onTapDismiss,
     bool barrierDismissible = true,
     String buttonText = 'Cancel',
-  }) async =>
-      await showGeneralDialog<T?>(
-        context: context,
-        barrierLabel: 'ErrorDialog',
-        useRootNavigator: true,
-        barrierDismissible: barrierDismissible,
-        pageBuilder: (_, __, ___) => ErrorContent(
-          title: title,
-          content: content,
-          buttonText: buttonText,
-          onTapDismiss: onTapDismiss,
-          imagePath: 'assets/images/error.svg',
-        ),
-      );
-    
+  }) async {
+    await FormLoadingOverlay.dismissBeforeDialog();
+    if (!context.mounted) return null;
+    return showGeneralDialog<T?>(
+      context: context,
+      barrierLabel: 'ErrorDialog',
+      useRootNavigator: true,
+      barrierDismissible: barrierDismissible,
+      pageBuilder: (_, __, ___) => ErrorContent(
+        title: title,
+        content: content,
+        buttonText: buttonText,
+        onTapDismiss: onTapDismiss,
+        imagePath: 'assets/images/error.svg',
+      ),
+    );
+  }
 
   static Future<T?> showSuccessDialog<T>(
     BuildContext context, {
@@ -57,22 +63,23 @@ class AppDialog {
     required String content,
     required VoidCallback onTapDismiss,
     String buttonText = 'Thank you',
-   
-  }) async =>
-      await showGeneralDialog<T>(
-        context: context,
-        barrierLabel: 'SuccessDialog',
-        useRootNavigator: true,
-        barrierDismissible: false,
-        pageBuilder: (_, __, ___) => SuccessContent(
-          title: title,
-          imagePath: 'assets/images/succes.svg',
-          content: content,
-          buttonText: buttonText,
-          onTapDismiss: 
-            onTapDismiss
-        ),
-      );
+  }) async {
+    await FormLoadingOverlay.dismissBeforeDialog();
+    if (!context.mounted) return null;
+    return showGeneralDialog<T>(
+      context: context,
+      barrierLabel: 'SuccessDialog',
+      useRootNavigator: true,
+      barrierDismissible: false,
+      pageBuilder: (_, __, ___) => SuccessContent(
+        title: title,
+        imagePath: 'assets/images/succes.svg',
+        content: content,
+        buttonText: buttonText,
+        onTapDismiss: onTapDismiss,
+      ),
+    );
+  }
 
   static Future<T?> askForConfirmation<T>(
     BuildContext context, {
@@ -99,6 +106,4 @@ class AppDialog {
           onTapConfirm: onTapConfirm,
         ),
       );
-     
-
 }

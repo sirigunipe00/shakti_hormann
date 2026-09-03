@@ -30,6 +30,8 @@ mixin _$CreateFrameState {
   bool get isFreezing => throw _privateConstructorUsedError;
   bool get isFrozen => throw _privateConstructorUsedError;
   bool get isCreatingDoc => throw _privateConstructorUsedError;
+  bool get isSubmitting => throw _privateConstructorUsedError;
+  bool get isLoadingPalletCodes => throw _privateConstructorUsedError;
   bool get isProcessingScan => throw _privateConstructorUsedError;
   String? get freezeSuccessMsg => throw _privateConstructorUsedError;
   String? get successMsg => throw _privateConstructorUsedError;
@@ -64,6 +66,8 @@ abstract class $CreateFrameStateCopyWith<$Res> {
     bool isFreezing,
     bool isFrozen,
     bool isCreatingDoc,
+    bool isSubmitting,
+    bool isLoadingPalletCodes,
     bool isProcessingScan,
     String? freezeSuccessMsg,
     String? successMsg,
@@ -103,6 +107,8 @@ class _$CreateFrameStateCopyWithImpl<$Res, $Val extends CreateFrameState>
     Object? isFreezing = null,
     Object? isFrozen = null,
     Object? isCreatingDoc = null,
+    Object? isSubmitting = null,
+    Object? isLoadingPalletCodes = null,
     Object? isProcessingScan = null,
     Object? freezeSuccessMsg = freezed,
     Object? successMsg = freezed,
@@ -175,6 +181,16 @@ class _$CreateFrameStateCopyWithImpl<$Res, $Val extends CreateFrameState>
                 null == isCreatingDoc
                     ? _value.isCreatingDoc
                     : isCreatingDoc // ignore: cast_nullable_to_non_nullable
+                        as bool,
+            isSubmitting:
+                null == isSubmitting
+                    ? _value.isSubmitting
+                    : isSubmitting // ignore: cast_nullable_to_non_nullable
+                        as bool,
+            isLoadingPalletCodes:
+                null == isLoadingPalletCodes
+                    ? _value.isLoadingPalletCodes
+                    : isLoadingPalletCodes // ignore: cast_nullable_to_non_nullable
                         as bool,
             isProcessingScan:
                 null == isProcessingScan
@@ -254,6 +270,8 @@ abstract class _$$CreateFrameStateImplCopyWith<$Res>
     bool isFreezing,
     bool isFrozen,
     bool isCreatingDoc,
+    bool isSubmitting,
+    bool isLoadingPalletCodes,
     bool isProcessingScan,
     String? freezeSuccessMsg,
     String? successMsg,
@@ -294,6 +312,8 @@ class __$$CreateFrameStateImplCopyWithImpl<$Res>
     Object? isFreezing = null,
     Object? isFrozen = null,
     Object? isCreatingDoc = null,
+    Object? isSubmitting = null,
+    Object? isLoadingPalletCodes = null,
     Object? isProcessingScan = null,
     Object? freezeSuccessMsg = freezed,
     Object? successMsg = freezed,
@@ -367,6 +387,16 @@ class __$$CreateFrameStateImplCopyWithImpl<$Res>
                 ? _value.isCreatingDoc
                 : isCreatingDoc // ignore: cast_nullable_to_non_nullable
                     as bool,
+        isSubmitting:
+            null == isSubmitting
+                ? _value.isSubmitting
+                : isSubmitting // ignore: cast_nullable_to_non_nullable
+                    as bool,
+        isLoadingPalletCodes:
+            null == isLoadingPalletCodes
+                ? _value.isLoadingPalletCodes
+                : isLoadingPalletCodes // ignore: cast_nullable_to_non_nullable
+                    as bool,
         isProcessingScan:
             null == isProcessingScan
                 ? _value.isProcessingScan
@@ -414,6 +444,8 @@ class _$CreateFrameStateImpl implements _CreateFrameState {
     this.isFreezing = false,
     this.isFrozen = false,
     this.isCreatingDoc = false,
+    this.isSubmitting = false,
+    this.isLoadingPalletCodes = false,
     this.isProcessingScan = false,
     this.freezeSuccessMsg,
     this.successMsg,
@@ -476,6 +508,12 @@ class _$CreateFrameStateImpl implements _CreateFrameState {
   final bool isCreatingDoc;
   @override
   @JsonKey()
+  final bool isSubmitting;
+  @override
+  @JsonKey()
+  final bool isLoadingPalletCodes;
+  @override
+  @JsonKey()
   final bool isProcessingScan;
   @override
   final String? freezeSuccessMsg;
@@ -488,7 +526,7 @@ class _$CreateFrameStateImpl implements _CreateFrameState {
 
   @override
   String toString() {
-    return 'CreateFrameState(form: $form, isLoading: $isLoading, lines: $lines, isSuccess: $isSuccess, newLines: $newLines, palletCodes: $palletCodes, view: $view, isPrinting: $isPrinting, printSuccessMsg: $printSuccessMsg, isModified: $isModified, isFreezing: $isFreezing, isFrozen: $isFrozen, isCreatingDoc: $isCreatingDoc, isProcessingScan: $isProcessingScan, freezeSuccessMsg: $freezeSuccessMsg, successMsg: $successMsg, createSuccessMsg: $createSuccessMsg, error: $error)';
+    return 'CreateFrameState(form: $form, isLoading: $isLoading, lines: $lines, isSuccess: $isSuccess, newLines: $newLines, palletCodes: $palletCodes, view: $view, isPrinting: $isPrinting, printSuccessMsg: $printSuccessMsg, isModified: $isModified, isFreezing: $isFreezing, isFrozen: $isFrozen, isCreatingDoc: $isCreatingDoc, isSubmitting: $isSubmitting, isLoadingPalletCodes: $isLoadingPalletCodes, isProcessingScan: $isProcessingScan, freezeSuccessMsg: $freezeSuccessMsg, successMsg: $successMsg, createSuccessMsg: $createSuccessMsg, error: $error)';
   }
 
   @override
@@ -520,6 +558,10 @@ class _$CreateFrameStateImpl implements _CreateFrameState {
                 other.isFrozen == isFrozen) &&
             (identical(other.isCreatingDoc, isCreatingDoc) ||
                 other.isCreatingDoc == isCreatingDoc) &&
+            (identical(other.isSubmitting, isSubmitting) ||
+                other.isSubmitting == isSubmitting) &&
+            (identical(other.isLoadingPalletCodes, isLoadingPalletCodes) ||
+                other.isLoadingPalletCodes == isLoadingPalletCodes) &&
             (identical(other.isProcessingScan, isProcessingScan) ||
                 other.isProcessingScan == isProcessingScan) &&
             (identical(other.freezeSuccessMsg, freezeSuccessMsg) ||
@@ -532,7 +574,7 @@ class _$CreateFrameStateImpl implements _CreateFrameState {
   }
 
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     runtimeType,
     form,
     isLoading,
@@ -547,12 +589,14 @@ class _$CreateFrameStateImpl implements _CreateFrameState {
     isFreezing,
     isFrozen,
     isCreatingDoc,
+    isSubmitting,
+    isLoadingPalletCodes,
     isProcessingScan,
     freezeSuccessMsg,
     successMsg,
     createSuccessMsg,
     error,
-  );
+  ]);
 
   /// Create a copy of CreateFrameState
   /// with the given fields replaced by the non-null parameter values.
@@ -581,6 +625,8 @@ abstract class _CreateFrameState implements CreateFrameState {
     final bool isFreezing,
     final bool isFrozen,
     final bool isCreatingDoc,
+    final bool isSubmitting,
+    final bool isLoadingPalletCodes,
     final bool isProcessingScan,
     final String? freezeSuccessMsg,
     final String? successMsg,
@@ -614,6 +660,10 @@ abstract class _CreateFrameState implements CreateFrameState {
   bool get isFrozen;
   @override
   bool get isCreatingDoc;
+  @override
+  bool get isSubmitting;
+  @override
+  bool get isLoadingPalletCodes;
   @override
   bool get isProcessingScan;
   @override

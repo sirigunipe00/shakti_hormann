@@ -43,7 +43,7 @@ class InstallationWidget extends StatelessWidget {
         ),
         child: SpacedColumn(
           defaultHeight: 2,
-          margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+          margin: const EdgeInsets.fromLTRB(10, 10, 10, 10),
           children: [
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -64,6 +64,8 @@ class InstallationWidget extends StatelessWidget {
                         color: Color(0xFF2957A4),
                         letterSpacing: 1.5,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ),
@@ -73,31 +75,23 @@ class InstallationWidget extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        installation.name ?? '',
-                        style: AppTextStyles.titleLarge(context).copyWith(
-                          color: AppColors.black,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 5),
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Flexible(
+                          Expanded(
                             child: Text(
-                              'Sales Order: ${installation.salesOrderNo ?? ''}',
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                color: AppColors.grey,
+                              installation.name ?? '',
+                              style: AppTextStyles.titleLarge(context).copyWith(
+                                color: AppColors.black,
                                 fontWeight: FontWeight.bold,
-                                letterSpacing: 0,
-                                fontSize: 14,
                               ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
+                          const SizedBox(width: 10),
                           Row(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
                               const Icon(
                                 Icons.calendar_month,
@@ -107,6 +101,8 @@ class InstallationWidget extends StatelessWidget {
                               const SizedBox(width: 4),
                               Text(
                                 DFU.ddMMyyyyFromStr(installation.packingDate ?? ''),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                                 style: const TextStyle(
                                   color: Color(0xFF163A6B),
                                   fontSize: 14,
@@ -116,6 +112,19 @@ class InstallationWidget extends StatelessWidget {
                             ],
                           ),
                         ],
+                      ),
+                      const SizedBox(height: 5),
+                      // Second row now holds only the sales order.
+                      Text(
+                        'Sales Order: ${installation.salesOrderNo ?? ''}',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: AppColors.grey,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 0,
+                          fontSize: 14,
+                        ),
                       ),
                     ],
                   ),
@@ -136,16 +145,21 @@ class InstallationWidget extends StatelessWidget {
             ),
 
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Text(
-                  'Quantity : ${installation.noOfBoxes} Units',
-                  style: const TextStyle(
-                    color: Colors.orange,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15,
+                Expanded(
+                  child: Text(
+                    'Quantity : ${installation.noOfBoxes} Units',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: Colors.orange,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                    ),
                   ),
                 ),
+                const SizedBox(width: 8),
                 DocStatusWidget(
                   status: StringUtils.docStatus(installation.docStatus ?? 0),
                 ),

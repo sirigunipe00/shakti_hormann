@@ -10,7 +10,7 @@ import 'package:shakti_hormann/features/hardware_packing/model/hardware_packing.
 
 
 
-typedef HardwareCubit = InfiniteListCubit<HardwarePacking, Pair<int?, String?>, Pair<int?, String?>>;
+typedef HardwareCubit = InfiniteListCubit<HardwarePacking, Pair<String?, String?>, Pair<String?, String?>>;
 typedef HardwareCubitState = InfiniteListState<HardwarePacking>;
 typedef HardwareItemsCubit = NetworkRequestCubit<List<HardwareItem>, String>;
 typedef HardwareItemsState = NetworkRequestState<List<HardwareItem>>;
