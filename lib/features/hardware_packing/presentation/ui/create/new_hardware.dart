@@ -9,6 +9,7 @@ import 'package:shakti_hormann/features/hardware_packing/presentation/ui/create/
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/widgets/buttons/app_btn.dart';
 import 'package:shakti_hormann/widgets/dailogs/app_dialogs.dart';
+import 'package:shakti_hormann/widgets/form_page_loading_stack.dart';
 import 'package:shakti_hormann/widgets/simple_app_bar.dart';
 import 'package:shakti_hormann/widgets/title_status_app_bar.dart';
 
@@ -133,7 +134,17 @@ class _NewHardwareState extends State<NewHardware> {
                                 ),
                       )
                       as PreferredSizeWidget,
-          body: BlocListener<CreateHardwareCubit, CreateHardwareState>(
+          body: BlocBuilder<CreateHardwareCubit, CreateHardwareState>(
+            builder: (context, createOverlay) {
+              return BlocBuilder<HardwarePackingItemsCubit,
+                  HardwarePackingItemsState>(
+                builder: (context, itemsOverlay) {
+                  return FormPageLoadingStack(
+                    isLoading:
+                        createOverlay.isLoading || itemsOverlay.isLoading,
+                    message: 'Please wait...',
+                    statusLabel: 'Processing...',
+                    child: BlocListener<CreateHardwareCubit, CreateHardwareState>(
             listener: (_, state) async {
               if (state.isSuccess && state.successMsg.isNotNull) {
                 await AppDialog.showSuccessDialog(
@@ -183,6 +194,11 @@ class _NewHardwareState extends State<NewHardware> {
             child: HardwareFormWidget(
               key: ValueKey('${name}_${status}_${hardwareState.view}'),
             ),
+          ),
+                  );
+                },
+              );
+            },
           ),
         );
       },

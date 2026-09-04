@@ -135,6 +135,7 @@ import 'package:shakti_hormann/features/zone_transfer/presentation/bloc/zone_fil
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/widgets/buttons/app_btn.dart';
 import 'package:shakti_hormann/widgets/dailogs/app_dialogs.dart';
+import 'package:shakti_hormann/widgets/form_page_loading_stack.dart';
 import 'package:shakti_hormann/widgets/simple_app_bar.dart';
 import 'package:shakti_hormann/widgets/title_status_app_bar.dart';
 
@@ -169,10 +170,15 @@ class NewEntry extends StatelessWidget {
                         : () => _onSaveWithConfirmation(context),
                   ),
                 ),
-          body: BlocListener<CreateZoneCubit, CreateZoneState>(
+          body: FormPageLoadingStack(
+            isLoading: zoneState.isLoading,
+            message: 'Please wait...',
+            statusLabel: 'Processing...',
+            child: BlocListener<CreateZoneCubit, CreateZoneState>(
             listenWhen: (p, c) => p.isSuccess != c.isSuccess || p.error != c.error,
             listener: (context, state) => _handleZoneState(context, state),
             child: const StorageFormWidget(),
+          ),
           ),
         );
       },

@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/styles/text_styles.dart';
-import 'package:shakti_hormann/widgets/form_submit_loading_overlay.dart';
 
 class SubmitBtn extends StatefulWidget {
   const SubmitBtn({
@@ -32,57 +30,9 @@ class SubmitBtn extends StatefulWidget {
 }
 
 class _SubmitBtnState extends State<SubmitBtn> {
-  bool _actionStarted = false;
-  bool _overlayShownByThis = false;
-
-  @override
-  void didUpdateWidget(covariant SubmitBtn oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.isLoading && !widget.isLoading && _overlayShownByThis) {
-      _hideOverlay();
-      _actionStarted = false;
-    }
-  }
-
-  void _showOverlay() {
-    if (_overlayShownByThis || !mounted) return;
-    FormLoadingOverlay.show(
-      context,
-      message: formLoadingMessageForLabel(
-        widget.label,
-        loadingText: widget.loadingText,
-      ),
-      statusLabel: 'Processing...',
-    );
-    _overlayShownByThis = true;
-  }
-
-  void _hideOverlay() {
-    if (!_overlayShownByThis) return;
-    FormLoadingOverlay.hide();
-    _overlayShownByThis = false;
-  }
-
   void _onPressed() {
     if (widget.onPressed == null || widget.isLoading) return;
-
-    _actionStarted = true;
-    _showOverlay();
     widget.onPressed!();
-
-    SchedulerBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      if (_actionStarted && !widget.isLoading && _overlayShownByThis) {
-        _hideOverlay();
-        _actionStarted = false;
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    _hideOverlay();
-    super.dispose();
   }
 
   @override

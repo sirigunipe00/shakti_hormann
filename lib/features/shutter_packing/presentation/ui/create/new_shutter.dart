@@ -8,6 +8,7 @@ import 'package:shakti_hormann/features/shutter_packing/presentation/ui/create/s
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/widgets/buttons/app_btn.dart';
 import 'package:shakti_hormann/widgets/dailogs/app_dialogs.dart';
+import 'package:shakti_hormann/widgets/form_page_loading_stack.dart';
 import 'package:shakti_hormann/widgets/packing_scan_processing_overlay.dart';
 import 'package:shakti_hormann/widgets/simple_app_bar.dart';
 import 'package:shakti_hormann/widgets/title_status_app_bar.dart';
@@ -133,7 +134,19 @@ class _NewShutterState extends State<NewShutter> {
           body: Stack(
             fit: StackFit.expand,
             children: [
-              MultiBlocListener(
+              BlocBuilder<CreateShutterCubit, CreateShutterState>(
+                buildWhen:
+                    (previous, current) =>
+                        previous.isCreatingDoc != current.isCreatingDoc ||
+                        previous.isSubmitting != current.isSubmitting,
+                builder: (context, overlayState) {
+                  return FormPageLoadingStack(
+                    isLoading:
+                        overlayState.isCreatingDoc ||
+                        overlayState.isSubmitting,
+                    message: 'Please wait...',
+                    statusLabel: 'Processing...',
+                    child: MultiBlocListener(
             listeners: [
               BlocListener<CreateShutterCubit, CreateShutterState>(
                 listenWhen:
@@ -221,6 +234,9 @@ class _NewShutterState extends State<NewShutter> {
               ),
             ),
           ),
+                  );
+                },
+              ),
               BlocBuilder<CreateShutterCubit, CreateShutterState>(
                 buildWhen:
                     (previous, current) =>

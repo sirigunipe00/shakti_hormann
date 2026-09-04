@@ -9,6 +9,7 @@ import 'package:shakti_hormann/features/vehicle_reporting/model/vehicle_reportin
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/widgets/buttons/app_btn.dart';
 import 'package:shakti_hormann/widgets/dailogs/app_dialogs.dart';
+import 'package:shakti_hormann/widgets/form_page_loading_stack.dart';
 import 'package:shakti_hormann/widgets/simple_app_bar.dart';
 import 'package:shakti_hormann/widgets/title_status_app_bar.dart';
 
@@ -79,43 +80,52 @@ class _NewLoadingConfirmationState extends State<NewLoadingConfirmation> {
                   )
                   as PreferredSizeWidget,
 
-      body: BlocListener<CreateLoadingCnfmCubit, CreateLaodingCnfmState>(
-        listener: (_, state) async {
-          if (state.isSuccess && state.successMsg!.isNotNull) {
-            AppDialog.showSuccessDialog(
-              context,
-              title: 'Success',
-              content: state.successMsg.valueOrEmpty,
-              onTapDismiss: context.exit,
-            ).then((_) {
-              if (!context.mounted) return;
-              context.cubit<CreateLoadingCnfmCubit>().errorHandled();
+      body: BlocBuilder<CreateLoadingCnfmCubit, CreateLaodingCnfmState>(
+        builder: (context, overlayState) {
+          return FormPageLoadingStack(
+            isLoading: overlayState.isLoading,
+            message: 'Saving document...',
+            statusLabel: 'Processing...',
+            child: BlocListener<CreateLoadingCnfmCubit, CreateLaodingCnfmState>(
+              listener: (_, state) async {
+                if (state.isSuccess && state.successMsg!.isNotNull) {
+                  AppDialog.showSuccessDialog(
+                    context,
+                    title: 'Success',
+                    content: state.successMsg.valueOrEmpty,
+                    onTapDismiss: context.exit,
+                  ).then((_) {
+                    if (!context.mounted) return;
+                    context.cubit<CreateLoadingCnfmCubit>().errorHandled();
 
-              final vehicleFilters =
-                  context.read<LoadingCnfmFiltersCubit>().state;
-              context.cubit<LoadingCnfmCubit>().fetchInitial(
-                Triple(
-                  StringUtils.docStatusVehicle(vehicleFilters.status),
-                  vehicleFilters.query,
-                  vehicleFilters.salesOrder
-                ),
-              );
-              Navigator.pop(context, true);
-              setState(() {});
-            });
-          }
-          if (state.error.isNotNull) {
-            await AppDialog.showErrorDialog(
-              context,
-              title: state.error!.title,
-              content: state.error!.error,
-              onTapDismiss: context.exit,
-            );
-            if (!context.mounted) return;
-            context.cubit<CreateLoadingCnfmCubit>().errorHandled();
-          }
+                    final vehicleFilters =
+                        context.read<LoadingCnfmFiltersCubit>().state;
+                    context.cubit<LoadingCnfmCubit>().fetchInitial(
+                      Triple(
+                        StringUtils.docStatusVehicle(vehicleFilters.status),
+                        vehicleFilters.query,
+                        vehicleFilters.salesOrder
+                      ),
+                    );
+                    Navigator.pop(context, true);
+                    setState(() {});
+                  });
+                }
+                if (state.error.isNotNull) {
+                  await AppDialog.showErrorDialog(
+                    context,
+                    title: state.error!.title,
+                    content: state.error!.error,
+                    onTapDismiss: context.exit,
+                  );
+                  if (!context.mounted) return;
+                  context.cubit<CreateLoadingCnfmCubit>().errorHandled();
+                }
+              },
+              child: LoadingCnfmFormWidget(key: ValueKey(status)),
+            ),
+          );
         },
-        child: LoadingCnfmFormWidget(key: ValueKey(status)),
       ),
     );
   }

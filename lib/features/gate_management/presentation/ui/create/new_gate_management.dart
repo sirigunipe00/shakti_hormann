@@ -8,6 +8,7 @@ import 'package:shakti_hormann/features/gate_management/presentation/ui/create/g
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/widgets/buttons/app_btn.dart';
 import 'package:shakti_hormann/widgets/dailogs/app_dialogs.dart';
+import 'package:shakti_hormann/widgets/form_page_loading_stack.dart';
 import 'package:shakti_hormann/widgets/simple_app_bar.dart';
 import 'package:shakti_hormann/widgets/title_status_app_bar.dart';
 
@@ -166,42 +167,51 @@ class _NewGateManagementState extends State<NewGateManagement> {
                       ),
                     
               ) ,
-      body: BlocListener<CreateGateManagementCubit, CreateGateManagementState>(
-        listener: (_, state) async {
-          if (state.isSuccess && state.successMsg!.isNotNull) {
-            AppDialog.showSuccessDialog(
-              context,
-              title: 'Success',
-              content: state.successMsg.valueOrEmpty,
-              onTapDismiss: context.exit,
-            ).then((_) {
-              if (!context.mounted) return;
-              context.cubit<CreateGateManagementCubit>().errorHandled();
+      body: BlocBuilder<CreateGateManagementCubit, CreateGateManagementState>(
+        builder: (context, overlayState) {
+          return FormPageLoadingStack(
+            isLoading: overlayState.isLoading,
+            message: 'Saving document...',
+            statusLabel: 'Processing...',
+            child: BlocListener<CreateGateManagementCubit, CreateGateManagementState>(
+              listener: (_, state) async {
+                if (state.isSuccess && state.successMsg!.isNotNull) {
+                  AppDialog.showSuccessDialog(
+                    context,
+                    title: 'Success',
+                    content: state.successMsg.valueOrEmpty,
+                    onTapDismiss: context.exit,
+                  ).then((_) {
+                    if (!context.mounted) return;
+                    context.cubit<CreateGateManagementCubit>().errorHandled();
 
-              final gateEntryFilters =
-                  context.read<GateManagementFilter>().state;
-              context.cubit<GateMangementCubit>().fetchInitial(
-                Pair(
-                  StringUtils.docStatusInt(gateEntryFilters.status),
-                  gateEntryFilters.query,
-                ),
-              );
-              Navigator.pop(context, true);
-              setState(() {});
-            });
-          }
-          if (state.error.isNotNull) {
-            await AppDialog.showErrorDialog(
-              context,
-              title: state.error!.title,
-              content: state.error!.error,
-              onTapDismiss: context.exit,
-            );
-            if (!context.mounted) return;
-            context.cubit<CreateGateManagementCubit>().errorHandled();
-          }
+                    final gateEntryFilters =
+                        context.read<GateManagementFilter>().state;
+                    context.cubit<GateMangementCubit>().fetchInitial(
+                      Pair(
+                        StringUtils.docStatusInt(gateEntryFilters.status),
+                        gateEntryFilters.query,
+                      ),
+                    );
+                    Navigator.pop(context, true);
+                    setState(() {});
+                  });
+                }
+                if (state.error.isNotNull) {
+                  await AppDialog.showErrorDialog(
+                    context,
+                    title: state.error!.title,
+                    content: state.error!.error,
+                    onTapDismiss: context.exit,
+                  );
+                  if (!context.mounted) return;
+                  context.cubit<CreateGateManagementCubit>().errorHandled();
+                }
+              },
+              child: GateManagementFormWidget(key: ValueKey(status)),
+            ),
+          );
         },
-        child: GateManagementFormWidget(key: ValueKey(status)),
       ),
     );
   }

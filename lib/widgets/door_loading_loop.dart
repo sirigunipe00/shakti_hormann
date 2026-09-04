@@ -10,6 +10,7 @@ class DoorLoadingLoop extends StatelessWidget {
     this.fixedStatusLabel,
     this.loopDuration = const Duration(milliseconds: 2000),
     this.onFirstCycleComplete,
+    this.holdCompleteAssembly = false,
   });
 
   final double width;
@@ -17,6 +18,7 @@ class DoorLoadingLoop extends StatelessWidget {
   final String? fixedStatusLabel;
   final Duration loopDuration;
   final VoidCallback? onFirstCycleComplete;
+  final bool holdCompleteAssembly;
 
   @override
   Widget build(BuildContext context) {
@@ -26,6 +28,7 @@ class DoorLoadingLoop extends StatelessWidget {
       fixedStatusLabel: fixedStatusLabel,
       loopDuration: loopDuration,
       onFirstCycleComplete: onFirstCycleComplete,
+      holdCompleteAssembly: holdCompleteAssembly,
     );
   }
 }

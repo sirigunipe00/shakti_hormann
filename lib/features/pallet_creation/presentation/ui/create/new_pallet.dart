@@ -9,6 +9,7 @@ import 'package:shakti_hormann/features/shutter_packing/presentation/bloc/bloc_p
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/widgets/buttons/app_btn.dart';
 import 'package:shakti_hormann/widgets/dailogs/app_dialogs.dart';
+import 'package:shakti_hormann/widgets/form_page_loading_stack.dart';
 import 'package:shakti_hormann/widgets/simple_app_bar.dart';
 import 'package:shakti_hormann/widgets/title_status_app_bar.dart';
 
@@ -96,7 +97,13 @@ class _NewPalletState extends State<NewPallet> {
                             ),
                   )
                   as PreferredSizeWidget,
-      body: BlocListener<CreatePalletCubit, CreatePalletState>(
+      body: BlocBuilder<CreatePalletCubit, CreatePalletState>(
+        builder: (context, overlayState) {
+          return FormPageLoadingStack(
+            isLoading: overlayState.isLoading,
+            message: 'Please wait...',
+            statusLabel: 'Processing...',
+            child: BlocListener<CreatePalletCubit, CreatePalletState>(
         listener: (_, state) async {
           if (state.isSuccess && state.successMsg.isNotNull) {
             final isSubmitted = state.view == PalletView.completed;
@@ -144,6 +151,9 @@ class _NewPalletState extends State<NewPallet> {
               (context) => ShutterBlocProvider.get().getPalletSize()..request(),
           child: PalletFormWidget(key: ValueKey(status)),
         ),
+      ),
+          );
+        },
       ),
     );
   }

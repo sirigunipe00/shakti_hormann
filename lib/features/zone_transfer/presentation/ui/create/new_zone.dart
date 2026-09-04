@@ -8,6 +8,7 @@ import 'package:shakti_hormann/features/zone_transfer/presentation/ui/create/zon
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/widgets/buttons/app_btn.dart';
 import 'package:shakti_hormann/widgets/dailogs/app_dialogs.dart';
+import 'package:shakti_hormann/widgets/form_page_loading_stack.dart';
 import 'package:shakti_hormann/widgets/simple_app_bar.dart';
 import 'package:shakti_hormann/widgets/title_status_app_bar.dart';
 
@@ -82,7 +83,13 @@ class _NewZoneState extends State<NewZone> {
                             ),
                   )
                   as PreferredSizeWidget,
-      body: BlocListener<CreateZoneCubit, CreateZoneState>(
+      body: BlocBuilder<CreateZoneCubit, CreateZoneState>(
+        builder: (context, overlayState) {
+          return FormPageLoadingStack(
+            isLoading: overlayState.isLoading,
+            message: 'Please wait...',
+            statusLabel: 'Processing...',
+            child: BlocListener<CreateZoneCubit, CreateZoneState>(
         listener: (_, state) async {
           if (state.isSuccess && state.successMsg.isNotNull) {
             AppDialog.showSuccessDialog(
@@ -118,6 +125,9 @@ class _NewZoneState extends State<NewZone> {
           }
         },
         child: ZoneFormWidget(key: ValueKey(status)),
+      ),
+          );
+        },
       ),
     );
   }

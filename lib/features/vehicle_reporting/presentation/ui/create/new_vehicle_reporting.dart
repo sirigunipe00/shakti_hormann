@@ -8,6 +8,7 @@ import 'package:shakti_hormann/features/vehicle_reporting/presentation/ui/create
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/widgets/buttons/app_btn.dart';
 import 'package:shakti_hormann/widgets/dailogs/app_dialogs.dart';
+import 'package:shakti_hormann/widgets/form_page_loading_stack.dart';
 import 'package:shakti_hormann/widgets/inputs/rejectreasondailog.dart';
 import 'package:shakti_hormann/widgets/inputs/search_dropdown_widget.dart';
 import 'package:shakti_hormann/widgets/simple_app_bar.dart';
@@ -297,50 +298,65 @@ class _NewVehicleReportingState extends State<NewVehicleReporting> {
                 // as PreferredSizeWidget,
               ),
 
-      body: BlocListener<CreateVehicleCubit, CreateVehicleState>(
-        listener: (_, state) async {
-          if (state.isSuccess && state.successMsg!.isNotNull) {
+      body: BlocBuilder<CreateVehicleCubit, CreateVehicleState>(
+        builder: (context, overlayState) {
+          final isBusy =
+              overlayState.isLoading ||
+              overlayState.isSubmitting ||
+              overlayState.isRejecting;
+          return FormPageLoadingStack(
+            isLoading: isBusy,
+            message:
+                overlayState.isRejecting
+                    ? 'Processing rejection...'
+                    : overlayState.isSubmitting
+                        ? 'Submitting document...'
+                        : 'Saving document...',
+            statusLabel: 'Processing...',
+            child: BlocListener<CreateVehicleCubit, CreateVehicleState>(
+              listener: (_, state) async {
+                if (state.isSuccess && state.successMsg!.isNotNull) {
+                  if (state.view == VehicleView.reject) {
+                    AppDialog.showErrorDialog(
+                      context,
+                      title: 'Vehicle Rejected',
+                      content: state.successMsg.valueOrEmpty,
+                      onTapDismiss: context.exit,
+                    ).then((_) {
+                      if (!context.mounted) return;
+                      context.cubit<CreateVehicleCubit>().errorHandled();
+                      Navigator.pop(context, true);
+                    });
+                  } else {
+                    AppDialog.showSuccessDialog(
+                      context,
+                      title: 'Success',
+                      content: state.successMsg.valueOrEmpty,
+                      onTapDismiss: context.exit,
+                    ).then((_) {
+                      if (!context.mounted) return;
+                      context.cubit<CreateVehicleCubit>().errorHandled();
+                      Navigator.pop(context, true);
+                      setState(() {});
+                    });
+                  }
+                }
 
-
-            if (state.view == VehicleView.reject) {
-              AppDialog.showErrorDialog(
-                context,
-                title: 'Vehicle Rejected',
-                content: state.successMsg.valueOrEmpty,
-                onTapDismiss: context.exit,
-              ).then((_) {
-                if (!context.mounted) return;
-                context.cubit<CreateVehicleCubit>().errorHandled();
-                Navigator.pop(context, true);
-              });
-            } else {
-              AppDialog.showSuccessDialog(
-                context,
-                title: 'Success',
-                content: state.successMsg.valueOrEmpty,
-                onTapDismiss: context.exit,
-              ).then((_) {
-                if (!context.mounted) return;
-                context.cubit<CreateVehicleCubit>().errorHandled();
-                Navigator.pop(context, true);
-                setState(() {});
-              });
-            }
-          }
-
-          if (state.error.isNotNull) {
-            await AppDialog.showErrorDialog(
-              context,
-              title: state.error!.title,
-              content: state.error!.error,
-              onTapDismiss: context.exit,
-            );
-            if (!context.mounted) return;
-            context.cubit<CreateVehicleCubit>().errorHandled();
-          }
+                if (state.error.isNotNull) {
+                  await AppDialog.showErrorDialog(
+                    context,
+                    title: state.error!.title,
+                    content: state.error!.error,
+                    onTapDismiss: context.exit,
+                  );
+                  if (!context.mounted) return;
+                  context.cubit<CreateVehicleCubit>().errorHandled();
+                }
+              },
+              child: VehicleReportingFormWidget(key: ValueKey(status)),
+            ),
+          );
         },
-
-        child: VehicleReportingFormWidget(key: ValueKey(status)),
       ),
     );
   }

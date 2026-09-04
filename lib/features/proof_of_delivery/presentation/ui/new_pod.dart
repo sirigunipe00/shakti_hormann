@@ -10,6 +10,7 @@ import 'package:shakti_hormann/features/proof_of_delivery/presentation/ui/pod_fo
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/widgets/buttons/app_btn.dart';
 import 'package:shakti_hormann/widgets/dailogs/app_dialogs.dart';
+import 'package:shakti_hormann/widgets/form_page_loading_stack.dart';
 import 'package:shakti_hormann/widgets/inputs/search_dropdown_widget.dart';
 import 'package:shakti_hormann/widgets/simple_app_bar.dart';
 import 'package:shakti_hormann/widgets/title_status_app_bar.dart';
@@ -277,45 +278,53 @@ class _NewPodState extends State<NewPod> with WidgetsBindingObserver {
                 ),
               ),
 
-      body: BlocListener<CreatePodCubit, CreatePodState>(
-        listener: (_, state) async {
-          if (state.isSuccess && state.successMsg!.isNotNull) {
-            AppDialog.showSuccessDialog(
-              context,
-              title: 'Success',
-              content: state.successMsg.valueOrEmpty,
-              onTapDismiss: context.exit,
-            ).then((_) {
-              if (!context.mounted) return;
-              context.cubit<CreatePodCubit>().errorHandled();
+      body: BlocBuilder<CreatePodCubit, CreatePodState>(
+        builder: (context, overlayState) {
+          return FormPageLoadingStack(
+            isLoading: overlayState.isLoading,
+            message: 'Saving document...',
+            statusLabel: 'Processing...',
+            child: BlocListener<CreatePodCubit, CreatePodState>(
+              listener: (_, state) async {
+                if (state.isSuccess && state.successMsg!.isNotNull) {
+                  AppDialog.showSuccessDialog(
+                    context,
+                    title: 'Success',
+                    content: state.successMsg.valueOrEmpty,
+                    onTapDismiss: context.exit,
+                  ).then((_) {
+                    if (!context.mounted) return;
+                    context.cubit<CreatePodCubit>().errorHandled();
 
-              final podFilters = context.read<PodFiltersCubit>().state;
-              context.cubit<ProofOfDeliveryCubit>().fetchInitial(
-                Pair(
-                  StringUtils.docStatusInt(podFilters.status),
-                  podFilters.query,
-                ),
-              );
-              Navigator.pop(context, true);
-              setState(() {});
-            });
-          }
-          if (state.error.isNotNull) {
-            await AppDialog.showErrorDialog(
-              context,
-              title: state.error!.title,
-              content: state.error!.error,
-              onTapDismiss: context.exit,
-            );
-            if (!context.mounted) return;
-            context.cubit<CreatePodCubit>().errorHandled();
-          }
+                    final podFilters = context.read<PodFiltersCubit>().state;
+                    context.cubit<ProofOfDeliveryCubit>().fetchInitial(
+                      Pair(
+                        StringUtils.docStatusInt(podFilters.status),
+                        podFilters.query,
+                      ),
+                    );
+                    Navigator.pop(context, true);
+                    setState(() {});
+                  });
+                }
+                if (state.error.isNotNull) {
+                  await AppDialog.showErrorDialog(
+                    context,
+                    title: state.error!.title,
+                    content: state.error!.error,
+                    onTapDismiss: context.exit,
+                  );
+                  if (!context.mounted) return;
+                  context.cubit<CreatePodCubit>().errorHandled();
+                }
+              },
+              child: BlocProvider<GeoPermissionHandler>(
+                create: (context) => GeoPermissionHandler()..checkPermission(),
+                child: PodFormWidget(key: ValueKey(status)),
+              ),
+            ),
+          );
         },
-
-        child: BlocProvider<GeoPermissionHandler>(
-          create: (context) => GeoPermissionHandler()..checkPermission(),
-          child: PodFormWidget(key: ValueKey(status)),
-        ),
       ),
     );
     // );

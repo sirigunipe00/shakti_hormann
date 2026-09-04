@@ -1,13 +1,13 @@
-import 'dart:async';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:shakti_hormann/widgets/door_loading_loop.dart';
 
-/// Full-screen door graphic overlay — same visual as list-screen loading.
+/// Form loading overlay.
 ///
-/// When [overForm] is true, the form stays visible underneath a dimmed
-/// layer with a centered door graphic (form-page style, not list style).
+/// When [overForm] is true (default for form actions), the form stays visible
+/// underneath a frosted glass layer with a complete door graphic.
 class FormSubmitLoadingOverlay extends StatelessWidget {
   const FormSubmitLoadingOverlay({
     super.key,
@@ -29,24 +29,48 @@ class FormSubmitLoadingOverlay extends StatelessWidget {
     if (overForm) {
       return AbsorbPointer(
         absorbing: true,
-        child: Material(
-          color: Colors.black.withValues(alpha: 0.35),
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 260),
-              child: Card(
-                margin: const EdgeInsets.symmetric(horizontal: 28),
-                elevation: 10,
-                color: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 18, 16, 14),
-                  child: DoorLoadingLoop(
-                    width: _overFormDoorWidth,
-                    fixedStatusLabel: statusLabel ?? message,
-                    onFirstCycleComplete: onFirstCycleComplete,
+        child: ClipRect(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            child: ColoredBox(
+              color: Colors.black.withValues(alpha: 0.22),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 280),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 28),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(16),
+                      child: BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(16),
+                            color: Colors.white.withValues(alpha: 0.62),
+                            border: Border.all(
+                              color: Colors.white.withValues(alpha: 0.55),
+                              width: 1.2,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.12),
+                                blurRadius: 24,
+                                offset: const Offset(0, 10),
+                              ),
+                            ],
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 18, 16, 14),
+                            child: DoorLoadingLoop(
+                              width: _overFormDoorWidth,
+                              fixedStatusLabel: statusLabel ?? message,
+                              holdCompleteAssembly: true,
+                              onFirstCycleComplete: onFirstCycleComplete,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -63,6 +87,7 @@ class FormSubmitLoadingOverlay extends StatelessWidget {
         child: DoorLoadingLoop(
           expand: true,
           fixedStatusLabel: statusLabel ?? message,
+          holdCompleteAssembly: true,
           onFirstCycleComplete: onFirstCycleComplete,
         ),
       ),
@@ -70,11 +95,8 @@ class FormSubmitLoadingOverlay extends StatelessWidget {
   }
 }
 
-/// Root overlay for Create / Save / Submit.
-///
-/// Keeps the full door graphic visible until the API has finished **and**
-/// at least one full animation cycle has played, then removes it so
-/// success / error dialogs open only after the graphic.
+/// Legacy root overlay helper. Prefer [FormPageLoadingStack] for form actions.
+/// If used, inserts a form-style (overForm) overlay and dismisses immediately.
 class FormLoadingOverlay {
   FormLoadingOverlay._();
 
@@ -85,10 +107,6 @@ class FormLoadingOverlay {
   static String? _statusLabel;
   static bool _updateScheduled = false;
 
-  static bool _cycleComplete = false;
-  static Completer<void>? _cycleCompleter;
-  static Future<void>? _inFlightDismiss;
-
   static bool get isShowing => _entry != null;
 
   static void show(
@@ -96,17 +114,10 @@ class FormLoadingOverlay {
     String message = 'Please wait...',
     String? statusLabel,
   }) {
-    final wasVisible = _entry != null;
     _refCount++;
     _message = message;
     _statusLabel = statusLabel;
     _overlayState ??= Overlay.maybeOf(context, rootOverlay: true);
-
-    if (!wasVisible) {
-      _cycleComplete = false;
-      _cycleCompleter = Completer<void>();
-      _inFlightDismiss = null;
-    }
 
     if (_overlayState == null) {
       _scheduleApply();
@@ -127,63 +138,32 @@ class FormLoadingOverlay {
           (_) => FormSubmitLoadingOverlay(
             message: _message,
             statusLabel: _statusLabel,
-            onFirstCycleComplete: notifyCycleComplete,
+            overForm: true,
           ),
     );
     _overlayState!.insert(_entry!);
   }
 
-  /// Door loop finished one full cycle.
-  static void notifyCycleComplete() {
-    if (_cycleComplete) return;
-    _cycleComplete = true;
-    final c = _cycleCompleter;
-    if (c != null && !c.isCompleted) {
-      c.complete();
-    }
-  }
+  static void notifyCycleComplete() {}
 
-  /// API finished — dismiss after the full graphic cycle has been shown.
+  /// API finished — remove overlay immediately.
   static void hide() {
     if (_refCount <= 0) return;
     _refCount--;
     if (_refCount > 0) return;
-    unawaited(_dismissAfterFullGraphic());
+    _teardown();
   }
 
   /// Tear down immediately (e.g. leaving the screen).
   static void forceHide() {
     _refCount = 0;
-    _inFlightDismiss = null;
     _teardown();
   }
 
-  /// Await full door graphic, remove overlay, then open dialogs.
+  /// Remove any root overlay before opening dialogs.
   static Future<void> dismissBeforeDialog() async {
-    _refCount = 0;
-    await _dismissAfterFullGraphic();
+    forceHide();
     await SchedulerBinding.instance.endOfFrame;
-  }
-
-  static Future<void> _dismissAfterFullGraphic() {
-    if (_entry == null) {
-      return Future<void>.value();
-    }
-    return _inFlightDismiss ??= _runDismiss();
-  }
-
-  static Future<void> _runDismiss() async {
-    if (!_cycleComplete) {
-      try {
-        await (_cycleCompleter?.future ?? Future<void>.value()).timeout(
-          const Duration(milliseconds: 2200),
-        );
-      } catch (_) {
-        // Never block dialogs forever if the cycle callback is missed.
-      }
-    }
-    _teardown();
-    _inFlightDismiss = null;
   }
 
   static void _scheduleApply() {
@@ -192,7 +172,7 @@ class FormLoadingOverlay {
     SchedulerBinding.instance.addPostFrameCallback((_) {
       _updateScheduled = false;
       if (_refCount <= 0) {
-        unawaited(_dismissAfterFullGraphic());
+        _teardown();
         return;
       }
       if (_overlayState == null) return;

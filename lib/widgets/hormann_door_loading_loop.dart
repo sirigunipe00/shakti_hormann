@@ -16,6 +16,7 @@ class HormannDoorLoadingLoop extends StatefulWidget {
     this.fixedStatusLabel,
     this.loopDuration = const Duration(milliseconds: 2000),
     this.onFirstCycleComplete,
+    this.holdCompleteAssembly = false,
   });
 
   final double width;
@@ -23,6 +24,10 @@ class HormannDoorLoadingLoop extends StatefulWidget {
   final String? fixedStatusLabel;
   final Duration loopDuration;
   final VoidCallback? onFirstCycleComplete;
+
+  /// When true, the door/frame stays fully assembled for the entire lifetime
+  /// (no progressive build/teardown). Progress label still animates.
+  final bool holdCompleteAssembly;
 
   @override
   State<HormannDoorLoadingLoop> createState() => _HormannDoorLoadingLoopState();
@@ -41,6 +46,9 @@ class _HormannDoorLoadingLoopState extends State<HormannDoorLoadingLoop>
   static const _headerH = 13.0;
   static const _jambInset = 28.0;
 
+  /// Fully seated door + frame (no partial jamb/door motion).
+  static const _completeAssemblyT = 0.44;
+
   @override
   void initState() {
     super.initState();
@@ -50,10 +58,14 @@ class _HormannDoorLoadingLoopState extends State<HormannDoorLoadingLoop>
     )..repeat();
     _controller.addListener(_onTick);
 
-    // Progress bar fades in once near start (not tied to the loop reset).
-    Future<void>.delayed(const Duration(milliseconds: 180), () {
-      if (mounted) setState(() => _progressVisible = true);
-    });
+    if (widget.holdCompleteAssembly) {
+      _progressVisible = true;
+    } else {
+      // Progress bar fades in once near start (not tied to the loop reset).
+      Future<void>.delayed(const Duration(milliseconds: 180), () {
+        if (mounted) setState(() => _progressVisible = true);
+      });
+    }
   }
 
   void _onTick() {
@@ -85,6 +97,8 @@ class _HormannDoorLoadingLoopState extends State<HormannDoorLoadingLoop>
       animation: _controller,
       builder: (context, _) {
         final t = _controller.value;
+        final sceneT =
+            widget.holdCompleteAssembly ? _completeAssemblyT : t;
 
         return Column(
           mainAxisSize: MainAxisSize.min,
@@ -92,7 +106,7 @@ class _HormannDoorLoadingLoopState extends State<HormannDoorLoadingLoop>
             SizedBox(
               width: sceneW,
               height: sceneH,
-              child: _DoorScene(t: t, scale: scale),
+              child: _DoorScene(t: sceneT, scale: scale),
             ),
             SizedBox(height: 36 * scale),
             AnimatedOpacity(

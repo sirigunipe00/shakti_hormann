@@ -11,6 +11,7 @@ import 'package:shakti_hormann/features/gate_exit/presentation/ui/create/gate_ex
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/widgets/buttons/app_btn.dart';
 import 'package:shakti_hormann/widgets/dailogs/app_dialogs.dart';
+import 'package:shakti_hormann/widgets/form_page_loading_stack.dart';
 import 'package:shakti_hormann/widgets/inputs/multi_selection.widget.dart';
 import 'package:shakti_hormann/widgets/simple_app_bar.dart';
 import 'package:shakti_hormann/widgets/title_status_app_bar.dart';
@@ -631,43 +632,51 @@ class _NewGateExitState extends State<NewGateExit> {
                 ),
               ),
 
-      body: BlocListener<CreateGateExitCubit, CreateGateExitState>(
-        listener: (_, state) async {
-          if (state.isSuccess && state.successMsg!.isNotNull) {
-            AppDialog.showSuccessDialog(
-              context,
-              title: 'Success',
-              content: state.successMsg.valueOrEmpty,
-              onTapDismiss: context.exit,
-            ).then((_) {
-              if (!context.mounted) return;
-              context.cubit<CreateGateExitCubit>().errorHandled();
+      body: BlocBuilder<CreateGateExitCubit, CreateGateExitState>(
+        builder: (context, overlayState) {
+          return FormPageLoadingStack(
+            isLoading: overlayState.isLoading,
+            message: 'Saving document...',
+            statusLabel: 'Processing...',
+            child: BlocListener<CreateGateExitCubit, CreateGateExitState>(
+              listener: (_, state) async {
+                if (state.isSuccess && state.successMsg!.isNotNull) {
+                  AppDialog.showSuccessDialog(
+                    context,
+                    title: 'Success',
+                    content: state.successMsg.valueOrEmpty,
+                    onTapDismiss: context.exit,
+                  ).then((_) {
+                    if (!context.mounted) return;
+                    context.cubit<CreateGateExitCubit>().errorHandled();
 
-              final gateEntryFilters =
-                  context.read<GateExitFilterCubit>().state;
-              context.cubit<GateExitCubit>().fetchInitial(
-                Pair(
-                  StringUtils.docStatusInt(gateEntryFilters.status),
-                  gateEntryFilters.query,
-                ),
-              );
-              Navigator.pop(context, true);
-              setState(() {});
-            });
-          }
-          if (state.error.isNotNull) {
-            await AppDialog.showErrorDialog(
-              context,
-              title: state.error!.title,
-              content: state.error!.error,
-              onTapDismiss: context.exit,
-            );
-            if (!context.mounted) return;
-            context.cubit<CreateGateExitCubit>().errorHandled();
-          }
+                    final gateEntryFilters =
+                        context.read<GateExitFilterCubit>().state;
+                    context.cubit<GateExitCubit>().fetchInitial(
+                      Pair(
+                        StringUtils.docStatusInt(gateEntryFilters.status),
+                        gateEntryFilters.query,
+                      ),
+                    );
+                    Navigator.pop(context, true);
+                    setState(() {});
+                  });
+                }
+                if (state.error.isNotNull) {
+                  await AppDialog.showErrorDialog(
+                    context,
+                    title: state.error!.title,
+                    content: state.error!.error,
+                    onTapDismiss: context.exit,
+                  );
+                  if (!context.mounted) return;
+                  context.cubit<CreateGateExitCubit>().errorHandled();
+                }
+              },
+              child: GateExitFormWidget(key: ValueKey(status)),
+            ),
+          );
         },
-
-        child: GateExitFormWidget(key: ValueKey(status)),
       ),
     );
   }

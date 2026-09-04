@@ -7,6 +7,7 @@ import 'package:shakti_hormann/features/transport_confirmation/presentation/ui/c
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/widgets/buttons/app_btn.dart';
 import 'package:shakti_hormann/widgets/dailogs/app_dialogs.dart';
+import 'package:shakti_hormann/widgets/form_page_loading_stack.dart';
 import 'package:shakti_hormann/widgets/inputs/rejectreasondailog.dart';
 import 'package:shakti_hormann/widgets/simple_app_bar.dart';
 import 'package:shakti_hormann/widgets/title_status_app_bar.dart';
@@ -69,48 +70,67 @@ class _NewTransportCnfmState extends State<NewTransportCnfm> {
                  
               ),
 
-      body: BlocListener<CreateTransportCubit, CreateTransportState>(
-        listener: (_, state) async {
-          if (state.isSuccess && state.successMsg!.isNotNull) {
-            final isReject = state.successMsg!.toLowerCase().contains('reject');
+      body: BlocBuilder<CreateTransportCubit, CreateTransportState>(
+        builder: (context, overlayState) {
+          final isBusy =
+              overlayState.isLoading ||
+              overlayState.isSubmitting ||
+              overlayState.isRejecting;
+          return FormPageLoadingStack(
+            isLoading: isBusy,
+            message:
+                overlayState.isRejecting
+                    ? 'Processing rejection...'
+                    : overlayState.isSubmitting
+                        ? 'Submitting document...'
+                        : 'Saving document...',
+            statusLabel: 'Processing...',
+            child: BlocListener<CreateTransportCubit, CreateTransportState>(
+              listener: (_, state) async {
+                if (state.isSuccess && state.successMsg!.isNotNull) {
+                  final isReject =
+                      state.successMsg!.toLowerCase().contains('reject');
 
-            if (isReject) {
-              AppDialog.showErrorDialog(
-                context,
-                title: 'Transporter Rejected',
-                content: state.successMsg.valueOrEmpty,
-                onTapDismiss: context.exit,
-              ).then((_) {
-                if (!context.mounted) return;
-                context.cubit<CreateTransportCubit>().errorHandled();
-                Navigator.pop(context, true);
-              });
-            } else {
-              AppDialog.showSuccessDialog(
-                context,
-                title: 'Success',
-                content: state.successMsg.valueOrEmpty,
-                onTapDismiss: context.exit,
-              ).then((_) {
-                if (!context.mounted) return;
-                context.cubit<CreateTransportCubit>().errorHandled();
-                Navigator.pop(context, true);
-              });
-            }
-          }
+                  if (isReject) {
+                    AppDialog.showErrorDialog(
+                      context,
+                      title: 'Transporter Rejected',
+                      content: state.successMsg.valueOrEmpty,
+                      onTapDismiss: context.exit,
+                    ).then((_) {
+                      if (!context.mounted) return;
+                      context.cubit<CreateTransportCubit>().errorHandled();
+                      Navigator.pop(context, true);
+                    });
+                  } else {
+                    AppDialog.showSuccessDialog(
+                      context,
+                      title: 'Success',
+                      content: state.successMsg.valueOrEmpty,
+                      onTapDismiss: context.exit,
+                    ).then((_) {
+                      if (!context.mounted) return;
+                      context.cubit<CreateTransportCubit>().errorHandled();
+                      Navigator.pop(context, true);
+                    });
+                  }
+                }
 
-          if (state.error.isNotNull) {
-            await AppDialog.showErrorDialog(
-              context,
-              title: state.error!.title,
-              content: state.error!.error,
-              onTapDismiss: context.exit,
-            );
-            if (!context.mounted) return;
-            context.cubit<CreateTransportCubit>().errorHandled();
-          }
+                if (state.error.isNotNull) {
+                  await AppDialog.showErrorDialog(
+                    context,
+                    title: state.error!.title,
+                    content: state.error!.error,
+                    onTapDismiss: context.exit,
+                  );
+                  if (!context.mounted) return;
+                  context.cubit<CreateTransportCubit>().errorHandled();
+                }
+              },
+              child: TransportCnfmFormWidget(key: ValueKey(status)),
+            ),
+          );
         },
-        child: TransportCnfmFormWidget(key: ValueKey(status)),
       ),
     );
   }

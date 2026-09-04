@@ -9,6 +9,7 @@ import 'package:shakti_hormann/features/logistic_request/presentation/ui/create/
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/widgets/buttons/app_btn.dart';
 import 'package:shakti_hormann/widgets/dailogs/app_dialogs.dart';
+import 'package:shakti_hormann/widgets/form_page_loading_stack.dart';
 import 'package:shakti_hormann/widgets/inputs/multi_selection.widget.dart';
 import 'package:shakti_hormann/widgets/simple_app_bar.dart';
 import 'package:shakti_hormann/widgets/title_status_app_bar.dart';
@@ -372,36 +373,45 @@ class _NewLogisticRequestState extends State<NewLogisticRequest> {
                 ),
               ),
 
-      body: BlocListener<CreateLogisticCubit, CreateLogisticState>(
-        listener: (_, state) async {
-          if (state.isSuccess && state.successMsg!.isNotNull) {
-            AppDialog.showSuccessDialog(
-              context,
-              title: 'Success',
-              content: state.successMsg.valueOrEmpty,
-              onTapDismiss: context.exit,
-            ).then((_) {
-              if (!context.mounted) return;
-              context.cubit<CreateLogisticCubit>().errorHandled();
-              Navigator.pop(context, true);
-              setState(() {});
-            });
-          }
-          if (state.error.isNotNull) {
-            await AppDialog.showErrorDialog(
-              context,
-              title: state.error!.title,
-              content: state.error!.error,
-              onTapDismiss: context.exit,
-            );
-            if (!context.mounted) return;
-            context.cubit<CreateLogisticCubit>().errorHandled();
-          }
+      body: BlocBuilder<CreateLogisticCubit, CreateLogisticState>(
+        builder: (context, overlayState) {
+          return FormPageLoadingStack(
+            isLoading: overlayState.isLoading,
+            message: 'Saving document...',
+            statusLabel: 'Processing...',
+            child: BlocListener<CreateLogisticCubit, CreateLogisticState>(
+              listener: (_, state) async {
+                if (state.isSuccess && state.successMsg!.isNotNull) {
+                  AppDialog.showSuccessDialog(
+                    context,
+                    title: 'Success',
+                    content: state.successMsg.valueOrEmpty,
+                    onTapDismiss: context.exit,
+                  ).then((_) {
+                    if (!context.mounted) return;
+                    context.cubit<CreateLogisticCubit>().errorHandled();
+                    Navigator.pop(context, true);
+                    setState(() {});
+                  });
+                }
+                if (state.error.isNotNull) {
+                  await AppDialog.showErrorDialog(
+                    context,
+                    title: state.error!.title,
+                    content: state.error!.error,
+                    onTapDismiss: context.exit,
+                  );
+                  if (!context.mounted) return;
+                  context.cubit<CreateLogisticCubit>().errorHandled();
+                }
+              },
+              child: LogisticPlanningFormWidget(
+                key: ValueKey(status),
+                orderForm: orderForm,
+              ),
+            ),
+          );
         },
-        child: LogisticPlanningFormWidget(
-          key: ValueKey(status),
-          orderForm: orderForm,
-        ),
       ),
     );
   }

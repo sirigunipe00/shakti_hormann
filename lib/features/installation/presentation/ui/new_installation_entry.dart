@@ -100,20 +100,9 @@ class _NewInstallationEntryState extends State<NewInstallationEntry> {
                 ) as PreferredSizeWidget,
           body: BlocBuilder<CreateInstallationEntryCubit, CreateInstallationState>(
             builder: (context, overlayState) {
-              final isSubmitted = overlayState.form.docStatus == 1;
-              final isCreated =
-                  overlayState.form.name != null &&
-                  overlayState.form.name!.isNotEmpty;
-              final isDraftImageUploading =
-                  !isSubmitted &&
-                  isCreated &&
-                  overlayState.isLoading &&
-                  !overlayState.isUpdated &&
-                  overlayState.isModified;
-
-              return FormBusyOverlayBinder(
-                isBusy: isDraftImageUploading,
-                message: 'Uploading box images...',
+              return FormPageLoadingStack(
+                isLoading: overlayState.isLoading,
+                message: 'Please wait...',
                 statusLabel: 'Processing...',
                 child: BlocListener<CreateInstallationEntryCubit,
                     CreateInstallationState>(

@@ -20,7 +20,7 @@ class AppButton extends StatefulWidget {
     this.onReject,
     this.borderColor,
     this.icon = const SizedBox.shrink(),
-    this.useRootLoadingOverlay = true,
+    this.useRootLoadingOverlay = false,
   });
 
   final String label;
@@ -36,8 +36,8 @@ class AppButton extends StatefulWidget {
   final Color? borderColor;
   final double? height;
 
-  /// When false, the button does not open the root full-screen overlay
-  /// (use a page-level [FormPageLoadingStack] over the form instead).
+  /// When true, opens the root overlay. Default is false — forms should
+  /// use a page-level [FormPageLoadingStack] over the form instead.
   final bool useRootLoadingOverlay;
 
   @override

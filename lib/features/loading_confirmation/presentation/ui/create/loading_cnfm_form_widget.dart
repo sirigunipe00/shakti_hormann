@@ -21,7 +21,6 @@ import 'package:shakti_hormann/widgets/inputs/date_picker_field.dart';
 import 'package:shakti_hormann/widgets/inputs/new_upload_photo_widget.dart';
 import 'package:shakti_hormann/widgets/inputs/search_dropdown_widget.dart';
 import 'package:shakti_hormann/widgets/inputs/time_picker.dart';
-import 'package:shakti_hormann/widgets/loading_indicator.dart';
 import 'package:shakti_hormann/widgets/sectionheader.dart';
 import 'package:shakti_hormann/widgets/spaced_column.dart';
 import 'package:simple_barcode_scanner/simple_barcode_scanner.dart';
@@ -326,7 +325,14 @@ class _LoadingCnfmFormWidget extends State<LoadingCnfmFormWidget> {
                 builder: (context, state) {
                   return state.maybeWhen(
                     orElse: () => const SizedBox(),
-                    loading: () => const LoadingIndicator(),
+                    // Reopening an existing record: keep form visible — no door overlay.
+                    loading:
+                        () => const Center(
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(vertical: 24),
+                            child: CircularProgressIndicator(),
+                          ),
+                        ),
                     success: (data) {
                       return ItemLoadedTable(
                         dispatchData: data,

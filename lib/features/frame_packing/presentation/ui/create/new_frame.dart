@@ -8,6 +8,7 @@ import 'package:shakti_hormann/features/frame_packing/presentation/ui/create/fra
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/widgets/buttons/app_btn.dart';
 import 'package:shakti_hormann/widgets/dailogs/app_dialogs.dart';
+import 'package:shakti_hormann/widgets/form_page_loading_stack.dart';
 import 'package:shakti_hormann/widgets/packing_scan_processing_overlay.dart';
 import 'package:shakti_hormann/widgets/simple_app_bar.dart';
 import 'package:shakti_hormann/widgets/title_status_app_bar.dart';
@@ -124,7 +125,19 @@ class _NewFrameState extends State<NewFrame> {
           body: Stack(
             fit: StackFit.expand,
             children: [
-              MultiBlocListener(
+              BlocBuilder<CreateFrameCubit, CreateFrameState>(
+                buildWhen:
+                    (previous, current) =>
+                        previous.isCreatingDoc != current.isCreatingDoc ||
+                        previous.isSubmitting != current.isSubmitting,
+                builder: (context, overlayState) {
+                  return FormPageLoadingStack(
+                    isLoading:
+                        overlayState.isCreatingDoc ||
+                        overlayState.isSubmitting,
+                    message: 'Please wait...',
+                    statusLabel: 'Processing...',
+                    child: MultiBlocListener(
             listeners: [
               BlocListener<CreateFrameCubit, CreateFrameState>(
                 listenWhen:
@@ -217,6 +230,9 @@ class _NewFrameState extends State<NewFrame> {
               ),
             ),
           ),
+                  );
+                },
+              ),
               BlocBuilder<CreateFrameCubit, CreateFrameState>(
                 buildWhen:
                     (previous, current) =>
