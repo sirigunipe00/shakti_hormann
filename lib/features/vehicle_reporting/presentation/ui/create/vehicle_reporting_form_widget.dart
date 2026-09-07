@@ -23,6 +23,8 @@ class VehicleReportingFormWidget extends StatefulWidget {
 
 class _VehicleReportingFormWidget extends State<VehicleReportingFormWidget> {
   final ScrollController _scrollController = ScrollController();
+  final TextEditingController vehicleNo = TextEditingController();
+  final TextEditingController remarks = TextEditingController();
 
   final focusNodes = List.generate(40, (index) => FocusNode());
   VehicleReportingForm? vehicleForm;
@@ -258,6 +260,7 @@ class _VehicleReportingFormWidget extends State<VehicleReportingFormWidget> {
                         hintText: 'Vehicle No',
                         readOnly: hasVehicleNo || isCompleted,
                         borderColor: AppColors.grey,
+                        controller: vehicleNo,
 
                         initialValue: newform.vehicleNumber,
                         onChanged:
@@ -346,6 +349,7 @@ class _VehicleReportingFormWidget extends State<VehicleReportingFormWidget> {
                       title: 'Driver Remarks (if any)',
                       hintText: 'Enter Remarks',
                       readOnly: isCompleted,
+                      controller: remarks,
                       borderColor: AppColors.grey,
                       maxLines: 3,
                       minLines: 3,

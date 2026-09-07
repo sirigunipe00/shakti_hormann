@@ -24,6 +24,10 @@ class TransportCnfmFormWidget extends StatefulWidget {
 
 class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
   final ScrollController _scrollController = ScrollController();
+  final TextEditingController driverNameController = TextEditingController();
+  final TextEditingController vehicleNumberController = TextEditingController();
+  final TextEditingController driverContactController = TextEditingController();
+  final TextEditingController remarks = TextEditingController();
 
   final focusNodes = List.generate(40, (index) => FocusNode());
   TransportersForm? transportersForm;
@@ -434,6 +438,7 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
                               title: 'Driver Name',
                               hintText: 'Enter Driver Name',
                               isRequired: true,
+                              controller: driverNameController,
                               borderColor: Colors.grey,
                               readOnly: isCompleted,
                               initialValue: newform.driverName,
@@ -450,6 +455,7 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
                               isRequired: true,
                               hintText: 'Enter Vehicle Number',
                               readOnly: isCompleted,
+                              controller: vehicleNumberController,
                               borderColor: Colors.grey,
                               initialValue: newform.vehicleNumber,
                               onChanged:
@@ -464,6 +470,7 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
                             InputField(
                               title: 'Driver Contact No',
                               isRequired: true,
+                              controller: driverContactController,
                               hintText: 'Enter Contract Number',
                               readOnly: isCompleted,
                               borderColor: AppColors.grey,
@@ -572,6 +579,7 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
                       borderColor: Colors.grey,
                       maxLines: 3,
                       minLines: 3,
+                      controller: remarks,
 
                       initialValue: newform.transporterRemarks,
                       onChanged:
