@@ -4,10 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:shakti_hormann/widgets/door_loading_loop.dart';
 
-/// Form loading overlay.
-///
-/// When [overForm] is true (default for form actions), the form stays visible
-/// underneath a frosted glass layer with a complete door graphic.
 class FormSubmitLoadingOverlay extends StatelessWidget {
   const FormSubmitLoadingOverlay({
     super.key,
@@ -95,8 +91,6 @@ class FormSubmitLoadingOverlay extends StatelessWidget {
   }
 }
 
-/// Legacy root overlay helper. Prefer [FormPageLoadingStack] for form actions.
-/// If used, inserts a form-style (overForm) overlay and dismisses immediately.
 class FormLoadingOverlay {
   FormLoadingOverlay._();
 

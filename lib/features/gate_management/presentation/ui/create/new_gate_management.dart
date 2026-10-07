@@ -137,9 +137,8 @@ class _NewGateManagementState extends State<NewGateManagement> {
                 showScanner: false, 
               )
               : PreferredSize(
-                preferredSize: const Size.fromHeight(250),
-               
-                      child: TitleStatusAppBar(
+                preferredSize:  newform.docStatus == 1 ? const Size.fromHeight(70) : const Size.fromHeight(250),
+                child: TitleStatusAppBar(
                         title: '$name',
                         status: StringUtils.docStatus(status ?? 0),
                         actionButton: (status == 1)
@@ -171,9 +170,19 @@ class _NewGateManagementState extends State<NewGateManagement> {
         builder: (context, overlayState) {
           return FormPageLoadingStack(
             isLoading: overlayState.isLoading,
-            message: 'Saving document...',
+            message: overlayState.view == GateManagementView.create
+                ? 'Saving document...'
+                : 'Submitting document...',
             statusLabel: 'Processing...',
-            child: BlocListener<CreateGateManagementCubit, CreateGateManagementState>(
+            child: BlocListener<CreateGateManagementCubit,
+                CreateGateManagementState>(
+              listenWhen: (previous, current) {
+                final becameSuccess =
+                    !previous.isSuccess && current.isSuccess;
+                final becameError =
+                    current.error != null && previous.error != current.error;
+                return becameSuccess || becameError;
+              },
               listener: (_, state) async {
                 if (state.isSuccess && state.successMsg!.isNotNull) {
                   AppDialog.showSuccessDialog(
@@ -184,6 +193,7 @@ class _NewGateManagementState extends State<NewGateManagement> {
                   ).then((_) {
                     if (!context.mounted) return;
                     context.cubit<CreateGateManagementCubit>().errorHandled();
+                    shouldAskForConfirmation.value = false;
 
                     final gateEntryFilters =
                         context.read<GateManagementFilter>().state;

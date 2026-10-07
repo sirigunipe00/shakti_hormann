@@ -51,7 +51,6 @@ class _AppButtonState extends State<AppButton> {
   @override
   void didUpdateWidget(covariant AppButton oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // API finished → hide overlay immediately (no fixed delay / cycle wait).
     if (oldWidget.isLoading && !widget.isLoading && _overlayShownByThis) {
       _hideOverlay();
       _actionStarted = false;

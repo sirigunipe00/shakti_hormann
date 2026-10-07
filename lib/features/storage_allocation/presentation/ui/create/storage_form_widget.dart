@@ -250,7 +250,7 @@ class __StorageFormWidgetState extends State<StorageFormWidget> {
                           NewUploadPhotoWidget(
                             fileName: 'zone_icon',
                             imageUrl: newform.locationPhoto,
-                            title: 'Zone Image',
+                            title: 'Allocated Zone Image',
                             isRequired: true,
                             isReadOnly: isCompleted,
                             onFileCapture: (file) {

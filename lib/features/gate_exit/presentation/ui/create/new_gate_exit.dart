@@ -37,7 +37,6 @@ class _NewGateExitState extends State<NewGateExit> {
     final status = newform.docStatus;
     final name = newform.name;
 
-
     final isNew = gateEntryState.view == GateExitView.create;
     return Scaffold(
       resizeToAvoidBottomInset: true,
@@ -174,12 +173,10 @@ class _NewGateExitState extends State<NewGateExit> {
                   );
 
                   if (scanResult != null) {
-
                     if (!context.mounted) return;
 
                     $logger.devLog('….scanresult….$scanResult');
                     try {
-                      
                       final Map<String, dynamic> jsonData = jsonDecode(
                         scanResult,
                       );
@@ -192,8 +189,6 @@ class _NewGateExitState extends State<NewGateExit> {
                           jsonData['PlantName']?.toString();
 
                       if (invoiceNumber != null && invoiceNumber.isNotEmpty) {
-
-
                         final allPOs = context
                             .read<SalesInvoiceList>()
                             .state
@@ -397,7 +392,6 @@ class _NewGateExitState extends State<NewGateExit> {
                                 .map((so) => SalesInvoiceForm(name: so.name)),
                           ],
 
-
                           isloading: state.isLoading,
                           futureRequest: (query) async {
                             if (query.isEmpty) return names;
@@ -498,14 +492,9 @@ class _NewGateExitState extends State<NewGateExit> {
                       );
 
                       if (scanResult != null) {
-
                         if (!context.mounted) return;
 
-
-
-
                         try {
-
                           final Map<String, dynamic> jsonData = jsonDecode(
                             scanResult,
                           );
@@ -641,6 +630,7 @@ class _NewGateExitState extends State<NewGateExit> {
             child: BlocListener<CreateGateExitCubit, CreateGateExitState>(
               listener: (_, state) async {
                 if (state.isSuccess && state.successMsg!.isNotNull) {
+                  final isSubmitSuccess = state.view == GateExitView.completed;
                   AppDialog.showSuccessDialog(
                     context,
                     title: 'Success',
@@ -649,7 +639,9 @@ class _NewGateExitState extends State<NewGateExit> {
                   ).then((_) {
                     if (!context.mounted) return;
                     context.cubit<CreateGateExitCubit>().errorHandled();
-
+                    if (!isSubmitSuccess) {
+                      shouldAskForConfirmation.value = false;
+                    }
                     final gateEntryFilters =
                         context.read<GateExitFilterCubit>().state;
                     context.cubit<GateExitCubit>().fetchInitial(

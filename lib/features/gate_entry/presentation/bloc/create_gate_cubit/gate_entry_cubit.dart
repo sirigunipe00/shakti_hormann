@@ -290,7 +290,7 @@ class CreateGateEntryCubit extends AppBaseCubit<CreateGateEntryState> {
                 isLoading: false,
                 isSuccess: true,
                 form: state.form.copyWith(status: status, name: docstatus),
-                successMsg: r.first,
+                successMsg: '${r.first} ${r.second}',
                 view: nextMode,
               ),
             );

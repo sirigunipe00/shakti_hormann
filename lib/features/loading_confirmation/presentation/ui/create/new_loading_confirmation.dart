@@ -60,7 +60,13 @@ class _NewLoadingConfirmationState extends State<NewLoadingConfirmation> {
                     title: name ?? '',
                     status: StringUtils.docStatus(status ?? 0),
                     textColor: Colors.white,
-                    actionButton: loadingState.form.docstatus == 1 ? null :
+                    actionButton:
+        (loadingState.form.docstatus == 1 ||
+                StringUtils.equalsIgnoreCase(
+                  loadingState.form.status ?? '',
+                  'Rejected',
+                ))
+            ? null:
                     BlocBuilder<CreateLoadingCnfmCubit, CreateLaodingCnfmState>(
                       builder: (context, state) {
                         return AppButton(
@@ -87,6 +93,13 @@ class _NewLoadingConfirmationState extends State<NewLoadingConfirmation> {
             message: 'Saving document...',
             statusLabel: 'Processing...',
             child: BlocListener<CreateLoadingCnfmCubit, CreateLaodingCnfmState>(
+              listenWhen: (previous, current) {
+                final becameSuccess =
+                    !previous.isSuccess && current.isSuccess;
+                final becameError =
+                    current.error != null && previous.error != current.error;
+                return becameSuccess || becameError;
+              },
               listener: (_, state) async {
                 if (state.isSuccess && state.successMsg!.isNotNull) {
                   AppDialog.showSuccessDialog(

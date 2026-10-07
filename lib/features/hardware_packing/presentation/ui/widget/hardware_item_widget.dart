@@ -13,7 +13,7 @@ class HardwareItemWidget extends StatelessWidget {
   final ValueChanged<int> onDelete;
   final bool isCompleted;
 
-  static const List<int> _flexes = [1, 2, 4, 3, 2, 2, 3];
+  static const List<int> _flexes = [2, 2, 4, 3, 2, 2, 3];
   static const Color _lineColor = Color(0xFFE2E8F0);
   static const Color _headerColor = Color(0xFF1A3C6B);
 

@@ -34,6 +34,8 @@ class FramePackingRepoImpl extends BaseApiRepository
         filters.add(['docstatus', '=', 0]);
       case 'submitted':
         filters.add(['docstatus', '=', 1]);
+      case 'cancelled':
+        filters.add(['docstatus', '=', 2]);
       case 'unallocated':
         filters.add(['allocation_status', '=', 'Unallocated']);
       case 'allocated':
@@ -475,30 +477,34 @@ class FramePackingRepoImpl extends BaseApiRepository
   @override
   AsyncValueOf<Pair<String, String>> submitFrame(FramePacking form) async {
     return await executeSafely(() async {
+      // Only upload a newly captured local file. An existing server path
+      // (form.palletPhoto) is already attached — re-downloading + re-encoding
+      // it is the main reason Flutter submit is slower than Postman.
       Uint8List? palletcompressedBytes;
       if (form.palletPhotoImg != null) {
         final filePath = form.palletPhotoImg!.path;
         palletcompressedBytes = await FlutterImageCompress.compressWithFile(
           filePath,
-          quality: 50,
-        );
-      } else if (form.palletPhoto != null) {
-        palletcompressedBytes = await fetchAndConvertToBase64(
-          form.palletPhoto ?? '',
+          quality: 35,
+          minWidth: 720,
+          minHeight: 720,
+          format: CompressFormat.jpeg,
         );
       }
+
+      final body = <String, dynamic>{
+        'frame_packing_id': form.name,
+      };
+      if (palletcompressedBytes != null) {
+        body['pallet_photo'] = base64Encode(palletcompressedBytes);
+      }
+
       final config = RequestConfig(
         url: Urls.submitFrame,
         parser: (json) {
           return Pair(json['message']['message'] as String, '');
         },
-        body: jsonEncode({
-          'frame_packing_id': form.name,
-          'pallet_photo':
-              palletcompressedBytes == null
-                  ? null
-                  : base64Encode(palletcompressedBytes),
-        }),
+        body: jsonEncode(body),
         headers: {HttpHeaders.contentTypeHeader: 'application/json'},
       );
       final response = await post(config);

@@ -143,7 +143,7 @@ class CreatePodCubit extends AppBaseCubit<CreatePodState> {
                 isLoading: false,
                 isSuccess: true,
                 form: state.form.copyWith(status: status, name: docstatus),
-                successMsg: r.first,
+                successMsg: '${r.first} ${r.second}',
                 view: nextMode,
               ),
             );
@@ -163,7 +163,7 @@ class CreatePodCubit extends AppBaseCubit<CreatePodState> {
                 isLoading: false,
                 isSuccess: true,
                 form: state.form.copyWith(name: docstatus),
-                successMsg: r.first,
+                successMsg: '${r.first} ${r.second}',
                 view: PodView.completed,
               ),
             );

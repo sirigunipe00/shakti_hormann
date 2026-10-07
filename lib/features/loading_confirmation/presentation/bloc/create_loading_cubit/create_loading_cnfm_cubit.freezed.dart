@@ -23,6 +23,7 @@ mixin _$CreateLaodingCnfmState {
   bool get isLoading => throw _privateConstructorUsedError;
   bool get isSuccess => throw _privateConstructorUsedError;
   LoadingView get view => throw _privateConstructorUsedError;
+  List<LoadedRow> get scannedRows => throw _privateConstructorUsedError;
   String? get successMsg => throw _privateConstructorUsedError;
   Failure? get error => throw _privateConstructorUsedError;
 
@@ -47,6 +48,7 @@ abstract class $CreateLaodingCnfmStateCopyWith<$Res> {
     bool isLoading,
     bool isSuccess,
     LoadingView view,
+    List<LoadedRow> scannedRows,
     String? successMsg,
     Failure? error,
   });
@@ -80,6 +82,7 @@ class _$CreateLaodingCnfmStateCopyWithImpl<
     Object? isLoading = null,
     Object? isSuccess = null,
     Object? view = null,
+    Object? scannedRows = null,
     Object? successMsg = freezed,
     Object? error = freezed,
   }) {
@@ -115,6 +118,11 @@ class _$CreateLaodingCnfmStateCopyWithImpl<
                     ? _value.view
                     : view // ignore: cast_nullable_to_non_nullable
                         as LoadingView,
+            scannedRows:
+                null == scannedRows
+                    ? _value.scannedRows
+                    : scannedRows // ignore: cast_nullable_to_non_nullable
+                        as List<LoadedRow>,
             successMsg:
                 freezed == successMsg
                     ? _value.successMsg
@@ -181,6 +189,7 @@ abstract class _$$CreateLaodingCnfmStateImplCopyWith<$Res>
     bool isLoading,
     bool isSuccess,
     LoadingView view,
+    List<LoadedRow> scannedRows,
     String? successMsg,
     Failure? error,
   });
@@ -214,6 +223,7 @@ class __$$CreateLaodingCnfmStateImplCopyWithImpl<$Res>
     Object? isLoading = null,
     Object? isSuccess = null,
     Object? view = null,
+    Object? scannedRows = null,
     Object? successMsg = freezed,
     Object? error = freezed,
   }) {
@@ -249,6 +259,11 @@ class __$$CreateLaodingCnfmStateImplCopyWithImpl<$Res>
                 ? _value.view
                 : view // ignore: cast_nullable_to_non_nullable
                     as LoadingView,
+        scannedRows:
+            null == scannedRows
+                ? _value._scannedRows
+                : scannedRows // ignore: cast_nullable_to_non_nullable
+                    as List<LoadedRow>,
         successMsg:
             freezed == successMsg
                 ? _value.successMsg
@@ -274,9 +289,11 @@ class _$CreateLaodingCnfmStateImpl implements _CreateLaodingCnfmState {
     required this.isLoading,
     required this.isSuccess,
     required this.view,
+    final List<LoadedRow> scannedRows = const <LoadedRow>[],
     this.successMsg,
     this.error,
-  }) : _listitems = listitems;
+  }) : _listitems = listitems,
+       _scannedRows = scannedRows;
 
   @override
   final LoadingCnfmForm form;
@@ -296,6 +313,15 @@ class _$CreateLaodingCnfmStateImpl implements _CreateLaodingCnfmState {
   final bool isSuccess;
   @override
   final LoadingView view;
+  final List<LoadedRow> _scannedRows;
+  @override
+  @JsonKey()
+  List<LoadedRow> get scannedRows {
+    if (_scannedRows is EqualUnmodifiableListView) return _scannedRows;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_scannedRows);
+  }
+
   @override
   final String? successMsg;
   @override
@@ -303,7 +329,7 @@ class _$CreateLaodingCnfmStateImpl implements _CreateLaodingCnfmState {
 
   @override
   String toString() {
-    return 'CreateLaodingCnfmState(form: $form, listitems: $listitems, items: $items, isLoading: $isLoading, isSuccess: $isSuccess, view: $view, successMsg: $successMsg, error: $error)';
+    return 'CreateLaodingCnfmState(form: $form, listitems: $listitems, items: $items, isLoading: $isLoading, isSuccess: $isSuccess, view: $view, scannedRows: $scannedRows, successMsg: $successMsg, error: $error)';
   }
 
   @override
@@ -322,6 +348,10 @@ class _$CreateLaodingCnfmStateImpl implements _CreateLaodingCnfmState {
             (identical(other.isSuccess, isSuccess) ||
                 other.isSuccess == isSuccess) &&
             (identical(other.view, view) || other.view == view) &&
+            const DeepCollectionEquality().equals(
+              other._scannedRows,
+              _scannedRows,
+            ) &&
             (identical(other.successMsg, successMsg) ||
                 other.successMsg == successMsg) &&
             (identical(other.error, error) || other.error == error));
@@ -336,6 +366,7 @@ class _$CreateLaodingCnfmStateImpl implements _CreateLaodingCnfmState {
     isLoading,
     isSuccess,
     view,
+    const DeepCollectionEquality().hash(_scannedRows),
     successMsg,
     error,
   );
@@ -361,6 +392,7 @@ abstract class _CreateLaodingCnfmState implements CreateLaodingCnfmState {
     required final bool isLoading,
     required final bool isSuccess,
     required final LoadingView view,
+    final List<LoadedRow> scannedRows,
     final String? successMsg,
     final Failure? error,
   }) = _$CreateLaodingCnfmStateImpl;
@@ -377,6 +409,8 @@ abstract class _CreateLaodingCnfmState implements CreateLaodingCnfmState {
   bool get isSuccess;
   @override
   LoadingView get view;
+  @override
+  List<LoadedRow> get scannedRows;
   @override
   String? get successMsg;
   @override

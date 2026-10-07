@@ -48,6 +48,15 @@ mixin _$LoadingCnfmForm {
   String? get transporterName => throw _privateConstructorUsedError;
   @JsonKey(name: 'transporter_name2')
   String? get transporterName2 => throw _privateConstructorUsedError;
+  @JsonKey(name: 'vehicle_photo')
+  String? get loadedVehiclePhoto => throw _privateConstructorUsedError;
+  @JsonKey(
+    includeFromJson: true,
+    includeToJson: false,
+    toJson: toNull,
+    fromJson: toNull,
+  )
+  File? get loadedVehiclePhotoImg => throw _privateConstructorUsedError;
   @JsonKey(name: 'arrival_date', defaultValue: '')
   String? get arrivalDate => throw _privateConstructorUsedError;
   @JsonKey(name: 'arrival_time', defaultValue: '')
@@ -101,6 +110,14 @@ abstract class $LoadingCnfmFormCopyWith<$Res> {
     String? vehicleReportingEntryVreDate,
     @JsonKey(name: 'transporter_name') String? transporterName,
     @JsonKey(name: 'transporter_name2') String? transporterName2,
+    @JsonKey(name: 'vehicle_photo') String? loadedVehiclePhoto,
+    @JsonKey(
+      includeFromJson: true,
+      includeToJson: false,
+      toJson: toNull,
+      fromJson: toNull,
+    )
+    File? loadedVehiclePhotoImg,
     @JsonKey(name: 'arrival_date', defaultValue: '') String? arrivalDate,
     @JsonKey(name: 'arrival_time', defaultValue: '') String? arrivalTime,
     String? arrivalDateAndTime,
@@ -143,6 +160,8 @@ class _$LoadingCnfmFormCopyWithImpl<$Res, $Val extends LoadingCnfmForm>
     Object? vehicleReportingEntryVreDate = freezed,
     Object? transporterName = freezed,
     Object? transporterName2 = freezed,
+    Object? loadedVehiclePhoto = freezed,
+    Object? loadedVehiclePhotoImg = freezed,
     Object? arrivalDate = freezed,
     Object? arrivalTime = freezed,
     Object? arrivalDateAndTime = freezed,
@@ -221,6 +240,16 @@ class _$LoadingCnfmFormCopyWithImpl<$Res, $Val extends LoadingCnfmForm>
                     ? _value.transporterName2
                     : transporterName2 // ignore: cast_nullable_to_non_nullable
                         as String?,
+            loadedVehiclePhoto:
+                freezed == loadedVehiclePhoto
+                    ? _value.loadedVehiclePhoto
+                    : loadedVehiclePhoto // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            loadedVehiclePhotoImg:
+                freezed == loadedVehiclePhotoImg
+                    ? _value.loadedVehiclePhotoImg
+                    : loadedVehiclePhotoImg // ignore: cast_nullable_to_non_nullable
+                        as File?,
             arrivalDate:
                 freezed == arrivalDate
                     ? _value.arrivalDate
@@ -301,6 +330,14 @@ abstract class _$$LoadingCnfmFormImplCopyWith<$Res>
     String? vehicleReportingEntryVreDate,
     @JsonKey(name: 'transporter_name') String? transporterName,
     @JsonKey(name: 'transporter_name2') String? transporterName2,
+    @JsonKey(name: 'vehicle_photo') String? loadedVehiclePhoto,
+    @JsonKey(
+      includeFromJson: true,
+      includeToJson: false,
+      toJson: toNull,
+      fromJson: toNull,
+    )
+    File? loadedVehiclePhotoImg,
     @JsonKey(name: 'arrival_date', defaultValue: '') String? arrivalDate,
     @JsonKey(name: 'arrival_time', defaultValue: '') String? arrivalTime,
     String? arrivalDateAndTime,
@@ -342,6 +379,8 @@ class __$$LoadingCnfmFormImplCopyWithImpl<$Res>
     Object? vehicleReportingEntryVreDate = freezed,
     Object? transporterName = freezed,
     Object? transporterName2 = freezed,
+    Object? loadedVehiclePhoto = freezed,
+    Object? loadedVehiclePhotoImg = freezed,
     Object? arrivalDate = freezed,
     Object? arrivalTime = freezed,
     Object? arrivalDateAndTime = freezed,
@@ -420,6 +459,16 @@ class __$$LoadingCnfmFormImplCopyWithImpl<$Res>
                 ? _value.transporterName2
                 : transporterName2 // ignore: cast_nullable_to_non_nullable
                     as String?,
+        loadedVehiclePhoto:
+            freezed == loadedVehiclePhoto
+                ? _value.loadedVehiclePhoto
+                : loadedVehiclePhoto // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        loadedVehiclePhotoImg:
+            freezed == loadedVehiclePhotoImg
+                ? _value.loadedVehiclePhotoImg
+                : loadedVehiclePhotoImg // ignore: cast_nullable_to_non_nullable
+                    as File?,
         arrivalDate:
             freezed == arrivalDate
                 ? _value.arrivalDate
@@ -493,6 +542,14 @@ class _$LoadingCnfmFormImpl implements _LoadingCnfmForm {
     this.vehicleReportingEntryVreDate,
     @JsonKey(name: 'transporter_name') this.transporterName,
     @JsonKey(name: 'transporter_name2') this.transporterName2,
+    @JsonKey(name: 'vehicle_photo') this.loadedVehiclePhoto,
+    @JsonKey(
+      includeFromJson: true,
+      includeToJson: false,
+      toJson: toNull,
+      fromJson: toNull,
+    )
+    this.loadedVehiclePhotoImg,
     @JsonKey(name: 'arrival_date', defaultValue: '') this.arrivalDate,
     @JsonKey(name: 'arrival_time', defaultValue: '') this.arrivalTime,
     this.arrivalDateAndTime,
@@ -549,6 +606,17 @@ class _$LoadingCnfmFormImpl implements _LoadingCnfmForm {
   @JsonKey(name: 'transporter_name2')
   final String? transporterName2;
   @override
+  @JsonKey(name: 'vehicle_photo')
+  final String? loadedVehiclePhoto;
+  @override
+  @JsonKey(
+    includeFromJson: true,
+    includeToJson: false,
+    toJson: toNull,
+    fromJson: toNull,
+  )
+  final File? loadedVehiclePhotoImg;
+  @override
   @JsonKey(name: 'arrival_date', defaultValue: '')
   final String? arrivalDate;
   @override
@@ -580,7 +648,7 @@ class _$LoadingCnfmFormImpl implements _LoadingCnfmForm {
 
   @override
   String toString() {
-    return 'LoadingCnfmForm(name: $name, owner: $owner, creation: $creation, modified: $modified, modifiedBy: $modifiedBy, docstatus: $docstatus, idx: $idx, loadingStatus: $loadingStatus, amendedFrom: $amendedFrom, plantName: $plantName, vehicleReportingEntryVreDate: $vehicleReportingEntryVreDate, transporterName: $transporterName, transporterName2: $transporterName2, arrivalDate: $arrivalDate, arrivalTime: $arrivalTime, arrivalDateAndTime: $arrivalDateAndTime, driverIdPhoto: $driverIdPhoto, loadedByUser: $loadedByUser, status: $status, linkedTransporterConfirmation: $linkedTransporterConfirmation, vehicleNumber: $vehicleNumber, driverContact: $driverContact, remarks: $remarks)';
+    return 'LoadingCnfmForm(name: $name, owner: $owner, creation: $creation, modified: $modified, modifiedBy: $modifiedBy, docstatus: $docstatus, idx: $idx, loadingStatus: $loadingStatus, amendedFrom: $amendedFrom, plantName: $plantName, vehicleReportingEntryVreDate: $vehicleReportingEntryVreDate, transporterName: $transporterName, transporterName2: $transporterName2, loadedVehiclePhoto: $loadedVehiclePhoto, loadedVehiclePhotoImg: $loadedVehiclePhotoImg, arrivalDate: $arrivalDate, arrivalTime: $arrivalTime, arrivalDateAndTime: $arrivalDateAndTime, driverIdPhoto: $driverIdPhoto, loadedByUser: $loadedByUser, status: $status, linkedTransporterConfirmation: $linkedTransporterConfirmation, vehicleNumber: $vehicleNumber, driverContact: $driverContact, remarks: $remarks)';
   }
 
   @override
@@ -615,6 +683,10 @@ class _$LoadingCnfmFormImpl implements _LoadingCnfmForm {
                 other.transporterName == transporterName) &&
             (identical(other.transporterName2, transporterName2) ||
                 other.transporterName2 == transporterName2) &&
+            (identical(other.loadedVehiclePhoto, loadedVehiclePhoto) ||
+                other.loadedVehiclePhoto == loadedVehiclePhoto) &&
+            (identical(other.loadedVehiclePhotoImg, loadedVehiclePhotoImg) ||
+                other.loadedVehiclePhotoImg == loadedVehiclePhotoImg) &&
             (identical(other.arrivalDate, arrivalDate) ||
                 other.arrivalDate == arrivalDate) &&
             (identical(other.arrivalTime, arrivalTime) ||
@@ -656,6 +728,8 @@ class _$LoadingCnfmFormImpl implements _LoadingCnfmForm {
     vehicleReportingEntryVreDate,
     transporterName,
     transporterName2,
+    loadedVehiclePhoto,
+    loadedVehiclePhotoImg,
     arrivalDate,
     arrivalTime,
     arrivalDateAndTime,
@@ -701,6 +775,14 @@ abstract class _LoadingCnfmForm implements LoadingCnfmForm {
     final String? vehicleReportingEntryVreDate,
     @JsonKey(name: 'transporter_name') final String? transporterName,
     @JsonKey(name: 'transporter_name2') final String? transporterName2,
+    @JsonKey(name: 'vehicle_photo') final String? loadedVehiclePhoto,
+    @JsonKey(
+      includeFromJson: true,
+      includeToJson: false,
+      toJson: toNull,
+      fromJson: toNull,
+    )
+    final File? loadedVehiclePhotoImg,
     @JsonKey(name: 'arrival_date', defaultValue: '') final String? arrivalDate,
     @JsonKey(name: 'arrival_time', defaultValue: '') final String? arrivalTime,
     final String? arrivalDateAndTime,
@@ -756,6 +838,17 @@ abstract class _LoadingCnfmForm implements LoadingCnfmForm {
   @override
   @JsonKey(name: 'transporter_name2')
   String? get transporterName2;
+  @override
+  @JsonKey(name: 'vehicle_photo')
+  String? get loadedVehiclePhoto;
+  @override
+  @JsonKey(
+    includeFromJson: true,
+    includeToJson: false,
+    toJson: toNull,
+    fromJson: toNull,
+  )
+  File? get loadedVehiclePhotoImg;
   @override
   @JsonKey(name: 'arrival_date', defaultValue: '')
   String? get arrivalDate;

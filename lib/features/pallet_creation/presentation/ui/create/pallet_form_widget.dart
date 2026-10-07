@@ -250,6 +250,7 @@ class __PalletFormWidgetState extends State<PalletFormWidget> {
                                   productTypes: Dropdownoptions.productType,
                                 );
                                 if (entry == null) return;
+                                if(!context.mounted) return;
                                 context
                                     .cubit<CreatePalletCubit>()
                                     .addPalletItem(entry);
@@ -364,7 +365,7 @@ class _PalletPreviewTable extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final headerCells = [
-      '#',
+      // '#',
       'Product\nType',
       'Size (mm)',
       'No. of\nPallets',
@@ -395,19 +396,18 @@ class _PalletPreviewTable extends StatelessWidget {
           else
             for (var i = 0; i < lines.length; i++)
               _buildRow(
-                cells: [
-                  (i + 1).toString().padLeft(2, '0'),
-                  lines[i].productType.toString(),
-                  lines[i].size.toString(),
-                  // '${lines[i].size}',
-                  lines[i].noOfPallets.toString().padLeft(2, '0'),
-                  if (!readOnly) '',
-                  if (!readOnly) '',
-                ],
-                isHeader: false,
-                isLastRow: i == lines.length - 1,
-                rowIndex: readOnly ? null : i,
-              ),
+  serialNo: i + 1,
+  cells: [
+    lines[i].productType.toString(),
+    lines[i].size.toString(),
+    lines[i].noOfPallets.toString().padLeft(2, '0'),
+    if (!readOnly) '',
+    if (!readOnly) '',
+  ],
+  isHeader: false,
+  isLastRow: i == lines.length - 1,
+  rowIndex: readOnly ? null : i,
+),
         ],
       ),
     );
@@ -418,6 +418,7 @@ class _PalletPreviewTable extends StatelessWidget {
     required bool isHeader,
     bool isLastRow = false,
     int? rowIndex,
+    int? serialNo,
   }) {
     final headerStyle = const TextStyle(
       color: Colors.white,
@@ -425,10 +426,6 @@ class _PalletPreviewTable extends StatelessWidget {
       fontSize: 13,
     );
     const cellStyle = TextStyle(color: Colors.black87, fontSize: 13);
-
-    final editColIndex = cells.length - 2;
-    final deleteColIndex = cells.length - 1;
-
     return Container(
       decoration: BoxDecoration(
         color: isHeader ? AppColors.darkBlue : Colors.white,
@@ -438,34 +435,64 @@ class _PalletPreviewTable extends StatelessWidget {
                 : const Border(bottom: BorderSide(color: _lineColor, width: 1)),
       ),
       child: IntrinsicHeight(
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            for (var col = 0; col < cells.length; col++) ...[
-              Expanded(
-                flex: _flexes[col],
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 5,
-                    vertical: 10                                                      ,
-                  ),
-                  child: _buildCell(
-                    col: col,
-                    cells: cells,
-                    isHeader: isHeader,
-                    rowIndex: rowIndex,
-                    editColIndex: editColIndex,
-                    deleteColIndex: deleteColIndex,
-                    headerStyle: headerStyle,
-                    cellStyle: cellStyle,
-                  ),
-                ),
-              ),
-              if (col != cells.length - 1)
-                Container(width: 1, color: _lineColor),
-            ],
-          ],
+        child:Row(
+  crossAxisAlignment: CrossAxisAlignment.stretch,
+  children: [
+    // # COLUMN
+    Expanded(
+      flex: 2,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 5,
+          vertical: 10,
         ),
+        child: Center(
+          child: Text(
+            isHeader
+                ? '#'
+                : serialNo!.toString().padLeft(2, '0'),
+            style: isHeader ? headerStyle : cellStyle,
+            textAlign: TextAlign.center,
+          ),
+        ),
+      ),
+    ),
+
+    Container(
+      width: 1,
+      color: _lineColor,
+    ),
+
+    // Remaining columns
+    for (var col = 0; col < cells.length; col++) ...[
+      Expanded(
+        flex: _flexes[col + 1],
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: 5,
+            vertical: 10,
+          ),
+          child: _buildCell(
+            col: col,
+            cells: cells,
+            isHeader: isHeader,
+            rowIndex: rowIndex,
+            editColIndex: cells.length - 2,
+            deleteColIndex: cells.length - 1,
+            headerStyle: headerStyle,
+            cellStyle: cellStyle,
+          ),
+        ),
+      ),
+
+      if (col != cells.length - 1)
+        Container(
+          width: 1,
+          color: _lineColor,
+        ),
+    ],
+  ],
+),
       ),
     );
   }
@@ -521,7 +548,7 @@ InputDecoration _greyFieldDecoration({
     hintText: hint,
     hintStyle: const TextStyle(fontSize: 16),
     filled: true,
-    fillColor: const Color(0xFFF5F6FA),
+    fillColor: Colors.white,
     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
     border: greyBorder,
     enabledBorder: greyBorder,
@@ -642,18 +669,18 @@ Future<PalletItems?> _showPalletDetailsDialog(
                         style: const TextStyle(color: Colors.red, fontSize: 13),
                       ),
                     ],
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 8),
                     Align(
                       alignment: Alignment.centerLeft,
                       child: RichText(
                         text: TextSpan(
                           style:
                               TextStyles.labelLarge(context)?.copyWith(
-                                fontSize: 17,
+                                fontSize: 15,
                                 fontWeight: FontWeight.w600,
                               ) ??
                               const TextStyle(
-                                fontSize: 17,
+                                fontSize: 15,
                                 fontWeight: FontWeight.w600,
                                 color: Colors.black,
                               ),

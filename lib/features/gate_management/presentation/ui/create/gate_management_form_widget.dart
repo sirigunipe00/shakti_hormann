@@ -96,7 +96,7 @@ class _GateManagementFormWidgetState extends State<GateManagementFormWidget> {
     final isCompleted = formState.view == GateManagementView.completed;
     final isCreating = formState.view == GateManagementView.create;
     final newform = formState.form;
-
+    $logger.devLog('form.........$newform');
 
     return MultiBlocListener(
       listeners: [
@@ -107,7 +107,20 @@ class _GateManagementFormWidgetState extends State<GateManagementFormWidget> {
             return prevStatus != currStatus;
           },
           listener: (_, state) async {
-            
+            // final indx = state.error?.status;
+            // if (indx != null) {
+            //   final focus = focusNodes.elementAt(indx);
+            //   FocusScope.of(context).requestFocus(focus);
+
+            //   final targetContext = focus.context;
+            //   if (targetContext != null) {
+            //     await Scrollable.ensureVisible(
+            //       targetContext,
+            //       duration: const Duration(milliseconds: 300),
+            //       curve: Curves.easeInOut,
+            //     );
+            //   }
+            // }
           },
         ),
       ],
@@ -504,15 +517,11 @@ class _GateManagementFormWidgetState extends State<GateManagementFormWidget> {
                       vertical: 16.0,
                       horizontal: 8.0,
                     ),
-                    child: BlocBuilder<
-                      CreateGateManagementCubit,
-                      CreateGateManagementState
-                    >(
+                    child: BlocBuilder<CreateGateManagementCubit,CreateGateManagementState>(
                       builder: (context, state) {
                         final newform = state.form;
                         return Column(
                           children: [
-
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -555,14 +564,12 @@ class _GateManagementFormWidgetState extends State<GateManagementFormWidget> {
                                             imageQuality: 70,
                                           );
                                           if (image != null) {
-                                            if(context.mounted){
-                                                context
+                                            if(!context.mounted) return;
+                                            context
                                                 .read<CreateGateManagementCubit>()
                                                 .addInvoicePhoto(
                                                   File(image.path),
                                                 );
-
-                                            }
                                           }
                                         },
                                       ),
@@ -579,16 +586,16 @@ class _GateManagementFormWidgetState extends State<GateManagementFormWidget> {
                                                 color: Colors.black,
                                               ),
                                             ),
-                                            TextSpan(
-                                              text: ' *',
-                                              style: TextStyle(
-                                                fontSize: 15,
-                                                fontWeight: FontWeight.bold,
-                                                color:
-                                                    Colors
-                                                        .red,
-                                              ),
-                                            ),
+                                            // TextSpan(
+                                            //   text: ' *',
+                                            //   style: TextStyle(
+                                            //     fontSize: 15,
+                                            //     fontWeight: FontWeight.bold,
+                                            //     color:
+                                            //         Colors
+                                            //             .red,
+                                            //   ),
+                                            // ),
                                           ],
                                         ),
                                       ),

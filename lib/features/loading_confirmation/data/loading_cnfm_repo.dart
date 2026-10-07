@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:shakti_hormann/core/model/pair.dart';
 import 'package:shakti_hormann/core/utils/typedefs.dart';
 import 'package:shakti_hormann/features/loading_confirmation/model/dispatch_loading.dart';
@@ -12,7 +14,12 @@ abstract interface class LoadingCnfmRepo {
     String? search,
     String? salesOrder,
   );
-  AsyncValueOf<Pair<String,String>> submitLoading(String form);
+  // AsyncValueOf<Pair<String,String>> submitLoading(String form);
+  AsyncValueOf<Pair<String, String>> submitLoading(
+  String name, {
+  File? vehiclePhotoImg,
+  String? vehiclePhoto,
+});
   AsyncValueOf<Pair<String,String>> createLoadingCnfm(List<ItemModel> form,String name);
   AsyncValueOf<Pair<String,String>> updateLoadingCnfm(List<ItemModel> form,String name);
   AsyncValueOf<List<ItemModel>> fetchItemList(List<LogisticModel> logistic);

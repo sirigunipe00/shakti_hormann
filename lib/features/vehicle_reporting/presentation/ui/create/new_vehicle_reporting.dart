@@ -78,7 +78,7 @@ class _NewVehicleReportingState extends State<NewVehicleReporting> {
                       key: UniqueKey(),
                       defaultSelection: transporterForm,
                       items: names,
-                      readOnly: newform.status == 'Reported',
+                      readOnly: newform.status == 'Reported' || newform.status == 'Rejected',
                       isloading: state.isLoading,
                       futureRequest: (query) async {
                         if (query.isEmpty) return names;
@@ -196,7 +196,7 @@ class _NewVehicleReportingState extends State<NewVehicleReporting> {
                             hint: 'Search Logistic No',
                             color: AppColors.white,
                             key: UniqueKey(),
-                            readOnly: status == 'Reported',
+                            readOnly: status == 'Reported' || status == 'Rejected',
                             defaultSelection: () {
                               if (names.isEmpty || selectedOrders.isEmpty) {
                                 return null;
@@ -239,7 +239,7 @@ class _NewVehicleReportingState extends State<NewVehicleReporting> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [Text(item.name ?? '',style: TextStyle(
                                     fontWeight: FontWeight.bold,
-                                    color: status == 'Reported' ? Colors.white : AppColors.black,
+                                    color: status == 'Reported' || status == 'Rejected' ? Colors.white : AppColors.black,
                                   ),)],
                                 ),
                             listItemBuilder:
@@ -316,6 +316,10 @@ class _NewVehicleReportingState extends State<NewVehicleReporting> {
             child: BlocListener<CreateVehicleCubit, CreateVehicleState>(
               listener: (_, state) async {
                 if (state.isSuccess && state.successMsg!.isNotNull) {
+                  // create → view becomes edit; approve/submit → completed;
+                  // reject → reject
+                  final isSubmitSuccess =
+                      state.view == VehicleView.completed;
                   if (state.view == VehicleView.reject) {
                     AppDialog.showErrorDialog(
                       context,
@@ -325,6 +329,12 @@ class _NewVehicleReportingState extends State<NewVehicleReporting> {
                     ).then((_) {
                       if (!context.mounted) return;
                       context.cubit<CreateVehicleCubit>().errorHandled();
+                      // Create/reject: leave without confirmation (cubit
+                      // already cleared the flag, but form remount/
+                      // onValueChanged can set it true again before this pop).
+                      if (!isSubmitSuccess) {
+                        shouldAskForConfirmation.value = false;
+                      }
                       Navigator.pop(context, true);
                     });
                   } else {
@@ -336,6 +346,9 @@ class _NewVehicleReportingState extends State<NewVehicleReporting> {
                     ).then((_) {
                       if (!context.mounted) return;
                       context.cubit<CreateVehicleCubit>().errorHandled();
+                      if (!isSubmitSuccess) {
+                        shouldAskForConfirmation.value = false;
+                      }
                       Navigator.pop(context, true);
                       setState(() {});
                     });

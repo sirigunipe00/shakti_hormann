@@ -258,8 +258,9 @@ final result = childResponse.process((r) => right(r.data ?? []));
       final config = RequestConfig(
         url: Urls.createLogisticPlanning,
         parser: (json) {
+          final msg = json['message']['message'] as String;
           final data = json['message']['data']['logistic_request_id'] as String;
-          return Pair(data, '');
+          return Pair(msg, data);
         },
         body: jsonEncode(requestBody),
         headers: {HttpHeaders.contentTypeHeader: 'application/json'},
@@ -308,10 +309,7 @@ final result = childResponse.process((r) => right(r.data ?? []));
     return await executeSafely(() async {
       final config = RequestConfig(
         url: Urls.getList,
-
         parser: (json) {
-          $logger.devLog('repojson...----$json');
-
           final data = json['message'];
           final listdata = data as List<dynamic>;
           return listdata.map((e) => SalesOrder.fromJson(e)).toList();

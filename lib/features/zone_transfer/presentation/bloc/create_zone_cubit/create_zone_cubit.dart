@@ -193,18 +193,29 @@ Future<void> onQrScanned(String rawQr) async {
 }
 
   void save() async {
+    if (state.isLoading) return;
     final validation = _validate();
     return validation.fold(() async {
+      if (state.isLoading) return;
+      final sw = Stopwatch()..start();
+      $logger.info('[StorageSave][Cubit] Start submit');
       emitSafeState(state.copyWith(isLoading: true, isSuccess: false));
-      // final nextMode = ZoneView.completed;
+      $logger.info(
+        '[StorageSave][Cubit] Overlay shown: ${sw.elapsedMilliseconds} ms',
+      );
 
       if (state.view == ZoneView.create) {
         final response = await repo.createZone(state.form);
 
         return response.fold(
-          (l) => emitSafeState(
-            state.copyWith(isLoading: false, error: l, isSuccess: false),
-          ),
+          (l) {
+            emitSafeState(
+              state.copyWith(isLoading: false, error: l, isSuccess: false),
+            );
+            $logger.info(
+              '[StorageSave][Cubit] UI/state update completed (error): ${sw.elapsedMilliseconds} ms',
+            );
+          },
           (r) {
             shouldAskForConfirmation.value = false;
             final docstatus = r.second;
@@ -225,6 +236,9 @@ Future<void> onQrScanned(String rawQr) async {
             successMsg: '${r.first} ${r.second}',
                 view: ZoneView.completed,
               ),
+            );
+            $logger.info(
+              '[StorageSave][Cubit] UI/state update completed (success): ${sw.elapsedMilliseconds} ms',
             );
           },
         );

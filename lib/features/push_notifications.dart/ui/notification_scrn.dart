@@ -4,7 +4,6 @@ import 'package:shakti_hormann/features/push_notifications.dart/ui/notifications
 import 'package:shakti_hormann/core/utils/date_format_util.dart';
 import 'package:shakti_hormann/features/push_notifications.dart/model/notification_model.dart';
 import 'package:shakti_hormann/features/push_notifications.dart/ui/bloc/bloc_provider.dart';
-import 'package:shakti_hormann/widgets/packing_scan_processing_overlay.dart';
 
 class NotificationListScreen extends StatelessWidget {
   const NotificationListScreen({super.key});
@@ -16,11 +15,8 @@ class NotificationListScreen extends StatelessWidget {
       color: Colors.black),)),
       body: BlocBuilder<NotificationList, NotificationState>(
         builder: (context, state) {
-          
           return state.maybeWhen(
-            // loading: () => const Center(child: CircularProgressIndicator()),
-            loading: () => const PackingScanProcessingOverlay(),
-
+            loading: () => const Center(child: CircularProgressIndicator()),
             success: (data) {
               if (data.isEmpty) {
                 return const Center(child: Text('No Notifications'));

@@ -24,7 +24,7 @@ class StorageRepoImp extends BaseApiRepository implements StorageRepo {
     final filters = <List<dynamic>>[];
     final orFilters = <List<dynamic>>[];
 
-    if (docStatus != null && docStatus != 2) {
+    if (docStatus != null) {
       filters.add(['docstatus', '=', docStatus]);
     }
 
@@ -59,27 +59,43 @@ class StorageRepoImp extends BaseApiRepository implements StorageRepo {
   }
   @override
   AsyncValueOf<Pair<String,String>> createStorage(Storage form) async {
-     Uint8List? zonecompressedBytes;
+    final sw = Stopwatch()..start();
+    $logger.info('[StorageSave][StorageRepo] Start save');
+
+    // Only upload a newly captured local photo — never re-download server files.
+    Uint8List? zonecompressedBytes;
 
     if (form.locationPhotoImg != null) {
+      final compressSw = Stopwatch()..start();
       final filePath = form.locationPhotoImg!.path;
       zonecompressedBytes = await FlutterImageCompress.compressWithFile(
         filePath,
-        quality: 50,
+        quality: 35,
+        minWidth: 720,
+        minHeight: 720,
+        format: CompressFormat.jpeg,
       );
-    } else if (form.locationPhoto != null) {
-      zonecompressedBytes = await fetchAndConvertToBase64(
-        form.locationPhoto ?? '',
+      $logger.info(
+        '[StorageSave][StorageRepo] Photo compressed: ${compressSw.elapsedMilliseconds} ms '
+        '(bytes=${zonecompressedBytes?.length ?? 0})',
       );
     }
-    final photo = zonecompressedBytes == null
-        ? null
-        : 'data:image/jpeg;base64,${base64Encode(zonecompressedBytes)}';
-    final Map<String, dynamic> requestBody = {
+
+    final requestBody = <String, dynamic>{
       'pallet__box_qr_scan': form.palletBoxQr,
       'zone_qr': form.zoneQr,
-      'location_photo': photo,
     };
+    if (zonecompressedBytes != null) {
+      requestBody['location_photo'] =
+          'data:image/jpeg;base64,${base64Encode(zonecompressedBytes)}';
+    }
+
+    final body = jsonEncode(requestBody);
+    $logger.info(
+      '[StorageSave][StorageRepo] Payload prepared: ${sw.elapsedMilliseconds} ms '
+      '(body=${body.length} chars, hasPhoto=${zonecompressedBytes != null})',
+    );
+
     final config = RequestConfig(
       url: Urls.storageAllocation,
       parser: (json) {
@@ -91,14 +107,23 @@ class StorageRepoImp extends BaseApiRepository implements StorageRepo {
         return Pair(message, docNo);
       },
 
-      body: jsonEncode(requestBody),
+      body: body,
       headers: {HttpHeaders.contentTypeHeader: 'application/json'},
     );
 
-    $logger.devLog('requestConfig.....$config');
-
+    $logger.info(
+      '[StorageSave][StorageRepo] API request started → ${Urls.storageAllocation}',
+    );
+    final apiSw = Stopwatch()..start();
     final response = await post(config);
+    $logger.info(
+      '[StorageSave][StorageRepo] API response received: ${apiSw.elapsedMilliseconds} ms '
+      '(total ${sw.elapsedMilliseconds} ms)',
+    );
     return response.processAsync((r) async {
+      $logger.info(
+        '[StorageSave][StorageRepo] Response processing completed: ${sw.elapsedMilliseconds} ms',
+      );
       return right(Pair(r.data!.first, r.data!.second));
     });
 

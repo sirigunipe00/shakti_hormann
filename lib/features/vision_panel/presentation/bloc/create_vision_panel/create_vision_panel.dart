@@ -983,28 +983,32 @@ class CreateVisionPanelCubit extends AppBaseCubit<CreateVisionPanelState> {
 
     emitSafeState(state.copyWith(isLoading: true, isSuccess: false));
 
-    final images = <Map<String, String>>[];
-    for (final line
-        in state.imageLines.where((l) => l.itemIndex == itemIndex)) {
-      final file = line.visionPhotoImg;
-      final boxNo = line.boxNo;
-      if (boxNo == null || boxNo.isEmpty) continue;
-      if (file == null || !await file.exists()) continue;
+    final linesToUpload = state.imageLines
+        .where((l) => l.itemIndex == itemIndex)
+        .where((l) => l.boxNo != null && l.boxNo!.isNotEmpty)
+        .where((l) => l.visionPhotoImg != null)
+        .toList();
 
-      final compressedBytes = await FlutterImageCompress.compressWithFile(
-        file.path,
-        quality: 50,
-        minWidth: 1280,
-        minHeight: 1280,
-      );
-
-      images.add({
-        'box_no': boxNo,
-        'image': compressedBytes != null
-            ? 'data:image/jpeg;base64,${base64Encode(compressedBytes)}'
-            : 'data:image/jpeg;base64,${base64Encode(await file.readAsBytes())}',
-      });
-    }
+    final compressed = await Future.wait(
+      linesToUpload.map((line) async {
+        final file = line.visionPhotoImg!;
+        if (!await file.exists()) return null;
+        final compressedBytes = await FlutterImageCompress.compressWithFile(
+          file.path,
+          quality: 35,
+          minWidth: 720,
+          minHeight: 720,
+          format: CompressFormat.jpeg,
+        );
+        final payload = compressedBytes ?? await file.readAsBytes();
+        return <String, String>{
+          'box_no': line.boxNo!,
+          'image': 'data:image/jpeg;base64,${base64Encode(payload)}',
+        };
+      }),
+    );
+    final images =
+        compressed.whereType<Map<String, String>>().toList(growable: false);
     if (images.isEmpty) {
       emitSafeState(state.copyWith(isLoading: false));
       return;

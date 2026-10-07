@@ -130,10 +130,11 @@ class VehicleReportingRepoimpl extends BaseApiRepository
       final config = RequestConfig(
         url: Urls.createVehicleReporting,
         parser: (json) {
+          final msg = json['message']['message'] as String;
           final data =
               json['message']['data']['linked_transporter_confirmation']
                   as String;
-          return Pair(data, '');
+          return Pair(msg, data);
         },
         body: jsonEncode(requestBody),
         headers: {HttpHeaders.contentTypeHeader: 'application/json'},
@@ -202,8 +203,9 @@ class VehicleReportingRepoimpl extends BaseApiRepository
       final config = RequestConfig(
         url: Urls.updateVehicleReporting,
         parser: (json) {
+          final msg = json['message']['message'] as String;
           final data = json['message']['data']['name'] as String;
-          return Pair(data, '');
+          return Pair(msg, data);
         },
         body: jsonEncode(requestBody),
         headers: {HttpHeaders.contentTypeHeader: 'application/json'},
@@ -235,7 +237,8 @@ class VehicleReportingRepoimpl extends BaseApiRepository
         url: Urls.updateVehicleReporting,
         parser: (json) {
           final message = json['message']['message'] as String;
-          return Pair(message, '');
+          final data = json['message']['data']['name'] as String;
+          return Pair(message, data);
         },
         body: jsonEncode({
           'name': form.name,

@@ -114,7 +114,7 @@ class _NewFrameState extends State<NewFrame> {
                                               ? 'Update'
                                               : 'Submit',
                                       onPressed:
-                                          isPrinted
+                                          isPrinted && !state.isSubmitting
                                               ? () => _onSubmitWithConfirmation(context)
                                               : null,
                                     );
@@ -129,12 +129,12 @@ class _NewFrameState extends State<NewFrame> {
                 buildWhen:
                     (previous, current) =>
                         previous.isCreatingDoc != current.isCreatingDoc ||
-                        previous.isSubmitting != current.isSubmitting,
+                        previous.isProcessingScan != current.isProcessingScan,
                 builder: (context, overlayState) {
                   return FormPageLoadingStack(
                     isLoading:
                         overlayState.isCreatingDoc ||
-                        overlayState.isSubmitting,
+                        overlayState.isProcessingScan,
                     message: 'Please wait...',
                     statusLabel: 'Processing...',
                     child: MultiBlocListener(
@@ -242,6 +242,40 @@ class _NewFrameState extends State<NewFrame> {
                     return const SizedBox.shrink();
                   }
                   return const PackingScanProcessingOverlay();
+                },
+              ),
+              // Lightweight submit overlay — avoids door/BackdropFilter overhead.
+              BlocBuilder<CreateFrameCubit, CreateFrameState>(
+                buildWhen: (p, c) =>
+                    p.isSubmitting != c.isSubmitting ||
+                    p.newLines.length != c.newLines.length,
+                builder: (context, state) {
+                  if (!state.isSubmitting) return const SizedBox.shrink();
+                  final label = state.newLines.isNotEmpty
+                      ? 'Updating document...'
+                      : 'Submitting document...';
+                  return AbsorbPointer(
+                    child: ColoredBox(
+                      color: Colors.black.withValues(alpha: 0.25),
+                      child: Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const CircularProgressIndicator(),
+                            const SizedBox(height: 16),
+                            Text(
+                              label,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
                 },
               ),
             ],

@@ -15,10 +15,12 @@ mixin StatusModeSelectionMixin {
       case PageMode2.gateexit:
       case PageMode2.proofOfDelivery:
       case PageMode2.gateManagement:
+      filters = ['Draft', 'Submitted', 'All'];
+        break;
       case PageMode2.palletCreation:
       case PageMode2.visionPanel:
       case PageMode2.installation:
-        filters = ['Draft', 'Submitted', 'All'];
+        filters = ['Draft', 'Submitted', 'Cancelled', 'All'];
         break;
       case PageMode2.shutterPacking:
       case PageMode2.framePacking:
@@ -29,6 +31,7 @@ mixin StatusModeSelectionMixin {
           'Allocated',
           'Dispatched',
           'Submitted',
+          'Cancelled',
           'All',
         ];
         break;
@@ -39,7 +42,7 @@ mixin StatusModeSelectionMixin {
         case PageMode2.storageAllocation:
         case PageMode2.zoneTransfer:
         
-        filters = ['Completed'];
+        filters = ['Completed', 'Cancelled'];
         break;
       case PageMode2.logisticRequest:
         filters = [
@@ -63,7 +66,6 @@ mixin StatusModeSelectionMixin {
       'Draft',
       'Reported',
       'Rejected',
-      'Cancelled',
       'All'
      ];
      break;

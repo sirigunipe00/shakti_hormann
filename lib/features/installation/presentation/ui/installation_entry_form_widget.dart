@@ -68,6 +68,20 @@ class _InstallationEntryFormWidgetState
           final isSubmitted = status == 1;
           final isCreated = newform.name != null && newform.name!.isNotEmpty;
           final boxCount = newform.noOfBoxes ?? 0;
+
+          // Opening existing Installation card: content-area spinner only.
+          final isInitialCardFetch = formState.isLoading &&
+              !formState.isModified &&
+              !formState.isUpdated &&
+              formState.view != InstallationView.create &&
+              isCreated;
+          if (isInitialCardFetch) {
+            return const Scaffold(
+              backgroundColor: Colors.white,
+              body: Center(child: CircularProgressIndicator()),
+            );
+          }
+
           if (formState.lines.isEmpty && printed && boxCount > 0) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               cubit.ensureLinePlaceholders(boxCount);
@@ -358,8 +372,9 @@ class _InstallationEntryFormWidgetState
   ) async {
     final picked = await _picker.pickImage(
       source: ImageSource.camera,
-      maxWidth: 1280,
-      imageQuality: 70,
+      maxWidth: 720,
+      maxHeight: 720,
+      imageQuality: 45,
     );
     if (picked != null) {
       await cubit.onBoxPhotoCaptured(index, File(picked.path));

@@ -382,6 +382,8 @@ class _NewLogisticRequestState extends State<NewLogisticRequest> {
             child: BlocListener<CreateLogisticCubit, CreateLogisticState>(
               listener: (_, state) async {
                 if (state.isSuccess && state.successMsg!.isNotNull) {
+                  final isSubmitSuccess =
+                      state.form.name == 'Pending From Transporter';
                   AppDialog.showSuccessDialog(
                     context,
                     title: 'Success',
@@ -390,6 +392,11 @@ class _NewLogisticRequestState extends State<NewLogisticRequest> {
                   ).then((_) {
                     if (!context.mounted) return;
                     context.cubit<CreateLogisticCubit>().errorHandled();
+
+                    if (!isSubmitSuccess) {
+                      shouldAskForConfirmation.value = false;
+                    }
+
                     Navigator.pop(context, true);
                     setState(() {});
                   });

@@ -61,8 +61,9 @@ class _ImageCaptureTableState extends State<ImageCaptureTable> {
   ) async {
     final picked = await _picker.pickImage(
       source: ImageSource.camera,
-      maxWidth: 1280,
-      imageQuality: 70,
+      maxWidth: 720,
+      maxHeight: 720,
+      imageQuality: 45,
     );
     if (picked != null) {
       await cubit.onBoxPhotoCaptured(globalIndex, File(picked.path));

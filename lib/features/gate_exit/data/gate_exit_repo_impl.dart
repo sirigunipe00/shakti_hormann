@@ -228,8 +228,9 @@ final plantName = user().plantName;
     final config = RequestConfig(
       url: Urls.createGateExit,
       parser: (json) {
-        final data = json['message']['data']['name'] as String;
-        return Pair(data, '');
+        final data = json['message']['message'] as String;
+        final name = json['message']['data']['name'] as String;
+        return Pair(name, data);
       },
      
 

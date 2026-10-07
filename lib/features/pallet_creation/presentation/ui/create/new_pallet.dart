@@ -30,32 +30,41 @@ class _NewPalletState extends State<NewPallet> {
 
     return Scaffold(
       backgroundColor: AppColors.white,
-      appBar:
-          status == null
-              ? SimpleAppBar(
-                title: 'New Pallet Creation',
-                actionButton: BlocBuilder<CreatePalletCubit, CreatePalletState>(
-                  builder: (context, state) {
-                    return AppButton(
-                      borderColor: Colors.grey,
-                      bgColor:
-                          state.view == PalletView.create
-                              ? const Color.fromARGB(255, 250, 193, 47)
-                              : AppColors.green,
-                      textStyle: const TextStyle(
-                        color: AppColors.darkBlue,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 15,
-                      ),
-                      isLoading: state.isLoading,
-                      label: state.view.toName(),
-                      onPressed: () {
-                        context.cubit<CreatePalletCubit>().save();
-                      },
-                    );
-                  },
+     appBar:
+    status == null
+        ? SimpleAppBar(
+          title: 'New Pallet Creation',
+          actionButton: BlocBuilder<CreatePalletCubit, CreatePalletState>(
+            builder: (context, state) {
+              final canSubmit =
+                  (state.form.salesOrder?.isNotEmpty ?? false) &&
+                  state.lines.isNotEmpty;
+
+              return AppButton(
+                borderColor: Colors.grey,
+                bgColor:
+                    !canSubmit
+                        ? Colors.grey.shade300
+                        : (state.view == PalletView.create
+                            ? const Color.fromARGB(255, 250, 193, 47)
+                            : AppColors.green),
+                textStyle: TextStyle(
+                  color: canSubmit ? AppColors.darkBlue : Colors.grey.shade600,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 15,
                 ),
-              )
+                isLoading: state.isLoading,
+                label: state.view.toName(),
+                onPressed:
+                    canSubmit
+                        ? () {
+                          context.cubit<CreatePalletCubit>().save();
+                        }
+                        : null,
+              );
+            },
+          ),
+        )
               : TitleStatusAppBar(
                     title: '  $name',
                     status: StringUtils.docStatus(status),

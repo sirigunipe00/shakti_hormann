@@ -285,6 +285,13 @@ class _NewPodState extends State<NewPod> with WidgetsBindingObserver {
             message: 'Saving document...',
             statusLabel: 'Processing...',
             child: BlocListener<CreatePodCubit, CreatePodState>(
+              listenWhen: (previous, current) {
+                final becameSuccess =
+                    !previous.isSuccess && current.isSuccess;
+                final becameError =
+                    current.error != null && previous.error != current.error;
+                return becameSuccess || becameError;
+              },
               listener: (_, state) async {
                 if (state.isSuccess && state.successMsg!.isNotNull) {
                   AppDialog.showSuccessDialog(
@@ -295,6 +302,7 @@ class _NewPodState extends State<NewPod> with WidgetsBindingObserver {
                   ).then((_) {
                     if (!context.mounted) return;
                     context.cubit<CreatePodCubit>().errorHandled();
+                    shouldAskForConfirmation.value = false;
 
                     final podFilters = context.read<PodFiltersCubit>().state;
                     context.cubit<ProofOfDeliveryCubit>().fetchInitial(

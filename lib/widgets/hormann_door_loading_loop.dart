@@ -55,13 +55,17 @@ class _HormannDoorLoadingLoopState extends State<HormannDoorLoadingLoop>
     _controller = AnimationController(
       vsync: this,
       duration: widget.loopDuration,
-    )..repeat();
+    );
     _controller.addListener(_onTick);
 
     if (widget.holdCompleteAssembly) {
+      // Static assembled door + light progress — avoids rebuilding the door
+      // scene every frame while image upload/compress runs on the same device.
       _progressVisible = true;
+      _controller.value = _completeAssemblyT;
+      _controller.repeat();
     } else {
-      // Progress bar fades in once near start (not tied to the loop reset).
+      _controller.repeat();
       Future<void>.delayed(const Duration(milliseconds: 180), () {
         if (mounted) setState(() => _progressVisible = true);
       });
@@ -93,12 +97,45 @@ class _HormannDoorLoadingLoopState extends State<HormannDoorLoadingLoop>
     final sceneH = _sceneH * scale;
     final progressW = 210 * scale;
 
+    // Form overlays: paint the door once; only the thin progress bar ticks.
+    if (widget.holdCompleteAssembly) {
+      final content = Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(
+            width: sceneW,
+            height: sceneH,
+            child: _DoorScene(t: _completeAssemblyT, scale: scale),
+          ),
+          SizedBox(height: 36 * scale),
+          AnimatedBuilder(
+            animation: _controller,
+            builder: (context, _) {
+              return AnimatedOpacity(
+                opacity: _progressVisible ? 1 : 0,
+                duration: const Duration(milliseconds: 250),
+                child: _ProgressBar(
+                  t: _controller.value,
+                  width: progressW,
+                  fixedStatusLabel: widget.fixedStatusLabel,
+                ),
+              );
+            },
+          ),
+        ],
+      );
+
+      if (!widget.expand) return content;
+      return ColoredBox(
+        color: Colors.white,
+        child: Center(child: content),
+      );
+    }
+
     final content = AnimatedBuilder(
       animation: _controller,
       builder: (context, _) {
         final t = _controller.value;
-        final sceneT =
-            widget.holdCompleteAssembly ? _completeAssemblyT : t;
 
         return Column(
           mainAxisSize: MainAxisSize.min,
@@ -106,7 +143,7 @@ class _HormannDoorLoadingLoopState extends State<HormannDoorLoadingLoop>
             SizedBox(
               width: sceneW,
               height: sceneH,
-              child: _DoorScene(t: sceneT, scale: scale),
+              child: _DoorScene(t: t, scale: scale),
             ),
             SizedBox(height: 36 * scale),
             AnimatedOpacity(

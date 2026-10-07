@@ -1,13 +1,13 @@
 import 'dart:developer';
-
+import 'dart:io';
 import 'package:shakti_hormann/core/core.dart';
 import 'package:dartz/dartz.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:shakti_hormann/features/loading_confirmation/data/loading_cnfm_repo.dart';
+import 'package:shakti_hormann/features/loading_confirmation/model/dispatch_loading.dart';
 import 'package:shakti_hormann/features/loading_confirmation/model/item_model.dart';
 import 'package:shakti_hormann/features/loading_confirmation/model/loading_cnfm.dart';
-
 
 part 'create_loading_cnfm_cubit.freezed.dart';
 
@@ -38,10 +38,11 @@ class CreateLoadingCnfmCubit extends AppBaseCubit<CreateLaodingCnfmState> {
     String? name,
     String? uomValue,
     int? quantityLoaded,
+    File? loadedVehiclePhoto,
   }) {
     shouldAskForConfirmation.value = true;
     final form = state.items;
-
+    final newform = state.form;
     final newForm = form.copyWith(
       name: name ?? form.name,
       itemCode: itemCode ?? form.itemCode,
@@ -49,13 +50,17 @@ class CreateLoadingCnfmCubit extends AppBaseCubit<CreateLaodingCnfmState> {
       uomValue: salesUom ?? form.uomValue,
       qty: quantityLoaded ?? form.qty,
     );
-    emitSafeState(state.copyWith(items: newForm));
+    final vehicleImageForm = newform.copyWith(
+      loadedVehiclePhotoImg:
+          loadedVehiclePhoto ?? newform.loadedVehiclePhotoImg,
+    );
+
+    emitSafeState(state.copyWith(items: newForm, form: vehicleImageForm));
   }
 
   void initDetails(Object? entry) {
     shouldAskForConfirmation.value = false;
     if (entry is LoadingCnfmForm) {
-    
       final form = state.form;
       final updatedForm = form.copyWith(
         docstatus: entry.docstatus,
@@ -75,6 +80,7 @@ class CreateLoadingCnfmCubit extends AppBaseCubit<CreateLaodingCnfmState> {
         linkedTransporterConfirmation: entry.linkedTransporterConfirmation,
         transporterName: entry.transporterName,
         transporterName2: entry.transporterName2,
+        loadedVehiclePhoto: entry.loadedVehiclePhoto,
       );
       final mode = LoadingView.completed;
       emitSafeState(state.copyWith(form: updatedForm, view: mode));
@@ -110,45 +116,43 @@ class CreateLoadingCnfmCubit extends AppBaseCubit<CreateLaodingCnfmState> {
       ),
     );
   }
-  void addInitialItem(ItemModel newItem) {
 
+  void addInitialItem(ItemModel newItem) {
     final updatedItems = [...state.listitems, newItem];
 
     final stat = state.copyWith(listitems: updatedItems);
 
     emitSafeState(stat);
   }
-void updateItem(int index, ItemModel updatedItem) {
 
-  final currentItems = List<ItemModel>.from(state.listitems);
-  final oldItem = currentItems[index];
+  void updateItem(int index, ItemModel updatedItem) {
+    final currentItems = List<ItemModel>.from(state.listitems);
+    final oldItem = currentItems[index];
 
-  final mergedItem = updatedItem.copyWith(
-  loadedItemPhoto: updatedItem.loadedItemPhoto?.isNotEmpty == true
-      ? updatedItem.loadedItemPhoto
-      : oldItem.loadedItemPhoto,
-  imageFile: updatedItem.imageFile ?? oldItem.imageFile,
-);
+    final mergedItem = updatedItem.copyWith(
+      loadedItemPhoto:
+          updatedItem.loadedItemPhoto?.isNotEmpty == true
+              ? updatedItem.loadedItemPhoto
+              : oldItem.loadedItemPhoto,
+      imageFile: updatedItem.imageFile ?? oldItem.imageFile,
+    );
 
+    currentItems[index] = mergedItem;
 
-  currentItems[index] = mergedItem;
+    emitSafeState(
+      state.copyWith(listitems: currentItems, view: LoadingView.edit),
+    );
+  }
 
-  emitSafeState(state.copyWith(
-    listitems: currentItems,
-    view: LoadingView.edit,
-  ));
-}
-
-
+  void updateScannedRows(List<LoadedRow> rows) {
+    emitSafeState(state.copyWith(scannedRows: rows));
+  }
 
   void save() async {
     log('state.listitems--:${state.listitems}');
     final validation = _validate();
     return validation.fold(() async {
       emitSafeState(state.copyWith(isLoading: true, isSuccess: false));
-
-
-
 
       if (state.view == LoadingView.create) {
         final response = await repo.createLoadingCnfm(
@@ -172,39 +176,38 @@ void updateItem(int index, ItemModel updatedItem) {
             );
           },
         );
-      }
-        else if (state.view == LoadingView.edit) {
-
-
-      
-      final response = await repo.updateLoadingCnfm(
-        state.listitems,
-        state.form.name ?? '',
-      );
-
-      return response.fold(
-        (l) => emitSafeState(state.copyWith(isLoading: false, error: l)),
-        (r) {
-          shouldAskForConfirmation.value = false;
-          emitSafeState(
-            state.copyWith(
-              isLoading: false,
-              isSuccess: true,
-              successMsg: r.first,
-              view: LoadingView.edit,
-            ),
-          );
-        },
-      );
-    }
-      else  if (state.view == LoadingView.completed || state.view == LoadingView.sumitted){
-        final response = await repo.submitLoading(state.form.name ?? '');
-        
+      } else if (state.view == LoadingView.edit) {
+        final response = await repo.updateLoadingCnfm(
+          state.listitems,
+          state.form.name ?? '',
+        );
 
         return response.fold(
           (l) => emitSafeState(state.copyWith(isLoading: false, error: l)),
           (r) {
-            final docstatus = r.second ;
+            shouldAskForConfirmation.value = false;
+            emitSafeState(
+              state.copyWith(
+                isLoading: false,
+                isSuccess: true,
+                successMsg: r.first,
+                view: LoadingView.edit,
+              ),
+            );
+          },
+        );
+      } else if (state.view == LoadingView.completed ||
+          state.view == LoadingView.sumitted) {
+        final response = await repo.submitLoading(
+          state.form.name ?? '',
+          vehiclePhotoImg: state.form.loadedVehiclePhotoImg,
+        );
+        // final response = await repo.submitLoading(state.form.name ?? '',);
+
+        return response.fold(
+          (l) => emitSafeState(state.copyWith(isLoading: false, error: l)),
+          (r) {
+            final docstatus = r.second;
             shouldAskForConfirmation.value = false;
             emitSafeState(
               state.copyWith(
@@ -241,29 +244,47 @@ void updateItem(int index, ItemModel updatedItem) {
     );
   }
 
-Option<Pair<String, int?>> _validate() {
-  if (state.view == LoadingView.completed ||
-      state.view == LoadingView.sumitted) {
-    return none();
-  }
+  Option<Pair<String, int?>> _validate() {
+    if (state.view == LoadingView.completed ||
+        state.view == LoadingView.sumitted) {
+      for (final row in state.scannedRows) {
+        if (!row.isDispatched &&
+            (row.loadedItemPhoto == null ||
+                row.loadedItemPhoto!.trim().isEmpty)) {
+          final qr = row.scanQr?.trim();
 
-  final items = state.listitems;
+          return optionOf(
+            Pair(
+              qr != null && qr.isNotEmpty
+                  ? 'Scanned item $qr does not have a photo. Please capture the image.'
+                  : 'A scanned item does not have a photo. Please capture the image.',
+              0,
+            ),
+          );
+        }
+      }
+      if (state.form.loadedVehiclePhotoImg.isNull &&
+          state.form.loadedVehiclePhoto.doesNotHaveValue) {
+        return optionOf(const Pair('Missing Loaded Vehicle Photo', 0));
+      }
 
-  if (items.isEmpty) {
-    return optionOf(const Pair('At least one item is required to submit', 0));
-  }
-
-
-  for (var item in items) {
-    if (item.itemCode == null || item.itemCode!.trim().isEmpty) {
-      return optionOf(const Pair('Item Code is required', 0));
+      return none();
     }
 
+    final items = state.listitems;
+
+    if (items.isEmpty) {
+      return optionOf(const Pair('At least one item is required to submit', 0));
+    }
+
+    for (var item in items) {
+      if (item.itemCode == null || item.itemCode!.trim().isEmpty) {
+        return optionOf(const Pair('Item Code is required', 0));
+      }
+    }
+
+    return none();
   }
-
-  return none();
-}
-
 }
 
 @freezed
@@ -275,6 +296,7 @@ class CreateLaodingCnfmState with _$CreateLaodingCnfmState {
     required bool isLoading,
     required bool isSuccess,
     required LoadingView view,
+    @Default(<LoadedRow>[]) List<LoadedRow> scannedRows,
     String? successMsg,
     Failure? error,
   }) = _CreateLaodingCnfmState;
@@ -288,6 +310,7 @@ class CreateLaodingCnfmState with _$CreateLaodingCnfmState {
       form: LoadingCnfmForm(creation: creationDate),
       view: LoadingView.create,
       isLoading: false,
+      scannedRows: <LoadedRow>[],
       isSuccess: false,
     );
   }

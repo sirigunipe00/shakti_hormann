@@ -15,6 +15,8 @@ abstract class Dropdownoptions {
     'Purchase Return Invoice',
     'Returnable Gate Pass',
     'Swiggy',
+    'QAR',
+    'Porter',
     'Others (Remarks)'
    
   ];

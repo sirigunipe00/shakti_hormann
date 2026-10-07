@@ -80,6 +80,8 @@ Object? _extractRequestTypes(Map json, String key) {
     'jai_adithya_fabrication_and_jobworks': 'Jai Adithya Fabrication&Jobworks',
     'non_returnable_gate_pass': 'Non- Returnable Gate Pass',
     'returnable_gate_pass': 'Returnable Gate Pass',
+    'porter': 'Porter',
+    'qar': 'QAR',
     'others_remarks': 'Others (Remarks)',
   };
 

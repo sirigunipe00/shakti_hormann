@@ -123,7 +123,7 @@ class FrameWidget extends StatelessWidget {
                         children: [
                           Expanded(
                             child: Text(
-                              'Sales Order: ${frame.salesOrder ?? ''}',
+                              'SO No: ${frame.salesOrder ?? ''}',
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(

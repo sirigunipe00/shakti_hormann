@@ -21,7 +21,7 @@ class PalletRepoImpl extends BaseApiRepository implements PalletRepo {
     final filters = <List<dynamic>>[];
     final orFilters = <List<dynamic>>[];
 
-    if (docStatus != null && docStatus != 2) {
+    if (docStatus != null) {
       filters.add(['docstatus', '=', docStatus]);
     }
 

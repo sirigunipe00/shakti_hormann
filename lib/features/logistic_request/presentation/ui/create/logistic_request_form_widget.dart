@@ -51,7 +51,7 @@ class __LogisticPlanningFormWidgetState
 
     final salesOrders = newform.salesOrder ?? [];
 
-    $logger.devLog('oredrform.....$salesOrders');
+    $logger.devLog('oredrform.....$newform');
 
     return MultiBlocListener(
       listeners: [

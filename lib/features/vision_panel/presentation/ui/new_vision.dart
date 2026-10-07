@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/features/vision_panel/presentation/bloc/bloc_provider.dart';
@@ -9,7 +8,6 @@ import 'package:shakti_hormann/features/vision_panel/presentation/ui/vision_pane
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/widgets/buttons/app_btn.dart';
 import 'package:shakti_hormann/widgets/dailogs/app_dialogs.dart';
-import 'package:shakti_hormann/widgets/form_page_loading_stack.dart';
 import 'package:shakti_hormann/widgets/simple_app_bar.dart';
 import 'package:shakti_hormann/widgets/title_status_app_bar.dart';
 
@@ -21,31 +19,6 @@ class NewVision extends StatefulWidget {
 }
 
 class _NewVisionState extends State<NewVision> {
-  /// True only for user-triggered Save / Submit (not open-existing fetch).
-  bool _actionBusy = false;
-
-  String _loadingMessage(CreateVisionPanelState state) {
-    if (state.isUpdated) return 'Submitting document...';
-    if (state.isModified &&
-        state.form.name != null &&
-        state.form.name!.isNotEmpty) {
-      return 'Uploading box images...';
-    }
-    return 'Saving document...';
-  }
-
-  void _startAction(VoidCallback action) {
-    setState(() => _actionBusy = true);
-    action();
-    SchedulerBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      final loading = context.read<CreateVisionPanelCubit>().state.isLoading;
-      if (!loading && _actionBusy) {
-        setState(() => _actionBusy = false);
-      }
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<CreateVisionPanelCubit, CreateVisionPanelState>(
@@ -53,14 +26,6 @@ class _NewVisionState extends State<NewVision> {
         final form = visionState.form;
         final status = form.docStatus;
         final docName = form.name;
-
-        if (!visionState.isLoading && _actionBusy) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted && _actionBusy) {
-              setState(() => _actionBusy = false);
-            }
-          });
-        }
 
         return Scaffold(
           backgroundColor: AppColors.white,
@@ -97,12 +62,9 @@ class _NewVisionState extends State<NewVision> {
                           label: 'Save',
                           onPressed:
                               canSave
-                                  ? () => _startAction(
-                                    () =>
-                                        context
-                                            .cubit<CreateVisionPanelCubit>()
-                                            .createEntry(),
-                                  )
+                                  ? () => context
+                                      .cubit<CreateVisionPanelCubit>()
+                                      .createEntry()
                                   : null,
                         );
                       },
@@ -146,87 +108,113 @@ class _NewVisionState extends State<NewVision> {
                                       label: 'Submit',
                                       onPressed:
                                           canSubmit
-                                              ? () => _startAction(
-                                                () =>
-                                                    context
-                                                        .cubit<
-                                                          CreateVisionPanelCubit
-                                                        >()
-                                                        .submit(),
-                                              )
+                                              ? () => context
+                                                  .cubit<CreateVisionPanelCubit>()
+                                                  .submit()
                                               : null,
                                     );
                                   },
                                 ),
                       )
                       as PreferredSizeWidget,
-          body: BlocBuilder<CreateVisionPanelCubit, CreateVisionPanelState>(
-            builder: (context, overlayState) {
-              final isImageUploading =
-                  overlayState.isLoading &&
-                  overlayState.isModified &&
-                  !overlayState.isUpdated;
+          body: Stack(
+            fit: StackFit.expand,
+            children: [
+              BlocListener<CreateVisionPanelCubit, CreateVisionPanelState>(
+                listener: (_, state) async {
+                  if (state.isSuccess && state.successMsg.isNotNull) {
+                    if (!context.mounted) return;
+                    await AppDialog.showSuccessDialog(
+                      context,
+                      title: 'Success',
+                      content: state.successMsg.valueOrEmpty,
+                      onTapDismiss: () {
+                        Navigator.of(context, rootNavigator: true).pop();
+                      },
+                    );
 
-              final showFormOverlay =
-                  overlayState.isLoading &&
-                  (_actionBusy || isImageUploading);
+                    if (!context.mounted) return;
+                    context.cubit<CreateVisionPanelCubit>().errorHandled();
 
-              return FormPageLoadingStack(
-                isLoading: showFormOverlay,
-                message: _loadingMessage(overlayState),
-                statusLabel: 'Processing...',
-                child: BlocListener<
-                  CreateVisionPanelCubit,
-                  CreateVisionPanelState
-                >(
-                  listener: (_, state) async {
-                    if (state.isSuccess && state.successMsg.isNotNull) {
-                      if (!context.mounted) return;
-                      await AppDialog.showSuccessDialog(
-                        context,
-                        title: 'Success',
-                        content: state.successMsg.valueOrEmpty,
-                        onTapDismiss: () {
-                          Navigator.of(context, rootNavigator: true).pop();
-                        },
+                    if (state.form.docStatus == 1) {
+                      shouldAskForConfirmation.value = false;
+                      final filters =
+                          context.read<VisionPanelFilterCubit>().state;
+                      context.cubit<VisionPanelCubit>().fetchInitial(
+                        Pair(
+                          StringUtils.docStatusInt(filters.status),
+                          filters.query,
+                        ),
                       );
-
-                      if (!context.mounted) return;
-                      context.cubit<CreateVisionPanelCubit>().errorHandled();
-
-                      if (state.form.docStatus == 1) {
-                        shouldAskForConfirmation.value = false;
-                        final filters =
-                            context.read<VisionPanelFilterCubit>().state;
-                        context.cubit<VisionPanelCubit>().fetchInitial(
-                          Pair(
-                            StringUtils.docStatusInt(filters.status),
-                            filters.query,
-                          ),
-                        );
-                        Navigator.pop(context, true);
-                      }
+                      Navigator.pop(context, true);
                     }
+                  }
 
-                    if (state.error.isNotNull) {
-                      if (!context.mounted) return;
-                      await AppDialog.showErrorDialog(
-                        context,
-                        title: state.error?.title,
-                        content: state.error!.error,
-                        onTapDismiss: () {
-                          Navigator.of(context, rootNavigator: true).pop();
-                        },
-                      );
+                  if (state.error.isNotNull) {
+                    if (!context.mounted) return;
+                    await AppDialog.showErrorDialog(
+                      context,
+                      title: state.error?.title,
+                      content: state.error!.error,
+                      onTapDismiss: () {
+                        Navigator.of(context, rootNavigator: true).pop();
+                      },
+                    );
 
-                      if (!context.mounted) return;
-                      context.cubit<CreateVisionPanelCubit>().errorHandled();
-                    }
-                  },
-                  child: const VisionPanelFormWidget(),
-                ),
-              );
-            },
+                    if (!context.mounted) return;
+                    context.cubit<CreateVisionPanelCubit>().errorHandled();
+                  }
+                },
+                child: const VisionPanelFormWidget(),
+              ),
+              // Lightweight overlay for image upload + submit (Installation style).
+              BlocBuilder<CreateVisionPanelCubit, CreateVisionPanelState>(
+                buildWhen: (p, c) =>
+                    p.isLoading != c.isLoading ||
+                    p.isUpdated != c.isUpdated ||
+                    p.isModified != c.isModified,
+                builder: (context, state) {
+                  if (!state.isLoading) return const SizedBox.shrink();
+
+                  final hasDoc =
+                      state.form.name != null && state.form.name!.isNotEmpty;
+                  final isImageUploading =
+                      hasDoc && state.isModified && !state.isUpdated;
+                  final isSubmitting = state.isUpdated;
+
+                  if (!isImageUploading && !isSubmitting) {
+                    return const SizedBox.shrink();
+                  }
+
+                  final label = isImageUploading
+                      ? 'Uploading box images...'
+                      : 'Submitting document...';
+
+                  return AbsorbPointer(
+                    child: ColoredBox(
+                      color: Colors.black.withValues(alpha: 0.25),
+                      child: Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const CircularProgressIndicator(),
+                            const SizedBox(height: 16),
+                            Text(
+                              label,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ],
           ),
         );
       },

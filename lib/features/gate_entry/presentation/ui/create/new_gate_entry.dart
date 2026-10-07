@@ -308,6 +308,8 @@ class _NewGateEntryState extends State<NewGateEntry> {
             child: BlocListener<CreateGateEntryCubit, CreateGateEntryState>(
               listener: (_, state) async {
                 if (state.isSuccess && state.successMsg!.isNotNull) {
+                  final isSubmitSuccess =
+                      state.view == GateEntryView.completed;
                   AppDialog.showSuccessDialog(
                     context,
                     title: 'Success',
@@ -316,6 +318,9 @@ class _NewGateEntryState extends State<NewGateEntry> {
                   ).then((_) {
                     if (!context.mounted) return;
                     context.cubit<CreateGateEntryCubit>().errorHandled();
+                    if (!isSubmitSuccess) {
+                      shouldAskForConfirmation.value = false;
+                    }
 
                     final gateEntryFilters =
                         context.read<GateEntryFilterCubit>().state;

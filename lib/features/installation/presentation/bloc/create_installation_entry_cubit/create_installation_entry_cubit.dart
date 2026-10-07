@@ -366,10 +366,19 @@ Future<void> printSticker() async {
 Future<void> _autoUpdateInstallation() async {
   final name = state.form.name;
   if (name.isNull) return;
+  // Prevent duplicate update while one is already running.
+  if (state.isLoading) return;
 
+  final sw = Stopwatch()..start();
+  $logger.info('[InstallationUpdate] Start submit');
+
+  // Show overlay before any heavy image work.
   emitSafeState(state.copyWith(isLoading: true, isSuccess: false));
+  $logger.info(
+    '[InstallationUpdate] Overlay shown: ${sw.elapsedMilliseconds} ms',
+  );
 
-  final images = <Map<String, String>>[];
+  final linesToUpload = <({int index, InstallationLineItems line, File file})>[];
   for (int i = 0; i < state.lines.length; i++) {
     final line = state.lines[i];
     final file = line.installtionPhotoImg;
@@ -379,44 +388,81 @@ Future<void> _autoUpdateInstallation() async {
       $logger.error('Box photo missing before compression: ${file.path}');
       continue;
     }
-
-    final compressedBytes = await FlutterImageCompress.compressWithFile(
-      file.path,
-      quality: 50,
-      minWidth: 1280,
-      minHeight: 1280,
-    );
-
-    final String base64Image;
-    if (compressedBytes != null) {
-      base64Image = 'data:image/png;base64,${base64Encode(compressedBytes)}';
-    } else {
-      final bytes = await file.readAsBytes();
-      base64Image = 'data:image/png;base64,${base64Encode(bytes)}';
-    }
-
-    final boxNo = line.boxNo ?? 'B-${(i + 1).toString().padLeft(2, '0')}';
-    images.add({'box_no': boxNo, 'image': base64Image});
+    linesToUpload.add((index: i, line: line, file: file));
   }
 
+  if (linesToUpload.isEmpty) {
+    emitSafeState(state.copyWith(isLoading: false));
+    $logger.info(
+      '[InstallationUpdate] No local photos to upload: ${sw.elapsedMilliseconds} ms',
+    );
+    return;
+  }
+
+  // Aggressive JPEG resize — logs showed HTTP (not prep) took ~89s for ~197KB.
+  // Smaller payload = faster mobile upload + less server image processing.
+  final images = await Future.wait(
+    linesToUpload.map((entry) async {
+      final bytes = await FlutterImageCompress.compressWithFile(
+        entry.file.path,
+        quality: 35,
+        minWidth: 720,
+        minHeight: 720,
+        format: CompressFormat.jpeg,
+      );
+      final payload = bytes ?? await entry.file.readAsBytes();
+      final boxNo =
+          entry.line.boxNo ??
+          'B-${(entry.index + 1).toString().padLeft(2, '0')}';
+      return <String, String>{
+        'box_no': boxNo,
+        'image': 'data:image/jpeg;base64,${base64Encode(payload)}',
+      };
+    }),
+  );
+  final approxBytes = images.fold<int>(
+    0,
+    (sum, m) => sum + (m['image']?.length ?? 0),
+  );
+  $logger.info(
+    '[InstallationUpdate] Payload prepared (${images.length} images, '
+    '~$approxBytes chars): ${sw.elapsedMilliseconds} ms',
+  );
+
+  $logger.info('[InstallationUpdate] API request started');
+  final apiSw = Stopwatch()..start();
   final response = await repo.updateInstallation(name!, images: images);
+  $logger.info(
+    '[InstallationUpdate] API response received: ${apiSw.elapsedMilliseconds} ms (total ${sw.elapsedMilliseconds} ms)',
+  );
 
   response.fold(
-    (l) => emitSafeState(state.copyWith(isLoading: false, error: l)),
-    (msg) => emitSafeState(
-      state.copyWith(
-        isLoading: false,
-        isSuccess: true,
-        isUpdated: true,
-        successMsg: '${msg.first}\n${msg.second}',
-      ),
-    ),
+    (l) {
+      emitSafeState(state.copyWith(isLoading: false, error: l));
+      $logger.info(
+        '[InstallationUpdate] UI/state update completed (error): ${sw.elapsedMilliseconds} ms',
+      );
+    },
+    (msg) {
+      emitSafeState(
+        state.copyWith(
+          isLoading: false,
+          isSuccess: true,
+          isUpdated: true,
+          successMsg: '${msg.first}\n${msg.second}',
+        ),
+      );
+      $logger.info(
+        '[InstallationUpdate] UI/state update completed (success): ${sw.elapsedMilliseconds} ms',
+      );
+    },
   );
 }
 
   Future<void> submit() async {
     final name = state.form.name;
     if (name.isNull) return;
+    if (state.isLoading) return;
     if (!state.isUpdated) {
       return _emitError(
         const Pair('Capture and upload all box photos first', 0),

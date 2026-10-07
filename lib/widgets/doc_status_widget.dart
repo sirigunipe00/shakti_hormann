@@ -39,6 +39,7 @@ class DocStatusWidget extends StatelessWidget {
     'Rejected' => const Color(0xFFC16D67),
     'Completed' => const Color(0xFFEAFFF6),
     'Reported' => const Color(0xFFEAFFF6),
+    'Cancelled' => const Color(0xFFC16D67),
     String() => const Color.fromARGB(255, 254, 254, 254),
   };
 
@@ -48,7 +49,7 @@ class DocStatusWidget extends StatelessWidget {
     'Draft' => const Color(0xFF0087FF),
     'Rejected' => const Color(0xFFFFE2DA),
     'Reported' => const Color(0xFF0087FF),
-
+    'Cancelled' => const Color(0xFFFFE2DA),
     String() => AppColors.black,
   }; 
 }

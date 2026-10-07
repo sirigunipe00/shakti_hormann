@@ -139,8 +139,9 @@ class PodRepoImpl extends BaseApiRepository implements ProofOfDeliveryRepo {
     final config = RequestConfig(
       url: Urls.createproofOfDelivery,
       parser: (json) {
+        final msg = json['message']['message'] as String;
         final data = json['message']['data']['name'] as String;
-        return Pair(data, '');
+        return Pair(msg, data);
       },
 
       body: jsonEncode(requestBody),

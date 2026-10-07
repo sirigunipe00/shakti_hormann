@@ -501,9 +501,11 @@ class CreateShutterCubit extends AppBaseCubit<CreateShutterState> {
   }
 
   void save() async {
+    if (state.isSubmitting) return;
     final validation = _validate();
     final hasNewItems = state.newLines.isNotEmpty;
     return validation.fold(() async {
+      if (state.isSubmitting) return;
       emitSafeState(state.copyWith(isSubmitting: true, isSuccess: false));
 
       final form = state.form;

@@ -26,7 +26,7 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
   ) async {
     final filters = <List<dynamic>>[];
 
-    if (docStatus != null && docStatus != 2) {
+    if (docStatus != null) {
       filters.add(['docstatus', '=', docStatus]);
     }
 
@@ -408,8 +408,9 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
     final config = RequestConfig(
       url: Urls.createGateEntry,
       parser: (json) {
+        final msg = json['message']['message'] as String;
         final data = json['message']['data']['name'] as String;
-        return Pair(data, '');
+        return Pair(msg, data);
       },
 
       body: jsonEncode(requestBody),

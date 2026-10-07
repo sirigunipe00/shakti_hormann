@@ -155,8 +155,8 @@ class CreateGateManagementCubit extends AppBaseCubit<CreateGateManagementState> 
  void addInvoicePhoto(File file) {
   final form = state.form;
 
-  final List<File> updatedFiles = List<File>.from(form.documentPhotoImg ?? [])
-  ..add(file);
+  final List<File> updatedFiles = List<File>.from(form.documentPhotoImg ?? []);
+  updatedFiles.add(file);
 
   emitSafeState(
     state.copyWith(
@@ -231,7 +231,7 @@ class CreateGateManagementCubit extends AppBaseCubit<CreateGateManagementState> 
                 isLoading: false,
                 isSuccess: true,
                 form: state.form.copyWith(status: status,name: docstatus),
-                successMsg: r.first,
+                successMsg: '${r.first} ${r.second}',
                 view: nextMode,
               ),
             );
@@ -284,10 +284,9 @@ class CreateGateManagementCubit extends AppBaseCubit<CreateGateManagementState> 
   final form = state.form;
   final currentView = state.view;
 
-
-
-    final selectedTypes =
-      form.requestType!
+  // Request type is optional — only used to detect Amazon/Swiggy special flow.
+  final selectedTypes =
+      (form.requestType ?? const <String>[])
           .map((e) => e.trim().toLowerCase())
           .toList();
 
@@ -303,7 +302,7 @@ class CreateGateManagementCubit extends AppBaseCubit<CreateGateManagementState> 
     return optionOf(const Pair('Missing Document Photo', 0));
   }
     final isSubmissionAttempt = currentView == GateManagementView.completed;
-
+    // || currentView == GateManagementView.submitted;
 
 
   if ( isSubmissionAttempt && !isSpecialType) {

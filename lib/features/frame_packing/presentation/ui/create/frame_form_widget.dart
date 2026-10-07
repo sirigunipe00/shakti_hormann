@@ -713,14 +713,8 @@ class __FrameFormWidgetState extends State<FrameFormWidget> {
 
     if (!context.mounted) return;
 
-    if (!success) {
-      final error =
-          cubit.state.error?.error ?? 'Could not print QR. Please try again.';
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(error), backgroundColor: Colors.red),
-      );
-      return;
-    }
+    // Error is already shown via the page BlocListener dialog — no snackbar.
+    if (!success) return;
 
     final message =
         cubit.state.printSuccessMsg ?? 'Print request sent successfully.';

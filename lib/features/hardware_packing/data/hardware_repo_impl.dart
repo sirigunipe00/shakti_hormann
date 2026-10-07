@@ -29,6 +29,8 @@ class HardWareRepoImp extends BaseApiRepository implements HardWareRepo {
         filters.add(['docstatus', '=', 0]);
       case 'submitted':
         filters.add(['docstatus', '=', 1]);
+      case 'cancelled':
+        filters.add(['docstatus', '=', 2]);
       case 'unallocated':
         filters.add(['allocation_status', '=', 'Unallocated']);
       case 'allocated':

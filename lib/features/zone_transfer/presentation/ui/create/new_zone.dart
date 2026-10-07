@@ -87,45 +87,46 @@ class _NewZoneState extends State<NewZone> {
         builder: (context, overlayState) {
           return FormPageLoadingStack(
             isLoading: overlayState.isLoading,
-            message: 'Please wait...',
-            statusLabel: 'Processing...',
+            message: 'Saving document...',
+            statusLabel: 'Saving...',
             child: BlocListener<CreateZoneCubit, CreateZoneState>(
-        listener: (_, state) async {
-          if (state.isSuccess && state.successMsg.isNotNull) {
-            AppDialog.showSuccessDialog(
-              context,
-              title: 'Success',
-              content: state.successMsg.valueOrEmpty,
-              onTapDismiss: context.exit,
-            ).then((_) {
-              // final docName = state.form.name;
-              if (!context.mounted) return;
-              context.cubit<CreateZoneCubit>().errorHandled();
-              // context.cubit<FrameLinesCubit>().request(docName);
-              final gateEntryFilters = context.read<ZoneFilterCubit>().state;
-              context.cubit<ZoneCubit>().fetchInitial(
-                Pair(
-                  StringUtils.docStatusInt(gateEntryFilters.status),
-                  gateEntryFilters.query,
-                ),
-              );
-              Navigator.pop(context, true);
-              setState(() {});
-            });
-          }
-          if (state.error.isNotNull) {
-            await AppDialog.showErrorDialog(
-              context,
-              title: state.error?.title,
-              content: state.error!.error,
-              onTapDismiss: context.exit,
-            );
-            if (!context.mounted) return;
-            context.cubit<CreateZoneCubit>().errorHandled();
-          }
-        },
-        child: ZoneFormWidget(key: ValueKey(status)),
-      ),
+              listener: (_, state) async {
+                if (state.isSuccess && state.successMsg.isNotNull) {
+                  AppDialog.showSuccessDialog(
+                    context,
+                    title: 'Success',
+                    content: state.successMsg.valueOrEmpty,
+                    onTapDismiss: context.exit,
+                  ).then((_) {
+                    // final docName = state.form.name;
+                    if (!context.mounted) return;
+                    context.cubit<CreateZoneCubit>().errorHandled();
+                    // context.cubit<FrameLinesCubit>().request(docName);
+                    final gateEntryFilters =
+                        context.read<ZoneFilterCubit>().state;
+                    context.cubit<ZoneCubit>().fetchInitial(
+                      Pair(
+                        StringUtils.docStatusInt(gateEntryFilters.status),
+                        gateEntryFilters.query,
+                      ),
+                    );
+                    Navigator.pop(context, true);
+                    setState(() {});
+                  });
+                }
+                if (state.error.isNotNull) {
+                  await AppDialog.showErrorDialog(
+                    context,
+                    title: state.error?.title,
+                    content: state.error!.error,
+                    onTapDismiss: context.exit,
+                  );
+                  if (!context.mounted) return;
+                  context.cubit<CreateZoneCubit>().errorHandled();
+                }
+              },
+              child: ZoneFormWidget(key: ValueKey(status)),
+            ),
           );
         },
       ),

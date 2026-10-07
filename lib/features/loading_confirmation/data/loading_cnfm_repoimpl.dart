@@ -1,9 +1,11 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:dartz/dartz.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:http/http.dart' as http;
 import 'package:injectable/injectable.dart';
+import 'package:path/path.dart' as p;
 import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/features/auth/model/logged_in_user.dart';
 import 'package:shakti_hormann/features/loading_confirmation/data/loading_cnfm_repo.dart';
@@ -178,8 +180,6 @@ final result = childResponse.process((r) => right(r.data ?? []));
   ) async {
     final cleanedItems = await Future.wait(
       items.map((e) async {
-        // create_items_loaded creates NEW child rows. Do not send `name` /
-        // `item_row_name` — those are SAP SO line ids and cause ROW_NOT_FOUND.
         final map = <String, dynamic>{
           'item_code': e.itemCode,
           'item_name': e.itemName,
@@ -362,29 +362,86 @@ final result = childResponse.process((r) => right(r.data ?? []));
       });
     });
   }
+  //  @override
+  // AsyncValueOf<Pair<String, String>> submitLoading(String name) async {
+  //   return await executeSafely(() async {
+  //     final config = RequestConfig(
+  //       url: Urls.submitLoadingConfirmation,
+  //       parser: (json) {
+  //         final data = json['message']['message'] as String;
+  //         return Pair(data, '');
+  //       },
+  //       body: jsonEncode({'name': name}),
+  //       headers: {HttpHeaders.contentTypeHeader: 'application/json'},
+  //     );
 
-  @override
-  AsyncValueOf<Pair<String, String>> submitLoading(String name) async {
-    return await executeSafely(() async {
-      final config = RequestConfig(
-        url: Urls.submitLoadingConfirmation,
-        parser: (json) {
-          final data = json['message']['message'] as String;
-          return Pair(data, '');
-        },
-        body: jsonEncode({'name': name}),
-        headers: {HttpHeaders.contentTypeHeader: 'application/json'},
+  //     $logger.devLog('requestConfig.....$config');
+
+  //     final response = await post(config);
+
+  //     return response.processAsync((r) async {
+  //       return right(r.data!);
+  //     });
+  //   });
+  // }
+
+ @override
+AsyncValueOf<Pair<String, String>> submitLoading(
+  String name, {
+  File? vehiclePhotoImg,
+  String? vehiclePhoto,
+}) async {
+  return await executeSafely(() async {
+    Uint8List? vehiclePhotoCompressedBytes;
+
+    if (vehiclePhotoImg != null) {
+      vehiclePhotoCompressedBytes = await FlutterImageCompress.compressWithFile(
+        vehiclePhotoImg.path,
+        quality: 50,
       );
+    } else if (vehiclePhoto != null && vehiclePhoto.isNotEmpty) {
+      vehiclePhotoCompressedBytes = await fetchAndConvertToBase64(vehiclePhoto);
+    }
 
-      $logger.devLog('requestConfig.....$config');
+    final config = RequestConfig(
+      url: Urls.submitLoadingConfirmation,
+      parser: (json) {
+        final data = json['message']['message'] as String;
+        return Pair(data, '');
+      },
+      body: jsonEncode({
+        'name': name,
+        'vehicle_photo': vehiclePhotoCompressedBytes == null
+            ? null
+            : base64Encode(vehiclePhotoCompressedBytes),
+      }),
+      headers: {HttpHeaders.contentTypeHeader: 'application/json'},
+    );
 
-      final response = await post(config);
+    $logger.devLog('requestConfig.....$config');
 
-      return response.processAsync((r) async {
-        return right(r.data!);
-      });
+    final response = await post(config);
+
+    return response.processAsync((r) async {
+      return right(r.data!);
     });
+  });
+}
+
+Future<Uint8List?> fetchAndConvertToBase64(String relativePath) async {
+  if (p.extension(relativePath).isEmpty) {
+    return null;
   }
+
+  final String url = Urls.filepath(relativePath);
+  final response = await http.get(Uri.parse(url));
+
+  if (response.statusCode == 200) {
+    return response.bodyBytes;
+  } else {
+    throw Exception('Failed to load file: ${response.statusCode}');
+  }
+}
 
   @override
   AsyncValueOf<List<ItemModel>> getItems(String name) async {

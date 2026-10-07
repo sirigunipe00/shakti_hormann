@@ -21,7 +21,7 @@ class VisionPanelRepoImpl extends BaseApiRepository implements VisionPanelRepo {
     final filters = <List<dynamic>>[];
     final orFilters = <List<dynamic>>[];
 
-    if (docStatus != null && docStatus != 2) {
+    if (docStatus != null) {
       filters.add(['docstatus', '=', docStatus]);
     }
 
@@ -134,14 +134,18 @@ class VisionPanelRepoImpl extends BaseApiRepository implements VisionPanelRepo {
       ];
     }
 
+    final body = jsonEncode(requestBody);
     final config = RequestConfig(
       url: Urls.updateVision,
       parser: _parseVisionSaveResult,
-      body: jsonEncode(requestBody),
+      body: body,
       headers: {HttpHeaders.contentTypeHeader: 'application/json'},
     );
 
-    $logger.devLog('updateVision....$config');
+    // Do not log full config — images payload can be huge base64.
+    $logger.devLog(
+      'updateVision url=${Urls.updateVision} bodyChars=${body.length}',
+    );
 
     final response = await post(config);
     return response.process((r) => right(r.data!));

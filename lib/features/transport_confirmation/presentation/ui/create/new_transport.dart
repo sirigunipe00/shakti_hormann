@@ -100,6 +100,7 @@ class _NewTransportCnfmState extends State<NewTransportCnfm> {
                     ).then((_) {
                       if (!context.mounted) return;
                       context.cubit<CreateTransportCubit>().errorHandled();
+                      shouldAskForConfirmation.value = false;
                       Navigator.pop(context, true);
                     });
                   } else {
@@ -111,6 +112,7 @@ class _NewTransportCnfmState extends State<NewTransportCnfm> {
                     ).then((_) {
                       if (!context.mounted) return;
                       context.cubit<CreateTransportCubit>().errorHandled();
+                      shouldAskForConfirmation.value = false;
                       Navigator.pop(context, true);
                     });
                   }

@@ -8,7 +8,6 @@ import 'package:shakti_hormann/features/installation/presentation/ui/installatio
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/widgets/buttons/app_btn.dart';
 import 'package:shakti_hormann/widgets/dailogs/app_dialogs.dart';
-import 'package:shakti_hormann/widgets/form_page_loading_stack.dart';
 import 'package:shakti_hormann/widgets/simple_app_bar.dart';
 import 'package:shakti_hormann/widgets/title_status_app_bar.dart';
 
@@ -98,62 +97,108 @@ class _NewInstallationEntryState extends State<NewInstallationEntry> {
                           },
                         ),
                 ) as PreferredSizeWidget,
-          body: BlocBuilder<CreateInstallationEntryCubit, CreateInstallationState>(
-            builder: (context, overlayState) {
-              return FormPageLoadingStack(
-                isLoading: overlayState.isLoading,
-                message: 'Please wait...',
-                statusLabel: 'Processing...',
-                child: BlocListener<CreateInstallationEntryCubit,
-                    CreateInstallationState>(
-            listener: (_, state) async {
-              if (state.isSuccess && state.successMsg.isNotNull) {
-                if (!context.mounted) return;
-                await AppDialog.showSuccessDialog(
-                  context,
-                  title: 'Success',
-                  content: state.successMsg.valueOrEmpty,
-                  onTapDismiss: () {
-                    Navigator.of(context, rootNavigator: true).pop();
-                  },
-                );
+          body: Stack(
+            fit: StackFit.expand,
+            children: [
+              BlocListener<CreateInstallationEntryCubit,
+                  CreateInstallationState>(
+                listener: (_, state) async {
+                  if (state.isSuccess && state.successMsg.isNotNull) {
+                    if (!context.mounted) return;
+                    await AppDialog.showSuccessDialog(
+                      context,
+                      title: 'Success',
+                      content: state.successMsg.valueOrEmpty,
+                      onTapDismiss: () {
+                        Navigator.of(context, rootNavigator: true).pop();
+                      },
+                    );
 
-                if (!context.mounted) return;
-                context.cubit<CreateInstallationEntryCubit>().errorHandled();
+                    if (!context.mounted) return;
+                    context.cubit<CreateInstallationEntryCubit>().errorHandled();
 
-                if (state.form.docStatus == 1) {
-                  shouldAskForConfirmation.value = false;
-                  final gateEntryFilters =
-                      context.read<InstallationFilterCubit>().state;
-                  context.cubit<InstallationCubit>().fetchInitial(
-                        Pair(
-                          StringUtils.docStatusInt(gateEntryFilters.status),
-                          gateEntryFilters.query,
+                    if (state.form.docStatus == 1) {
+                      shouldAskForConfirmation.value = false;
+                      final gateEntryFilters =
+                          context.read<InstallationFilterCubit>().state;
+                      context.cubit<InstallationCubit>().fetchInitial(
+                            Pair(
+                              StringUtils.docStatusInt(gateEntryFilters.status),
+                              gateEntryFilters.query,
+                            ),
+                          );
+                      Navigator.pop(context, true);
+                    }
+                  }
+
+                  if (state.error.isNotNull) {
+                    if (!context.mounted) return;
+                    await AppDialog.showErrorDialog(
+                      context,
+                      title: state.error?.title,
+                      content: state.error!.error,
+                      onTapDismiss: () {
+                        Navigator.of(context, rootNavigator: true).pop();
+                      },
+                    );
+
+                    if (!context.mounted) return;
+                    context.cubit<CreateInstallationEntryCubit>().errorHandled();
+                  }
+                },
+                child: InstallationEntryFormWidget(key: ValueKey(status)),
+              ),
+              BlocBuilder<CreateInstallationEntryCubit,
+                  CreateInstallationState>(
+                buildWhen: (p, c) =>
+                    p.isLoading != c.isLoading ||
+                    p.isUpdated != c.isUpdated ||
+                    p.isModified != c.isModified ||
+                    p.newLines.length != c.newLines.length,
+                builder: (context, state) {
+                  if (!state.isLoading) return const SizedBox.shrink();
+
+                  final hasDoc =
+                      state.form.name != null && state.form.name!.isNotEmpty;
+                  final isImageUploading =
+                      hasDoc && state.isModified && !state.isUpdated;
+                  final isSubmitting = state.isUpdated;
+
+                  if (!isImageUploading && !isSubmitting) {
+                    return const SizedBox.shrink();
+                  }
+
+                  final label = isImageUploading
+                      ? 'Uploading box images...'
+                      : (state.newLines.isNotEmpty
+                          ? 'Updating document...'
+                          : 'Submitting document...');
+
+                  return AbsorbPointer(
+                    child: ColoredBox(
+                      color: Colors.black.withValues(alpha: 0.25),
+                      child: Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const CircularProgressIndicator(),
+                            const SizedBox(height: 16),
+                            Text(
+                              label,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
                         ),
-                      );
-                  Navigator.pop(context, true);
-                }
-              }
-
-              if (state.error.isNotNull) {
-                if (!context.mounted) return;
-                await AppDialog.showErrorDialog(
-                  context,
-                  title: state.error?.title,
-                  content: state.error!.error,
-                  onTapDismiss: () {
-                    Navigator.of(context, rootNavigator: true).pop();
-                  },
-                );
-
-                if (!context.mounted) return;
-                context.cubit<CreateInstallationEntryCubit>().errorHandled();
-              }
-            },
-            child: InstallationEntryFormWidget(key: ValueKey(status)),
-          ),
-              );
-            },
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ],
           ),
         );
       },

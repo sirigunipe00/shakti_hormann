@@ -64,17 +64,10 @@ class TransportCnfrmRepoimpl extends BaseApiRepository
   @override
   AsyncValueOf<List<SalesOrder>> fetchSales(String name) async {
     return await executeSafely(() async {
-       
-      final config = RequestConfig(
+       final config = RequestConfig(
         url: Urls.getList,
-
         parser: (json) {
-
-
           $logger.devLog('repojson...----$json');
-
-
-
           final data = json['message'];
           final listdata = data as List<dynamic>;
           return listdata.map((e) => SalesOrder.fromJson(e)).toList();
@@ -123,8 +116,9 @@ class TransportCnfrmRepoimpl extends BaseApiRepository
       final config = RequestConfig(
         url: Urls.updateTransport,
         parser: (json) {
+          final msg = json['message']['message'] as String;
           final data = json['message']['data']['logistic_request_id'] as String;
-          return Pair(data, '');
+          return Pair(msg, data);
         },
 
         body: jsonEncode({

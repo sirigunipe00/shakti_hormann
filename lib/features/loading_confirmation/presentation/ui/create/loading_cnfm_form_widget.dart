@@ -5,7 +5,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:image_picker/image_picker.dart';
-
 import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/features/loading_confirmation/model/dispatch_loading.dart';
 import 'package:shakti_hormann/features/loading_confirmation/model/item_model.dart';
@@ -15,6 +14,7 @@ import 'package:shakti_hormann/features/loading_confirmation/presentation/bloc/b
 import 'package:shakti_hormann/features/loading_confirmation/presentation/bloc/create_loading_cubit/create_loading_cnfm_cubit.dart';
 import 'package:shakti_hormann/features/loading_confirmation/presentation/ui/create/sales_order_table.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
+import 'package:shakti_hormann/widgets/dailogs/app_dialogs.dart';
 import 'package:shakti_hormann/widgets/dailogs/app_snack_bar_widget.dart';
 import 'package:shakti_hormann/widgets/input_filed.dart';
 import 'package:shakti_hormann/widgets/inputs/date_picker_field.dart';
@@ -43,6 +43,8 @@ class _LoadingCnfmFormWidget extends State<LoadingCnfmFormWidget> {
   Widget build(BuildContext context) {
     final formState = context.read<CreateLoadingCnfmCubit>().state;
     final newform = formState.form;
+      final isLocked = newform.docstatus == 1 ||
+      StringUtils.equalsIgnoreCase(newform.status ?? '', 'Rejected');
     $logger.devLog('.......$newform');
 
     return MultiBlocListener(
@@ -55,9 +57,9 @@ class _LoadingCnfmFormWidget extends State<LoadingCnfmFormWidget> {
           },
           listener: (context, state) {
             if (state.error != null) {
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(SnackBar(content: Text(state.error!.error)));
+              // ScaffoldMessenger.of(
+              //   context,
+              // ).showSnackBar(SnackBar(content: Text(state.error!.error)));
             }
           },
         ),
@@ -303,12 +305,14 @@ class _LoadingCnfmFormWidget extends State<LoadingCnfmFormWidget> {
                     borderRadius: BorderRadius.circular(20),
                     side: const BorderSide(color: Color(0xFFE8ECF4), width: 1),
                   ),
-                  child: Center(
-                    child: NewUploadPhotoWidget(
-                      fileName: 'driverid',
-                      imageUrl: newform.driverIdPhoto,
-                      title: 'Driver ID Proof',
-                      isReadOnly: true,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      NewUploadPhotoWidget(
+                        fileName: 'driverid',
+                        imageUrl: newform.driverIdPhoto,
+                        title: 'Driver ID Proof',
+                        isReadOnly: true,
                       onFileCapture: (file) {
                         // context.cubit<CreateLoadingCnfmCubit>().onValueChanged(
                         //   driverIdPhoto: file,
@@ -316,16 +320,62 @@ class _LoadingCnfmFormWidget extends State<LoadingCnfmFormWidget> {
                       },
                       focusNode: focusNodes.elementAt(27),
                     ),
+                    NewUploadPhotoWidget(
+                      fileName: 'vehiclefront',
+                      isRequired: true,
+                      imageUrl: newform.loadedVehiclePhoto,
+                      title: 'Loaded Vehicle Photo',
+                      isReadOnly: isLocked,
+                      onFileCapture: (file) {
+                        context.cubit<CreateLoadingCnfmCubit>().onValueChanged(
+                          loadedVehiclePhoto: file,
+                        );
+                      },
+                      focusNode: focusNodes.elementAt(27),
+                    ),
+                    ],
                   ),
                 ),
               ),
+              // const SizedBox(height: 10),
+              // const Padding(
+              //   padding: EdgeInsets.only(left: 16.0),
+              //   child: SectionHeader(
+              //     title: 'Vehicle Photo',
+              //     assetIcon: 'assets/images/photoicon.svg',
+              //   ),
+              // ),
+              // Padding(
+              //   padding: const EdgeInsets.only(left: 16, right: 16),
+              //   child: Card(
+              //     color: Colors.white,
+              //     shape: RoundedRectangleBorder(
+              //       borderRadius: BorderRadius.circular(20),
+              //       side: const BorderSide(color: Color(0xFFE8ECF4), width: 1),
+              //     ),
+              //     child: Center(
+              //       child: NewUploadPhotoWidget(
+              //         fileName: 'vehiclefront',
+              //         isRequired: true,
+              //         imageUrl: newform.loadedVehiclePhoto,
+              //         title: 'Loaded Vehicle Photo',
+              //         isReadOnly: isLocked,
+              //         onFileCapture: (file) {
+              //           context.cubit<CreateLoadingCnfmCubit>().onValueChanged(
+              //             loadedVehiclePhoto: file,
+              //           );
+              //         },
+              //         focusNode: focusNodes.elementAt(27),
+              //       ),
+              //     ),
+              //   ),
+              // ),
 
               const SizedBox(height: 12),
               BlocBuilder<GetLoadedList, GetLoadedState>(
                 builder: (context, state) {
                   return state.maybeWhen(
                     orElse: () => const SizedBox(),
-                    // Reopening an existing record: keep form visible — no door overlay.
                     loading:
                         () => const Center(
                           child: Padding(
@@ -338,6 +388,7 @@ class _LoadingCnfmFormWidget extends State<LoadingCnfmFormWidget> {
                         dispatchData: data,
                         docstatus: formState.form.docstatus,
                         vrName: formState.form.name,
+                        status: formState.form.status,
                       );
                     },
                   );
@@ -366,10 +417,12 @@ class ItemLoadedTable extends StatefulWidget {
     required this.dispatchData,
     required this.docstatus,
     this.vrName,
+    this.status,
   });
   final DispatchLoadedData dispatchData;
   final int? docstatus;
   final String? vrName;
+  final String? status;
 
   @override
   State<ItemLoadedTable> createState() => _ItemLoadedTableState();
@@ -386,7 +439,15 @@ class _ItemLoadedTableState extends State<ItemLoadedTable> {
   final Map<String, String> _scannedLocalPhotos = {};
   String? _photoUploadingRowName;
 
-  bool get _canEdit => widget.docstatus != 1 && !_dispatchData.isDispatched;
+bool get _canEdit {
+  final result = widget.docstatus != 1 &&
+      !_dispatchData.isDispatched &&
+      !widget.status.toString().toLowerCase().contains('rejected');
+  debugPrint('_canEdit check: docstatus=${widget.docstatus}, status="${widget.status}", isDispatched=${_dispatchData.isDispatched}, result=$result');
+  return result;
+}
+
+      
 
   @override
   void initState() {
@@ -425,6 +486,7 @@ class _ItemLoadedTableState extends State<ItemLoadedTable> {
               ? data.palletRows.last.scanQr
               : _activePalletQr);
     });
+    context.read<CreateLoadingCnfmCubit>().updateScannedRows(data.scannedRows);
 
     if (seedCubit && !_cubitSeeded) {
       _cubitSeeded = true;
@@ -434,14 +496,25 @@ class _ItemLoadedTableState extends State<ItemLoadedTable> {
     }
   }
 
-  void _showSnack(String message, {bool isError = false}) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        duration: const Duration(seconds: 2),
-        content: Text(message),
-        backgroundColor: isError ? Colors.red : Colors.green,
-      ),
-    );
+  Future<void> _showSnack(String message, {bool isError = false}) async {
+    if (!mounted) return;
+    if (isError) {
+      await AppDialog.showErrorDialog(
+        context,
+        title: 'Error',
+        content: message,
+        onTapDismiss: context.exit,
+        buttonText: 'Okay',
+      );
+    } else {
+      await AppDialog.showSuccessDialog(
+        context,
+        title: 'Success',
+        content: message,
+        onTapDismiss: context.exit,
+        buttonText: 'Okay',
+      );
+    }
   }
 
   bool _scannedRowHasPhoto(LoadedRow row) {
@@ -659,6 +732,7 @@ class _ItemLoadedTableState extends State<ItemLoadedTable> {
   }
 
   Future<void> _openCamera(int index) async {
+    if (!_canEdit) return;
     final XFile? photo = await _picker.pickImage(source: ImageSource.camera);
     if (photo != null) {
       setState(() {
@@ -759,7 +833,9 @@ class _ItemLoadedTableState extends State<ItemLoadedTable> {
                   assetIcon: 'assets/images/remarksicon.svg',
                 ),
               ),
-              if (_canEdit)
+              if (_canEdit &&
+                  _scannedRowMissingPhoto() == null &&
+                  _photoUploadingRowName == null)
                 Tooltip(
                   message: 'Scan pallet / box',
                   child: Material(
@@ -852,7 +928,7 @@ class _ItemLoadedTableState extends State<ItemLoadedTable> {
         //               .toList(),
         //     ),
         //   ),
-        if (scannedRows.isNotEmpty)
+        // if (scannedRows.isNotEmpty)
           _ScannedItemsTable(
             rows: scannedRows,
             canEdit: _canEdit,
@@ -880,27 +956,30 @@ class _ItemLoadedTableState extends State<ItemLoadedTable> {
           padding: const EdgeInsets.symmetric(horizontal: 8),
           child: _ManualItemsTable(
             rows: rows,
-            canEdit: widget.docstatus != 1,
+            canEdit: _canEdit,
             onEdit: (index) => addRow(index: index),
             onCamera: _openCamera,
             buildPhoto: (path) => _buildImage(path, context: context),
           ),
         ),
         const SizedBox(height: 10),
-        if (_canEdit) ...[
-          Align(
-            alignment: Alignment.centerLeft,
-            child: ElevatedButton.icon(
-              onPressed: () => addRow(),
-              icon: const Icon(Icons.add),
-              label: const Text('Add Item'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.darkBlue,
-                foregroundColor: Colors.white,
-              ),
-            ),
-          ),
-        ],
+        const SizedBox(height: 10),
+if (_canEdit &&
+    _scannedRowMissingPhoto() == null &&
+    _photoUploadingRowName == null) ...[
+  Align(
+    alignment: Alignment.centerLeft,
+    child: ElevatedButton.icon(
+      onPressed: () => addRow(),
+      icon: const Icon(Icons.add),
+      label: const Text('Add Item'),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: AppColors.darkBlue,
+        foregroundColor: Colors.white,
+      ),
+    ),
+  ),
+],
         const SizedBox(height: 8),
       ],
     );
@@ -999,7 +1078,8 @@ class _ManualItemsTable extends StatelessWidget {
                       child:
                           hasPhoto
                               ? buildPhoto(photo)
-                              : IconButton(
+                              : canEdit
+                              ? IconButton(
                                 padding: EdgeInsets.zero,
                                 constraints: const BoxConstraints(
                                   minWidth: 36,
@@ -1016,7 +1096,8 @@ class _ManualItemsTable extends StatelessWidget {
                                   ),
                                 ),
                                 onPressed: () => onCamera(index),
-                              ),
+                              )
+                              : const Text('N/A'),
                     ),
                   ),
                   if (canEdit)
@@ -1236,7 +1317,7 @@ class _ScannedItemsTable extends StatelessWidget {
                                       ),
                                       onPressed: () => onCapturePhoto(row),
                                     )
-                                    : const SizedBox.shrink(),
+                                    : const Center(child: Text('N/A')),
                           ),
                         ),
                       ],
@@ -1256,6 +1337,18 @@ Widget _buildImage(String path, {BuildContext? context}) {
   final baseUrl = Urls.baseUrl.replaceAll('/api', '');
 
   Widget imageWidget;
+  Widget photoLoadingPlaceholder() => const SizedBox(
+    width: 50,
+    height: 50,
+    child: Center(
+      child: SizedBox(
+        width: 18,
+        height: 18,
+        child: CircularProgressIndicator(strokeWidth: 2),
+      ),
+    ),
+  );
+
 
   if (File(path).existsSync()) {
     imageWidget = Image.file(
@@ -1270,6 +1363,10 @@ Widget _buildImage(String path, {BuildContext? context}) {
       width: 50,
       height: 50,
       fit: BoxFit.cover,
+       loadingBuilder: (context, child, loadingProgress) {
+        if (loadingProgress == null) return child;
+        return photoLoadingPlaceholder();
+      },
       errorBuilder: (_, __, ___) => const SizedBox.shrink(),
     );
   } else if (path.startsWith('http')) {
@@ -1278,6 +1375,10 @@ Widget _buildImage(String path, {BuildContext? context}) {
       width: 50,
       height: 50,
       fit: BoxFit.cover,
+       loadingBuilder: (context, child, loadingProgress) {
+        if (loadingProgress == null) return child;
+        return photoLoadingPlaceholder();
+      },
       errorBuilder: (_, __, ___) => const SizedBox.shrink(),
     );
   } else {
@@ -1477,6 +1578,7 @@ class _ItemDialogWidgetState extends State<ItemDialogWidget> {
             TextFormField(
               readOnly: false,
               controller: qtyController,
+              keyboardType: TextInputType.number,
               decoration: InputDecoration(
                 label: RichText(
                   text: const TextSpan(
@@ -1505,7 +1607,7 @@ class _ItemDialogWidgetState extends State<ItemDialogWidget> {
                       _buildImage(photoPath!, context: context),
                       Center(
                         child: IconButton(
-                          icon: const Icon(Icons.refresh, color: Colors.white),
+                          icon: const Icon(Icons.camera_alt, color: Colors.white),
                           style: ButtonStyle(
                             backgroundColor: WidgetStateProperty.all(
                               AppColors.darkBlue,
@@ -1528,24 +1630,22 @@ class _ItemDialogWidgetState extends State<ItemDialogWidget> {
           ],
         ),
       ),
+      actionsAlignment: MainAxisAlignment.center,
       actions: [
-        TextButton(
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.red,
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            elevation: 0,
+          ),
           onPressed: () => Navigator.pop(context),
-          child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              elevation: 3,
-            ),
-            onPressed: () => Navigator.pop(context),
-            child: const Text(
-              'Cancel',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-            ),
+          child: const Text(
+            'Cancel',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
           ),
         ),
         ElevatedButton(
@@ -1590,7 +1690,6 @@ class _ItemDialogWidgetState extends State<ItemDialogWidget> {
 
             Navigator.pop(context, {'row': row, 'model': lineItem});
           },
-
           child: const Text(
             'Save',
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),

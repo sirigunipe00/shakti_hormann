@@ -22,7 +22,7 @@ class ZoneRepoImp extends BaseApiRepository implements ZoneRepo{
   ) async {
     final filters = <List<dynamic>>[];
 
-    if (docStatus != null && docStatus != 2) {
+    if (docStatus != null) {
       filters.add(['docstatus', '=', docStatus]);
     }
 
@@ -54,32 +54,46 @@ class ZoneRepoImp extends BaseApiRepository implements ZoneRepo{
 
   @override
   AsyncValueOf<Pair<String, String>> createZone(Storage form) async {
+    final sw = Stopwatch()..start();
+    $logger.info('[StorageSave][ZoneRepo] Start save');
+
+    // Only upload a newly captured local photo. Re-downloading an existing
+    // server path made Flutter much slower than Postman.
     Uint8List? zonecompressedBytes;
 
     if (form.locationPhotoImg != null) {
+      final compressSw = Stopwatch()..start();
       final filePath = form.locationPhotoImg!.path;
       zonecompressedBytes = await FlutterImageCompress.compressWithFile(
         filePath,
-        quality: 50,
+        quality: 35,
+        minWidth: 720,
+        minHeight: 720,
+        format: CompressFormat.jpeg,
       );
-    } else if (form.locationPhoto != null) {
-      zonecompressedBytes = await fetchAndConvertToBase64(
-        form.locationPhoto ?? '',
+      $logger.info(
+        '[StorageSave][ZoneRepo] Photo compressed: ${compressSw.elapsedMilliseconds} ms '
+        '(bytes=${zonecompressedBytes?.length ?? 0})',
       );
     }
-
-    final photo = zonecompressedBytes == null
-        ? null
-        : 'data:image/jpeg;base64,${base64Encode(zonecompressedBytes)}';
 
     final requestBody = <String, dynamic>{
       'pallet__box_qr_scan': form.palletBoxQr,
       'new_zone_qr': form.zoneQr,
-      'location_photo': photo,
     };
+    if (zonecompressedBytes != null) {
+      requestBody['location_photo'] =
+          'data:image/jpeg;base64,${base64Encode(zonecompressedBytes)}';
+    }
     if (form.remarks != null && form.remarks!.trim().isNotEmpty) {
       requestBody['remarks'] = form.remarks;
     }
+
+    final body = jsonEncode(requestBody);
+    $logger.info(
+      '[StorageSave][ZoneRepo] Payload prepared: ${sw.elapsedMilliseconds} ms '
+      '(body=${body.length} chars, hasPhoto=${zonecompressedBytes != null})',
+    );
 
     final config = RequestConfig(
       url: Urls.zoneTransfer,
@@ -93,14 +107,23 @@ class ZoneRepoImp extends BaseApiRepository implements ZoneRepo{
         final docNo = data['zone_transfer_id'] as String? ?? '';
         return Pair(message, docNo);
       },
-      body: jsonEncode(requestBody),
+      body: body,
       headers: {HttpHeaders.contentTypeHeader: 'application/json'},
     );
 
-    $logger.devLog('zone.....$config');
-
+    $logger.info(
+      '[StorageSave][ZoneRepo] API request started → ${Urls.zoneTransfer}',
+    );
+    final apiSw = Stopwatch()..start();
     final response = await post(config);
+    $logger.info(
+      '[StorageSave][ZoneRepo] API response received: ${apiSw.elapsedMilliseconds} ms '
+      '(total ${sw.elapsedMilliseconds} ms)',
+    );
     return response.processAsync((r) async {
+      $logger.info(
+        '[StorageSave][ZoneRepo] Response processing completed: ${sw.elapsedMilliseconds} ms',
+      );
       return right(Pair(r.data!.first, r.data!.second));
     });
   }

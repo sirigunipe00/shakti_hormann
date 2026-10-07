@@ -19,7 +19,7 @@ class InstallationRepoImpl extends BaseApiRepository implements InstallationRepo
     final filters = <List<dynamic>>[];
     final orFilters = <List<dynamic>>[];
 
-    if (docStatus != null && docStatus != 2) {
+    if (docStatus != null) {
       filters.add(['docstatus', '=', docStatus]);
     }
 
@@ -95,6 +95,7 @@ class InstallationRepoImpl extends BaseApiRepository implements InstallationRepo
 
   @override
   AsyncValueOf<Pair<String,String>> updateInstallation(String name, {List<Map<String, String>>? images, int? noOfBoxes}) async {
+    final sw = Stopwatch()..start();
     final requestBody = <String, dynamic>{'name': name};
     if (images != null && images.isNotEmpty) {
       requestBody['images'] = images;
@@ -102,6 +103,12 @@ class InstallationRepoImpl extends BaseApiRepository implements InstallationRepo
     if (noOfBoxes != null) {
       requestBody['no_of_boxes'] = noOfBoxes;
     }
+
+    final body = jsonEncode(requestBody);
+    $logger.info(
+      '[InstallationUpdate][Repo] Serialized body: ${body.length} chars, '
+      'images=${images?.length ?? 0}, ${sw.elapsedMilliseconds} ms',
+    );
 
     final config = RequestConfig(
       url: Urls.updateInstallation,
@@ -114,13 +121,19 @@ class InstallationRepoImpl extends BaseApiRepository implements InstallationRepo
 
         return Pair(message, docNo);
       },
-      body: jsonEncode(requestBody),
+      body: body,
       headers: {HttpHeaders.contentTypeHeader: 'application/json'},
     );
 
-    $logger.devLog('updateInstallation....$config');
+    // Do not log full config — body contains huge base64 payloads.
+    $logger.info(
+      '[InstallationUpdate][Repo] POST ${Urls.updateInstallation}',
+    );
 
     final response = await post(config);
+    $logger.info(
+      '[InstallationUpdate][Repo] Response processing completed: ${sw.elapsedMilliseconds} ms',
+    );
     return response.process((r) => right(r.data!));
   }
 @override

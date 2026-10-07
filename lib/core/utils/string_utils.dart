@@ -49,14 +49,19 @@ class StringUtils {
     return ipv4Pattern.hasMatch(baseUrl);
   }
 
-  static int docStatusInt(String? status) {
+  /// Maps filter label → ERPNext `docstatus`.
+  /// Returns `null` for All (no docstatus filter). Cancelled is `2`.
+  static int? docStatusInt(String? status) {
     switch (status?.toLowerCase()) {
       case 'draft':
+      case 'completed':
         return 0;
       case 'submitted':
         return 1;
-      case 'all':
+      case 'cancelled':
         return 2;
+      case 'all':
+        return null;
       default:
         return 0;
     }
@@ -126,20 +131,25 @@ class StringUtils {
       return 'Draft';
     } else if (status == 1) {
       return 'Submitted';
+    } else if (status == 2) {
+      return 'Cancelled';
     } else {
       return 'Draft';
     }
   }
+
   static String framePackingStatus(int status) {
-  switch (status) {
-    case 0:
-      return 'Completed';
-    case 1:
-      return 'Submitted';
-    default:
-      return 'Completed';
+    switch (status) {
+      case 0:
+        return 'Completed';
+      case 1:
+        return 'Submitted';
+      case 2:
+        return 'Cancelled';
+      default:
+        return 'Completed';
+    }
   }
-}
 }
 
 extension StringExentions on String? {

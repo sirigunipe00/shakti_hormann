@@ -162,7 +162,7 @@ class CreateVehicleCubit extends AppBaseCubit<CreateVehicleState> {
                 isLoading: false,
                 isSuccess: true,
                 form: state.form.copyWith(status: status, name: docstatus),
-                successMsg: r.first,
+                successMsg: '${r.first} ${r.second}',
                 view: nextMode,
               ),
             );
@@ -190,7 +190,7 @@ class CreateVehicleCubit extends AppBaseCubit<CreateVehicleState> {
               isSubmitting: false,
               isSuccess: true,
               form: formToSend.copyWith(name: r.second),
-              successMsg: r.first,
+              successMsg: '${r.first} ${r.second}',
               view: VehicleView.completed,
             ),
           );
@@ -221,7 +221,7 @@ class CreateVehicleCubit extends AppBaseCubit<CreateVehicleState> {
             isRejecting: false,
             isSuccess: true,
             form: updatedForm.copyWith(docstatus: 1),
-            successMsg: r.first,
+            successMsg: '${r.first} ${r.second}',
             view: VehicleView.reject,
           ),
         );

@@ -94,6 +94,17 @@ class CreatePalletCubit extends AppBaseCubit<CreatePalletState> {
       state.copyWith(lines: [...state.lines, item], isModified: true),
     );
   }
+//   void addPalletItem(PalletItems item) {
+//     shouldAskForConfirmation.value = true;
+//   final updatedLines = List<PalletItems>.from(state.lines)
+//     ..add(item);
+
+//   emit(
+//     state.copyWith(
+//       lines: updatedLines,
+//     ),
+//   );
+// }
 
   void updatePalletItemAt(int index, PalletItems updatedItem) {
     if (index < 0 || index >= state.lines.length) return;

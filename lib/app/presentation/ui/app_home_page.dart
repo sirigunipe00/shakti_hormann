@@ -11,6 +11,120 @@ import 'package:shakti_hormann/features/auth/model/logged_in_user.dart';
 import 'package:shakti_hormann/styles/app_icons.dart';
 import 'package:shakti_hormann/widgets/app_update_dailog.dart';
 
+class _InfoContent {
+  const _InfoContent({
+    required this.title,
+    this.icon = Icons.qr_code_2_rounded,
+    this.stickerAsset,
+    this.stickerCaption,
+    this.stickerFields = const [],
+    this.stepsTitle = 'Process',
+    this.steps = const [],
+  });
+
+  final String title;
+  final IconData icon;
+  final String? stickerAsset;
+  final String? stickerCaption;
+  final List<String> stickerFields;
+  final String stepsTitle;
+  final List<String> steps;
+}
+final Map<String, _InfoContent> _cardInfo = {
+  'Hardware Packaging': _InfoContent(
+    title: 'MES Sticker Sample',
+    stickerAsset: AppIcons.mesSticker.path,
+    stickerCaption: 'Capture this sticker while creating hardware packing:',
+    stickerFields: const [
+      'Sales Order No',
+      'Box Count',
+      'MES System No',
+      'Item / Material details',
+    ],
+  ),
+  'Shutter Packaging': const _InfoContent(
+    title: 'Shutter Packing Sticker',
+    stickerAsset: 'assets/images/shutter_sticker.jpeg',
+    stickerCaption: 'Capture this sticker while creating shutter packing:',
+    stickerFields: [
+      'Sales Order No (SO)',
+      'Pallet Type',
+      'Save',
+      'Scan the Items/Upload a Sticker Item',
+      'Freeze the Qty',
+      'Print the Sticker',
+      'Take a Shutter Image',
+      'Save',
+    ],
+  ),
+  'Frame Packaging': const _InfoContent(
+    title: 'Frame Packing Sticker',
+    stickerAsset: 'assets/images/frame_sticker.jpeg',
+    stickerCaption: 'Capture this sticker while creating frame packing:',
+    stickerFields: [
+      'Sales Order No (SO)',
+      'Pallet Type',
+      'Save',
+      'Scan the Items/Upload a Sticker Item',
+      'Freeze the Qty',
+      'Print the Sticker',
+      'Take a Frame Image',
+      'Save',
+    ],
+  ),
+  'Accessories Packing': const _InfoContent(
+    title: 'Accessories Packing Sticker',
+    stickerAsset: 'assets/images/vision_sticker.jpeg',
+    stickerCaption: 'Capture this sticker while creating accessories packing:',
+    stickerFields: [
+      'Sales Order No (SO)',
+      'Add At least one Item To Save the Record',
+      'Take a Accessories Image',
+      'Repeat the Process for all the Items',
+      'Submit'
+    ],
+  ),
+  'Installation Packing': const _InfoContent(
+    title: 'Installation Packing Sticker',
+    stickerAsset: 'assets/images/installation_sticker.jpeg',
+    stickerCaption: 'Capture this sticker while creating installation packing:',
+    stickerFields: [
+      'Sales Order No (SO)',
+      'Enter No of Boxes',
+      'Save the Box Information',
+      'Print the Sticker',
+      'Take a Installation Images',
+      'Submit'
+    ],
+  ),
+
+  'Pallet Creation': const _InfoContent(
+    title: 'Pallet Creation Process',
+    icon: Icons.inventory_2_rounded,
+    stepsTitle: 'How to create a pallet',
+    steps: [
+      'Select the Sales Order.',
+      'Tap "Add Item".',
+      'Select the Product Type.',
+      'Select the product Width and Height.',
+      'Add at least one item. A record can only be saved or created with one item or more.',
+      'Save / Create the pallet record.',
+      'After saving, you can edit the pallets or Submit.',
+    ],
+  ),
+  'Storage / Zone': const _InfoContent(
+    title: 'Storage / Zone Process',
+    icon: Icons.warehouse_rounded,
+    stepsTitle: 'How to allocate storage',
+    steps: [
+      'Scan the Pallet or Box.',
+      'Scan the Zone you want to allocate.',
+      'Capture the image of the allocated zone.',
+      'Save.',
+    ],
+  ),
+};
+
 class AppHomePage extends StatefulWidget {
   const AppHomePage({super.key});
 
@@ -180,7 +294,6 @@ class _AppHomePageState extends State<AppHomePage> {
       section: DashboardSection.scanningPackaging,
       permissionSelector: (roleStatus) => roleStatus?.showVision,
     ),
-
     DashboardItem(
       title: 'Hardware Packaging',
       icon: AppIcons.hardware,
@@ -193,169 +306,203 @@ class _AppHomePageState extends State<AppHomePage> {
     ),
   ];
 
-void _showHardwareStickerPreview() {
-  final screenHeight = MediaQuery.of(context).size.height;
-  final screenWidth = MediaQuery.of(context).size.width;
+  void _showInfoDialog(_InfoContent info) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
 
-  showDialog(
-    context: context,
-    barrierDismissible: true,
-    barrierColor: Colors.black.withValues(alpha: 0.5),
-    builder: (dialogContext) {
-      return Dialog(
-        insetPadding: const EdgeInsets.all(20),
-        backgroundColor: Colors.transparent,
-        child: Container(
-          width: (screenWidth - 40).clamp(0, 380).toDouble(),
-          constraints: BoxConstraints(
-            maxHeight: (screenHeight * 0.85).clamp(0, 640).toDouble(),
-          ),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(24),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Header band
-              Container(
-                padding: const EdgeInsets.fromLTRB(20, 18, 12, 18),
-                decoration: const BoxDecoration(
-                  color: Color(0xFF1A3C6B),
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(24),
-                    topRight: Radius.circular(24),
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierColor: Colors.black.withValues(alpha: 0.5),
+      builder: (dialogContext) {
+        return Dialog(
+          insetPadding: const EdgeInsets.all(20),
+          backgroundColor: Colors.transparent,
+          child: Container(
+            width: (screenWidth - 40).clamp(0, 380).toDouble(),
+            constraints: BoxConstraints(
+              maxHeight: (screenHeight * 0.85).clamp(0, 640).toDouble(),
+            ),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(24),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Header band
+                Container(
+                  padding: const EdgeInsets.fromLTRB(20, 18, 12, 18),
+                  decoration: const BoxDecoration(
+                    color: Color(0xFF1A3C6B),
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(24),
+                      topRight: Radius.circular(24),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 36,
+                        height: 36,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Icon(info.icon, color: Colors.white, size: 20),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          info.title,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
+                            fontFamily: 'Urbanist',
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () => Navigator.of(dialogContext).pop(),
+                        icon: const Icon(Icons.close, color: Colors.white),
+                        tooltip: 'Close',
+                        splashRadius: 20,
+                      ),
+                    ],
                   ),
                 ),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 36,
-                      height: 36,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: const Icon(
-                        Icons.qr_code_2_rounded,
-                        color: Colors.white,
-                        size: 20,
-                      ),
+
+                // Body
+                Flexible(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.fromLTRB(20, 18, 20, 20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Sticker section
+                        if (info.stickerAsset != null) ...[
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF7F8FA),
+                              borderRadius: BorderRadius.circular(18),
+                              border: Border.all(
+                                color: const Color(0xFFE8ECF4),
+                              ),
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(12),
+                              child: Image.asset(
+                                info.stickerAsset!,
+                                fit: BoxFit.contain,
+                                height: 200,
+                                width: double.infinity,
+                                errorBuilder:
+                                    (_, __, ___) => const SizedBox(
+                                      height: 200,
+                                      child: Center(
+                                        child: Icon(
+                                          Icons.image_not_supported_outlined,
+                                        ),
+                                      ),
+                                    ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          if (info.stickerCaption != null)
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Padding(
+                                  padding: EdgeInsets.only(top: 2),
+                                  child: Icon(
+                                    Icons.camera_alt_rounded,
+                                    size: 18,
+                                    color: Color(0xFF1A3C6B),
+                                  ),
+                                ),
+                                const SizedBox(width: 6),
+                                Expanded(
+                                  child: Text(
+                                    info.stickerCaption!,
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                      height: 1.4,
+                                      color: Color(0xFF0E1446),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          const SizedBox(height: 14),
+                          for (final field in info.stickerFields)
+                            _StickerFieldChip(label: field),
+                        ],
+
+                        // Process steps section
+                        if (info.steps.isNotEmpty) ...[
+                          if (info.stickerAsset != null)
+                            const SizedBox(height: 14),
+                          Text(
+                            info.stepsTitle,
+                            style: const TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF0E1446),
+                              fontFamily: 'Urbanist',
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          for (var i = 0; i < info.steps.length; i++)
+                            _ProcessStepTile(
+                              number: i + 1,
+                              text: info.steps[i],
+                              isLast: i == info.steps.length - 1,
+                            ),
+                        ],
+                      ],
                     ),
-                    const SizedBox(width: 12),
-                    const Expanded(
-                      child: Text(
-                        'MES Sticker Sample',
+                  ),
+                ),
+
+                // Footer button
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: TextButton(
+                      onPressed: () => Navigator.of(dialogContext).pop(),
+                      style: TextButton.styleFrom(
+                        backgroundColor: const Color(0xFF1A3C6B),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text(
+                        'Got it',
                         style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
                           fontFamily: 'Urbanist',
                         ),
                       ),
                     ),
-                    IconButton(
-                      onPressed: () => Navigator.of(dialogContext).pop(),
-                      icon: const Icon(Icons.close, color: Colors.white),
-                      tooltip: 'Close',
-                      splashRadius: 20,
-                    ),
-                  ],
-                ),
-              ),
-              Flexible(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.fromLTRB(20, 18, 20, 20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF7F8FA),
-                          borderRadius: BorderRadius.circular(18),
-                          border: Border.all(color: const Color(0xFFE8ECF4)),
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(12),
-                          child: Image.asset(
-                            AppIcons.mesSticker.path,
-                            fit: BoxFit.contain,
-                            height: 200,
-                            width: double.infinity,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      const Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: EdgeInsets.only(top: 2),
-                            child: Icon(
-                              Icons.camera_alt_rounded,
-                              size: 18,
-                              color: Color(0xFF1A3C6B),
-                            ),
-                          ),
-                          SizedBox(width: 6),
-                          Expanded(
-                            child: Text(
-                              'Capture this sticker while creating hardware packing:',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                height: 1.4,
-                                color: Color(0xFF0E1446),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 14),
-                      const _StickerFieldChip(label: 'Sales Order No'),
-                      const _StickerFieldChip(label: 'Box Count'),
-                      const _StickerFieldChip(label: 'MES System No'),
-                      const _StickerFieldChip(label: 'Item / Material details'),
-                    ],
                   ),
                 ),
-              ),
-
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: TextButton(
-                    onPressed: () => Navigator.of(dialogContext).pop(),
-                    style: TextButton.styleFrom(
-                      backgroundColor: const Color(0xFF1A3C6B),
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: const Text(
-                      'Got it',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontFamily: 'Urbanist',
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-      );
-    },
-  );
-}
+        );
+      },
+    );
+  }
 
   Widget buildDashboardCard(DashboardItem item) {
-    final isHardwarePackaging = item.title == 'Hardware Packaging';
+    final info = _cardInfo[item.title]; // null => no info icon
 
     return GestureDetector(
       onTap: () => item.onTap(context),
@@ -373,58 +520,59 @@ void _showHardwareStickerPreview() {
           ],
         ),
         child: Stack(
-  clipBehavior: Clip.none,
-  children: [
-    Positioned.fill(                   
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          clipBehavior: Clip.none,
           children: [
-            item.icon.toWidget(
-              height: item.iconSize?.height ?? 60,
-              width: item.iconSize?.width ?? 100,
-            ),
-            const SizedBox(height: 10),
-            Text(
-              item.title,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontWeight: FontWeight.w600,
-                fontSize: 16,
-                fontFamily: 'Urbanist',
-                color: Color(0xFF0E1446),
+            Positioned.fill(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 8,
+                  vertical: 12,
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    item.icon.toWidget(
+                      height: item.iconSize?.height ?? 60,
+                      width: item.iconSize?.width ?? 100,
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      item.title,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16,
+                        fontFamily: 'Urbanist',
+                        color: Color(0xFF0E1446),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
+            if (info != null)
+              Positioned(
+                top: 8,
+                right: 8,
+                child: GestureDetector(
+                  onTap: () => _showInfoDialog(info),
+                  child: Container(
+                    width: 30,
+                    height: 30,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1A3C6B).withValues(alpha: 0.12),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.info_outline_rounded,
+                      size: 18,
+                      color: Color(0xFF1A3C6B),
+                    ),
+                  ),
+                ),
+              ),
           ],
         ),
-      ),
-    ),                                
-    if (isHardwarePackaging)
-      Positioned(
-        top: 8,
-        right: 8,
-        child: GestureDetector(
-          onTap: () {
-            _showHardwareStickerPreview();
-          },
-          child: Container(
-            width: 30,
-            height: 30,
-            decoration: BoxDecoration(
-              color: const Color(0xFF1A3C6B).withValues(alpha: 0.12),
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              Icons.info_outline_rounded,
-              size: 18,
-              color: Color(0xFF1A3C6B),
-            ),
-          ),
-        ),
-      ),
-  ],
-),
       ),
     );
   }
@@ -439,20 +587,20 @@ void _showHardwareStickerPreview() {
     }
     final roleStatus = user?.roleStatus;
     final hasPackingSupervisorRole =
-      user?.roleProfileName?.trim() == 'Packing Supervisor-SH' ||
-      user?.roles?.any(
-          (role) => role.role?.trim() == 'Packing Supervisor-SH',
-        ) ==
-        true;
+        user?.roleProfileName?.trim() == 'Packing Supervisor-SH' ||
+        user?.roles?.any(
+              (role) => role.role?.trim() == 'Packing Supervisor-SH',
+            ) ==
+            true;
     final visibleItems =
-      dashboardItems
-        .where(
-          (item) =>
-            item.canShow(roleStatus) ||
-            (hasPackingSupervisorRole &&
-              item.section == DashboardSection.scanningPackaging),
-        )
-        .toList();
+        dashboardItems
+            .where(
+              (item) =>
+                  item.canShow(roleStatus) ||
+                  (hasPackingSupervisorRole &&
+                      item.section == DashboardSection.scanningPackaging),
+            )
+            .toList();
     final logisticsItems =
         visibleItems
             .where((e) => e.section == DashboardSection.logistics)
@@ -462,6 +610,7 @@ void _showHardwareStickerPreview() {
         visibleItems
             .where((e) => e.section == DashboardSection.scanningPackaging)
             .toList();
+
     return Scaffold(
       backgroundColor: const Color(0xFFF7F8FA),
       body: SafeArea(
@@ -662,6 +811,7 @@ void _showHardwareStickerPreview() {
     );
   }
 }
+
 class _StickerFieldChip extends StatelessWidget {
   const _StickerFieldChip({required this.label});
 
@@ -687,13 +837,82 @@ class _StickerFieldChip extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 10),
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 13.5,
-              fontWeight: FontWeight.w500,
-              color: Color(0xFF334155),
-              fontFamily: 'Urbanist',
+          Expanded(
+            child: Text(
+              label,
+              style: const TextStyle(
+                fontSize: 13.5,
+                fontWeight: FontWeight.w500,
+                color: Color(0xFF334155),
+                fontFamily: 'Urbanist',
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ProcessStepTile extends StatelessWidget {
+  const _ProcessStepTile({
+    required this.number,
+    required this.text,
+    required this.isLast,
+  });
+
+  final int number;
+  final String text;
+  final bool isLast;
+
+  @override
+  Widget build(BuildContext context) {
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Column(
+            children: [
+              Container(
+                width: 26,
+                height: 26,
+                alignment: Alignment.center,
+                decoration: const BoxDecoration(
+                  color: Color(0xFF1A3C6B),
+                  shape: BoxShape.circle,
+                ),
+                child: Text(
+                  '$number',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              if (!isLast)
+                Expanded(
+                  child: Container(
+                    width: 2,
+                    color: const Color(0xFFE8ECF4),
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Padding(
+              padding: EdgeInsets.only(bottom: isLast ? 0 : 16, top: 3),
+              child: Text(
+                text,
+                style: const TextStyle(
+                  fontSize: 13.5,
+                  height: 1.4,
+                  fontWeight: FontWeight.w500,
+                  color: Color(0xFF334155),
+                  fontFamily: 'Urbanist',
+                ),
+              ),
             ),
           ),
         ],
