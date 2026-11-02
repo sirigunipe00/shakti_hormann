@@ -24,6 +24,7 @@ class AppIcons {
   static const shutter = AppIcon('$imagesPath/shutter_packings.png');
   static const frame = AppIcon('$imagesPath/frame_pack.png');
   static const hardware = AppIcon('$imagesPath/hardware.png');
+  static const whereismymaterial = AppIcon('$imagesPath/whereismymaterial.png');
   static const pallet = AppIcon('$imagesPath/pallet_creation.png');
   static const installation = AppIcon('$imagesPath/installation_packing.png');
   static const accessories = AppIcon('$imagesPath/vision_panel.png');

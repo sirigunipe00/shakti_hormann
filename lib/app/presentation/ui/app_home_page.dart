@@ -10,6 +10,7 @@ import 'package:shakti_hormann/core/utils/notification_usecase.dart';
 import 'package:shakti_hormann/features/auth/model/logged_in_user.dart';
 import 'package:shakti_hormann/styles/app_icons.dart';
 import 'package:shakti_hormann/widgets/app_update_dailog.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class _InfoContent {
   const _InfoContent({
@@ -30,6 +31,7 @@ class _InfoContent {
   final String stepsTitle;
   final List<String> steps;
 }
+
 final Map<String, _InfoContent> _cardInfo = {
   'Hardware Packaging': _InfoContent(
     title: 'MES Sticker Sample',
@@ -81,7 +83,7 @@ final Map<String, _InfoContent> _cardInfo = {
       'Add At least one Item To Save the Record',
       'Take a Accessories Image',
       'Repeat the Process for all the Items',
-      'Submit'
+      'Submit',
     ],
   ),
   'Installation Packing': const _InfoContent(
@@ -94,7 +96,7 @@ final Map<String, _InfoContent> _cardInfo = {
       'Save the Box Information',
       'Print the Sticker',
       'Take a Installation Images',
-      'Submit'
+      'Submit',
     ],
   ),
 
@@ -147,7 +149,25 @@ class _AppHomePageState extends State<AppHomePage> {
     );
   }
 
-  final List<DashboardItem> dashboardItems = [
+  Future<void> launchCredits() async {
+    final String base = Urls.baseUrl.replaceAll('/api', '');
+    final Uri url = Uri.parse(
+      '$base/app/query-report/Where%20Is%20My%20Material',
+    );
+    try {
+      final bool launched = await launchUrl(
+        url,
+        mode: LaunchMode.externalApplication,
+      );
+      if (!launched) {
+        debugPrint('Could not launch URL: $url');
+      }
+    } catch (e) {
+      debugPrint('Error launching URL: $e');
+    }
+  }
+
+  late final List<DashboardItem> dashboardItems = [
     DashboardItem(
       title: 'Gate Entry',
       icon: AppIcons.gateeEntry,
@@ -300,6 +320,16 @@ class _AppHomePageState extends State<AppHomePage> {
       iconSize: const Size(150, 100),
       onTap: (context) {
         AppRoute.hardwarePackaging.push<bool?>(context);
+      },
+      section: DashboardSection.scanningPackaging,
+      permissionSelector: (roleStatus) => roleStatus?.showHardware,
+    ),
+    DashboardItem(
+      title: 'Where is My Material',
+      icon: AppIcons.whereismymaterial,
+      iconSize: const Size(160, 120),
+      onTap: (context) async {
+        await launchCredits();
       },
       section: DashboardSection.scanningPackaging,
       permissionSelector: (roleStatus) => roleStatus?.showHardware,
@@ -892,10 +922,7 @@ class _ProcessStepTile extends StatelessWidget {
               ),
               if (!isLast)
                 Expanded(
-                  child: Container(
-                    width: 2,
-                    color: const Color(0xFFE8ECF4),
-                  ),
+                  child: Container(width: 2, color: const Color(0xFFE8ECF4)),
                 ),
             ],
           ),
