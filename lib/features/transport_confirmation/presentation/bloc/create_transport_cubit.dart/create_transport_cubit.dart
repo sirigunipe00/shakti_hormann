@@ -250,21 +250,31 @@ class CreateTransportCubit extends AppBaseCubit<CreateTransportState> {
   Option<Pair<String, int?>> _validate() {
     final form = state.form;
 
-   
-     if (form.driverName.isNull ||
+    if (form.driverName.isNull ||
         (form.driverName?.trim().isEmpty ?? true)) {
       return optionOf(const Pair('Missing Driver Name', 0));
-    }else if (form.vehicleNumber.isNull ||
+    }
+    if (form.vehicleNumber.isNull ||
         (form.vehicleNumber?.trim().isEmpty ?? true)) {
       return optionOf(const Pair('Missing Vehicle Number', 0));
-    }  else if (form.driverContact.doesNotHaveValue ||
-        form.driverContact!.length != 10) {
-      return optionOf(
-        const Pair('Please re-enter a valid 10-digit driver contact number', 0),
-      );
-      }
+    }
 
-    else if (form.estimatedArrivalTime.isNull ||
+    final contact = form.driverContact?.trim() ?? '';
+    final contactValid = RegExp(r'^[6-9]\d{9}$').hasMatch(contact);
+    if (!contactValid) {
+      return optionOf(
+        const Pair(
+          'Enter a valid 10-digit mobile number starting with 6-9',
+          0,
+        ),
+      );
+    }
+
+    if (form.estimatedArrivalDate.isNull ||
+        (form.estimatedArrivalDate?.trim().isEmpty ?? true)) {
+      return optionOf(const Pair('Missing Estimated Arrival Date', 0));
+    }
+    if (form.estimatedArrivalTime.isNull ||
         (form.estimatedArrivalTime?.trim().isEmpty ?? true)) {
       return optionOf(const Pair('Missing Estimated Arrival Time', 0));
     }

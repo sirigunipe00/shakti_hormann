@@ -19,6 +19,20 @@ class NewInstallationEntry extends StatefulWidget {
 }
 
 class _NewInstallationEntryState extends State<NewInstallationEntry> {
+  bool _needsListRefresh = false;
+  int _formRefreshToken = 0;
+
+  void _refreshListCubit() {
+    if (!mounted) return;
+    final filters = context.read<InstallationFilterCubit>().state;
+    context.cubit<InstallationCubit>().fetchInitial(
+          Pair(
+            StringUtils.docStatusInt(filters.status),
+            filters.query,
+          ),
+        );
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<CreateInstallationEntryCubit, CreateInstallationState>(
@@ -27,84 +41,110 @@ class _NewInstallationEntryState extends State<NewInstallationEntry> {
         final status = newform.docStatus;
         final name = newform.name;
 
-        return Scaffold(
-          backgroundColor: AppColors.white,
-          appBar: status == null
-              ? SimpleAppBar(
-                  title: 'New Installation Packing',
-                  actionButton: BlocBuilder<CreateInstallationEntryCubit,
-                      CreateInstallationState>(
-                    builder: (context, state) {
-                      final form = state.form;
-                      final alreadyCreated =
-                          form.name != null && form.name!.isNotEmpty;
-                      if (alreadyCreated) return const SizedBox.shrink();
+        return PopScope(
+          canPop: false,
+          onPopInvokedWithResult: (didPop, _) {
+            if (didPop) return;
+            Navigator.of(context).pop(_needsListRefresh);
+          },
+          child: Scaffold(
+            backgroundColor: AppColors.white,
+            appBar: status == null
+                ? SimpleAppBar(
+                    title: 'New Installation Packing',
+                    actionButton: BlocBuilder<CreateInstallationEntryCubit,
+                        CreateInstallationState>(
+                      builder: (context, state) {
+                        final form = state.form;
+                        final alreadyCreated =
+                            form.name != null && form.name!.isNotEmpty;
+                        if (alreadyCreated) return const SizedBox.shrink();
 
-                      final canSave =
-                          (form.salesOrderNo?.trim().isNotEmpty ?? false) &&
-                              (form.noOfBoxes ?? 0) > 0;
+                        final canSave =
+                            (form.salesOrderNo?.trim().isNotEmpty ?? false) &&
+                                (form.noOfBoxes ?? 0) > 0;
 
-                      return AppButton(
-                        borderColor: Colors.grey,
-                        bgColor: const Color.fromARGB(255, 250, 193, 47),
-                        textStyle: const TextStyle(
-                          color: AppColors.darkBlue,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 15,
-                        ),
-                        isLoading: state.isLoading,
-                        label: 'Save',
-                        onPressed: canSave
-                            ? () => context
+                        return AppButton(
+                          borderColor: Colors.grey,
+                          bgColor: canSave
+                              ? const Color.fromARGB(255, 250, 193, 47)
+                              : const Color(0xFFCBD5E1),
+                          textStyle: const TextStyle(
+                            color: AppColors.darkBlue,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15,
+                          ),
+                          isLoading: state.isLoading,
+                          label: 'Save',
+                          onPressed: () {
+                            if (!canSave) {
+                              final needsSo =
+                                  form.salesOrderNo?.trim().isEmpty ?? true;
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    needsSo
+                                        ? 'Select a Sales Order first'
+                                        : 'Enter No of Boxes first',
+                                  ),
+                                  behavior: SnackBarBehavior.floating,
+                                ),
+                              );
+                              return;
+                            }
+                            context
                                 .cubit<CreateInstallationEntryCubit>()
-                                .createEntry()
-                            : null,
-                      );
-                    },
-                  ),
-                )
-              : TitleStatusAppBar(
-                  title: '$name',
-                  status: StringUtils.docStatus(status),
-                  textColor: AppColors.white,
-                  pageMode: PageMode2.installation,
-                  onSubmit: () {},
-                  onReject: () {},
-                  actionButton: (status == 1 && !gateEntryState.isModified)
-                      ? null
-                      : BlocBuilder<CreateInstallationEntryCubit,
-                          CreateInstallationState>(
-                          builder: (context, state) {
-                            final cubit = context.cubit<CreateInstallationEntryCubit>();
-                            final bool canSubmit = state.isUpdated && !state.isLoading;
-
-                            return AppButton(
-                              borderColor: Colors.grey,
-                              bgColor:
-                                  canSubmit
-                                      ? AppColors.green
-                                      : const Color(0xFFCBD5E1),
-                              isLoading: state.isLoading && state.isUpdated,
-                              label: state.newLines.isNotEmpty
-                                  ? 'Update'
-                                  : 'Submit',
-                              onPressed: canSubmit
-                                  ? () {
-                                      cubit.submit();
-                                    }
-                                  : null, 
-                            );
+                                .createEntry();
                           },
-                        ),
-                ) as PreferredSizeWidget,
-          body: Stack(
-            fit: StackFit.expand,
-            children: [
-              BlocListener<CreateInstallationEntryCubit,
-                  CreateInstallationState>(
-                listener: (_, state) async {
-                  if (state.isSuccess && state.successMsg.isNotNull) {
-                    if (!context.mounted) return;
+                        );
+                      },
+                    ),
+                  )
+                : TitleStatusAppBar(
+                    title: '$name',
+                    status: StringUtils.docStatus(status),
+                    textColor: AppColors.white,
+                    pageMode: PageMode2.installation,
+                    onSubmit: () {},
+                    onReject: () {},
+                    actionButton: (status == 1 && !gateEntryState.isModified)
+                        ? null
+                        : BlocBuilder<CreateInstallationEntryCubit,
+                            CreateInstallationState>(
+                            builder: (context, state) {
+                              final cubit =
+                                  context.cubit<CreateInstallationEntryCubit>();
+                              final bool canSubmit =
+                                  state.isUpdated && !state.isLoading;
+
+                              return AppButton(
+                                borderColor: Colors.grey,
+                                bgColor: canSubmit
+                                    ? AppColors.green
+                                    : const Color(0xFFCBD5E1),
+                                isLoading: state.isLoading && state.isUpdated,
+                                label: state.newLines.isNotEmpty
+                                    ? 'Update'
+                                    : 'Submit',
+                                onPressed: canSubmit
+                                    ? () {
+                                        cubit.submit();
+                                      }
+                                    : null,
+                              );
+                            },
+                          ),
+                  ) as PreferredSizeWidget,
+            body: Stack(
+              fit: StackFit.expand,
+              children: [
+                BlocListener<CreateInstallationEntryCubit,
+                    CreateInstallationState>(
+                  listenWhen: (previous, current) =>
+                      previous.isSuccess != current.isSuccess &&
+                      current.isSuccess &&
+                      current.successMsg.isNotNull,
+                  listener: (_, state) async {
                     await AppDialog.showSuccessDialog(
                       context,
                       title: 'Success',
@@ -115,90 +155,96 @@ class _NewInstallationEntryState extends State<NewInstallationEntry> {
                     );
 
                     if (!context.mounted) return;
-                    context.cubit<CreateInstallationEntryCubit>().errorHandled();
+                    _needsListRefresh = true;
+                    _refreshListCubit();
+                    context
+                        .cubit<CreateInstallationEntryCubit>()
+                        .errorHandled();
 
                     if (state.form.docStatus == 1) {
                       shouldAskForConfirmation.value = false;
-                      final gateEntryFilters =
-                          context.read<InstallationFilterCubit>().state;
-                      context.cubit<InstallationCubit>().fetchInitial(
-                            Pair(
-                              StringUtils.docStatusInt(gateEntryFilters.status),
-                              gateEntryFilters.query,
-                            ),
-                          );
                       Navigator.pop(context, true);
+                    } else {
+                      setState(() => _formRefreshToken++);
                     }
-                  }
+                  },
+                  child: BlocListener<CreateInstallationEntryCubit,
+                      CreateInstallationState>(
+                    listenWhen: (previous, current) =>
+                        previous.error != current.error &&
+                        current.error.isNotNull,
+                    listener: (_, state) async {
+                      await AppDialog.showErrorDialog(
+                        context,
+                        title: state.error?.title,
+                        content: state.error!.error,
+                        onTapDismiss: () {
+                          Navigator.of(context, rootNavigator: true).pop();
+                        },
+                      );
 
-                  if (state.error.isNotNull) {
-                    if (!context.mounted) return;
-                    await AppDialog.showErrorDialog(
-                      context,
-                      title: state.error?.title,
-                      content: state.error!.error,
-                      onTapDismiss: () {
-                        Navigator.of(context, rootNavigator: true).pop();
-                      },
-                    );
+                      if (!context.mounted) return;
+                      context
+                          .cubit<CreateInstallationEntryCubit>()
+                          .errorHandled();
+                    },
+                    child: InstallationEntryFormWidget(
+                      key: ValueKey('${name}_${status}_$_formRefreshToken'),
+                    ),
+                  ),
+                ),
+                BlocBuilder<CreateInstallationEntryCubit,
+                    CreateInstallationState>(
+                  buildWhen: (p, c) =>
+                      p.isLoading != c.isLoading ||
+                      p.isUpdated != c.isUpdated ||
+                      p.isModified != c.isModified ||
+                      p.newLines.length != c.newLines.length,
+                  builder: (context, state) {
+                    if (!state.isLoading) return const SizedBox.shrink();
 
-                    if (!context.mounted) return;
-                    context.cubit<CreateInstallationEntryCubit>().errorHandled();
-                  }
-                },
-                child: InstallationEntryFormWidget(key: ValueKey(status)),
-              ),
-              BlocBuilder<CreateInstallationEntryCubit,
-                  CreateInstallationState>(
-                buildWhen: (p, c) =>
-                    p.isLoading != c.isLoading ||
-                    p.isUpdated != c.isUpdated ||
-                    p.isModified != c.isModified ||
-                    p.newLines.length != c.newLines.length,
-                builder: (context, state) {
-                  if (!state.isLoading) return const SizedBox.shrink();
+                    final hasDoc =
+                        state.form.name != null && state.form.name!.isNotEmpty;
+                    final isImageUploading =
+                        hasDoc && state.isModified && !state.isUpdated;
+                    final isSubmitting = state.isUpdated;
 
-                  final hasDoc =
-                      state.form.name != null && state.form.name!.isNotEmpty;
-                  final isImageUploading =
-                      hasDoc && state.isModified && !state.isUpdated;
-                  final isSubmitting = state.isUpdated;
+                    if (!isImageUploading && !isSubmitting) {
+                      return const SizedBox.shrink();
+                    }
 
-                  if (!isImageUploading && !isSubmitting) {
-                    return const SizedBox.shrink();
-                  }
+                    final label = isImageUploading
+                        ? 'Uploading box images...'
+                        : (state.newLines.isNotEmpty
+                            ? 'Updating document...'
+                            : 'Submitting document...');
 
-                  final label = isImageUploading
-                      ? 'Uploading box images...'
-                      : (state.newLines.isNotEmpty
-                          ? 'Updating document...'
-                          : 'Submitting document...');
-
-                  return AbsorbPointer(
-                    child: ColoredBox(
-                      color: Colors.black.withValues(alpha: 0.25),
-                      child: Center(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const CircularProgressIndicator(),
-                            const SizedBox(height: 16),
-                            Text(
-                              label,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 15,
-                                fontWeight: FontWeight.w600,
+                    return AbsorbPointer(
+                      child: ColoredBox(
+                        color: Colors.black.withValues(alpha: 0.25),
+                        child: Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const CircularProgressIndicator(),
+                              const SizedBox(height: 16),
+                              Text(
+                                label,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                  );
-                },
-              ),
-            ],
+                    );
+                  },
+                ),
+              ],
+            ),
           ),
         );
       },

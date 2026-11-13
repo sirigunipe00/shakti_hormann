@@ -1,13 +1,19 @@
+import 'dart:async';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shakti_hormann/widgets/hormann_loading_controller.dart';
 
-/// Fast looping Hörmann door-and-frame assembly loader.
+/// Hörmann door-and-frame assembly loader.
 ///
 /// Branding lives only on the small navy nameplate mounted on the door —
 /// no page heading or logo above the scene.
+///
+/// Progress is **monotonic**: it never decreases and never shows 100% until
+/// [HormannLoadingController.complete] (when a [progressController] is used)
+/// or the widget is removed (legacy asymptote mode).
 class HormannDoorLoadingLoop extends StatefulWidget {
   const HormannDoorLoadingLoop({
     super.key,
@@ -17,6 +23,9 @@ class HormannDoorLoadingLoop extends StatefulWidget {
     this.loopDuration = const Duration(milliseconds: 2000),
     this.onFirstCycleComplete,
     this.holdCompleteAssembly = false,
+    this.progressController,
+    this.onProgressFinished,
+    this.expandBackgroundColor = Colors.white,
   });
 
   final double width;
@@ -26,19 +35,33 @@ class HormannDoorLoadingLoop extends StatefulWidget {
   final VoidCallback? onFirstCycleComplete;
 
   /// When true, the door/frame stays fully assembled for the entire lifetime
-  /// (no progressive build/teardown). Progress label still animates.
+  /// (no progressive build/teardown).
   final bool holdCompleteAssembly;
+
+  /// When set, progress/status are driven by this controller (page loads).
+  final HormannLoadingController? progressController;
+
+  /// Called once after [progressController] reaches a finished state.
+  final VoidCallback? onProgressFinished;
+
+  /// Fill behind the scene when [expand] is true.
+  /// Use [Colors.transparent] inside glass overlays so no nested white box shows.
+  final Color expandBackgroundColor;
 
   @override
   State<HormannDoorLoadingLoop> createState() => _HormannDoorLoadingLoopState();
 }
 
 class _HormannDoorLoadingLoopState extends State<HormannDoorLoadingLoop>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
+    with TickerProviderStateMixin {
+  late final AnimationController _doorController;
+  late final AnimationController _progressAnim;
+  Timer? _legacyCreepTimer;
   bool _cycleCompleteNotified = false;
-  double _previousT = 0;
+  bool _finishedNotified = false;
   bool _progressVisible = false;
+  double _displayedProgress = 0;
+  String _displayedLabel = 'Fitting the frame';
 
   static const _sceneW = 190.0;
   static const _sceneH = 235.0;
@@ -49,44 +72,194 @@ class _HormannDoorLoadingLoopState extends State<HormannDoorLoadingLoop>
   /// Fully seated door + frame (no partial jamb/door motion).
   static const _completeAssemblyT = 0.44;
 
+  /// Door timeline position while holding assembled during long waits.
+  static const _holdDoorT = 0.68;
+
+  bool get _usesExternalProgress => widget.progressController != null;
+
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
+    _doorController = AnimationController(
       vsync: this,
       duration: widget.loopDuration,
     );
-    _controller.addListener(_onTick);
+    _progressAnim = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 320),
+    )..addListener(() {
+        // Smooth lerp is applied in [_animateProgressTo].
+      });
 
-    if (widget.holdCompleteAssembly) {
-      // Static assembled door + light progress — avoids rebuilding the door
-      // scene every frame while image upload/compress runs on the same device.
+    widget.progressController?.addListener(_onExternalProgress);
+
+    if (_usesExternalProgress) {
       _progressVisible = true;
-      _controller.value = _completeAssemblyT;
-      _controller.repeat();
+      _syncFromExternal(animate: false);
+      _doorController.value = _doorTForProgress(_displayedProgress);
+    } else if (widget.holdCompleteAssembly) {
+      _progressVisible = true;
+      _doorController.value = _completeAssemblyT;
+      _startLegacyCreep();
     } else {
-      _controller.repeat();
+      // Visual door loop only — percentage uses separate monotonic creep.
+      _doorController.repeat();
+      _doorController.addListener(_onDoorTick);
+      _startLegacyCreep();
       Future<void>.delayed(const Duration(milliseconds: 180), () {
         if (mounted) setState(() => _progressVisible = true);
       });
     }
   }
 
-  void _onTick() {
-    final t = _controller.value;
-    final wrapped = _previousT > 0.9 && t < 0.1;
-    _previousT = t;
-    if (wrapped && !_cycleCompleteNotified) {
+  @override
+  void didUpdateWidget(covariant HormannDoorLoadingLoop oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.progressController != widget.progressController) {
+      oldWidget.progressController?.removeListener(_onExternalProgress);
+      widget.progressController?.addListener(_onExternalProgress);
+      _syncFromExternal(animate: true);
+    }
+  }
+
+  void _onDoorTick() {
+    final t = _doorController.value;
+    // Preserve legacy first-cycle callback without coupling it to %.
+    if (!_cycleCompleteNotified && t > 0.95) {
       _cycleCompleteNotified = true;
       widget.onFirstCycleComplete?.call();
     }
   }
 
+  void _onExternalProgress() {
+    _syncFromExternal(animate: true);
+  }
+
+  void _syncFromExternal({required bool animate}) {
+    final c = widget.progressController;
+    if (c == null) return;
+    final target = c.progress;
+    final label = widget.fixedStatusLabel?.isNotEmpty == true
+        ? widget.fixedStatusLabel!
+        : c.label;
+    _animateProgressTo(target, label: label, animate: animate);
+
+    // Drive door once toward hold pose; never rewind.
+    final doorTarget = _doorTForProgress(target);
+    if (doorTarget > _doorController.value) {
+      _doorController.animateTo(
+        doorTarget,
+        duration: const Duration(milliseconds: 450),
+        curve: Curves.easeOutCubic,
+      );
+    }
+
+    if (c.isCompleted && !_finishedNotified) {
+      _finishedNotified = true;
+      widget.onProgressFinished?.call();
+    }
+  }
+
+  double _doorTForProgress(double p) {
+    if (p >= 1.0) return _holdDoorT;
+    if (p <= 0) return 0;
+    // Map 0..0.92 loading into door timeline 0..hold.
+    return (p / 0.92 * _holdDoorT).clamp(0.0, _holdDoorT);
+  }
+
+  void _startLegacyCreep() {
+    _legacyCreepTimer?.cancel();
+    _legacyCreepTimer = Timer.periodic(const Duration(milliseconds: 380), (_) {
+      if (!mounted || _usesExternalProgress) return;
+      // Asymptote toward 90% — never claim 100% while still mounted.
+      final next = math.min(0.90, _displayedProgress + 0.014);
+      if (next <= _displayedProgress) return;
+      _animateProgressTo(
+        next,
+        label: widget.fixedStatusLabel?.isNotEmpty == true
+            ? widget.fixedStatusLabel!
+            : HormannLoadingController.labelFor(next),
+        animate: true,
+      );
+    });
+  }
+
+  double _progressAnimBegin = 0;
+  double _progressAnimEnd = 0;
+  VoidCallback? _progressAnimListener;
+
+  void _animateProgressTo(
+    double target, {
+    required String label,
+    required bool animate,
+  }) {
+    final clamped = target.clamp(0.0, 1.0);
+    // Never decrease displayed progress.
+    if (clamped < _displayedProgress - 0.0001) {
+      if (label != _displayedLabel) {
+        setState(() => _displayedLabel = label);
+      }
+      return;
+    }
+    if (!animate || (clamped - _displayedProgress).abs() < 0.001) {
+      setState(() {
+        _displayedProgress = math.max(_displayedProgress, clamped);
+        _displayedLabel = label;
+      });
+      return;
+    }
+
+    if (_progressAnimListener != null) {
+      _progressAnim.removeListener(_progressAnimListener!);
+      _progressAnimListener = null;
+    }
+
+    _progressAnimBegin = _displayedProgress;
+    _progressAnimEnd = clamped;
+    _displayedLabel = label;
+    _progressAnim
+      ..duration = Duration(
+        milliseconds:
+            (220 + ((_progressAnimEnd - _progressAnimBegin) * 500))
+                .round()
+                .clamp(180, 700),
+      )
+      ..stop()
+      ..reset();
+
+    void listener() {
+      final v = _progressAnimBegin +
+          (_progressAnimEnd - _progressAnimBegin) *
+              Curves.easeOutCubic.transform(_progressAnim.value);
+      setState(() {
+        _displayedProgress = math.max(_displayedProgress, v);
+        _displayedLabel = label;
+      });
+    }
+
+    _progressAnimListener = listener;
+    _progressAnim
+      ..addListener(listener)
+      ..forward().whenComplete(() {
+        if (_progressAnimListener == listener) {
+          _progressAnim.removeListener(listener);
+          _progressAnimListener = null;
+        }
+      });
+  }
+
   @override
   void dispose() {
-    _controller
-      ..removeListener(_onTick)
+    _legacyCreepTimer?.cancel();
+    widget.progressController?.removeListener(_onExternalProgress);
+    if (_progressAnimListener != null) {
+      _progressAnim.removeListener(_progressAnimListener!);
+      _progressAnimListener = null;
+    }
+    _doorController
+      ..removeListener(_onDoorTick)
       ..dispose();
+    _progressAnim.dispose();
     super.dispose();
   }
 
@@ -97,45 +270,12 @@ class _HormannDoorLoadingLoopState extends State<HormannDoorLoadingLoop>
     final sceneH = _sceneH * scale;
     final progressW = 210 * scale;
 
-    // Form overlays: paint the door once; only the thin progress bar ticks.
-    if (widget.holdCompleteAssembly) {
-      final content = Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          SizedBox(
-            width: sceneW,
-            height: sceneH,
-            child: _DoorScene(t: _completeAssemblyT, scale: scale),
-          ),
-          SizedBox(height: 36 * scale),
-          AnimatedBuilder(
-            animation: _controller,
-            builder: (context, _) {
-              return AnimatedOpacity(
-                opacity: _progressVisible ? 1 : 0,
-                duration: const Duration(milliseconds: 250),
-                child: _ProgressBar(
-                  t: _controller.value,
-                  width: progressW,
-                  fixedStatusLabel: widget.fixedStatusLabel,
-                ),
-              );
-            },
-          ),
-        ],
-      );
-
-      if (!widget.expand) return content;
-      return ColoredBox(
-        color: Colors.white,
-        child: Center(child: content),
-      );
-    }
-
     final content = AnimatedBuilder(
-      animation: _controller,
+      animation: Listenable.merge([_doorController, _progressAnim]),
       builder: (context, _) {
-        final t = _controller.value;
+        final doorT = widget.holdCompleteAssembly && !_usesExternalProgress
+            ? _completeAssemblyT
+            : _doorController.value;
 
         return Column(
           mainAxisSize: MainAxisSize.min,
@@ -143,16 +283,16 @@ class _HormannDoorLoadingLoopState extends State<HormannDoorLoadingLoop>
             SizedBox(
               width: sceneW,
               height: sceneH,
-              child: _DoorScene(t: t, scale: scale),
+              child: _DoorScene(t: doorT, scale: scale),
             ),
             SizedBox(height: 36 * scale),
             AnimatedOpacity(
               opacity: _progressVisible ? 1 : 0,
               duration: const Duration(milliseconds: 250),
               child: _ProgressBar(
-                t: t,
+                t: _displayedProgress,
                 width: progressW,
-                fixedStatusLabel: widget.fixedStatusLabel,
+                fixedStatusLabel: _displayedLabel,
               ),
             ),
           ],
@@ -160,13 +300,10 @@ class _HormannDoorLoadingLoopState extends State<HormannDoorLoadingLoop>
       },
     );
 
-    if (!widget.expand) {
-      // Intrinsic size only — must not expand to fill parent (form overlays).
-      return content;
-    }
+    if (!widget.expand) return content;
 
     return ColoredBox(
-      color: Colors.white,
+      color: widget.expandBackgroundColor,
       child: Center(child: content),
     );
   }
@@ -750,7 +887,8 @@ class _ProgressBar extends StatelessWidget {
     if (pct < 55) return 'Checking the finish';
     if (pct < 66) return 'Opening the door';
     if (pct < 88) return 'Closing up';
-    return 'Almost ready';
+    if (pct < 100) return 'Almost ready';
+    return 'Ready';
   }
 
   @override

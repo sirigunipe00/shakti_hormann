@@ -73,34 +73,26 @@ final result = childResponse.process((r) => right(r.data ?? []));
     filters.add(['name', 'in', parentList]);
   }
 
-
-
-  if (salesOrder == null || salesOrder.isEmpty) {
-    
-
-    if (docStatus.isNotNull && docStatus != '4' && docStatus != '1') {
-      filters
-        ..add(['status', '=', docStatus])
-        ..add(['docstatus', '!=', 1]);
-    } else if (docStatus == '1') {
-      filters.add(['docstatus', '=', 1]);
-    }
-
-
-    if (search != null && search.isNotEmpty) {
-      filters.add(['name', 'like', '%$search%']);
-    }
-
-
-    final users = $sl.get<LoggedInUser>();
-    final hasRole = users.roles!.any((r) => r.role == 'Admin Role-SH');
-
-    final plantName = user().plantName;
-
-    if (!hasRole && plantName != null && plantName.isNotEmpty) {
-      filters.add(['plant_name', '=', plantName]);
-    }
+  // Always apply status / search / plant — even when SO filter is active.
+  if (docStatus.isNotNull && docStatus != '4' && docStatus != '1') {
+    filters
+      ..add(['status', '=', docStatus])
+      ..add(['docstatus', '!=', 1]);
+  } else if (docStatus == '1') {
+    filters.add(['docstatus', '=', 1]);
   }
+
+  if (search != null && search.isNotEmpty) {
+    filters.add(['name', 'like', '%$search%']);
+  }
+
+  final users = $sl.get<LoggedInUser>();
+  final hasRole = users.roles!.any((r) => r.role == 'Admin Role-SH');
+  final plantName = user().plantName;
+  if (!hasRole && plantName != null && plantName.isNotEmpty) {
+    filters.add(['plant_name', '=', plantName]);
+  }
+
   final requestConfig = RequestConfig(
     url: Urls.getList,
     parser: (json) {
@@ -110,10 +102,25 @@ final result = childResponse.process((r) => right(r.data ?? []));
     reqParams: {
       'filters': jsonEncode(filters),
       'limit_start': start,
-      'limit_page_length': 'None',
+      'limit_page_length': 20,
       'order_by': 'creation desc',
       'doctype': 'Vehicle Reporting and Dispatch Loading',
-      'fields': jsonEncode(['*']),
+      'fields': jsonEncode([
+        'name',
+        'docstatus',
+        'status',
+        'plant_name',
+        'vehicle_number',
+        'transporter_name',
+        'transporter_name2',
+        'linked_transporter_confirmation',
+        'vehicle_reporting_entry_vre_date',
+        'arrival_date',
+        'arrival_time',
+        'driver_contact',
+        'creation',
+        'modified',
+      ]),
     },
     headers: {
       HttpHeaders.contentTypeHeader: 'application/json',

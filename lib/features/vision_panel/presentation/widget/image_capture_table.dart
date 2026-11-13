@@ -44,8 +44,7 @@ class _ImageCaptureTableState extends State<ImageCaptureTable> {
           entries: validEntries,
           activeIndex: activeIndex,
           isSubmitted: isSubmitted,
-          isUpdating:
-              state.isLoading && !state.isUpdated && state.isModified,
+          isUpdating: state.isLoading && !state.isUpdated && state.isModified,
           onCapture: (globalIndex) =>
               _captureBoxPhoto(context, cubit, globalIndex),
           onViewImage: (line) => _previewImage(context, line),
@@ -80,8 +79,11 @@ class _ImageCaptureTableState extends State<ImageCaptureTable> {
 
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) =>
-            _ImageViewerPage(localFile: localFile, imageUrl: resolvedUrl,boxLabel: 'Box No: ${line.boxNo}'),
+        builder: (_) => _ImageViewerPage(
+          localFile: localFile,
+          imageUrl: resolvedUrl,
+          boxLabel: 'Box No: ${line.boxNo}',
+        ),
       ),
     );
   }
@@ -114,97 +116,71 @@ class _BoxDetailsTable extends StatelessWidget {
   final void Function(int globalIndex) onCapture;
   final void Function(VisionPanelEntryLines line) onViewImage;
 
+  static const _headerBlue = Color(0xFF0E2A5C);
+  static const _line = Color(0xFFE6EAF2);
+
   bool _hasPhoto(VisionPanelEntryLines line) =>
       line.visionPhotoImg != null ||
       (line.image != null && line.image!.isNotEmpty);
 
-  String _zoneText(VisionPanelEntryLines line) {
+  String _allocLabel(VisionPanelEntryLines line) {
+    final status = (line.allocationStatus ?? 'Unallocated').trim();
     final zone = line.currentZone?.trim() ?? '';
-    return zone.isEmpty ? '-' : zone;
+    if (zone.isEmpty || zone == '-') return status;
+    return '$status · $zone';
+  }
+
+  bool _isUnallocated(VisionPanelEntryLines line) {
+    final s = (line.allocationStatus ?? 'Unallocated').toLowerCase();
+    return s.contains('unallocated');
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 18),
-      clipBehavior: Clip.antiAlias,
+      width: double.infinity,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade300),
-      ),
-      child: Table(
-        border: TableBorder(
-          horizontalInside: BorderSide(color: Colors.grey.shade300),
-          verticalInside: BorderSide(color: Colors.grey.shade300),
-        ),
-        columnWidths: const {
-          0: FixedColumnWidth(44),
-          1: FlexColumnWidth(1.1),
-          2: FlexColumnWidth(1.7),
-          3: FlexColumnWidth(1.5),
-          4: FlexColumnWidth(1.6),
-        },
-        children: [
-          const TableRow(
-            decoration: BoxDecoration(color: AppColors.darkBlue),
-            children: [
-              _HeaderCell('#'),
-              _HeaderCell('Box No.'),
-              _HeaderCell('Box Code'),
-              _HeaderCell('Allocation'),
-              _HeaderCell('Photo'),
-            ],
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0xFFE8ECF4)),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF0E1446).withValues(alpha: 0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
           ),
-          for (var displayIndex = 0;
-              displayIndex < entries.length;
-              displayIndex++)
-            TableRow(
-              decoration: const BoxDecoration(color: Color(0xFFF3F4F8)),
-              children: [
-                _Cell(
-                  child: Text(
-                    (displayIndex + 1).toString().padLeft(2, '0'),
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF2C4A9E),
-                    ),
-                  ),
+        ],
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _HeaderRow(),
+          if (entries.isEmpty)
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+              child: Text(
+                'No box rows yet. Add a product item to capture photos.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF6B7280),
+                  fontFamily: 'Urbanist',
                 ),
-                _Cell(
-                  child: Text(
-                    entries[displayIndex].value.boxNo ?? '',
-                  ),
-                ),
-                _Cell(
-                  child: Text(
-                    entries[displayIndex].value.boxCode ?? '-',
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-                _Cell(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        entries[displayIndex].value.allocationStatus ??
-                            'Unallocated',
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(fontWeight: FontWeight.w600),
-                      ),
-                      Text(
-                        _zoneText(entries[displayIndex].value),
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: Colors.grey.shade700,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                _Cell(child: _buildPhotoCell(entries[displayIndex])),
-              ],
-            ),
+              ),
+            )
+          else
+            for (var i = 0; i < entries.length; i++)
+              _DataRow(
+                serial: (i + 1).toString().padLeft(2, '0'),
+                line: entries[i].value,
+                isAlt: i.isOdd,
+                isLast: i == entries.length - 1,
+                allocLabel: _allocLabel(entries[i].value),
+                isUnallocated: _isUnallocated(entries[i].value),
+                photo: _buildPhotoCell(entries[i]),
+              ),
         ],
       ),
     );
@@ -215,72 +191,235 @@ class _BoxDetailsTable extends StatelessWidget {
     final line = entry.value;
 
     if (_hasPhoto(line)) {
-      return InkWell(
-        onTap: () => onViewImage(line),
-        child: Container(
-          width: double.infinity,
-          color: const Color(0xFF5CB88F),
-          padding: const EdgeInsets.symmetric(vertical: 10),
-          alignment: Alignment.center,
-          child: const Text(
-            'View Image',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+      return Material(
+        color: const Color(0xFF16A34A),
+        borderRadius: BorderRadius.circular(8),
+        child: InkWell(
+          onTap: () => onViewImage(line),
+          borderRadius: BorderRadius.circular(8),
+          child: const SizedBox(
+            height: 34,
+            width: 64,
+            child: Center(
+              child: Text(
+                'View',
+                maxLines: 1,
+                softWrap: false,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 12,
+                  fontFamily: 'Urbanist',
+                ),
+              ),
+            ),
           ),
         ),
       );
     }
 
     if (isSubmitted) {
-      return const SizedBox();
+      return const Text(
+        '—',
+        style: TextStyle(
+          color: Color(0xFF9CA3AF),
+          fontWeight: FontWeight.w700,
+        ),
+      );
     }
+
     final isRowActive = activeIndex != null && line.itemIndex == activeIndex;
 
-    return IconButton(
-      icon: Icon(
-        Icons.camera_alt,
-        color: isRowActive ? AppColors.black : Colors.grey.shade400,
+    return SizedBox(
+      width: 40,
+      height: 34,
+      child: IconButton(
+        padding: EdgeInsets.zero,
+        constraints: const BoxConstraints(minWidth: 40, minHeight: 34),
+        icon: Icon(
+          Icons.camera_alt_rounded,
+          size: 20,
+          color: isRowActive ? AppColors.darkBlue : Colors.grey.shade400,
+        ),
+        onPressed:
+            isRowActive && !isUpdating ? () => onCapture(globalIndex) : null,
       ),
-      onPressed:
-          isRowActive && !isUpdating ? () => onCapture(globalIndex) : null,
     );
   }
 }
 
-class _HeaderCell extends StatelessWidget {
-  const _HeaderCell(this.text);
+class _HeaderRow extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: _BoxDetailsTable._headerBlue,
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+      child: const Row(
+        children: [
+          SizedBox(width: 28, child: _HCell('#')),
+          SizedBox(width: 48, child: _HCell('Box')),
+          Expanded(flex: 3, child: _HCell('Box Code')),
+          Expanded(flex: 2, child: _HCell('Alloc.')),
+          SizedBox(width: 68, child: _HCell('Photo')),
+        ],
+      ),
+    );
+  }
+}
+
+class _HCell extends StatelessWidget {
+  const _HCell(this.text);
+
   final String text;
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-      child: Text(
-        text,
-        textAlign: TextAlign.center,
-        style: const TextStyle(
-          color: Colors.white,
-          fontWeight: FontWeight.bold,
-        ),
+    return Text(
+      text,
+      textAlign: TextAlign.center,
+      maxLines: 1,
+      softWrap: false,
+      overflow: TextOverflow.ellipsis,
+      style: const TextStyle(
+        color: Colors.white,
+        fontWeight: FontWeight.w700,
+        fontSize: 11,
+        fontFamily: 'Urbanist',
       ),
     );
   }
 }
 
-class _Cell extends StatelessWidget {
-  const _Cell({required this.child});
-  final Widget child;
+class _DataRow extends StatelessWidget {
+  const _DataRow({
+    required this.serial,
+    required this.line,
+    required this.isAlt,
+    required this.isLast,
+    required this.allocLabel,
+    required this.isUnallocated,
+    required this.photo,
+  });
+
+  final String serial;
+  final VisionPanelEntryLines line;
+  final bool isAlt;
+  final bool isLast;
+  final String allocLabel;
+  final bool isUnallocated;
+  final Widget photo;
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
-      child: Center(child: child),
+    return Container(
+      decoration: BoxDecoration(
+        color: isAlt ? const Color(0xFFF8FAFD) : Colors.white,
+        border: isLast
+            ? null
+            : const Border(bottom: BorderSide(color: _BoxDetailsTable._line)),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          SizedBox(
+            width: 28,
+            child: Text(
+              serial,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w800,
+                color: Color(0xFF2957A4),
+                fontFamily: 'Urbanist',
+              ),
+            ),
+          ),
+          SizedBox(
+            width: 48,
+            child: Text(
+              line.boxNo ?? '—',
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF0E1446),
+                fontFamily: 'Urbanist',
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 3,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: Text(
+                line.boxCode ?? '—',
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF0E1446),
+                  fontFamily: 'Urbanist',
+                  height: 1.25,
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 2,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 2),
+              child: Align(
+                alignment: Alignment.center,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: isUnallocated
+                        ? const Color(0xFFFFF4E4)
+                        : const Color(0xFFE8F8EF),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    allocLabel,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w800,
+                      color: isUnallocated
+                          ? const Color(0xFFC97800)
+                          : const Color(0xFF15803D),
+                      fontFamily: 'Urbanist',
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          SizedBox(
+            width: 68,
+            child: Center(child: photo),
+          ),
+        ],
+      ),
     );
   }
 }
 
 class _ImageViewerPage extends StatelessWidget {
-  const _ImageViewerPage({this.localFile, this.imageUrl, required this.boxLabel});
+  const _ImageViewerPage({
+    this.localFile,
+    this.imageUrl,
+    required this.boxLabel,
+  });
 
   final File? localFile;
   final String? imageUrl;
@@ -319,7 +458,7 @@ class _ImageViewerPage extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: AppColors.darkBlue,
         iconTheme: const IconThemeData(color: Colors.white),
-        title:  Text(boxLabel, style: const TextStyle(color: Colors.white)),
+        title: Text(boxLabel, style: const TextStyle(color: Colors.white)),
       ),
       body: Center(
         child: InteractiveViewer(minScale: 0.8, maxScale: 5, child: content),

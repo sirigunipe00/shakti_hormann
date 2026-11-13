@@ -24,12 +24,37 @@ class HardwareFormWidget extends StatefulWidget {
 
 class __HardwareFormWidgetState extends State<HardwareFormWidget> {
   final ScrollController _scrollController = ScrollController();
+  final GlobalKey _itemsTableKey = GlobalKey();
   final focusNodes = List.generate(40, (index) => FocusNode());
+  int _lastLinesCount = 0;
 
   @override
   void dispose() {
     _scrollController.dispose();
     super.dispose();
+  }
+
+  void _scrollItemsIntoView() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final ctx = _itemsTableKey.currentContext;
+      if (ctx != null) {
+        Scrollable.ensureVisible(
+          ctx,
+          duration: const Duration(milliseconds: 350),
+          curve: Curves.easeOutCubic,
+          alignmentPolicy: ScrollPositionAlignmentPolicy.keepVisibleAtEnd,
+        );
+        return;
+      }
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 350),
+          curve: Curves.easeOutCubic,
+        );
+      }
+    });
   }
 
   @override
@@ -57,8 +82,19 @@ class __HardwareFormWidgetState extends State<HardwareFormWidget> {
               orElse: () {},
               success: (lines) {
                 context.cubit<CreateHardwareCubit>().addAllLines(lines);
+                _scrollItemsIntoView();
               },
             );
+          },
+        ),
+        BlocListener<CreateHardwareCubit, CreateHardwareState>(
+          listenWhen: (previous, current) =>
+              previous.lines.length != current.lines.length,
+          listener: (_, state) {
+            if (state.lines.length > _lastLinesCount) {
+              _scrollItemsIntoView();
+            }
+            _lastLinesCount = state.lines.length;
           },
         ),
         BlocListener<HardwarePackingItemsCubit, HardwarePackingItemsState>(
@@ -201,139 +237,187 @@ class __HardwareFormWidgetState extends State<HardwareFormWidget> {
           },
         ),
       ],
-      child: SingleChildScrollView(
-        controller: _scrollController,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (!isReadOnly) ...[
-              Row(
-                children: [
-                  Expanded(
-                    child:
-                        packingState.isLoading
-                            ? const _AIExtractionLoadingCard()
-                            : _ScanCard(
-                              icon: Icons.camera_alt,
-                              label: 'Capture MES Sticker',
-                              onTap:
-                                  () =>
-                                      status == 1
-                                          ? null
-                                          : _captureSticker(context),
-                            ),
-                  ),
-                ],
-              ),
-            ],
-
-            const SizedBox(height: 3),
-
-            const SectionHeader(
-              title: 'QR Details',
-              assetIcon: 'assets/images/qr.svg',
-            ),
-            Container(
-              padding: const EdgeInsets.only(top: 12, left: 12, right: 12),
-              width: MediaQuery.of(context).size.width,
-              margin: const EdgeInsets.symmetric(horizontal: 2),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.grey.shade300),
-              ),
-              child: SpacedColumn(
-                defaultHeight: 6,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: InputField(
-                          key: ValueKey(
-                            'hw_so_${newform.name}_${newform.salesOrderNo}',
-                          ),
-                          readOnly: true,
-                          initialValue: newform.salesOrderNo,
-                          title: 'Sales Order No',
-                          hintText: 'Scan to add details',
-                          isRequired: true,
-                          borderColor: AppColors.grey,
-                          onChanged: (p0) {
-                            context.cubit<CreateHardwareCubit>().onValueChanged(
-                              salesOrderNo: p0,
-                            );
-                          },
-                          focusNode: focusNodes.elementAt(14),
-                        ),
+      child: ColoredBox(
+        color: const Color(0xFFF7F8FA),
+        child: SingleChildScrollView(
+          controller: _scrollController,
+          padding: ShellInsets.scrollPadding(
+            context,
+            left: 16,
+            right: 16,
+            top: 12,
+          ),
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (!isReadOnly) ...[
+                packingState.isLoading
+                    ? const _AIExtractionLoadingCard()
+                    : _ScanCard(
+                        icon: Icons.camera_alt_rounded,
+                        label: 'Capture MES Sticker',
+                        hint: 'SO, box count, and items fill in after scan',
+                        onTap: status == 1
+                            ? () {}
+                            : () => _captureSticker(context),
                       ),
-                      const SizedBox(width: 5),
-                      Expanded(
-                        child: InputField(
-                          key: ValueKey(
-                            'hw_box_${newform.name}_${newform.boxCount}',
-                          ),
-                          readOnly: true,
-                          initialValue: newform.boxCount?.toString() ?? '0',
-                          title: 'Box Count',
-                          hintText: 'Scan to add details',
-                          isRequired: true,
-                          borderColor: AppColors.grey,
-                          onChanged: (p0) {
-                            context.cubit<CreateHardwareCubit>().onValueChanged(
-                              boxCount: int.tryParse(p0) ?? 0,
-                            );
-                          },
-                          focusNode: focusNodes.elementAt(15),
-                        ),
-                      ),
-                    ],
-                  ),
-                  InputField(
-                    key: ValueKey(
-                      'hw_date_${newform.name}_${newform.captueDate}',
+                const SizedBox(height: 12),
+              ],
+
+              const SectionHeader(
+                title: 'QR Details',
+                assetIcon: 'assets/images/qr.svg',
+              ),
+              Container(
+                padding: const EdgeInsets.fromLTRB(12, 12, 12, 14),
+                width: MediaQuery.of(context).size.width,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: const Color(0xFFE8ECF4)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF0E1446).withValues(alpha: 0.04),
+                      blurRadius: 10,
+                      offset: const Offset(0, 3),
                     ),
-                    readOnly: true,
-                    initialValue:
-                        (newform.captueDate != null &&
-                                newform.captueDate!.contains('.'))
-                            ? newform.captueDate
-                            : DFU.ddMMyyyyFromStr(
+                  ],
+                ),
+                child: SpacedColumn(
+                  defaultHeight: 8,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: InputField(
+                            key: ValueKey(
+                              'hw_so_${newform.name}_${newform.salesOrderNo}',
+                            ),
+                            readOnly: true,
+                            initialValue: newform.salesOrderNo,
+                            title: 'Sales Order No',
+                            hintText: 'Scan to add details',
+                            isRequired: true,
+                            borderColor: AppColors.grey,
+                            onChanged: (p0) {
+                              context
+                                  .cubit<CreateHardwareCubit>()
+                                  .onValueChanged(salesOrderNo: p0);
+                            },
+                            focusNode: focusNodes.elementAt(14),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: InputField(
+                            key: ValueKey(
+                              'hw_box_${newform.name}_${newform.boxCount}',
+                            ),
+                            readOnly: true,
+                            initialValue: newform.boxCount?.toString() ?? '0',
+                            title: 'Box Count',
+                            hintText: 'Scan to add details',
+                            isRequired: true,
+                            borderColor: AppColors.grey,
+                            onChanged: (p0) {
+                              context
+                                  .cubit<CreateHardwareCubit>()
+                                  .onValueChanged(
+                                    boxCount: int.tryParse(p0) ?? 0,
+                                  );
+                            },
+                            focusNode: focusNodes.elementAt(15),
+                          ),
+                        ),
+                      ],
+                    ),
+                    InputField(
+                      key: ValueKey(
+                        'hw_date_${newform.name}_${newform.captueDate}',
+                      ),
+                      readOnly: true,
+                      initialValue: (newform.captueDate != null &&
+                              newform.captueDate!.contains('.'))
+                          ? newform.captueDate
+                          : DFU.ddMMyyyyFromStr(
                               newform.captueDate.toString(),
                             ),
-                    title: 'Print Date',
-                    hintText: 'Scan to add details',
-                    isRequired: true,
-                    borderColor: AppColors.grey,
-                    onChanged: (p0) {
-                      context.cubit<CreateHardwareCubit>().onValueChanged(
-                        captueDate: p0,
-                      );
-                    },
-                    focusNode: focusNodes.elementAt(15),
+                      title: 'Print Date',
+                      hintText: 'Scan to add details',
+                      isRequired: true,
+                      borderColor: AppColors.grey,
+                      onChanged: (p0) {
+                        context.cubit<CreateHardwareCubit>().onValueChanged(
+                          captueDate: p0,
+                        );
+                      },
+                      focusNode: focusNodes.elementAt(16),
+                    ),
+                    if ((newform.salesOrderNo?.isEmpty ?? true) && !isReadOnly)
+                      const Text(
+                        'Capture an MES sticker to fill Sales Order, box count, and print date.',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Color(0xFF6B7280),
+                          fontFamily: 'Urbanist',
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+
+              if (formState.lines.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                _CaptureProgressBanner(lines: formState.lines),
+              ],
+
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  const Expanded(
+                    child: SectionHeader(
+                      title: 'Item Loaded',
+                      assetIcon: 'assets/images/vehicleinvoicicon.svg',
+                    ),
                   ),
+                  if (formState.lines.isNotEmpty)
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 5,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFEFF6FF),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: const Color(0xFFBFDBFE)),
+                      ),
+                      child: Text(
+                        '${formState.lines.length} '
+                        '${formState.lines.length == 1 ? 'Item' : 'Items'}',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w800,
+                          color: Color(0xFF1E3A8A),
+                          fontFamily: 'Urbanist',
+                        ),
+                      ),
+                    ),
                 ],
               ),
-            ),
-
-            if (formState.lines.isNotEmpty) ...[
-              _CaptureProgressBanner(lines: formState.lines),
-              const SizedBox(height: 12),
+              KeyedSubtree(
+                key: _itemsTableKey,
+                child: HardwareItemWidget(
+                  items: formState.lines,
+                  isCompleted: isReadOnly,
+                  onDelete: (_) {},
+                ),
+              ),
+              // Extra spacer so the last of 7+ rows clears the floating nav.
+              SizedBox(height: formState.lines.length >= 5 ? 12 : 0),
             ],
-
-            const SectionHeader(
-              title: 'Item Loaded',
-              assetIcon: 'assets/images/vehicleinvoicicon.svg',
-            ),
-            HardwareItemWidget(
-              items: formState.lines,
-              isCompleted: isReadOnly,
-              onDelete: (slNo) {
-                context.read<CreateHardwareCubit>();
-              },
-            ),
-          ],
+          ),
         ),
       ),
     );
@@ -453,47 +537,67 @@ class _ScanCard extends StatelessWidget {
     required this.icon,
     required this.label,
     required this.onTap,
+    this.hint,
   });
 
   final IconData icon;
   final String label;
+  final String? hint;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: DashedBorderBox(
-        borderRadius: 16,
-        child: Container(
-          height: 150,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                width: 72,
-                height: 72,
-                decoration: const BoxDecoration(
-                  color: Color(0xFF2563EB),
-                  shape: BoxShape.circle,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: DashedBorderBox(
+          borderRadius: 16,
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(vertical: 22, horizontal: 12),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 64,
+                  height: 64,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFF0E2A5C),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(icon, color: Colors.white, size: 28),
                 ),
-                child: Icon(icon, color: Colors.white, size: 32),
-              ),
-              const SizedBox(height: 14),
-              Text(
-                label,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF1E293B),
+                const SizedBox(height: 12),
+                Text(
+                  label,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF0E1446),
+                    fontFamily: 'Urbanist',
+                  ),
                 ),
-              ),
-            ],
+                if (hint != null) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    hint!,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Color(0xFF6B7280),
+                      fontFamily: 'Urbanist',
+                    ),
+                  ),
+                ],
+              ],
+            ),
           ),
         ),
       ),

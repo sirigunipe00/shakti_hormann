@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shakti_hormann/core/utils/packing_sticker_decoder.dart';
+import 'package:shakti_hormann/core/utils/shell_insets.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
 class ScanShutterPage extends StatefulWidget {
@@ -81,11 +82,16 @@ class _ScanShutterPageState extends State<ScanShutterPage> {
             ),
           ),
 
-          const Align(
+          Align(
             alignment: Alignment.bottomCenter,
             child: Padding(
-              padding: EdgeInsets.only(bottom: 80),
-              child: Text(
+              padding: EdgeInsets.fromLTRB(
+                24,
+                0,
+                24,
+                ShellInsets.overlayAboveNav(context),
+              ),
+              child: const Text(
                 'Point camera at the shutter sticker barcode',
                 style: TextStyle(
                   color: Colors.white,

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cunning_document_scanner/cunning_document_scanner.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:shakti_hormann/core/utils/shell_insets.dart';
 import 'package:shakti_hormann/features/hardware_packing/presentation/ui/widget/mes_sticker_validator.dart';
 
 class ScanHardWarePage extends StatefulWidget {
@@ -173,7 +174,12 @@ class _ReadyView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+      padding: EdgeInsets.fromLTRB(
+        20,
+        8,
+        20,
+        ShellInsets.overlayAboveNav(context, gap: 12),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -413,7 +419,12 @@ class _ResultView extends StatelessWidget {
   Widget build(BuildContext context) {
     final allOk = result.allOk;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+      padding: EdgeInsets.fromLTRB(
+        16,
+        4,
+        16,
+        ShellInsets.overlayAboveNav(context, gap: 12),
+      ),
       child: Column(
         children: [
           Container(

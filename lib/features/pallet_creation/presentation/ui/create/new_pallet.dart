@@ -21,6 +21,20 @@ class NewPallet extends StatefulWidget {
 }
 
 class _NewPalletState extends State<NewPallet> {
+  /// True after a successful save/update so the list refreshes on back.
+  bool _needsListRefresh = false;
+
+  void _refreshListCubit() {
+    if (!mounted) return;
+    final filters = context.read<PalletFilterCubit>().state;
+    context.cubit<PalletCubit>().fetchInitial(
+      Pair(
+        StringUtils.docStatusInt(filters.status),
+        filters.query,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final gateEntryState = context.read<CreatePalletCubit>().state;
@@ -28,141 +42,149 @@ class _NewPalletState extends State<NewPallet> {
     final status = newform.docStatus;
     final name = newform.name;
 
-    return Scaffold(
-      backgroundColor: AppColors.white,
-     appBar:
-    status == null
-        ? SimpleAppBar(
-          title: 'New Pallet Creation',
-          actionButton: BlocBuilder<CreatePalletCubit, CreatePalletState>(
-            builder: (context, state) {
-              final canSubmit =
-                  (state.form.salesOrder?.isNotEmpty ?? false) &&
-                  state.lines.isNotEmpty;
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) return;
+        Navigator.of(context).pop(_needsListRefresh);
+      },
+      child: Scaffold(
+        backgroundColor: AppColors.white,
+        appBar: status == null
+            ? SimpleAppBar(
+                title: 'New Pallet Creation',
+                actionButton: BlocBuilder<CreatePalletCubit, CreatePalletState>(
+                  builder: (context, state) {
+                    final canSubmit =
+                        (state.form.salesOrder?.isNotEmpty ?? false) &&
+                        state.lines.isNotEmpty;
 
-              return AppButton(
-                borderColor: Colors.grey,
-                bgColor:
-                    !canSubmit
-                        ? Colors.grey.shade300
-                        : (state.view == PalletView.create
-                            ? const Color.fromARGB(255, 250, 193, 47)
-                            : AppColors.green),
-                textStyle: TextStyle(
-                  color: canSubmit ? AppColors.darkBlue : Colors.grey.shade600,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 15,
-                ),
-                isLoading: state.isLoading,
-                label: state.view.toName(),
-                onPressed:
-                    canSubmit
-                        ? () {
-                          context.cubit<CreatePalletCubit>().save();
-                        }
-                        : null,
-              );
-            },
-          ),
-        )
-              : TitleStatusAppBar(
-                    title: '  $name',
-                    status: StringUtils.docStatus(status),
-                    textColor: AppColors.white,
-                    pageMode: PageMode2.palletCreation,
-                    onSubmit: () {},
-                    onReject: () {},
-                    actionButton:
-                        (status == 1 && !gateEntryState.isModified)
-                            ? null
-                            : BlocBuilder<CreatePalletCubit, CreatePalletState>(
-                              builder: (context, state) {
-                                final currentStatus = state.form.docStatus;
-
-                                if (currentStatus == 1 && !state.isModified) {
-                                  return const SizedBox.shrink();
-                                }
-                                final isReadyToSubmit =
-                                    currentStatus == 0 && !state.isModified;
-
-                                return AppButton(
-                                  borderColor: Colors.grey,
-                                  isLoading: state.isLoading,
-                                  label:
-                                      isReadyToSubmit
-                                          ? 'Submit'
-                                          : state.view.toName(),
-                                  onPressed: () {
-                                    if (isReadyToSubmit) {
-                                      context
-                                          .cubit<CreatePalletCubit>()
-                                          .submit();
-                                    } else {
-                                      context.cubit<CreatePalletCubit>().save();
-                                    }
-                                  },
-                                );
-                              },
+                    return AppButton(
+                      borderColor: Colors.grey,
+                      bgColor: !canSubmit
+                          ? Colors.grey.shade300
+                          : (state.view == PalletView.create
+                              ? const Color.fromARGB(255, 250, 193, 47)
+                              : AppColors.green),
+                      textStyle: TextStyle(
+                        color: canSubmit
+                            ? AppColors.darkBlue
+                            : Colors.grey.shade600,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                      ),
+                      isLoading: state.isLoading,
+                      label: state.view.toName(),
+                      onPressed: () {
+                        if (!canSubmit) {
+                          final needsOrder =
+                              state.form.salesOrder?.isEmpty ?? true;
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                needsOrder
+                                    ? 'Select a Sales Order first'
+                                    : 'Add at least one pallet item',
+                              ),
+                              behavior: SnackBarBehavior.floating,
                             ),
-                  )
-                  as PreferredSizeWidget,
-      body: BlocBuilder<CreatePalletCubit, CreatePalletState>(
-        builder: (context, overlayState) {
-          return FormPageLoadingStack(
-            isLoading: overlayState.isLoading,
-            message: 'Please wait...',
-            statusLabel: 'Processing...',
-            child: BlocListener<CreatePalletCubit, CreatePalletState>(
-        listener: (_, state) async {
-          if (state.isSuccess && state.successMsg.isNotNull) {
-            final isSubmitted = state.view == PalletView.completed;
-
-            AppDialog.showSuccessDialog(
-              context,
-              title: 'Success',
-              content: state.successMsg.valueOrEmpty,
-              onTapDismiss: context.exit,
-            ).then((_) {
-              final docName = state.form.name;
-              if (!context.mounted) return;
-
-              context.cubit<CreatePalletCubit>().errorHandled();
-              context.cubit<PalletItemCubit>().request(docName);
-
-              final gateEntryFilters = context.read<PalletFilterCubit>().state;
-              context.cubit<PalletCubit>().fetchInitial(
-                Pair(
-                  StringUtils.docStatusInt(gateEntryFilters.status),
-                  gateEntryFilters.query,
+                          );
+                          return;
+                        }
+                        context.cubit<CreatePalletCubit>().save();
+                      },
+                    );
+                  },
                 ),
-              );
+              )
+            : TitleStatusAppBar(
+                title: '  $name',
+                status: StringUtils.docStatus(status),
+                textColor: AppColors.white,
+                pageMode: PageMode2.palletCreation,
+                onSubmit: () {},
+                onReject: () {},
+                actionButton: (status == 1 && !gateEntryState.isModified)
+                    ? null
+                    : BlocBuilder<CreatePalletCubit, CreatePalletState>(
+                        builder: (context, state) {
+                          final currentStatus = state.form.docStatus;
 
-              if (isSubmitted) {
-                Navigator.pop(context, true);
-              } else {
-                setState(() {});
-              }
-            });
-          }
-          if (state.error.isNotNull) {
-            await AppDialog.showErrorDialog(
-              context,
-              title: state.error?.title,
-              content: state.error!.error,
-              onTapDismiss: context.exit,
+                          if (currentStatus == 1 && !state.isModified) {
+                            return const SizedBox.shrink();
+                          }
+                          final isReadyToSubmit =
+                              currentStatus == 0 && !state.isModified;
+
+                          return AppButton(
+                            borderColor: Colors.grey,
+                            isLoading: state.isLoading,
+                            label: isReadyToSubmit
+                                ? 'Submit'
+                                : state.view.toName(),
+                            onPressed: () {
+                              if (isReadyToSubmit) {
+                                context.cubit<CreatePalletCubit>().submit();
+                              } else {
+                                context.cubit<CreatePalletCubit>().save();
+                              }
+                            },
+                          );
+                        },
+                      ),
+              ) as PreferredSizeWidget,
+        body: BlocBuilder<CreatePalletCubit, CreatePalletState>(
+          builder: (context, overlayState) {
+            return FormPageLoadingStack(
+              isLoading: overlayState.isLoading,
+              message: 'Please wait...',
+              statusLabel: 'Processing...',
+              child: BlocListener<CreatePalletCubit, CreatePalletState>(
+                listener: (_, state) async {
+                  if (state.isSuccess && state.successMsg.isNotNull) {
+                    final isSubmitted = state.view == PalletView.completed;
+
+                    AppDialog.showSuccessDialog(
+                      context,
+                      title: 'Success',
+                      content: state.successMsg.valueOrEmpty,
+                      onTapDismiss: context.exit,
+                    ).then((_) {
+                      final docName = state.form.name;
+                      if (!context.mounted) return;
+
+                      _needsListRefresh = true;
+                      context.cubit<CreatePalletCubit>().errorHandled();
+                      context.cubit<PalletItemCubit>().request(docName);
+                      _refreshListCubit();
+
+                      if (isSubmitted) {
+                        Navigator.pop(context, true);
+                      } else {
+                        setState(() {});
+                      }
+                    });
+                  }
+                  if (state.error.isNotNull) {
+                    await AppDialog.showErrorDialog(
+                      context,
+                      title: state.error?.title,
+                      content: state.error!.error,
+                      onTapDismiss: context.exit,
+                    );
+                    if (!context.mounted) return;
+                    context.cubit<CreatePalletCubit>().errorHandled();
+                  }
+                },
+                child: BlocProvider(
+                  create: (context) =>
+                      ShutterBlocProvider.get().getPalletSize()..request(),
+                  child: PalletFormWidget(key: ValueKey(status)),
+                ),
+              ),
             );
-            if (!context.mounted) return;
-            context.cubit<CreatePalletCubit>().errorHandled();
-          }
-        },
-        child: BlocProvider(
-          create:
-              (context) => ShutterBlocProvider.get().getPalletSize()..request(),
-          child: PalletFormWidget(key: ValueKey(status)),
+          },
         ),
-      ),
-          );
-        },
       ),
     );
   }

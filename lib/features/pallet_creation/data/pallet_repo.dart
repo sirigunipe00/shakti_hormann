@@ -15,5 +15,9 @@ abstract class PalletRepo{
   AsyncValueOf<Pair<String,String>> updatePallet(PalletModel form,List<PalletItems> lines,);
   AsyncValueOf<List<PalletItems>> fetchPalletItems(String name);
   AsyncValueOf<Pair<String,String>> submitPallet(String name);
-  AsyncValueOf<List<SalesOrderForm>> salesOrder();
+  /// Recent / searched SAP Sales Orders. Keep [limit] small for fast pickers.
+  AsyncValueOf<List<SalesOrderForm>> salesOrder({
+    String? search,
+    int limit = 40,
+  });
 }

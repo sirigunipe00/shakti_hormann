@@ -38,11 +38,9 @@ class _InstallationListState extends State<InstallationList>
 
       backgroundColor: AppColors.white,
       onNew: () async {
-        final refresh = await AppRoute.newinstallation.push<bool>(context);
-        if(!context.mounted) return;
-        if (refresh == true) {
-          _fetchInital(context);
-        }
+        await AppRoute.newinstallation.push<bool>(context);
+        if (!context.mounted) return;
+        _fetchInital(context);
       },
       scaffoldBg: '',
       child: RefreshIndicator(
@@ -60,19 +58,18 @@ class _InstallationListState extends State<InstallationList>
                 (context, entry) => InstallationWidget(
                   installation: entry,
                   onTap: () async {
-                    final refresh = await AppRoute.newinstallation.push<bool?>(
+                    await AppRoute.newinstallation.push<bool?>(
                       context,
                       extra: entry,
                     );
-                    if(!context.mounted) return;
-                    if (refresh == true) {
-                      _fetchInital(context);
-                    }
+                    if (!context.mounted) return;
+                    _fetchInital(context);
                   },
                 ),
             fetchInitial: () => _fetchInital(context),
             fetchMore: () => fetchMore(context),
-            emptyListText: 'No Installation Entry Found.',
+            emptyListText:
+                'No installation packing records yet.\nTap New to pack boxes for a sales order.',
           ),
         ),
       ),

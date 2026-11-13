@@ -10,6 +10,7 @@ import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/widgets/input_filed.dart';
 import 'package:shakti_hormann/widgets/inputs/date_picker_field.dart';
 import 'package:shakti_hormann/widgets/inputs/new_upload_photo_widget.dart';
+import 'package:shakti_hormann/widgets/linked_docs_table.dart';
 import 'package:shakti_hormann/widgets/sectionheader.dart';
 import 'package:shakti_hormann/widgets/spaced_column.dart';
 
@@ -37,10 +38,19 @@ class _GateExitFormWidgetState extends State<GateExitFormWidget> {
 
     final isCompleted = formState.view == GateExitView.completed;
     final newform = formState.form;
+    final invoices = (newform.salesInvoices ?? [])
+        .map((e) => e.name ?? '')
+        .where((e) => e.isNotEmpty)
+        .toList();
 
-
-
-    vehicleNo.text = newform.vehicleNo ?? '';
+    if (vehicleNo.text != (newform.vehicleNo ?? '')) {
+      vehicleNo.value = TextEditingValue(
+        text: newform.vehicleNo ?? '',
+        selection: TextSelection.collapsed(
+          offset: (newform.vehicleNo ?? '').length,
+        ),
+      );
+    }
 
     return MultiBlocListener(
       listeners: [
@@ -54,9 +64,11 @@ class _GateExitFormWidgetState extends State<GateExitFormWidget> {
         ),
       ],
       child: Container(
-        color: Colors.purple.shade100.withValues(alpha: 0.15),
+        color: const Color(0xFFF7F8FA),
         child: SingleChildScrollView(
           controller: _scrollController,
+          padding: ShellInsets.scrollPadding(context),
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           child: SpacedColumn(
             crossAxisAlignment: CrossAxisAlignment.start,
             margin: const EdgeInsets.symmetric(vertical: 20),
@@ -76,8 +88,8 @@ class _GateExitFormWidgetState extends State<GateExitFormWidget> {
                 margin: const EdgeInsets.symmetric(horizontal: 18),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.grey.shade300),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: const Color(0xFFE8ECF4)),
                 ),
                 child: SpacedColumn(
                   defaultHeight: 6,
@@ -109,7 +121,6 @@ class _GateExitFormWidgetState extends State<GateExitFormWidget> {
                     ),
 
                     InputField(
-                      // key: UniqueKey(),
                       title: 'Vehicle Number',
                       hintText: 'Enter Vehicle No',
                       controller: vehicleNo,
@@ -120,11 +131,31 @@ class _GateExitFormWidgetState extends State<GateExitFormWidget> {
                           (p0) => context
                               .cubit<CreateGateExitCubit>()
                               .onValueChanged(vehicleNo: p0),
-                      inputFormatters: [UpperCaseTextFormatter(),
-                      FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9]')),
+                      inputFormatters: [
+                        UpperCaseTextFormatter(),
+                        FilteringTextInputFormatter.allow(
+                          RegExp(r'[a-zA-Z0-9]'),
+                        ),
                       ],
                     ),
                   ],
+                ),
+              ),
+
+              const SizedBox(height: 12),
+              const Padding(
+                padding: EdgeInsets.only(left: 16.0),
+                child: SectionHeader(
+                  title: 'Sales Invoices',
+                  assetIcon: 'assets/images/vehicleinvoicicon.svg',
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: LinkedDocsTable(
+                  headerTitle: 'Sales Invoice',
+                  docs: invoices,
+                  emptyLabel: 'No linked sales invoices',
                 ),
               ),
 
@@ -140,40 +171,50 @@ class _GateExitFormWidgetState extends State<GateExitFormWidget> {
                 padding: const EdgeInsets.only(left: 16, right: 16),
                 child: Card(
                   color: Colors.white,
+                  elevation: 0,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(16),
                     side: const BorderSide(color: Color(0xFFE8ECF4), width: 1),
                   ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      NewUploadPhotoWidget(
-                        fileName: 'vehiclefront',
-                        imageUrl: newform.vehiclePhoto,
-                        title: 'Vehicle Front Photo',
-                        isRequired: true,
-                        isReadOnly: isCompleted,
-                        onFileCapture: (file) {
-                          context.cubit<CreateGateExitCubit>().onValueChanged(
-                            vehiclePhoto: file,
-                          );
-                        },
-                        focusNode: focusNodes.elementAt(27),
-                      ),
-                      NewUploadPhotoWidget(
-                        fileName: 'vehicleback',
-                        isRequired: true,
-                        imageUrl: newform.vehicleBackPhoto,
-                        title: 'Vehicle Back Photo',
-                        isReadOnly: isCompleted,
-                        onFileCapture: (file) {
-                          context.cubit<CreateGateExitCubit>().onValueChanged(
-                            vehicleBackPhoto: file,
-                          );
-                        },
-                        focusNode: focusNodes.elementAt(27),
-                      ),
-                    ],
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 8,
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: NewUploadPhotoWidget(
+                            fileName: 'vehiclefront',
+                            imageUrl: newform.vehiclePhoto,
+                            title: 'Vehicle Front',
+                            isRequired: true,
+                            isReadOnly: isCompleted,
+                            onFileCapture: (file) {
+                              context
+                                  .cubit<CreateGateExitCubit>()
+                                  .onValueChanged(vehiclePhoto: file);
+                            },
+                            focusNode: focusNodes.elementAt(27),
+                          ),
+                        ),
+                        Expanded(
+                          child: NewUploadPhotoWidget(
+                            fileName: 'vehicleback',
+                            isRequired: true,
+                            imageUrl: newform.vehicleBackPhoto,
+                            title: 'Vehicle Back',
+                            isReadOnly: isCompleted,
+                            onFileCapture: (file) {
+                              context
+                                  .cubit<CreateGateExitCubit>()
+                                  .onValueChanged(vehicleBackPhoto: file);
+                            },
+                            focusNode: focusNodes.elementAt(27),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),

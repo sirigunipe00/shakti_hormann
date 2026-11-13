@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 class AppSpacer extends StatelessWidget {
 
   factory AppSpacer.empty() => const AppSpacer(height: 0, width: 0);
+  factory AppSpacer.p2() => const AppSpacer(height: 2, width: 2);
   factory AppSpacer.p4() => const AppSpacer(height: 4, width: 4);
   factory AppSpacer.p8() => const AppSpacer(height: 8, width: 8);
   factory AppSpacer.p12() => const AppSpacer(height: 12, width: 12);

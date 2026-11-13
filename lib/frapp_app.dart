@@ -137,6 +137,17 @@ class _ShaktiHormannState extends State<ShaktiHormann>
               final routerCtxt =
                   AppRouterConfig.parentNavigatorKey.currentContext;
               if (routerCtxt == null) return;
+              // parentNavigatorKey context is above RouteBase.builder, so
+              // GoRouterState.of(routerCtxt) throws. Use the router instance.
+              final router = AppRouterConfig.router;
+              String currentPath() {
+                try {
+                  return router.state.uri.path;
+                } catch (_) {
+                  return '';
+                }
+              }
+
               state.maybeWhen(
                 authenticated: () {
                   // routerCtxt.cubit<GeoPermissionHandler>().checkPermission();
@@ -176,13 +187,30 @@ class _ShaktiHormannState extends State<ShaktiHormann>
                   routerCtxt.cubit<VisionPanelCubit>().fetchInitial(filters);
                   routerCtxt.cubit<InstallationCubit>().fetchInitial(filters);
 
-                  AppRoute.home.go(routerCtxt);
+                  // Cold start: AppSplashScrn finishes the door loader then
+                  // navigates home. Post-login (LoginScrn on top of /login)
+                  // still needs this go so the stack clears to Home.
+                  final loc = currentPath();
+                  final hasLocalRoute =
+                      AppRouterConfig.parentNavigatorKey.currentState
+                          ?.canPop() ??
+                      false;
+                  if (loc == AppRoute.login.path && !hasLocalRoute) {
+                    return;
+                  }
+                  router.go(AppRoute.home.path);
                 },
                 unAuthenticated: () {
-                  AppRoute.login.go(routerCtxt);
+                  // Splash owns the cold-start door loader → welcome handoff.
+                  // After logout (or any non-login route), return to /login.
+                  final loc = currentPath();
+                  if (loc == AppRoute.login.path || loc == '/') return;
+                  router.go(AppRoute.login.path);
                 },
                 orElse: () {
-                  AppRoute.login.go(routerCtxt);
+                  final loc = currentPath();
+                  if (loc == AppRoute.login.path || loc == '/') return;
+                  router.go(AppRoute.login.path);
                 },
               );
             },

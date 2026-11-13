@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shakti_hormann/app/presentation/bloc/app_update_bloc_provider.dart';
 import 'package:shakti_hormann/app/presentation/widgets/dashboard_item.dart';
 import 'package:shakti_hormann/app/presentation/widgets/greeting_widget.dart';
@@ -10,7 +9,7 @@ import 'package:shakti_hormann/core/utils/notification_usecase.dart';
 import 'package:shakti_hormann/features/auth/model/logged_in_user.dart';
 import 'package:shakti_hormann/styles/app_icons.dart';
 import 'package:shakti_hormann/widgets/app_update_dailog.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:shakti_hormann/widgets/feature_card_icon.dart';
 
 class _InfoContent {
   const _InfoContent({
@@ -38,10 +37,10 @@ final Map<String, _InfoContent> _cardInfo = {
     stickerAsset: AppIcons.mesSticker.path,
     stickerCaption: 'Capture this sticker while creating hardware packing:',
     stickerFields: const [
-      'Sales Order No',
-      'Box Count',
-      'MES System No',
-      'Item / Material details',
+      'Sales Order No (from OR. on sticker)',
+      'Box Count / page details',
+      'MES System / barcode number',
+      'Item lines (SAP, Qty, UOM)',
     ],
   ),
   'Shutter Packaging': const _InfoContent(
@@ -74,10 +73,10 @@ final Map<String, _InfoContent> _cardInfo = {
       'Save',
     ],
   ),
-  'Accessories Packing': const _InfoContent(
-    title: 'Accessories Packing Sticker',
+  'Accessories Packaging': const _InfoContent(
+    title: 'Accessories Packaging Sticker',
     stickerAsset: 'assets/images/vision_sticker.jpeg',
-    stickerCaption: 'Capture this sticker while creating accessories packing:',
+    stickerCaption: 'Capture this sticker while creating accessories packaging:',
     stickerFields: [
       'Sales Order No (SO)',
       'Add At least one Item To Save the Record',
@@ -86,10 +85,11 @@ final Map<String, _InfoContent> _cardInfo = {
       'Submit',
     ],
   ),
-  'Installation Packing': const _InfoContent(
-    title: 'Installation Packing Sticker',
+  'Installation Packaging': const _InfoContent(
+    title: 'Installation Packaging Sticker',
     stickerAsset: 'assets/images/installation_sticker.jpeg',
-    stickerCaption: 'Capture this sticker while creating installation packing:',
+    stickerCaption:
+        'Capture this sticker while creating installation packaging:',
     stickerFields: [
       'Sales Order No (SO)',
       'Enter No of Boxes',
@@ -99,7 +99,6 @@ final Map<String, _InfoContent> _cardInfo = {
       'Submit',
     ],
   ),
-
   'Pallet Creation': const _InfoContent(
     title: 'Pallet Creation Process',
     icon: Icons.inventory_2_rounded,
@@ -114,8 +113,8 @@ final Map<String, _InfoContent> _cardInfo = {
       'After saving, you can edit the pallets or Submit.',
     ],
   ),
-  'Storage / Zone': const _InfoContent(
-    title: 'Storage / Zone Process',
+  'Storage Allocation': const _InfoContent(
+    title: 'Storage Allocation Process',
     icon: Icons.warehouse_rounded,
     stepsTitle: 'How to allocate storage',
     steps: [
@@ -149,29 +148,10 @@ class _AppHomePageState extends State<AppHomePage> {
     );
   }
 
-  Future<void> launchCredits() async {
-    final String base = Urls.baseUrl.replaceAll('/api', '');
-    final Uri url = Uri.parse(
-      '$base/app/query-report/Where%20Is%20My%20Material',
-    );
-    try {
-      final bool launched = await launchUrl(
-        url,
-        mode: LaunchMode.externalApplication,
-      );
-      if (!launched) {
-        debugPrint('Could not launch URL: $url');
-      }
-    } catch (e) {
-      debugPrint('Error launching URL: $e');
-    }
-  }
-
   late final List<DashboardItem> dashboardItems = [
     DashboardItem(
       title: 'Gate Entry',
       icon: AppIcons.gateeEntry,
-      iconSize: const Size(140, 80),
       onTap: (context) {
         AppRoute.gateEntry.push<bool?>(context);
       },
@@ -181,7 +161,6 @@ class _AppHomePageState extends State<AppHomePage> {
     DashboardItem(
       title: 'Gate Exit',
       icon: AppIcons.gateExit,
-      iconSize: const Size(140, 80),
       onTap: (context) {
         AppRoute.gatexit.push<bool?>(context);
       },
@@ -191,7 +170,6 @@ class _AppHomePageState extends State<AppHomePage> {
     DashboardItem(
       title: 'Logistic Request',
       icon: AppIcons.logisticRequest,
-      iconSize: const Size(120, 70),
       onTap: (context) {
         AppRoute.logisticRequest.push<bool?>(context);
       },
@@ -238,7 +216,6 @@ class _AppHomePageState extends State<AppHomePage> {
     DashboardItem(
       title: 'Gate Management',
       icon: AppIcons.gatemanagement,
-      iconSize: const Size(150, 100),
       onTap: (context) {
         AppRoute.gateManagement.push<bool?>(context);
       },
@@ -248,7 +225,6 @@ class _AppHomePageState extends State<AppHomePage> {
     DashboardItem(
       title: 'Pallet Creation',
       icon: AppIcons.pallet,
-      iconSize: const Size(130, 80),
       onTap: (context) {
         AppRoute.palletCreation.push<bool?>(context);
       },
@@ -259,7 +235,6 @@ class _AppHomePageState extends State<AppHomePage> {
       title: 'Shutter Packaging',
       icon: AppIcons.shutter,
       permissionSelector: (roleStatus) => roleStatus?.showShutter,
-      iconSize: const Size(150, 100),
       onTap: (context) {
         AppRoute.shutterPackaging.push<bool?>(context);
       },
@@ -268,7 +243,6 @@ class _AppHomePageState extends State<AppHomePage> {
     DashboardItem(
       title: 'Frame Packaging',
       icon: AppIcons.frame,
-      iconSize: const Size(150, 100),
       onTap: (context) {
         AppRoute.framePackaging.push<bool?>(context);
       },
@@ -276,28 +250,17 @@ class _AppHomePageState extends State<AppHomePage> {
       permissionSelector: (roleStatus) => roleStatus?.showFrame,
     ),
     DashboardItem(
-      title: 'Storage / Zone',
+      title: 'Storage Allocation',
       icon: AppIcons.storage,
-      iconSize: const Size(140, 80),
       onTap: (context) {
         AppRoute.storageAllocation.push<bool?>(context);
       },
       section: DashboardSection.scanningPackaging,
       permissionSelector: (roleStatus) => roleStatus?.showStorage,
     ),
-    // DashboardItem(
-    //   title: 'Zone Transfer',
-    //   icon: AppIcons.zone,
-    //   iconSize: const Size(140, 80),
-    //   onTap: (context) {
-    //     AppRoute.zoneTransfer.push<bool?>(context);
-    //   },
-    //   permissionSelector: (roleStatus) => roleStatus?.showgateManagement,
-    // ),
     DashboardItem(
-      title: 'Installation Packing',
+      title: 'Installation Packaging',
       icon: AppIcons.installation,
-      iconSize: const Size(150, 100),
       onTap: (context) {
         AppRoute.installation.push<bool?>(context);
       },
@@ -305,9 +268,8 @@ class _AppHomePageState extends State<AppHomePage> {
       permissionSelector: (roleStatus) => roleStatus?.showInstalltion,
     ),
     DashboardItem(
-      title: 'Accessories Packing',
+      title: 'Accessories Packaging',
       icon: AppIcons.accessories,
-      iconSize: const Size(150, 100),
       onTap: (context) {
         AppRoute.visionPanel.push<bool?>(context);
       },
@@ -317,7 +279,6 @@ class _AppHomePageState extends State<AppHomePage> {
     DashboardItem(
       title: 'Hardware Packaging',
       icon: AppIcons.hardware,
-      iconSize: const Size(150, 100),
       onTap: (context) {
         AppRoute.hardwarePackaging.push<bool?>(context);
       },
@@ -325,16 +286,30 @@ class _AppHomePageState extends State<AppHomePage> {
       permissionSelector: (roleStatus) => roleStatus?.showHardware,
     ),
     DashboardItem(
-      title: 'Where is My Material',
+      title: 'Where Is My\nMaterial?',
       icon: AppIcons.whereismymaterial,
-      iconSize: const Size(160, 120),
-      onTap: (context) async {
-        await launchCredits();
+      onTap: (context) {
+        AppRoute.whereIsMyMaterial.push(context);
       },
       section: DashboardSection.scanningPackaging,
-      permissionSelector: (roleStatus) => roleStatus?.showHardware,
+      permissionSelector: (roleStatus) => roleStatus?.showWhereIsMyMaterial,
     ),
   ];
+
+  EdgeInsets _homeGridPadding(
+    BuildContext context, {
+    double top = 0,
+    double bottom = 0,
+  }) {
+    final base = Responsive.pagePadding(context);
+    final inset = Responsive.homeGridSideInset(context);
+    return EdgeInsets.fromLTRB(
+      base.left + inset,
+      top,
+      base.right + inset,
+      bottom,
+    );
+  }
 
   void _showInfoDialog(_InfoContent info) {
     final screenHeight = MediaQuery.of(context).size.height;
@@ -343,51 +318,64 @@ class _AppHomePageState extends State<AppHomePage> {
     showDialog(
       context: context,
       barrierDismissible: true,
-      barrierColor: Colors.black.withValues(alpha: 0.5),
+      barrierColor: Colors.black.withValues(alpha: 0.55),
       builder: (dialogContext) {
         return Dialog(
-          insetPadding: const EdgeInsets.all(20),
+          insetPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 24),
           backgroundColor: Colors.transparent,
           child: Container(
-            width: (screenWidth - 40).clamp(0, 380).toDouble(),
+            width: (screenWidth - 36).clamp(0, 400).toDouble(),
             constraints: BoxConstraints(
-              maxHeight: (screenHeight * 0.85).clamp(0, 640).toDouble(),
+              maxHeight: (screenHeight * 0.88).clamp(0, 720).toDouble(),
             ),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(24),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: const Color(0xFFE2E8F0)),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.12),
+                  blurRadius: 16,
+                  offset: const Offset(0, 8),
+                ),
+              ],
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Header band
                 Container(
-                  padding: const EdgeInsets.fromLTRB(20, 18, 12, 18),
+                  padding: const EdgeInsets.fromLTRB(18, 16, 8, 16),
                   decoration: const BoxDecoration(
-                    color: Color(0xFF1A3C6B),
+                    color: Color(0xFF0E2A5C),
                     borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(24),
-                      topRight: Radius.circular(24),
+                      topLeft: Radius.circular(16),
+                      topRight: Radius.circular(16),
                     ),
                   ),
                   child: Row(
                     children: [
                       Container(
-                        width: 36,
-                        height: 36,
+                        width: 40,
+                        height: 40,
                         decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(10),
+                          color: const Color(0xFFFAC12F),
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                        child: Icon(info.icon, color: Colors.white, size: 20),
+                        child: Icon(
+                          info.stickerAsset != null
+                              ? Icons.document_scanner_rounded
+                              : info.icon,
+                          color: const Color(0xFF0E2A5C),
+                          size: 22,
+                        ),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
                           info.title,
                           style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w700,
+                            fontSize: 17,
+                            fontWeight: FontWeight.w800,
                             color: Colors.white,
                             fontFamily: 'Urbanist',
                           ),
@@ -395,92 +383,130 @@ class _AppHomePageState extends State<AppHomePage> {
                       ),
                       IconButton(
                         onPressed: () => Navigator.of(dialogContext).pop(),
-                        icon: const Icon(Icons.close, color: Colors.white),
+                        icon: const Icon(Icons.close_rounded, color: Colors.white),
                         tooltip: 'Close',
-                        splashRadius: 20,
                       ),
                     ],
                   ),
                 ),
-
-                // Body
                 Flexible(
                   child: SingleChildScrollView(
-                    padding: const EdgeInsets.fromLTRB(20, 18, 20, 20),
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Sticker section
                         if (info.stickerAsset != null) ...[
                           Container(
-                            padding: const EdgeInsets.all(10),
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFF7F8FA),
-                              borderRadius: BorderRadius.circular(18),
-                              border: Border.all(
-                                color: const Color(0xFFE8ECF4),
-                              ),
+                              color: const Color(0xFFEEF2F7),
+                              borderRadius: BorderRadius.circular(16),
                             ),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(12),
-                              child: Image.asset(
-                                info.stickerAsset!,
-                                fit: BoxFit.contain,
-                                height: 200,
-                                width: double.infinity,
-                                errorBuilder:
-                                    (_, __, ___) => const SizedBox(
-                                      height: 200,
-                                      child: Center(
-                                        child: Icon(
-                                          Icons.image_not_supported_outlined,
+                            child: Column(
+                              children: [
+                                Container(
+                                  width: double.infinity,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(10),
+                                    border: Border.all(
+                                      color: const Color(0xFFCBD5E1),
+                                      width: 1.2,
+                                    ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: const Color(0xFF0E1446)
+                                            .withValues(alpha: 0.08),
+                                        blurRadius: 12,
+                                        offset: const Offset(0, 4),
+                                      ),
+                                    ],
+                                  ),
+                                  clipBehavior: Clip.antiAlias,
+                                  child: AspectRatio(
+                                    aspectRatio: 0.72,
+                                    child: InteractiveViewer(
+                                      minScale: 1,
+                                      maxScale: 3.5,
+                                      child: Image.asset(
+                                        info.stickerAsset!,
+                                        fit: BoxFit.contain,
+                                        filterQuality: FilterQuality.high,
+                                        errorBuilder: (_, __, ___) =>
+                                            const Center(
+                                          child: Icon(
+                                            Icons.image_not_supported_outlined,
+                                          ),
                                         ),
                                       ),
                                     ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          if (info.stickerCaption != null)
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Padding(
-                                  padding: EdgeInsets.only(top: 2),
-                                  child: Icon(
-                                    Icons.camera_alt_rounded,
-                                    size: 18,
-                                    color: Color(0xFF1A3C6B),
                                   ),
                                 ),
-                                const SizedBox(width: 6),
-                                Expanded(
-                                  child: Text(
-                                    info.stickerCaption!,
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
-                                      height: 1.4,
-                                      color: Color(0xFF0E1446),
+                                const SizedBox(height: 10),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 10,
+                                    vertical: 5,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(20),
+                                    border: Border.all(
+                                      color: const Color(0xFFD7DCE6),
                                     ),
+                                  ),
+                                  child: const Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        Icons.pinch_outlined,
+                                        size: 14,
+                                        color: Color(0xFF64748B),
+                                      ),
+                                      SizedBox(width: 6),
+                                      Text(
+                                        'Pinch to zoom · Sample scan',
+                                        style: TextStyle(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w700,
+                                          color: Color(0xFF64748B),
+                                          fontFamily: 'Urbanist',
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ],
                             ),
+                          ),
                           const SizedBox(height: 14),
-                          for (final field in info.stickerFields)
-                            _StickerFieldChip(label: field),
+                          if (info.stickerCaption != null)
+                            Text(
+                              info.stickerCaption!,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w800,
+                                height: 1.35,
+                                color: Color(0xFF0E1446),
+                                fontFamily: 'Urbanist',
+                              ),
+                            ),
+                          const SizedBox(height: 10),
+                          for (var i = 0; i < info.stickerFields.length; i++)
+                            _StickerFieldChip(
+                              label: info.stickerFields[i],
+                              index: i + 1,
+                            ),
                         ],
-
-                        // Process steps section
                         if (info.steps.isNotEmpty) ...[
                           if (info.stickerAsset != null)
-                            const SizedBox(height: 14),
+                            const SizedBox(height: 8),
                           Text(
                             info.stepsTitle,
                             style: const TextStyle(
                               fontSize: 15,
-                              fontWeight: FontWeight.bold,
+                              fontWeight: FontWeight.w800,
                               color: Color(0xFF0E1446),
                               fontFamily: 'Urbanist',
                             ),
@@ -497,16 +523,14 @@ class _AppHomePageState extends State<AppHomePage> {
                     ),
                   ),
                 ),
-
-                // Footer button
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
                   child: SizedBox(
                     width: double.infinity,
                     child: TextButton(
                       onPressed: () => Navigator.of(dialogContext).pop(),
                       style: TextButton.styleFrom(
-                        backgroundColor: const Color(0xFF1A3C6B),
+                        backgroundColor: const Color(0xFF0E2A5C),
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
@@ -516,8 +540,9 @@ class _AppHomePageState extends State<AppHomePage> {
                       child: const Text(
                         'Got it',
                         style: TextStyle(
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w700,
                           fontFamily: 'Urbanist',
+                          fontSize: 15,
                         ),
                       ),
                     ),
@@ -532,20 +557,28 @@ class _AppHomePageState extends State<AppHomePage> {
   }
 
   Widget buildDashboardCard(DashboardItem item) {
-    final info = _cardInfo[item.title]; // null => no info icon
+    // Info map keys use the unwrapped title (no forced line breaks).
+    final info = _cardInfo[item.title.replaceAll('\n', ' ')];
+    // One square slot for every card — keeps GIF/illustrations aligned.
+    final iconExtent = Responsive.homeCardIconExtent(context);
+    final infoSize = Responsive.isTablet(context) ? 28.0 : 24.0;
+    final cardPad = Responsive.isTablet(context) ? 10.0 : 8.0;
 
     return GestureDetector(
       onTap: () => item.onTap(context),
       child: Container(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(
+            Responsive.isTablet(context) ? 16 : 14,
+          ),
           color: Colors.white,
-          border: Border.all(color: const Color(0xFFE8ECF4), width: 2),
+          border: Border.all(color: const Color(0xFFE8ECF4), width: 1),
           boxShadow: [
-            const BoxShadow(
-              color: Color(0xFFFFFFFF),
-              blurRadius: 5,
-              offset: Offset(0, 2),
+            BoxShadow(
+              color: const Color(0xFF0E1446).withValues(alpha: 0.06),
+              blurRadius: 8,
+              spreadRadius: 0,
+              offset: const Offset(0, 3),
             ),
           ],
         ),
@@ -554,26 +587,39 @@ class _AppHomePageState extends State<AppHomePage> {
           children: [
             Positioned.fill(
               child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 8,
-                  vertical: 12,
+                padding: EdgeInsets.fromLTRB(
+                  cardPad,
+                  cardPad,
+                  cardPad,
+                  Responsive.isTablet(context) ? 10 : 8,
                 ),
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    item.icon.toWidget(
-                      height: item.iconSize?.height ?? 60,
-                      width: item.iconSize?.width ?? 100,
+                    Expanded(
+                      child: Center(
+                        child: SizedBox(
+                          width: iconExtent,
+                          height: iconExtent,
+                          child: FeatureCardIcon(
+                            icon: item.icon,
+                            width: iconExtent,
+                            height: iconExtent,
+                          ),
+                        ),
+                      ),
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 4),
                     Text(
                       item.title,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
                         fontWeight: FontWeight.w600,
-                        fontSize: 16,
+                        fontSize: Responsive.homeCardTitleSize(context),
+                        height: 1.05,
                         fontFamily: 'Urbanist',
-                        color: Color(0xFF0E1446),
+                        color: const Color(0xFF0E1446),
                       ),
                     ),
                   ],
@@ -582,21 +628,58 @@ class _AppHomePageState extends State<AppHomePage> {
             ),
             if (info != null)
               Positioned(
-                top: 8,
-                right: 8,
-                child: GestureDetector(
-                  onTap: () => _showInfoDialog(info),
-                  child: Container(
-                    width: 30,
-                    height: 30,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF1A3C6B).withValues(alpha: 0.12),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.info_outline_rounded,
-                      size: 18,
-                      color: Color(0xFF1A3C6B),
+                top: 6,
+                right: 6,
+                child: Tooltip(
+                  message: 'How this works',
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: () => _showInfoDialog(info),
+                      customBorder: const CircleBorder(),
+                      child: SizedBox(
+                        width: infoSize,
+                        height: infoSize,
+                        child: Center(
+                          child: Container(
+                            width: infoSize - 6,
+                            height: infoSize - 6,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: const Color(0xFFD6E4FF),
+                                width: 1.5,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: const Color(0xFF2957A4)
+                                      .withValues(alpha: 0.18),
+                                  blurRadius: 10,
+                                  spreadRadius: 0.5,
+                                  offset: const Offset(0, 3),
+                                ),
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.06),
+                                  blurRadius: 4,
+                                  offset: const Offset(0, 1),
+                                ),
+                              ],
+                            ),
+                            alignment: Alignment.center,
+                            child: Text(
+                              'i',
+                              style: TextStyle(
+                                fontSize: infoSize * 0.42,
+                                fontWeight: FontWeight.w700,
+                                fontFamily: 'Georgia',
+                                height: 1,
+                                color: const Color(0xFF0E2A5C),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -644,6 +727,7 @@ class _AppHomePageState extends State<AppHomePage> {
     return Scaffold(
       backgroundColor: const Color(0xFFF7F8FA),
       body: SafeArea(
+        bottom: false,
         child: MultiBlocListener(
           listeners: [
             BlocListener<AppVersionCubit, AppVersionCubitState>(
@@ -654,12 +738,13 @@ class _AppHomePageState extends State<AppHomePage> {
                     if (data) {
                       showDialog(
                         context: context,
+                        useRootNavigator: true,
+                        barrierDismissible: false,
                         builder:
                             (ctx) => const AppUpdateDialog(
                               appName: 'ShaktiHormann',
                               packageName: 'in.easycloud.shakti_hormann',
                             ),
-                        barrierDismissible: false,
                       );
                     }
                   },
@@ -722,119 +807,106 @@ class _AppHomePageState extends State<AppHomePage> {
             //   },
             // ),
           ],
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const GreetingHeader(),
-                    Padding(
-                      padding: const EdgeInsets.only(right: 20),
-                      child: GestureDetector(
-                        onTap: () => AppRoute.notifications.push(context),
-                        child: Container(
-                          width: 50,
-                          height: 50,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(12),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.05),
-                                blurRadius: 10,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                          child: Stack(
-                            clipBehavior: Clip.none,
-                            children: [
-                              Center(
-                                child: SvgPicture.asset(
-                                  'assets/images/notification.svg',
-                                  height: 24,
-                                  width: 24,
-                                ),
-                              ),
-                              Positioned(
-                                top: -2,
-                                right: -2,
-                                child: Container(
-                                  width: 12,
-                                  height: 12,
-                                  decoration: BoxDecoration(
-                                    color: Colors.redAccent,
-                                    shape: BoxShape.circle,
-                                    border: Border.all(
-                                      color: Colors.white,
-                                      width: 0.5,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        GridView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: logisticsItems.length,
-                          gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 2,
-                                childAspectRatio: 1,
-                                crossAxisSpacing: 16,
-                                mainAxisSpacing: 16,
-                              ),
-                          itemBuilder: (context, index) {
-                            return buildDashboardCard(logisticsItems[index]);
-                          },
-                        ),
-                        const SizedBox(height: 20),
-                        const Text(
-                          'Scanning & Packaging',
-                          style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF0E1446),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        GridView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: scanningItems.length,
-                          gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 2,
-                                childAspectRatio: 1,
-                                crossAxisSpacing: 16,
-                                mainAxisSpacing: 16,
-                              ),
-                          itemBuilder: (context, index) {
-                            return buildDashboardCard(scanningItems[index]);
-                          },
-                        ),
-                      ],
-                    ),
+          child: ScrollConfiguration(
+            // Disable Android stretch-overscroll that elongates home tiles.
+            behavior: const ScrollBehavior().copyWith(
+              overscroll: false,
+              physics: const ClampingScrollPhysics(),
+            ),
+            child: CustomScrollView(
+              physics: const ClampingScrollPhysics(),
+              slivers: [
+                SliverPersistentHeader(
+                  pinned: true,
+                  delegate: HomeHeaderDelegate(
+                    expandedHeight: Responsive.homeHeaderExpanded(context),
+                    collapsedHeight: Responsive.homeHeaderCollapsed(context),
+                    onNotificationTap: () =>
+                        AppRoute.notifications.push(context),
                   ),
                 ),
-              ),
-            ],
+                if (logisticsItems.isNotEmpty)
+                  SliverPadding(
+                    padding: _homeGridPadding(context, top: 2),
+                    sliver: SliverGrid(
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount:
+                            Responsive.gridCrossAxisCount(context),
+                        mainAxisExtent:
+                            Responsive.gridTileHeight(context),
+                        crossAxisSpacing:
+                            Responsive.gridCrossAxisSpacing(context),
+                        mainAxisSpacing:
+                            Responsive.gridMainAxisSpacing(context),
+                      ),
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) =>
+                            buildDashboardCard(logisticsItems[index]),
+                        childCount: logisticsItems.length,
+                      ),
+                    ),
+                  ),
+                if (scanningItems.isNotEmpty) ...[
+                  // Match Dashboard section rhythm: clear gap above + below title.
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: _homeGridPadding(context),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(
+                            height: logisticsItems.isNotEmpty
+                                ? Responsive.homeSectionTitleGap(context)
+                                : 12,
+                          ),
+                          Text(
+                            'Scanning & Packaging',
+                            style: TextStyle(
+                              fontSize:
+                                  Responsive.homeSectionTitleSize(context),
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: -0.2,
+                              height: 1.1,
+                              color: const Color(0xFF0E1446),
+                            ),
+                          ),
+                          SizedBox(
+                            height:
+                                Responsive.homeSectionTitleBottomGap(context),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  SliverPadding(
+                    padding: _homeGridPadding(context),
+                    sliver: SliverGrid(
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount:
+                            Responsive.gridCrossAxisCount(context),
+                        mainAxisExtent:
+                            Responsive.gridTileHeight(context),
+                        crossAxisSpacing:
+                            Responsive.gridCrossAxisSpacing(context),
+                        mainAxisSpacing:
+                            Responsive.gridMainAxisSpacing(context),
+                      ),
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) =>
+                            buildDashboardCard(scanningItems[index]),
+                        childCount: scanningItems.length,
+                      ),
+                    ),
+                  ),
+                ],
+                // Clearance for floating transparent bottom nav.
+                SliverToBoxAdapter(
+                  child: SizedBox(
+                    height: Responsive.homeBottomClearance(context),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -843,27 +915,42 @@ class _AppHomePageState extends State<AppHomePage> {
 }
 
 class _StickerFieldChip extends StatelessWidget {
-  const _StickerFieldChip({required this.label});
+  const _StickerFieldChip({
+    required this.label,
+    this.index,
+  });
 
   final String label;
+  final int? index;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
       decoration: BoxDecoration(
-        color: const Color(0xFFF0F4FA),
-        borderRadius: BorderRadius.circular(10),
+        color: const Color(0xFFF0F5FF),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFD6E4FF)),
       ),
       child: Row(
         children: [
           Container(
-            width: 6,
-            height: 6,
-            decoration: const BoxDecoration(
-              color: Color(0xFF1A3C6B),
-              shape: BoxShape.circle,
+            width: 22,
+            height: 22,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: const Color(0xFF0E2A5C),
+              borderRadius: BorderRadius.circular(7),
+            ),
+            child: Text(
+              index != null ? '$index' : '•',
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 11,
+                fontWeight: FontWeight.w800,
+                fontFamily: 'Urbanist',
+              ),
             ),
           ),
           const SizedBox(width: 10),
@@ -872,8 +959,8 @@ class _StickerFieldChip extends StatelessWidget {
               label,
               style: const TextStyle(
                 fontSize: 13.5,
-                fontWeight: FontWeight.w500,
-                color: Color(0xFF334155),
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF1E293B),
                 fontFamily: 'Urbanist',
               ),
             ),

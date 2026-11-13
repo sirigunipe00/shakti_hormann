@@ -11,9 +11,8 @@ import 'package:shakti_hormann/features/logistic_request/presentation/bloc/creat
 import 'package:shakti_hormann/features/logistic_request/presentation/ui/create/salesorder.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/widgets/input_filed.dart';
-import 'package:shakti_hormann/widgets/inputs/compact_listtile.dart';
+import 'package:shakti_hormann/widgets/inputs/compact_search_select.dart';
 import 'package:shakti_hormann/widgets/inputs/date_picker_field.dart';
-import 'package:shakti_hormann/widgets/inputs/search_dropdown_widget.dart';
 import 'package:shakti_hormann/widgets/inputs/time_picker.dart';
 import 'package:shakti_hormann/widgets/sectionheader.dart';
 import 'package:shakti_hormann/widgets/spaced_column.dart';
@@ -65,10 +64,12 @@ class __LogisticPlanningFormWidgetState
         ),
       ],
       child: Container(
-        color: Colors.purple.shade100.withValues(alpha: 0.15),
+        color: const Color(0xFFF7F8FA),
 
         child: SingleChildScrollView(
           controller: _scrollController,
+          padding: ShellInsets.scrollPadding(context),
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           child: SpacedColumn(
             crossAxisAlignment: CrossAxisAlignment.start,
             margin: const EdgeInsets.all(12.0),
@@ -90,24 +91,15 @@ class __LogisticPlanningFormWidgetState
                     Card(
                       color: Colors.white,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: BorderRadius.circular(16),
                         side: const BorderSide(
                           color: Color(0xFFE8ECF4),
                           width: 1,
                         ),
                       ),
-
                       elevation: 0,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        padding: const EdgeInsets.only(
-                          top: 15,
-                          left: 16,
-                          right: 16,
-                          bottom: 8,
-                        ),
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 15, 16, 12),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -123,9 +115,7 @@ class __LogisticPlanningFormWidgetState
                                       .cubit<CreateLogisticCubit>()
                                       .onValueChanged(plantName: p0),
                             ),
-
                             const SizedBox(height: 12),
-
                             AppDateField(
                               title: 'Logistic Request Date',
                               readOnly: true,
@@ -144,168 +134,94 @@ class __LogisticPlanningFormWidgetState
                               },
                             ),
                             const SizedBox(height: 12),
-
-                            SearchDropDownList<String>(
-                              title: 'Transport Type',
-                              hint: 'Select Transporter Type',
-                              readOnly: isCompleted,
+                            CompactSearchSelect<String>(
+                              label: 'Transport Type',
+                              hint: 'Select Transport Type',
                               isRequired: true,
-                              color: AppColors.black,
-                              items: Dropdownoptions.transporterType,
-                              defaultSelection: newform.transporterType,
-                              headerBuilder: (_, item, __) => Text(item),
-                              listItemBuilder:
-                                  (_, item, __, ___) =>
-                                      CompactListTile(title: item),
-                              futureRequest: (searchText) async {
-                                final all = Dropdownoptions.transporterType;
-                                if (searchText.trim().isEmpty) return all;
-                                return all
-                                    .where(
-                                      (item) => item.toLowerCase().contains(
-                                        searchText.trim().toLowerCase(),
-                                      ),
-                                    )
-                                    .toList();
+                              locked: isCompleted,
+                              leadingIcon: Icons.local_shipping_outlined,
+                              options: Dropdownoptions.transporterType,
+                              value: newform.transporterType?.isNotEmpty == true
+                                  ? newform.transporterType
+                                  : null,
+                              labelOf: (e) => e,
+                              onChanged: (selected) {
+                                context
+                                    .cubit<CreateLogisticCubit>()
+                                    .onValueChanged(transporterType: selected);
                               },
-                              onSelected: (selected) {
-
-                                  context
-                                      .cubit<CreateLogisticCubit>()
-                                      .onValueChanged(
-                                        transporterType: selected,
-
-                                      );
-
-                              },
-                              focusNode: focusNodes.elementAt(5),
                             ),
-
                             const SizedBox(height: 12),
-                            SearchDropDownList<String>(
-                              title: 'Dispatch Type',
+                            CompactSearchSelect<String>(
+                              label: 'Dispatch Type',
                               hint: 'Select Dispatch Type',
                               isRequired: true,
-                              readOnly: isCompleted,
-                              color: AppColors.black,
-                              items: Dropdownoptions.dispatchType,
-                              defaultSelection: newform.dispatchType,
-                              headerBuilder: (_, item, __) => Text(item),
-                              listItemBuilder:
-                                  (_, item, __, ___) =>
-                                      CompactListTile(title: item),
-                              futureRequest: (searchText) async {
-                                final all = Dropdownoptions.dispatchType;
-                                if (searchText.trim().isEmpty) return all;
-                                return all
-                                    .where(
-                                      (item) => item.toLowerCase().contains(
-                                        searchText.trim().toLowerCase(),
-                                      ),
-                                    )
-                                    .toList();
-                              },
-                              onSelected: (selected) {
+                              locked: isCompleted,
+                              leadingIcon: Icons.alt_route_rounded,
+                              options: Dropdownoptions.dispatchType,
+                              value: newform.dispatchType?.isNotEmpty == true
+                                  ? newform.dispatchType
+                                  : null,
+                              labelOf: (e) => e,
+                              onChanged: (selected) {
                                 context
                                     .cubit<CreateLogisticCubit>()
                                     .onValueChanged(dispatchType: selected);
                               },
-                              focusNode: focusNodes.elementAt(5),
                             ),
-
+                            const SizedBox(height: 12),
                             BlocBuilder<TransportersList, TransportersState>(
                               buildWhen:
                                   (previous, current) => previous != current,
                               builder: (_, state) {
                                 final allData = state.maybeWhen(
                                   orElse: () => <TransportersForm>[],
-                                  success: (data) {
-                                    return data;
-                                  },
+                                  success: (data) => data,
                                 );
-                                final names = allData.toList();
+                                final names = List<TransportersForm>.from(
+                                  allData,
+                                );
+                                final selectedId = newform.transporterName;
+                                TransportersForm? selected;
+                                if (selectedId != null &&
+                                    selectedId.isNotEmpty) {
+                                  selected = names
+                                      .where((e) => e.name == selectedId)
+                                      .firstOrNull;
+                                  if (selected == null) {
+                                    selected = TransportersForm(
+                                      name: selectedId,
+                                      suppliername: newform.transporterNAme2,
+                                    );
+                                    names.insert(0, selected);
+                                  }
+                                }
 
-                                return SearchDropDownList(
-                                  key: ValueKey(newform.transporterName),
-                                  readOnly: isCompleted,
-                                  color: AppColors.black,
-                                  items: names,
-                                  isRequired: true,
-
-                                  defaultSelection:
-                                      names
-                                          .where(
-                                            (e) =>
-                                                e.name ==
-                                                newform.transporterName,
-                                          )
-                                          .firstOrNull,
-                                  title: 'Transporter Name',
+                                return CompactSearchSelect<TransportersForm>(
+                                  key: ValueKey(
+                                    'lr_transporter_${selectedId ?? 'new'}',
+                                  ),
+                                  label: 'Transporter Name',
                                   hint: 'Select Transporter',
-                                  isloading: state.isLoading,
-                                  futureRequest: (searchText) async {
-                                    if (searchText.trim().isEmpty) {
-                                      return names;
-                                    }
-                                    final query =
-                                        searchText.trim().toLowerCase();
-                                    final filtered =
-                                        names.where((item) {
-                                          final name =
-                                              item.name?.toLowerCase() ?? '';
-                                          final supplier =
-                                              item.suppliername
-                                                  ?.toLowerCase() ??
-                                              '';
-                                          return name.contains(query) ||
-                                              supplier.contains(query);
-                                        }).toList();
-
-                                    return filtered;
-                                  },
-                                  headerBuilder:
-                                      (_, item, __) => Text(
-                                        '${item.name ?? ''} - ${item.suppliername ?? ''}',
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-
-                                  listItemBuilder:
-                                      (_, item, __, ___) => Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            'Transporter ID: ${item.name ?? ''}',
-                                            style: const TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                          if (item.suppliername != null)
-                                            Text(
-                                              'Transporter Name : ${item.suppliername ?? ''}',
-                                            ),
-
-                                          const Divider(height: 8),
-                                        ],
-                                      ),
-                                  onSelected: (selected) {
-                                    setState(() {
-                                      transportersForm = selected;
-                                    });
+                                  isRequired: true,
+                                  locked: isCompleted,
+                                  isLoading: state.isLoading,
+                                  leadingIcon: Icons.apartment_outlined,
+                                  options: names,
+                                  value: selected,
+                                  labelOf: (e) => e.name ?? '',
+                                  subtitleOf: (e) => e.suppliername,
+                                  onChanged: (picked) {
+                                    setState(() => transportersForm = picked);
                                     context
                                         .cubit<CreateLogisticCubit>()
                                         .onValueChanged(
-                                          transporterName: selected.name,
+                                          transporterName: picked.name,
                                         );
                                   },
-                                  focusNode: focusNodes.elementAt(3),
                                 );
                               },
                             ),
-
-
                             const SizedBox(height: 12),
                             BlocBuilder<VehicleList, VehicleListState>(
                               buildWhen:
@@ -313,62 +229,47 @@ class __LogisticPlanningFormWidgetState
                               builder: (_, state) {
                                 final allData = state.maybeWhen(
                                   orElse: () => <VehicleTypeForm>[],
-                                  success: (data) {
-                                    return data;
-                                  },
+                                  success: (data) => data,
                                 );
-                                final names = allData.toList();
+                                final names = List<VehicleTypeForm>.from(
+                                  allData,
+                                );
+                                final selectedName =
+                                    newform.preferredVehicleType;
+                                VehicleTypeForm? selected;
+                                if (selectedName != null &&
+                                    selectedName.isNotEmpty) {
+                                  selected = names
+                                      .where((e) => e.name == selectedName)
+                                      .firstOrNull;
+                                  if (selected == null) {
+                                    selected =
+                                        VehicleTypeForm(name: selectedName);
+                                    names.insert(0, selected);
+                                  }
+                                }
 
-                                return SearchDropDownList(
-                                  key: ValueKey(newform.preferredVehicleType),
-                                  readOnly: isCompleted,
-                                  isRequired: true,
-                                  color: AppColors.black,
-                                  items: names,
-
-                                  defaultSelection:
-                                      names
-                                          .where(
-                                            (e) =>
-                                                e.name ==
-                                                newform.preferredVehicleType,
-                                          )
-                                          .firstOrNull,
-                                  title: 'Preferred Vehicle Type',
+                                return CompactSearchSelect<VehicleTypeForm>(
+                                  key: ValueKey(
+                                    'lr_vehicle_${selectedName ?? 'new'}',
+                                  ),
+                                  label: 'Preferred Vehicle Type',
                                   hint: 'Select Vehicle Type',
-                                  isloading: state.isLoading,
-                                  futureRequest: (searchText) async {
-                                    if (searchText.trim().isEmpty) {
-                                      return names;
-                                    }
-                                    final query =
-                                        searchText.trim().toLowerCase();
-                                    final filtered =
-                                        names.where((item) {
-                                          final value =
-                                              item.name?.toLowerCase() ?? '';
-                                          return value.contains(query);
-                                        }).toList();
-                                    return filtered;
-                                  },
-                                  headerBuilder:
-                                      (_, item, __) =>
-                                          Text(item.name.toString()),
-                                  listItemBuilder:
-                                      (_, item, __, ___) => CompactListTile(
-                                        title: item.name ?? '',
-                                      ),
-                                  onSelected: (selected) {
-                                    setState(() {
-                                      vehicleTypeForm = selected;
-                                    });
+                                  isRequired: true,
+                                  locked: isCompleted,
+                                  isLoading: state.isLoading,
+                                  leadingIcon: Icons.directions_car_outlined,
+                                  options: names,
+                                  value: selected,
+                                  labelOf: (e) => e.name ?? '',
+                                  onChanged: (picked) {
+                                    setState(() => vehicleTypeForm = picked);
                                     context
                                         .cubit<CreateLogisticCubit>()
                                         .onValueChanged(
-                                          preferredVehicleType: selected.name,
+                                          preferredVehicleType: picked.name,
                                         );
                                   },
-                                  focusNode: focusNodes.elementAt(3),
                                 );
                               },
                             ),
@@ -391,8 +292,9 @@ class __LogisticPlanningFormWidgetState
 
               Card(
                 color: Colors.white,
+                elevation: 0,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(16),
                   side: const BorderSide(color: Color(0xFFE8ECF4), width: 1),
                 ),
                 child: Padding(
@@ -403,17 +305,13 @@ class __LogisticPlanningFormWidgetState
 
               Card(
                 color: Colors.white,
+                elevation: 0,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(16),
                   side: const BorderSide(color: Color(0xFFE8ECF4), width: 1),
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.only(
-                    top: 16,
-                    left: 16,
-                    right: 16,
-                    bottom: 4,
-                  ),
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -501,7 +399,7 @@ class __LogisticPlanningFormWidgetState
                 child: Card(
                   color: Colors.white,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(16),
                     side: const BorderSide(color: Color(0xFFE8ECF4), width: 1),
                   ),
                   elevation: 0,

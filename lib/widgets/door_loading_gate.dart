@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:shakti_hormann/widgets/door_loading_loop.dart';
+import 'package:shakti_hormann/widgets/hormann_loading_controller.dart';
 
-/// Keeps the door loading graphic visible until one full animation cycle
-/// completes and [isContentReady] is true, then reveals [child].
+/// Keeps the door loading graphic visible until [isContentReady] is true,
+/// completes progress to 100% once, then reveals [child].
 class DoorLoadingGate extends StatefulWidget {
   const DoorLoadingGate({
     super.key,
@@ -17,6 +18,9 @@ class DoorLoadingGate extends StatefulWidget {
   final Widget child;
   final double? loadingWidth;
   final bool expand;
+
+  /// Optional custom loader. Receives a no-op for backwards compatibility
+  /// with call sites that previously waited on the first animation cycle.
   final Widget Function(VoidCallback onFirstCycleComplete)? loading;
 
   @override
@@ -24,22 +28,47 @@ class DoorLoadingGate extends StatefulWidget {
 }
 
 class _DoorLoadingGateState extends State<DoorLoadingGate> {
-  bool _graphicCycleComplete = false;
+  late final HormannLoadingController _progress = HormannLoadingController();
+  var _showContent = false;
+  var _finishing = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _progress.setStage(0.12);
+    _progress.startIdleCreep(ceiling: 0.88);
+    if (widget.isContentReady) {
+      _beginFinish();
+    }
+  }
 
   @override
   void didUpdateWidget(covariant DoorLoadingGate oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (!widget.isContentReady && oldWidget.isContentReady) {
-      _graphicCycleComplete = false;
+    if (widget.isContentReady && !oldWidget.isContentReady) {
+      _beginFinish();
+    } else if (!widget.isContentReady && oldWidget.isContentReady) {
+      _showContent = false;
+      _finishing = false;
+      _progress.reset();
+      _progress.setStage(0.12);
+      _progress.startIdleCreep(ceiling: 0.88);
     }
   }
 
-  void _onFirstCycleComplete() {
-    if (!mounted || _graphicCycleComplete) return;
-    setState(() => _graphicCycleComplete = true);
+  Future<void> _beginFinish() async {
+    if (_finishing || _showContent) return;
+    _finishing = true;
+    await _progress.complete();
+    if (!mounted) return;
+    setState(() => _showContent = true);
   }
 
-  bool get _showContent => widget.isContentReady && _graphicCycleComplete;
+  @override
+  void dispose() {
+    _progress.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,11 +82,11 @@ class _DoorLoadingGateState extends State<DoorLoadingGate> {
         if (!_showContent)
           Positioned.fill(
             child:
-                widget.loading?.call(_onFirstCycleComplete) ??
+                widget.loading?.call(() {}) ??
                 DoorLoadingPresentation(
-                  onFirstCycleComplete: _onFirstCycleComplete,
                   width: widget.loadingWidth,
                   expand: widget.expand,
+                  progressController: _progress,
                 ),
           ),
       ],
@@ -72,11 +101,13 @@ class DoorLoadingPresentation extends StatelessWidget {
     this.onFirstCycleComplete,
     this.width,
     this.expand = false,
+    this.progressController,
   });
 
   final VoidCallback? onFirstCycleComplete;
   final double? width;
   final bool expand;
+  final HormannLoadingController? progressController;
 
   @override
   Widget build(BuildContext context) {
@@ -84,6 +115,7 @@ class DoorLoadingPresentation extends StatelessWidget {
       return DoorLoadingLoop(
         expand: true,
         onFirstCycleComplete: onFirstCycleComplete,
+        progressController: progressController,
       );
     }
 
@@ -101,6 +133,7 @@ class DoorLoadingPresentation extends StatelessWidget {
               child: DoorLoadingLoop(
                 width: animationWidth,
                 onFirstCycleComplete: onFirstCycleComplete,
+                progressController: progressController,
               ),
             ),
           ),

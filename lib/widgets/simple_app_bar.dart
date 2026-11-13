@@ -65,10 +65,12 @@ class SimpleAppBar extends StatelessWidget implements PreferredSizeWidget {
                     onPressed: context.close,
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
@@ -78,8 +80,17 @@ class SimpleAppBar extends StatelessWidget implements PreferredSizeWidget {
                   ),
                 ),
                 if (actionButton != null) ...[
-                  const SizedBox(height: 12),
-                  actionButton!,
+                  const SizedBox(width: 6),
+                  Flexible(
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerRight,
+                        child: actionButton!,
+                      ),
+                    ),
+                  ),
                 ],
               ],
             ),

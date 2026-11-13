@@ -210,52 +210,18 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
   @override
   AsyncValueOf<Pair<String, String>> submitGateEntry(GateEntryForm form) async {
     return await executeSafely(() async {
-      Uint8List? vehiclefrontcompressedBytes;
-      Uint8List? vehiclebackcompressedBytes;
-      // Uint8List? invocecompressedBytes;
-      List<String> vendorInvoiceBase64List = [];
-
-      if (form.vehiclePhotoImg != null) {
-        final filePath = form.vehiclePhotoImg!.path;
-        vehiclefrontcompressedBytes =
-            await FlutterImageCompress.compressWithFile(filePath, quality: 50);
-      } else if (form.vehiclePhoto != null) {
-        vehiclefrontcompressedBytes = await fetchAndConvertToBase64(
-          form.vehiclePhoto ?? '',
-        );
-      }
-
-      if (form.vehicleBackPhotoImg != null) {
-        final filePath = form.vehicleBackPhotoImg!.path;
-        vehiclebackcompressedBytes =
-            await FlutterImageCompress.compressWithFile(filePath, quality: 50);
-      } else if (form.vehicleBackPhoto != null) {
-        vehiclebackcompressedBytes = await fetchAndConvertToBase64(
-          form.vehicleBackPhoto ?? '',
-        );
-      }
-      if (form.invoicePhotos != null && form.invoicePhotos!.isNotEmpty) {
-        for (var path in form.invoicePhotos!) {
-          final bytes = await fetchAndConvertToBase64(path);
-          if (bytes != null) {
-            vendorInvoiceBase64List.add(base64Encode(bytes));
-          }
-        }
-      }
-
-      if (form.invoicePhotoImg != null && form.invoicePhotoImg!.isNotEmpty) {
-        for (var file in form.invoicePhotoImg!) {
-          if (await file.exists()) {
-            final compressed = await FlutterImageCompress.compressWithFile(
-              file.path,
-              quality: 50,
-            );
-            if (compressed != null) {
-              vendorInvoiceBase64List.add(base64Encode(compressed));
-            }
-          }
-        }
-      }
+      // Only upload newly picked local files. Existing object-storage URLs are
+      // already attached on the Gate Entry doc — re-downloading them often hits
+      // 403 and is unnecessary for submit.
+      final vehiclefrontcompressedBytes = await _compressLocalOrNull(
+        form.vehiclePhotoImg,
+      );
+      final vehiclebackcompressedBytes = await _compressLocalOrNull(
+        form.vehicleBackPhotoImg,
+      );
+      final vendorInvoiceBase64List = await _compressLocalInvoices(
+        form.invoicePhotoImg,
+      );
 
       final Map<String, dynamic> requestBody = {
         'gate_entry_id': form.name,
@@ -271,7 +237,9 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
             vehiclefrontcompressedBytes == null
                 ? null
                 : base64Encode(vehiclefrontcompressedBytes),
-        'vendor_invoice_photo': vendorInvoiceBase64List,
+        // null = keep existing attachments; only send new local uploads.
+        'vendor_invoice_photo':
+            vendorInvoiceBase64List.isEmpty ? null : vendorInvoiceBase64List,
 
         'vehicle_back_photo':
             vehiclebackcompressedBytes == null
@@ -313,63 +281,17 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
 
     formJson['status'] = 'Draft';
 
-    Uint8List? vehiclefrontcompressedBytes;
-    Uint8List? vehiclebackcompressedBytes;
-    // Uint8List? invocecompressedBytes;
-
-    List<String> vendorInvoiceBase64List = [];
-
     $logger.info('form.....:$form');
 
-    if (form.vehiclePhotoImg != null) {
-      final filePath = form.vehiclePhotoImg!.path;
-      vehiclefrontcompressedBytes = await FlutterImageCompress.compressWithFile(
-        filePath,
-        quality: 50,
-      );
-    } else if (form.vehiclePhoto != null) {
-      vehiclefrontcompressedBytes = await fetchAndConvertToBase64(
-        form.vehiclePhoto ?? '',
-      );
-    }
-
-    if (form.vehicleBackPhotoImg != null) {
-      final filePath = form.vehicleBackPhotoImg!.path;
-      vehiclebackcompressedBytes = await FlutterImageCompress.compressWithFile(
-        filePath,
-        quality: 50,
-      );
-    } else if (form.vehicleBackPhoto != null) {
-      vehiclebackcompressedBytes = await fetchAndConvertToBase64(
-        form.vehicleBackPhoto ?? '',
-      );
-    }
-
-    if (form.invoicePhotos != null && form.invoicePhotos!.isNotEmpty) {
-      for (var path in form.invoicePhotos!) {
-        final bytes = await fetchAndConvertToBase64(path);
-        if (bytes != null) {
-          vendorInvoiceBase64List.add(base64Encode(bytes));
-        }
-      }
-    }
-
-    if (form.invoicePhotoImg != null && form.invoicePhotoImg!.isNotEmpty) {
-      for (var file in form.invoicePhotoImg!) {
-        final compressed = await FlutterImageCompress.compressWithFile(
-          file.path,
-          quality: 50,
-        );
-        if (compressed != null) {
-          vendorInvoiceBase64List.add(base64Encode(compressed));
-        }
-      }
-    } else if (form.invoicePhotos != null && form.invoicePhotos!.isNotEmpty) {
-      for (var path in form.invoicePhotos!) {
-        final bytes = await fetchAndConvertToBase64(path);
-        if (bytes != null) vendorInvoiceBase64List.add(base64Encode(bytes));
-      }
-    }
+    final vehiclefrontcompressedBytes = await _compressLocalOrNull(
+      form.vehiclePhotoImg,
+    );
+    final vehiclebackcompressedBytes = await _compressLocalOrNull(
+      form.vehicleBackPhotoImg,
+    );
+    final vendorInvoiceBase64List = await _compressLocalInvoices(
+      form.invoicePhotoImg,
+    );
 
     final Map<String, dynamic> requestBody = {
       'plant_name': form.plantName,
@@ -382,7 +304,8 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
           vehiclefrontcompressedBytes == null
               ? null
               : base64Encode(vehiclefrontcompressedBytes),
-      'vendor_invoice_photo': vendorInvoiceBase64List,
+      'vendor_invoice_photo':
+          vendorInvoiceBase64List.isEmpty ? null : vendorInvoiceBase64List,
 
       'vehicle_back_photo':
           vehiclebackcompressedBytes == null
@@ -425,19 +348,45 @@ class GateEntryRepoimpl extends BaseApiRepository implements GateEntryRepo {
     });
   }
 
+  Future<Uint8List?> _compressLocalOrNull(File? file) async {
+    if (file == null) return null;
+    if (!await file.exists()) return null;
+    return FlutterImageCompress.compressWithFile(file.path, quality: 50);
+  }
+
+  Future<List<String>> _compressLocalInvoices(List<File>? files) async {
+    if (files == null || files.isEmpty) return [];
+    final out = <String>[];
+    for (final file in files) {
+      if (!await file.exists()) continue;
+      final compressed = await FlutterImageCompress.compressWithFile(
+        file.path,
+        quality: 50,
+      );
+      if (compressed != null) {
+        out.add(base64Encode(compressed));
+      }
+    }
+    return out;
+  }
+
   Future<Uint8List?> fetchAndConvertToBase64(String relativePath) async {
+    if (relativePath.trim().isEmpty) return null;
     if (p.extension(relativePath).isEmpty) {
       return null;
     }
 
     final String url = Urls.filepath(relativePath);
+    $logger.devLog('fetchAndConvertToBase64 url=$url');
 
     final response = await http.get(Uri.parse(url));
 
     if (response.statusCode == 200) {
       return response.bodyBytes;
     } else {
-      throw Exception('Failed to load file: ${response.statusCode}');
+      throw Exception(
+        'Failed to load file: ${response.statusCode} ($url)',
+      );
     }
   }
 }

@@ -6,6 +6,7 @@ import 'package:injectable/injectable.dart';
 import 'package:shakti_hormann/features/frame_packing/data/frame_packing_repo.dart';
 import 'package:shakti_hormann/features/frame_packing/model/frame_lines.dart';
 import 'package:shakti_hormann/features/frame_packing/model/frame_packing.dart';
+import 'package:shakti_hormann/widgets/scan/scan_outcome.dart';
 
 part 'create_frame_cubit.freezed.dart';
 
@@ -322,24 +323,36 @@ class CreateFrameCubit extends AppBaseCubit<CreateFrameState> {
   }
 
   Future<void> onQrScanned(String rawQr, {List<String>? imagePath}) async {
-    final parsed = _ParsedShutterQr.tryParse(rawQr);
-    if (parsed == null) {
-      _emitError(Pair('Invalid QR format: $rawQr', null));
-      return;
-    }
-     final selectedSalesOrder = state.form.salesOrder;
-  if (selectedSalesOrder != null &&
-      selectedSalesOrder.isNotEmpty &&
-      parsed.salesOrder != selectedSalesOrder) {
-    _emitError(
-      Pair(
-        'This item belongs to Sales Order ${parsed.salesOrder}, but the pallet is set to $selectedSalesOrder.',
-        null,
-      ),
+    await processScannedCode(
+      rawQr,
+      imagePath: imagePath,
+      emitUiError: true,
     );
-    return;
   }
 
+  /// Validates + saves one sticker. Burst scan uses emitUiError: false.
+  Future<ScanOutcome> processScannedCode(
+    String rawQr, {
+    List<String>? imagePath,
+    bool emitUiError = false,
+  }) async {
+    ScanOutcome fail(String message) {
+      if (emitUiError) _emitError(Pair(message, null));
+      return ScanOutcome.fail(message);
+    }
+
+    final parsed = _ParsedShutterQr.tryParse(rawQr);
+    if (parsed == null) {
+      return fail('Invalid QR format: $rawQr');
+    }
+    final selectedSalesOrder = state.form.salesOrder;
+    if (selectedSalesOrder != null &&
+        selectedSalesOrder.isNotEmpty &&
+        parsed.salesOrder != selectedSalesOrder) {
+      return fail(
+        'This item belongs to Sales Order ${parsed.salesOrder}, but the pallet is set to $selectedSalesOrder.',
+      );
+    }
 
     final salesOrder = parsed.salesOrder;
     final itemIndex = parsed.itemIndex;
@@ -361,50 +374,39 @@ class CreateFrameCubit extends AppBaseCubit<CreateFrameState> {
             .toSet();
 
     if (scannedSeqNos.contains(seqNo)) {
-      _emitError(
-        Pair('Frame $seqNo of $totalQty has already been scanned.', null),
-      );
-      return;
+      return fail('Frame $seqNo of $totalQty has already been scanned.');
     }
     if (seqNo > totalQty) {
-      _emitError(
-        Pair(
-          'Frame $seqNo is out of range for total quantity $totalQty.',
-          null,
-        ),
+      return fail(
+        'Frame $seqNo is out of range for total quantity $totalQty.',
       );
-      return;
     }
 
     if (scannedSeqNos.length >= totalQty) {
-      _emitError(
-        Pair(
-          'Maximum quantity of $totalQty already scanned for this item.',
-          null,
-        ),
+      return fail(
+        'Maximum quantity of $totalQty already scanned for this item.',
       );
-      return;
     }
     emitSafeState(state.copyWith(isProcessingScan: true));
 
     final result = await repo.fetchItems(salesOrder, itemIndex);
 
-    await result.fold(
+    return await result.fold(
       (failure) async {
         emitSafeState(
-          state.copyWith(isProcessingScan: false, error: failure),
+          state.copyWith(
+            isProcessingScan: false,
+            error: emitUiError ? failure : null,
+          ),
         );
+        return ScanOutcome.fail(failure.error);
       },
       (items) async {
         if (items.isEmpty) {
           emitSafeState(state.copyWith(isProcessingScan: false));
-          _emitError(
-            Pair(
-              'No item found for SO: $salesOrder at index $itemIndex',
-              null,
-            ),
+          return fail(
+            'No item found for SO: $salesOrder at index $itemIndex',
           );
-          return;
         }
         final item = items.first;
 
@@ -428,65 +430,72 @@ class CreateFrameCubit extends AppBaseCubit<CreateFrameState> {
           ),
         );
 
-        await _syncLineToServer();
+        final sync = await _syncLineToServer(emitUiError: emitUiError);
+        if (!sync.success) return sync;
+        return ScanOutcome.ok('Frame $seqNo of $totalQty added');
       },
     );
   }
-  Future<void> _syncLineToServer() async {
-  if (_isSyncingLine) return;
-  _isSyncingLine = true;
 
-  try {
-    final form = state.form;
-    final docExists = form.name != null && form.name!.isNotEmpty;
+  Future<ScanOutcome> _syncLineToServer({bool emitUiError = true}) async {
+    if (_isSyncingLine) {
+      return const ScanOutcome.fail('Please wait — previous scan is saving.');
+    }
+    _isSyncingLine = true;
 
-    if (!docExists) {
-      _emitError(
-        const Pair(
-          'Please save the Sales Order and Pallet Code before scanning items.',
-          null,
-        ),
+    try {
+      final form = state.form;
+      final docExists = form.name != null && form.name!.isNotEmpty;
+
+      if (!docExists) {
+        const msg =
+            'Please save the Sales Order and Pallet Code before scanning items.';
+        if (emitUiError) _emitError(const Pair(msg, null));
+        return const ScanOutcome.fail(msg);
+      }
+
+      final pending = state.newLines;
+      final allItems = state.lines;
+      if (allItems.isEmpty) {
+        return const ScanOutcome.ok('Nothing to sync');
+      }
+
+      final response = await repo.updateFrame(form, allItems);
+      final outcome = response.fold(
+        (failure) {
+          final failedQrs =
+              pending
+                  .map((l) => l.shutterBarcodeQr)
+                  .whereType<String>()
+                  .toSet();
+
+          final rolledBackLines =
+              state.lines
+                  .where((l) => !failedQrs.contains(l.shutterBarcodeQr))
+                  .toList();
+
+          emitSafeState(
+            state.copyWith(
+              lines: rolledBackLines,
+              newLines: [],
+              error: emitUiError ? failure : null,
+            ),
+          );
+          return ScanOutcome.fail(failure.error);
+        },
+        (_) {
+          emitSafeState(state.copyWith(newLines: []));
+          return const ScanOutcome.ok('Saved');
+        },
       );
-      return;
+      if (outcome.success) {
+        await _refreshLinesFromServer();
+      }
+      return outcome;
+    } finally {
+      _isSyncingLine = false;
     }
-
-    final pending = state.newLines;
-    final allItems = state.lines;
-    if (allItems.isEmpty) return;
-
-    final response = await repo.updateFrame(form, allItems);
-    final didUpdate = response.fold(
-      (failure) {
-        final failedQrs = pending
-            .map((l) => l.shutterBarcodeQr)
-            .whereType<String>()
-            .toSet();
-
-        final rolledBackLines = state.lines
-            .where((l) => !failedQrs.contains(l.shutterBarcodeQr))
-            .toList();
-
-        emitSafeState(
-          state.copyWith(
-            lines: rolledBackLines,
-            newLines: [],
-            error: failure,
-          ),
-        );
-        return false;
-      },
-      (_) {
-        emitSafeState(state.copyWith(newLines: []));
-        return true;
-      },
-    );
-    if (didUpdate) {
-      await _refreshLinesFromServer();
-    }
-  } finally {
-    _isSyncingLine = false;
   }
-}
 
 
   void addLinePhotos(int index, List<String> localPaths) {

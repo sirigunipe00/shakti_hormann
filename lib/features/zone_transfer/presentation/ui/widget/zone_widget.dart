@@ -37,103 +37,91 @@ class ZoneWidget extends StatelessWidget {
       onTap: onTap,
       child: Card(
         color: Colors.white,
+        margin: const EdgeInsets.symmetric(horizontal: 2, vertical: 1),
+        elevation: 0.5,
         surfaceTintColor: AppColors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10.0),
-          side: const BorderSide(color: AppColors.white),
+          side: const BorderSide(color: Color(0xFFE8ECF4)),
         ),
         child: SpacedColumn(
-          defaultHeight: 2,
-          margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+          defaultHeight: 0,
+          margin: const EdgeInsets.fromLTRB(10, 9, 10, 8),
           children: [
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  width: 70,
-                  height: 70,
+                  width: 48,
+                  height: 48,
                   decoration: BoxDecoration(
                     color: const Color(0xFF2957A4).withValues(alpha: 0.10),
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(10),
                   ),
                   child: Center(
                     child: Text(
                       _palletDisplayNumber,
                       style: const TextStyle(
-                        fontSize: 22,
+                        fontSize: 15,
                         fontWeight: FontWeight.bold,
                         color: Color(0xFF2957A4),
-                        letterSpacing: 1.5,
+                        letterSpacing: 0.5,
                       ),
                     ),
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 10),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                gateEntry.name ?? '',
-                                style: AppTextStyles.titleLarge(
-                                  context,
-                                ).copyWith(
-                                  color: AppColors.black,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                          Expanded(
+                            child: Text(
+                              gateEntry.name ?? '',
+                              style: AppTextStyles.titleLarge(context).copyWith(
+                                color: AppColors.black,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14,
                               ),
-                              const SizedBox(height: 5),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    'Total Qty : ${gateEntry.totalQty.toString()}',
-                                    style: const TextStyle(
-                                      color: AppColors.grey,
-                                      fontWeight: FontWeight.bold,
-                                      letterSpacing: 0,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
-                        ],
-                      ),
-
-                      const SizedBox(height: 5),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            children: [
-                              const Icon(
-                                Icons.calendar_today,
-                                size: 14,
-                                color: Color(0xFF163A6B),
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                DFU.ddMMyyyyFromStr(gateEntry.creation ?? ''),
-                                style: AppTextStyles.titleMedium(
-                                  context,
-                                  const Color(0xFF163A6B),
-                                ).copyWith(color: const Color(0xFF163A6B)),
-                              ),
-                            ],
-                          ),
-
                           DocStatusWidget(
                             status: StringUtils.framePackingStatus(
                               gateEntry.docStatus ?? 0,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 3),
+                      Text(
+                        'Total Qty : ${gateEntry.totalQty.toString()}',
+                        style: const TextStyle(
+                          color: AppColors.grey,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 12,
+                          fontFamily: 'Urbanist',
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.calendar_today,
+                            size: 12,
+                            color: Color(0xFF163A6B),
+                          ),
+                          const SizedBox(width: 3),
+                          Text(
+                            DFU.ddMMyyyyFromStr(gateEntry.creation ?? ''),
+                            style: const TextStyle(
+                              color: Color(0xFF163A6B),
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              fontFamily: 'Urbanist',
                             ),
                           ),
                         ],
@@ -144,7 +132,7 @@ class ZoneWidget extends StatelessWidget {
               ],
             ),
             const Padding(
-              padding: EdgeInsets.symmetric(vertical: 4.0),
+              padding: EdgeInsets.symmetric(vertical: 5.0),
               child: DottedLine(
                 direction: Axis.horizontal,
                 lineLength: double.infinity,
@@ -157,12 +145,17 @@ class ZoneWidget extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                Text(
-                  gateEntry.salesOrders ?? '',
-                  style: const TextStyle(
-                    color: Colors.orange,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 0,
+                Flexible(
+                  child: Text(
+                    gateEntry.salesOrders ?? '',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: Colors.orange,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                      letterSpacing: 0,
+                    ),
                   ),
                 ),
               ],

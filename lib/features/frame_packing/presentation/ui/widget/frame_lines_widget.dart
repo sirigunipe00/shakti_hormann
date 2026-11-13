@@ -53,10 +53,10 @@ class _FrameLinesWidgetState extends State<FrameLinesWidget> {
 
         final columnWidths = <int, TableColumnWidth>{
           0: const FlexColumnWidth(0.8), // Sl No.
-          1: const FlexColumnWidth(2.0), // FrameBarcode
+          1: const FlexColumnWidth(2.0), // Frame Barcode
           2: const FlexColumnWidth(1.5), // Item Code
           3: const FlexColumnWidth(1.5), // Photos
-          if (showDeleteColumn) 4: const FlexColumnWidth(1.0), // Delete
+          if (showDeleteColumn) 4: const FlexColumnWidth(1.0),
         };
 
         return Column(
@@ -64,113 +64,176 @@ class _FrameLinesWidgetState extends State<FrameLinesWidget> {
           children: [
             Container(
               decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey.shade400),
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: const Color(0xFFE8ECF4)),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF0E1446).withValues(alpha: 0.04),
+                    blurRadius: 10,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
               ),
-              child: Table(
-                columnWidths: columnWidths,
-                border: TableBorder(
-                  horizontalInside: BorderSide(
-                    color: Colors.grey.shade300,
-                    width: 1,
-                  ),
-                  verticalInside: BorderSide(
-                    color: Colors.grey.shade300,
-                    width: 1,
-                  ),
-                ),
-                children: [
-                  // Header row.
-                  TableRow(
-                    decoration: const BoxDecoration(
-                      color: Color(0xFF1A3C6B),
-                    ),
-                    children: [
-                      _headerCell('#'),
-                      _headerCell('FrameBarcode.'),
-                      _headerCell('Item Code'),
-                      _headerCell('Photos'),
-                      if (showDeleteColumn) _headerCell('Delete'),
-                    ],
-                  ),
-                  // Data rows.
-                  ...List.generate(itemLines.length, (index) {
-                    final item = itemLines[index];
-                    final slNo = (index + 1).toString().padLeft(2, '0');
-
-                    final photoUrls = resolvePhotoUrls(
-                      item.shutterPhoto,
-                      item.shutterPhotoImg,
-                    );
-                    final hasPhoto = photoUrls.isNotEmpty;
-                    final isSelected = selectedRows.contains(index);
-
-                    final rowColor = isSelected
-                        ? const Color(0xFFEFF6FF)
-                        : (index.isEven ? Colors.white : const Color(0xFFF8FAFC));
-
-                    return TableRow(
-                      decoration: BoxDecoration(color: rowColor),
-                      children: [
-                        _dataCell(
+              clipBehavior: Clip.antiAlias,
+              child: itemLines.isEmpty
+                  ? const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 28, horizontal: 16),
+                      child: Column(
+                        children: [
+                          Icon(
+                            Icons.inventory_2_outlined,
+                            size: 32,
+                            color: Color(0xFF9CA3AF),
+                          ),
+                          SizedBox(height: 8),
                           Text(
-                            slNo,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              color: Color(0xFF2563EB),
-                              fontWeight: FontWeight.bold,
-                              fontSize: 13,
+                            'No frame items yet',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w800,
+                              color: Color(0xFF0E1446),
+                              fontFamily: 'Urbanist',
                             ),
                           ),
+                          SizedBox(height: 4),
+                          Text(
+                            'Scan a sticker or upload an image to add lines.',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Color(0xFF6B7280),
+                              fontFamily: 'Urbanist',
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  : Table(
+                      columnWidths: columnWidths,
+                      border: const TableBorder(
+                        horizontalInside: BorderSide(
+                          color: Color(0xFFE6EAF2),
+                          width: 1,
                         ),
-                        _dataCell(_bodyText(item.shutterBarcodeQr ?? '—')),
-                        _dataCell(_bodyText(item.itemCode ?? '—')),
-                        _dataCell(
-                          hasPhoto
-                              ? Center(
-                                  child: _ViewButton(
-                                    count: photoUrls.length,
-                                    onTap: () =>
-                                        _showPhotoDialog(context, photoUrls),
-                                  ),
-                                )
-                              : const Center(
-                                  child: Text(
-                                    'N/A',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.grey,
-                                      fontWeight: FontWeight.w500,
+                        verticalInside: BorderSide(
+                          color: Color(0xFFE6EAF2),
+                          width: 1,
+                        ),
+                      ),
+                      children: [
+                        TableRow(
+                          decoration: const BoxDecoration(
+                            color: Color(0xFF0E2A5C),
+                          ),
+                          children: [
+                            _headerCell('#'),
+                            _headerCell('Frame\nBarcode'),
+                            _headerCell('Item\nCode'),
+                            _headerCell('Photos'),
+                            if (showDeleteColumn) _headerCell('Delete'),
+                          ],
+                        ),
+                        ...List.generate(itemLines.length, (index) {
+                          final item = itemLines[index];
+                          final slNo = (index + 1).toString().padLeft(2, '0');
+                          final photoUrls = resolvePhotoUrls(
+                            item.shutterPhoto,
+                            item.shutterPhotoImg,
+                          );
+                          final hasPhoto = photoUrls.isNotEmpty;
+                          final isSelected = selectedRows.contains(index);
+                          final rowColor = isSelected
+                              ? const Color(0xFFEFF6FF)
+                              : (index.isEven
+                                  ? Colors.white
+                                  : const Color(0xFFF8FAFD));
+
+                          return TableRow(
+                            decoration: BoxDecoration(color: rowColor),
+                            children: [
+                              _dataCell(
+                                Center(
+                                  child: Container(
+                                    width: 26,
+                                    height: 26,
+                                    alignment: Alignment.center,
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFEFF4FB),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Text(
+                                      slNo,
+                                      style: const TextStyle(
+                                        color: Color(0xFF2957A4),
+                                        fontWeight: FontWeight.w800,
+                                        fontSize: 11,
+                                        fontFamily: 'Urbanist',
+                                      ),
                                     ),
                                   ),
                                 ),
-                        ),
-                        if (showDeleteColumn)
-                          _dataCell(
-                            Center(
-                              child: IconButton(
-                                padding: EdgeInsets.zero,
-                                constraints: const BoxConstraints(),
-                                icon: const Icon(
-                                  Icons.delete_outline,
-                                  color: Colors.red,
-                                  size: 20,
-                                ),
-                                onPressed: canDelete
-                                    ? () {
-                                        context
-                                            .read<CreateFrameCubit>()
-                                            .removeLine(index);
-                                        setState(() => selectedRows = []);
-                                      }
-                                    : null,
                               ),
-                            ),
-                          ),
+                              _dataCell(_bodyText(item.shutterBarcodeQr ?? '—')),
+                              _dataCell(_bodyText(item.itemCode ?? '—')),
+                              _dataCell(
+                                hasPhoto
+                                    ? Center(
+                                        child: _ViewButton(
+                                          count: photoUrls.length,
+                                          onTap: () => _showPhotoDialog(
+                                            context,
+                                            photoUrls,
+                                          ),
+                                        ),
+                                      )
+                                    : const Center(
+                                        child: Text(
+                                          'N/A',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: Color(0xFF9CA3AF),
+                                            fontWeight: FontWeight.w600,
+                                            fontFamily: 'Urbanist',
+                                          ),
+                                        ),
+                                      ),
+                              ),
+                              if (showDeleteColumn)
+                                _dataCell(
+                                  Center(
+                                    child: Material(
+                                      color: const Color(0xFFFDECEC),
+                                      borderRadius: BorderRadius.circular(10),
+                                      child: InkWell(
+                                        borderRadius: BorderRadius.circular(10),
+                                        onTap: canDelete
+                                            ? () {
+                                                context
+                                                    .read<CreateFrameCubit>()
+                                                    .removeLine(index);
+                                                setState(
+                                                  () => selectedRows = [],
+                                                );
+                                              }
+                                            : null,
+                                        child: const Padding(
+                                          padding: EdgeInsets.all(8),
+                                          child: Icon(
+                                            Icons.delete_outline_rounded,
+                                            color: Color(0xFFD64545),
+                                            size: 18,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          );
+                        }),
                       ],
-                    );
-                  }),
-                ],
-              ),
+                    ),
             ),
           ],
         );
@@ -182,14 +245,16 @@ class _FrameLinesWidgetState extends State<FrameLinesWidget> {
     return TableCell(
       verticalAlignment: TableCellVerticalAlignment.middle,
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 6),
+        padding: const EdgeInsets.symmetric(vertical: 11, horizontal: 4),
         child: Text(
           label,
           textAlign: TextAlign.center,
           style: const TextStyle(
-            fontSize: 13,
+            fontSize: 11,
             color: Colors.white,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w700,
+            fontFamily: 'Urbanist',
+            height: 1.2,
           ),
         ),
       ),
@@ -200,7 +265,7 @@ class _FrameLinesWidgetState extends State<FrameLinesWidget> {
     return TableCell(
       verticalAlignment: TableCellVerticalAlignment.middle,
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 6),
+        padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 4),
         child: child,
       ),
     );
@@ -211,7 +276,14 @@ class _FrameLinesWidgetState extends State<FrameLinesWidget> {
       text,
       textAlign: TextAlign.center,
       softWrap: true,
-      style: const TextStyle(fontSize: 12, color: Colors.black87),
+      maxLines: 2,
+      overflow: TextOverflow.ellipsis,
+      style: const TextStyle(
+        fontSize: 11,
+        color: Color(0xFF0E1446),
+        fontWeight: FontWeight.w600,
+        fontFamily: 'Urbanist',
+      ),
     );
   }
 

@@ -9,10 +9,11 @@ import 'package:shakti_hormann/features/installation/presentation/bloc/bloc_prov
 import 'package:shakti_hormann/features/installation/presentation/bloc/create_installation_entry_cubit/create_installation_entry_cubit.dart';
 import 'package:shakti_hormann/features/logistic_request/model/sales_order_form.dart';
 import 'package:shakti_hormann/features/pallet_creation/presentation/bloc/bloc_provider.dart';
+import 'package:shakti_hormann/features/installation/presentation/ui/widget/installation_select_fields.dart';
 import 'package:shakti_hormann/features/vision_panel/model/product_type.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
+import 'package:shakti_hormann/widgets/dailogs/app_dialogs.dart';
 import 'package:shakti_hormann/widgets/input_filed.dart';
-import 'package:shakti_hormann/widgets/inputs/search_dropdown_widget.dart';
 import 'package:shakti_hormann/widgets/sectionheader.dart';
 import 'package:shakti_hormann/widgets/spaced_column.dart';
 
@@ -89,35 +90,42 @@ class _InstallationEntryFormWidgetState
           }
           final displayLines = formState.lines;
 
+          final isDropdownLocked = isCreated || printed || isSubmitted;
+
           return Scaffold(
-            backgroundColor: Colors.purple.shade100.withValues(alpha: 0.15),
+            backgroundColor: AppColors.white,
             body: SingleChildScrollView(
               controller: _scrollController,
-              padding: const EdgeInsets.only(top: 5, bottom: 24),
+              padding: ShellInsets.scrollPadding(
+                context,
+                left: 16,
+                right: 16,
+                top: 8,
+              ),
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
               child: SpacedColumn(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 defaultHeight: 0,
                 children: [
-                  const Padding(
-                    padding: EdgeInsets.only(left: 16.0),
-                    child: SectionHeader(
-                      title: 'SO Details',
-                      assetIcon: 'assets/images/vehicleinvoicicon.svg',
-                    ),
+                  const SectionHeader(
+                    title: 'SO Details',
+                    assetIcon: 'assets/images/vehicleinvoicicon.svg',
                   ),
+                  const SizedBox(height: 8),
                   Container(
-                    padding: const EdgeInsets.only(
-                      top: 12,
-                      bottom: 0,
-                      left: 12,
-                      right: 12,
-                    ),
+                    padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
                     width: MediaQuery.of(context).size.width,
-                    margin: const EdgeInsets.symmetric(horizontal: 18),
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.grey.shade300),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: const Color(0xFFE8ECF4)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFF0E1446).withValues(alpha: 0.04),
+                          blurRadius: 10,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
                     ),
                     child: SpacedColumn(
                       defaultHeight: 12,
@@ -130,75 +138,50 @@ class _InstallationEntryFormWidgetState
                               success: (data) => data,
                             );
 
+                            final savedSo = newform.salesOrderNo?.trim();
                             final names = allData.toList();
-                            if (invoiceform == null &&
-                                newform.salesOrderNo != null &&
-                                names.isNotEmpty) {
-                              invoiceform = names.firstWhere(
-                                (item) => item.name == newform.salesOrderNo,
+                            if (savedSo != null &&
+                                savedSo.isNotEmpty &&
+                                !names.any((e) => e.name == savedSo)) {
+                              names.insert(
+                                0,
+                                SalesOrderForm(
+                                  name: savedSo,
+                                  customerName: newform.customerName,
+                                ),
                               );
                             }
 
-                            return SearchDropDownList<SalesOrderForm>(
-                              title: 'Sales Order No.',
-                              hint: 'Select Order No',
-                              key: const ValueKey('sales_order_dropdown'),
-                              color: AppColors.black,
-                              items: names,
-                              isRequired: true,
-                              readOnly: isCreated || printed || isSubmitted,
-                              defaultSelection: invoiceform,
-                              isloading: state.isLoading,
-                              futureRequest: (query) async {
-                                if (query.isEmpty) return names;
+                            SalesOrderForm? defaultSelection = invoiceform;
+                            if (defaultSelection == null &&
+                                savedSo != null &&
+                                savedSo.isNotEmpty &&
+                                names.isNotEmpty) {
+                              defaultSelection = names.firstWhere(
+                                (item) => item.name == savedSo,
+                                orElse: () => SalesOrderForm(name: savedSo),
+                              );
+                              invoiceform = defaultSelection;
+                            }
 
-                                return names.where((item) {
-                                  final orderNo =
-                                      item.name?.toLowerCase() ?? '';
-                                  final customer =
-                                      item.customerName?.toLowerCase() ?? '';
-                                  final search = query.toLowerCase();
-
-                                  return orderNo.contains(search) ||
-                                      customer.contains(search);
-                                }).toList();
-                              },
-                              headerBuilder:
-                                  (_, item, __) => Text(
-                                    item.name ?? '',
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                              listItemBuilder:
-                                  (_, item, __, ___) => Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'Sales Order: ${item.name ?? ''}',
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      if (item.customerName != null)
-                                        Text(
-                                          'Customer Name : ${item.customerName}',
-                                        ),
-                                      Text(
-                                        'Order Date: ${DFU.ddMMyyyyFromStr(item.orderDate ?? '')} ',
-                                      ),
-                                    ],
-                                  ),
+                            return InstallationSalesOrderSelect(
+                              key: ValueKey(
+                                'so_${newform.name}_${newform.salesOrderNo}_'
+                                '$isDropdownLocked',
+                              ),
+                              orders: names,
+                              selected: defaultSelection,
+                              isLoading: state.isLoading,
+                              locked: isDropdownLocked,
                               onSelected: (selected) {
                                 setState(() {
                                   invoiceform = selected;
                                 });
                                 cubit.onValueChanged(
                                   salesOrderNo: selected.name,
+                                  customerName: selected.customerName,
                                 );
                               },
-                              focusNode: FocusNode(),
                             );
                           },
                         ),
@@ -317,20 +300,15 @@ class _InstallationEntryFormWidgetState
                     ),
                   ),
 
-                  // Box Details Table Section Only (No inline Submit button)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 15.0),
-                    child: SpacedColumn(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      defaultHeight: 6,
-                      children: [
-                        const Padding(
-                          padding: EdgeInsets.only(left: 4.0, top: 12),
-                          child: SectionHeader(
-                            title: 'Box Details',
-                            assetIcon: 'assets/images/vehicleinvoicicon.svg',
-                          ),
-                        ),
+                  const SizedBox(height: 8),
+                  SpacedColumn(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    defaultHeight: 6,
+                    children: [
+                      const SectionHeader(
+                        title: 'Box Details',
+                        assetIcon: 'assets/images/vehicleinvoicicon.svg',
+                      ),
                         _BoxDetailsTable(
                           lines: displayLines,
                           printed: printed,
@@ -353,8 +331,7 @@ class _InstallationEntryFormWidgetState
                                 isUpdated: formState.isUpdated,
                               ),
                         ),
-                      ],
-                    ),
+                    ],
                   ),
                 ],
               ),
@@ -425,75 +402,19 @@ class _InstallationEntryFormWidgetState
     return raw.startsWith('/') ? '$base$raw' : '$base/$raw';
   }
 
-  void _confirmPrint(
+  Future<void> _confirmPrint(
     BuildContext context,
     CreateInstallationState state,
     CreateInstallationEntryCubit cubit,
-  ) {
-    final boxCount = (state.form.noOfBoxes ?? 0).toString().padLeft(2, '0');
-    showDialog(
-      context: context,
-      builder:
-          (dialogContext) => AlertDialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            title: Column(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: Colors.red.shade50,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(Icons.priority_high, color: Colors.red),
-                ),
-                const SizedBox(height: 12),
-                const Text('Print Stickers?'),
-              ],
-            ),
-            content: RichText(
-              textAlign: TextAlign.center,
-              text: TextSpan(
-                style: const TextStyle(color: Colors.black87, fontSize: 14),
-                children: [
-                  TextSpan(
-                    text: 'Note: Do you want to print $boxCount stickers for ',
-                  ),
-                  TextSpan(
-                    text: state.form.salesOrderNo ?? '',
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ],
-              ),
-            ),
-            actionsAlignment: MainAxisAlignment.spaceBetween,
-            actions: [
-              OutlinedButton(
-                onPressed: () => Navigator.of(dialogContext).pop(),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: Colors.red,
-                  backgroundColor: Colors.red.shade50,
-                  side: BorderSide(color: Colors.red.shade200),
-                ),
-                child: const Text('Cancel'),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.of(dialogContext).pop();
-                  cubit.printSticker();
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.darkBlue,
-                ),
-                child: const Text(
-                  'Print',
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
-            ],
-          ),
+  ) async {
+    final confirmed = await AppDialog.confirmPrintStickers(
+      context,
+      stickerCount: state.form.noOfBoxes ?? 0,
+      salesOrderNo: state.form.salesOrderNo ?? '',
     );
+    if (confirmed == true && context.mounted) {
+      cubit.printSticker();
+    }
   }
 }
 
@@ -601,32 +522,90 @@ class _BoxDetailsTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(10),
-      child: Table(
-        border: TableBorder.all(color: Colors.grey.shade400),
-        columnWidths: const {
-          0: FixedColumnWidth(44),
-          1: FlexColumnWidth(1.1),
-          2: FlexColumnWidth(1.7),
-          3: FlexColumnWidth(1.6),
-          4: FlexColumnWidth(1.4),
-        },
-        children: [
-          const TableRow(
-            decoration: BoxDecoration(color: AppColors.darkBlue),
-            children: [
-              _HeaderCell('#'),
-              _HeaderCell('Box No.'),
-              _HeaderCell('Box Code'),
-              _HeaderCell('Allocation'),
-              _HeaderCell('Photo'),
-            ],
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0xFFE8ECF4)),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF0E1446).withValues(alpha: 0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
           ),
-          for (var i = 0; i < lines.length; i++)
-            TableRow(
-              decoration: const BoxDecoration(color: Color(0xFFF3F4F8)),
+        ],
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: lines.isEmpty
+          ? const Padding(
+              padding: EdgeInsets.symmetric(vertical: 28, horizontal: 16),
+              child: Column(
+                children: [
+                  Icon(
+                    Icons.inventory_2_outlined,
+                    size: 32,
+                    color: Color(0xFF9CA3AF),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    'No box rows yet',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w800,
+                      color: Color(0xFF0E1446),
+                      fontFamily: 'Urbanist',
+                    ),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    'Save sales order and box count, then print stickers to add rows.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Color(0xFF6B7280),
+                      fontFamily: 'Urbanist',
+                    ),
+                  ),
+                ],
+              ),
+            )
+          : Table(
+              columnWidths: const {
+                0: FixedColumnWidth(44),
+                1: FlexColumnWidth(1.1),
+                2: FlexColumnWidth(1.7),
+                3: FlexColumnWidth(1.6),
+                4: FlexColumnWidth(1.4),
+              },
+              border: const TableBorder(
+                horizontalInside: BorderSide(
+                  color: Color(0xFFE6EAF2),
+                  width: 1,
+                ),
+                verticalInside: BorderSide(
+                  color: Color(0xFFE6EAF2),
+                  width: 1,
+                ),
+              ),
               children: [
+                const TableRow(
+                  decoration: BoxDecoration(color: Color(0xFF0E2A5C)),
+                  children: [
+                    _HeaderCell('#'),
+                    _HeaderCell('Box No.'),
+                    _HeaderCell('Box Code'),
+                    _HeaderCell('Allocation'),
+                    _HeaderCell('Photo'),
+                  ],
+                ),
+                for (var i = 0; i < lines.length; i++)
+                  TableRow(
+                    decoration: BoxDecoration(
+                      color: i.isEven
+                          ? Colors.white
+                          : const Color(0xFFF8FAFC),
+                    ),
+                    children: [
                 _Cell(
                   child: Text(
                     (i + 1).toString().padLeft(2, '0'),
@@ -704,10 +683,10 @@ class _BoxDetailsTable extends StatelessWidget {
                                     : null,
                           ),
                 ),
+                    ],
+                  ),
               ],
             ),
-        ],
-      ),
     );
   }
 }
@@ -726,8 +705,8 @@ class _HeaderCell extends StatelessWidget {
         style: const TextStyle(
           fontFamily: 'Urbanist',
           color: Colors.white,
-          fontSize: 16,
-          fontWeight: FontWeight.bold,
+          fontSize: 13,
+          fontWeight: FontWeight.w800,
         ),
       ),
     );

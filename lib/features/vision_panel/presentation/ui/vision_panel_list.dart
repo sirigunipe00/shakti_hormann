@@ -38,11 +38,9 @@ class _VisionPanelListState extends State<VisionPanelList>
 
       backgroundColor: AppColors.white,
       onNew: () async {
-        final refresh = await AppRoute.newvisionPanel.push<bool>(context);
-        if(!context.mounted) return;
-        if (refresh == true) {
-          _fetchInital(context);
-        }
+        await AppRoute.newvisionPanel.push<bool>(context);
+        if (!context.mounted) return;
+        _fetchInital(context);
       },
       scaffoldBg: '',
       child: RefreshIndicator(
@@ -60,19 +58,18 @@ class _VisionPanelListState extends State<VisionPanelList>
                 (context, entry) => VisionPanelWidget(
                   vision: entry,
                   onTap: () async {
-                    final refresh = await AppRoute.newvisionPanel.push<bool?>(
+                    await AppRoute.newvisionPanel.push<bool?>(
                       context,
                       extra: entry,
                     );
-                    if(!context.mounted) return;
-                    if (refresh == true) {
-                      _fetchInital(context);
-                    }
+                    if (!context.mounted) return;
+                    _fetchInital(context);
                   },
                 ),
             fetchInitial: () => _fetchInital(context),
             fetchMore: () => fetchMore(context),
-            emptyListText: 'No Vision Panels Found.',
+            emptyListText:
+                'No accessories packing records yet.\nTap New to pack accessories for a sales order.',
           ),
         ),
       ),

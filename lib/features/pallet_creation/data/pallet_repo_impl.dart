@@ -55,19 +55,44 @@ class PalletRepoImpl extends BaseApiRepository implements PalletRepo {
   }
 
   @override
-  AsyncValueOf<List<SalesOrderForm>> salesOrder() async {
+  AsyncValueOf<List<SalesOrderForm>> salesOrder({
+    String? search,
+    int limit = 40,
+  }) async {
     return await executeSafely(() async {
-      final reqParams = {
+      final filters = <List<dynamic>>[];
+      final orFilters = <List<dynamic>>[];
+
+      // Scope to plant when the user is not an admin — same rule as logistics.
+      final users = user();
+      final hasAdmin =
+          users.roles?.any((r) => r.role == 'Admin Role-SH') ?? false;
+      final plantName = users.plantName;
+      if (!hasAdmin && plantName != null && plantName.isNotEmpty) {
+        filters.add(['company', '=', plantName]);
+      }
+
+      final q = search?.trim() ?? '';
+      if (q.isNotEmpty) {
+        orFilters
+          ..add(['name', 'like', '%$q%'])
+          ..add(['customer_name', 'like', '%$q%']);
+      }
+
+      final pageLen = limit.clamp(1, 100);
+
+      final reqParams = <String, dynamic>{
         'limit_start': 0,
-        'limit_page_length': 'None',
+        'limit_page_length': pageLen,
         'order_by': 'creation desc',
         'doctype': 'SAP Sales Order',
         'fields': jsonEncode(['name', 'customer_name', 'order_date']),
+        if (filters.isNotEmpty) 'filters': jsonEncode(filters),
+        if (orFilters.isNotEmpty) 'or_filters': jsonEncode(orFilters),
       };
 
       final config = RequestConfig(
         url: Urls.getList,
-
         parser: (json) {
           final data = json['message'];
           final listdata = data as List<dynamic>;
@@ -76,10 +101,10 @@ class PalletRepoImpl extends BaseApiRepository implements PalletRepo {
         reqParams: reqParams,
         headers: {HttpHeaders.contentTypeHeader: 'application/json'},
       );
-      $logger.devLog('salesinvoice.....$config');
+      $logger.devLog('pallet salesOrder.....$config');
       final response = await get(config);
       return response.processAsync((r) async {
-        return right((r.data!));
+        return right(r.data!);
       });
     });
   }

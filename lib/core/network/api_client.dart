@@ -105,7 +105,14 @@ class ApiClient {
       }
 
       final Uri uri = RestUtils.constructUri(params.url, params.reqParams);
-      final http.Response httpResponse = await apiCall(uri);
+      final http.Response httpResponse = await apiCall(uri).timeout(
+        const Duration(seconds: 45),
+        onTimeout: () {
+          throw const ClientException(
+            'Request timed out. Please try again.',
+          );
+        },
+      );
       final int statusCode = httpResponse.statusCode;
       final String resBody = httpResponse.body;
       

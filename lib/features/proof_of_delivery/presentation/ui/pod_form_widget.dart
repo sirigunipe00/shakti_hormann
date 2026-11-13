@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shakti_hormann/features/proof_of_delivery/presentation/bloc/create_pd_cubit/create_pod_cubit.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
+import 'package:shakti_hormann/widgets/dailogs/app_dialogs.dart';
 import 'package:shakti_hormann/widgets/input_filed.dart';
 import 'package:shakti_hormann/widgets/inputs/date_picker_field.dart';
 import 'package:shakti_hormann/widgets/inputs/pod_photo_widget.dart';
@@ -104,69 +105,28 @@ class _PodFormWidgetState extends State<PodFormWidget>
             }
             if (state is GeoLocationDeniedForever ||
                 state is LocationPermissionPermDenied) {
-              showDialog<bool?>(
-                context: context,
+              AppDialog.show(
+                context,
+                title: 'Grant Location Permission',
+                content:
+                    'Shakti Hormann needs your location permission to continue.',
+                buttonText: 'Allow',
                 barrierDismissible: false,
-                builder: (context) {
-                  return PopScope(
-                    canPop: false,
-                    child: AlertDialog(
-                      content: const Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.warning_amber_rounded,
-                            size: 50,
-                            color: Colors.orange,
-                          ),
-                          SizedBox(height: 10),
-                          Text(
-                            'Grant Location Permission',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.red, 
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                          SizedBox(height: 10),
-                          Text(
-                            'Shakti Hormann needs your location permission.',
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
-                      ),
-                      actions: [
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            elevation: 3,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 22,
-                              vertical: 12,
-                            ),
-                          ),
-                          onPressed: () => Navigator.of(context).pop(true),
-                          child: const Text('Allow'),
-                        ),
-                      ],
-                    ),
-                  );
+                icon: Icons.location_on_rounded,
+                iconBackground: const Color(0xFFFEF3C7),
+                iconColor: const Color(0xFFD97706),
+                confirmIcon: Icons.settings_rounded,
+                confirmColor: AppColors.darkBlue,
+                onTapOkay: () {
+                  Navigator.of(context, rootNavigator: true).pop(true);
                 },
               ).then((value) async {
-
-                if (value.isTrue) {
+                if (value == true) {
                   _shouldRequestPermission = true;
                   await Geolocator.openAppSettings();
-                  if(context.mounted){
-                     context.pop();
-
+                  if (context.mounted) {
+                    context.pop();
                   }
-                 
-
-                  // context.cubit<GeoPermissionHandler>().checkPermission();
                 }
               });
             }
@@ -183,9 +143,11 @@ class _PodFormWidgetState extends State<PodFormWidget>
         ),
       ],
       child: Container(
-        color: Colors.purple.shade100.withValues(alpha: 0.15),
+        color: const Color(0xFFF7F8FA),
         child: SingleChildScrollView(
           controller: _scrollController,
+          padding: ShellInsets.scrollPadding(context),
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           child: SpacedColumn(
             crossAxisAlignment: CrossAxisAlignment.start,
             margin: const EdgeInsets.symmetric(vertical: 20),
@@ -205,8 +167,8 @@ class _PodFormWidgetState extends State<PodFormWidget>
                 margin: const EdgeInsets.symmetric(horizontal: 18),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.grey.shade300),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: const Color(0xFFE8ECF4)),
                 ),
                 child: SpacedColumn(
                   defaultHeight: 6,
@@ -287,53 +249,64 @@ class _PodFormWidgetState extends State<PodFormWidget>
                 padding: const EdgeInsets.only(left: 16, right: 16),
                 child: Card(
                   color: Colors.white,
+                  elevation: 0,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(16),
                     side: const BorderSide(color: Color(0xFFE8ECF4), width: 1),
                   ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      PodPhotoWidget(
-                        fileName: 'vehicleinvoice',
-                        imageUrl: newform.podPhoto,
-                        title: 'Pod Photo',
-                        isRequired: true,
-                        isReadOnly: isCompleted,
-                        onFileCapture: (file) {
-                          context.cubit<CreatePodCubit>().onValueChanged(
-                            podPhoto: file,
-                          );
-                        },
-                        focusNode: focusNodes.elementAt(27),
-                      ),
-                      PodPhotoWidget(
-                        fileName: 'vehiclefront',
-                        isRequired: true,
-                        imageUrl: newform.unloadingPhoto1,
-                        title: 'UnLoading 1',
-                        isReadOnly: isCompleted,
-                        onFileCapture: (file) {
-                          context.cubit<CreatePodCubit>().onValueChanged(
-                            unloadingPhoto1: file,
-                          );
-                        },
-                        focusNode: focusNodes.elementAt(27),
-                      ),
-                      PodPhotoWidget(
-                        fileName: 'vehicleback',
-                        // isRequired: true,
-                        imageUrl: newform.unloadingPhoto2,
-                        title: 'UnLoading 2',
-                        isReadOnly: isCompleted,
-                        onFileCapture: (file) {
-                          context.cubit<CreatePodCubit>().onValueChanged(
-                            unloadingPhoto2: file,
-                          );
-                        },
-                        focusNode: focusNodes.elementAt(27),
-                      ),
-                    ],
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 8,
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: PodPhotoWidget(
+                            fileName: 'vehicleinvoice',
+                            imageUrl: newform.podPhoto,
+                            title: 'POD Photo',
+                            isRequired: true,
+                            isReadOnly: isCompleted,
+                            onFileCapture: (file) {
+                              context.cubit<CreatePodCubit>().onValueChanged(
+                                podPhoto: file,
+                              );
+                            },
+                            focusNode: focusNodes.elementAt(27),
+                          ),
+                        ),
+                        Expanded(
+                          child: PodPhotoWidget(
+                            fileName: 'vehiclefront',
+                            isRequired: true,
+                            imageUrl: newform.unloadingPhoto1,
+                            title: 'Unloading 1',
+                            isReadOnly: isCompleted,
+                            onFileCapture: (file) {
+                              context.cubit<CreatePodCubit>().onValueChanged(
+                                unloadingPhoto1: file,
+                              );
+                            },
+                            focusNode: focusNodes.elementAt(27),
+                          ),
+                        ),
+                        Expanded(
+                          child: PodPhotoWidget(
+                            fileName: 'vehicleback',
+                            imageUrl: newform.unloadingPhoto2,
+                            title: 'Unloading 2',
+                            isReadOnly: isCompleted,
+                            onFileCapture: (file) {
+                              context.cubit<CreatePodCubit>().onValueChanged(
+                                unloadingPhoto2: file,
+                              );
+                            },
+                            focusNode: focusNodes.elementAt(27),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),

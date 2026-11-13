@@ -22,102 +22,131 @@ class LoadingCnfrmList extends StatefulWidget {
 
 class _LoadingCnfrmListState extends State<LoadingCnfrmList>
     with StatusModeSelectionMixin {
-  String? status;
-  String? query;
+  late final SalesOrderList _salesOrderList;
 
   @override
   void initState() {
-    status = 'Reported';
-    context.read<LoadingCnfmFiltersCubit>().onChangeStatus('Reported');
-    context.read<LoadingCnfmFiltersCubit>().onSearch(null);
     super.initState();
+    _salesOrderList = LogisticPlanningBlocProvider.get().salesOrderList();
+    // Defer filter + first fetch until after the first frame so we never
+    // look up ancestors on a widget that is still mounting / rebuilding.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final filters = context.read<LoadingCnfmFiltersCubit>();
+      filters.onChangeStatus('Reported');
+      filters.onSearch(null);
+      _fetchInital();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<LoadingCnfmFiltersCubit, PageViewFilters>(
-      builder: (context, filters) {
-        return AppPageView2<LoadingCnfmFiltersCubit>(
-          mode: PageMode2.loadingConfirmation,
-          backgroundColor: AppColors.white,
-          scaffoldBg: '',
-          onNew: () async {
-            final refresh = await AppRoute.newLoadingConfirmation.push<bool>(
-              context,
-            );
-            if (!context.mounted) return;
-            if (refresh == true) {
-              _fetchInital(context);
-            }
-          },
-          trailingAction: BlocBuilder<LoadingCnfmFiltersCubit, PageViewFilters>(
-            builder:
-                (context, filters) => BlocProvider(
-                  create: (context) => LogisticPlanningBlocProvider.get().salesOrderList()..request(),
-                  child: SalesOrderFilterButton(
-                    selectedSalesOrder: filters.salesOrder,
-                    onSelect:
-                        (so) => context
-                            .read<LoadingCnfmFiltersCubit>()
-                            .onChangeSalesOrder(so),
-                    onClear:
-                        () => context
-                            .read<LoadingCnfmFiltersCubit>()
-                            .onChangeSalesOrder(null),
-                  ),
-                ),
-          ),
-
-          child: RefreshIndicator(
-            onRefresh: () {
-              final filters = context.read<LoadingCnfmFiltersCubit>().state;
-              return context.cubit<LoadingCnfmCubit>().fetchInitial(
-                Triple(
-                  StringUtils.docStatusVehicle(filters.status),
-                  filters.query,
-                  filters.salesOrder
-                ),
-              );
-            },
-            child: BlocListener<LoadingCnfmFiltersCubit, PageViewFilters>(
-              listener: (_, state) => _fetchInital(context),
-              child: InfiniteListViewWidget<LoadingCnfmCubit, LoadingCnfmForm>(
-                childBuilder:
-                    (context, entry) => LoadingCnfmWidget(
-                      loadingCnfmForm: entry,
-                      onTap: () async {
-                        final refresh = await AppRoute.newLoadingConfirmation
-                            .push<bool>(context, extra: entry);
-                        if (!context.mounted) return;
-                        if (refresh == true) {
-                          _fetchInital(context);
-                        }
-                      },
-                    ),
-                fetchInitial: () => _fetchInital(context),
-                fetchMore: () => fetchMore(context),
-                emptyListText: 'No LoadingConfirmation Found.',
+    return BlocProvider.value(
+      value: _salesOrderList,
+      child: BlocListener<LoadingCnfmFiltersCubit, PageViewFilters>(
+        listenWhen: (previous, current) => previous != current,
+        listener: (context, state) {
+          if (!mounted) return;
+          _fetchInital();
+        },
+        child: BlocBuilder<LoadingCnfmFiltersCubit, PageViewFilters>(
+          builder: (context, filters) {
+            return AppPageView2<LoadingCnfmFiltersCubit>(
+              mode: PageMode2.loadingConfirmation,
+              backgroundColor: AppColors.white,
+              scaffoldBg: '',
+              onNew: () async {
+                final refresh =
+                    await AppRoute.newLoadingConfirmation.push<bool>(context);
+                if (!mounted) return;
+                if (refresh == true) {
+                  _fetchInital();
+                }
+              },
+              trailingAction: SalesOrderFilterButton(
+                selectedSalesOrder: filters.salesOrder,
+                onSelect:
+                    (so) => context
+                        .read<LoadingCnfmFiltersCubit>()
+                        .onChangeSalesOrder(so),
+                onClear:
+                    () => context
+                        .read<LoadingCnfmFiltersCubit>()
+                        .onChangeSalesOrder(null),
               ),
-            ),
-          ),
-        );
-      },
+              child: RefreshIndicator(
+                onRefresh: () async {
+                  if (!mounted) return;
+                  await _fetchInitalAsync();
+                },
+                child: InfiniteListViewWidget<
+                  LoadingCnfmCubit,
+                  LoadingCnfmForm
+                >(
+                  childBuilder:
+                      (itemContext, entry) => LoadingCnfmWidget(
+                        loadingCnfmForm: entry,
+                        onTap: () => _openEntry(itemContext, entry),
+                      ),
+                  fetchInitial: _fetchInital,
+                  fetchMore: _fetchMore,
+                  emptyListText: 'No Dispatch Loading records found.',
+                ),
+              ),
+            );
+          },
+        ),
+      ),
     );
   }
 
-  void _fetchInital(BuildContext context) {
+  Future<void> _openEntry(
+    BuildContext itemContext,
+    LoadingCnfmForm entry,
+  ) async {
+    final refresh = await AppRoute.newLoadingConfirmation.push<bool>(
+      itemContext,
+      extra: entry,
+    );
+    if (!mounted) return;
+    if (refresh == true) {
+      _fetchInital();
+    }
+  }
+
+  void _fetchInital() {
+    if (!mounted) return;
     final filters = context.read<LoadingCnfmFiltersCubit>().state;
     context.cubit<LoadingCnfmCubit>().fetchInitial(
-      Triple(StringUtils.docStatusVehicle(filters.status), filters.query,filters.salesOrder),
+      Triple(
+        StringUtils.docStatusVehicle(filters.status),
+        filters.query,
+        filters.salesOrder,
+      ),
     );
   }
 
-  void fetchMore(BuildContext context) {
+  Future<void> _fetchInitalAsync() async {
+    if (!mounted) return;
+    final filters = context.read<LoadingCnfmFiltersCubit>().state;
+    await context.cubit<LoadingCnfmCubit>().fetchInitial(
+      Triple(
+        StringUtils.docStatusVehicle(filters.status),
+        filters.query,
+        filters.salesOrder,
+      ),
+    );
+  }
+
+  void _fetchMore() {
+    if (!mounted) return;
     final filters = context.read<LoadingCnfmFiltersCubit>().state;
     context.cubit<LoadingCnfmCubit>().fetchMore(
-      Triple(StringUtils.docStatusVehicle(filters.status), filters.query,filters.salesOrder),
+      Triple(
+        StringUtils.docStatusVehicle(filters.status),
+        filters.query,
+        filters.salesOrder,
+      ),
     );
   }
-
- 
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:shakti_hormann/core/utils/shell_insets.dart';
 
 class DispatchQrScanPage extends StatefulWidget {
   const DispatchQrScanPage({super.key});
@@ -82,11 +83,16 @@ class _DispatchQrScanPageState extends State<DispatchQrScanPage> {
               child: CustomPaint(painter: _CornerBorderPainter()),
             ),
           ),
-          const Align(
+          Align(
             alignment: Alignment.bottomCenter,
             child: Padding(
-              padding: EdgeInsets.only(bottom: 80),
-              child: Text(
+              padding: EdgeInsets.fromLTRB(
+                24,
+                0,
+                24,
+                ShellInsets.overlayAboveNav(context),
+              ),
+              child: const Text(
                 'Point camera at the QR code',
                 style: TextStyle(
                   color: Colors.white,

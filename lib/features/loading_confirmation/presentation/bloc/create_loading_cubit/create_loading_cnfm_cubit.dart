@@ -148,6 +148,22 @@ class CreateLoadingCnfmCubit extends AppBaseCubit<CreateLaodingCnfmState> {
     emitSafeState(state.copyWith(scannedRows: rows));
   }
 
+  /// Fresh pending counts for the informational Submit alert.
+  /// Returns null when nothing is pending or the summary cannot be loaded.
+  Future<String?> pendingSubmitAlertMessage() async {
+    final name = state.form.name?.trim();
+    if (name == null || name.isEmpty) return null;
+
+    final result = await repo.getDispatchLoadedItems(name);
+    return result.fold((_) => null, (data) {
+      updateScannedRows(data.scannedRows);
+      return formatPendingDispatchAlert(
+        palletsPending: data.palletsPending,
+        boxesPending: data.boxesPending,
+      );
+    });
+  }
+
   void save() async {
     log('state.listitems--:${state.listitems}');
     final validation = _validate();
@@ -171,7 +187,8 @@ class CreateLoadingCnfmCubit extends AppBaseCubit<CreateLaodingCnfmState> {
                 isSuccess: true,
                 form: state.form.copyWith(name: docstatus),
                 successMsg: r.first,
-                view: LoadingView.edit,
+                // Return to Submit mode after saving manual items.
+                view: LoadingView.completed,
               ),
             );
           },
@@ -191,7 +208,7 @@ class CreateLoadingCnfmCubit extends AppBaseCubit<CreateLaodingCnfmState> {
                 isLoading: false,
                 isSuccess: true,
                 successMsg: r.first,
-                view: LoadingView.edit,
+                view: LoadingView.completed,
               ),
             );
           },

@@ -52,7 +52,10 @@ class FrameBlocProvider {
     onRequest: (params, state) => repo.fetchPalletSize(),
   );
   FrameSalesOrdersCubit getSales() => FrameSalesOrdersCubit(
-    onRequest: (params, state) => repo.getSales(q: params ?? ''),
+    onRequest: (params, state) => repo.getSales(
+      q: params ?? '',
+      limit: 40,
+    ),
   );
 
 }

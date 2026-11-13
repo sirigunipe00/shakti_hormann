@@ -22,12 +22,21 @@ class NewShutter extends StatefulWidget {
 
 class _NewShutterState extends State<NewShutter> {
   int _formRefreshToken = 0;
+  bool _needsListRefresh = false;
   final ValueNotifier<bool> _isDecodingUploadSticker = ValueNotifier(false);
 
   @override
   void dispose() {
     _isDecodingUploadSticker.dispose();
     super.dispose();
+  }
+
+  void _refreshListCubit() {
+    if (!mounted) return;
+    final filters = context.read<ShutterFilterCubit>().state;
+    context.cubit<ShutterCubit>().fetchInitial(
+      Pair(filters.status, filters.query),
+    );
   }
 
   @override
@@ -44,7 +53,12 @@ class _NewShutterState extends State<NewShutter> {
           valueListenable: _isDecodingUploadSticker,
           builder: (context, isDecodingUploadSticker, _) {
             return PopScope(
-              canPop: !isDecodingUploadSticker,
+              canPop: false,
+              onPopInvokedWithResult: (didPop, _) {
+                if (didPop) return;
+                if (isDecodingUploadSticker) return;
+                Navigator.of(context).pop(_needsListRefresh);
+              },
               child: Scaffold(
           backgroundColor: AppColors.white,
           appBar:
@@ -78,14 +92,26 @@ class _NewShutterState extends State<NewShutter> {
                             ),
                             isLoading: state.isCreatingDoc,
                             label: 'Save',
-                            onPressed:
-                                canCreate
-                                    ? () {
-                                      context
-                                          .cubit<CreateShutterCubit>()
-                                          .createDocument();
-                                    }
-                                    : null,
+                            onPressed: () {
+                              if (!canCreate) {
+                                final needsSo =
+                                    state.form.salesOrder?.isEmpty ?? true;
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      needsSo
+                                          ? 'Select a Sales Order first'
+                                          : 'Select a Pallet Code first',
+                                    ),
+                                    behavior: SnackBarBehavior.floating,
+                                  ),
+                                );
+                                return;
+                              }
+                              context
+                                  .cubit<CreateShutterCubit>()
+                                  .createDocument();
+                            },
                           );
                         }
                         return const SizedBox.shrink();
@@ -162,7 +188,10 @@ class _NewShutterState extends State<NewShutter> {
                     },
                   );
                   if (!context.mounted) return;
+                  _needsListRefresh = true;
+                  _refreshListCubit();
                   context.cubit<CreateShutterCubit>().createDocHandled();
+                  setState(() => _formRefreshToken++);
                 },
               ),
               BlocListener<CreateShutterCubit, CreateShutterState>(
@@ -184,16 +213,9 @@ class _NewShutterState extends State<NewShutter> {
                     if (!context.mounted) return;
 
                     final isSubmitted = state.form.docStatus == 1;
+                    _needsListRefresh = true;
                     context.cubit<CreateShutterCubit>().errorHandled();
-
-                    final gateEntryFilters =
-                        context.read<ShutterFilterCubit>().state;
-                    context.cubit<ShutterCubit>().fetchInitial(
-                      Pair(
-                        gateEntryFilters.status,
-                        gateEntryFilters.query,
-                      ),
-                    );
+                    _refreshListCubit();
 
                     if (isSubmitted) {
                       shouldAskForConfirmation.value = false;
@@ -291,68 +313,17 @@ class _NewShutterState extends State<NewShutter> {
   }
 
   Future<void> _onSubmitWithConfirmation(BuildContext context) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) => Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFECFDF5),
-                  borderRadius: BorderRadius.circular(24),
-                ),
-                child: const Icon(Icons.check_circle_outline, color: Color(0xFF16A34A)),
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                'Submit Document?',
-                style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                'Are you sure you want to submit this document? This action cannot be undone.',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 13, color: Color(0xFF64748B)),
-              ),
-              const SizedBox(height: 20),
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () => Navigator.of(dialogContext).pop(false),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: const Color(0xFF64748B),
-                        side: const BorderSide(color: Color(0xFFCBD5E1)),
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                      ),
-                      child: const Text('Cancel'),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () => Navigator.of(dialogContext).pop(true),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF16A34A),
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                      ),
-                      child: const Text('Submit', style: TextStyle(color: Colors.white)),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
+    final confirmed = await AppDialog.confirm(
+      context,
+      title: 'Submit Document?',
+      content:
+          'Are you sure you want to submit this document? This action cannot be undone.',
+      confirmText: 'Submit',
+      icon: Icons.check_circle_outline_rounded,
+      iconBackground: const Color(0xFFECFDF5),
+      iconColor: const Color(0xFF16A34A),
+      confirmIcon: Icons.check_rounded,
+      confirmColor: const Color(0xFF16A34A),
     );
 
     if (confirmed != true || !context.mounted) return;

@@ -18,33 +18,31 @@ class ShutterListScrn extends StatefulWidget {
 }
 
 class _ShutterListScrnState extends State<ShutterListScrn> {
-    String? status;
+  String? status;
   String? query;
 
-    @override
+  @override
   void initState() {
     status = 'Draft';
     context.read<ShutterFilterCubit>().onChangeStatus('Draft');
     context.read<ShutterFilterCubit>().onSearch(null);
     super.initState();
   }
+
   @override
   Widget build(BuildContext context) {
     return AppPageView2<ShutterFilterCubit>(
       mode: PageMode2.shutterPacking,
       scaffoldBg: '',
       backgroundColor: AppColors.white,
-     onNew: () async {
-        final refresh = await AppRoute.newshutterPackaging.push<bool>(context);
-        if(!context.mounted) return;
-        if (refresh == true) {
-          _fetchInital(context);
-        }
+      onNew: () async {
+        await AppRoute.newshutterPackaging.push<bool>(context);
+        if (!context.mounted) return;
+        _fetchInital(context);
       },
       child: RefreshIndicator(
         onRefresh: () {
           final filters = context.read<ShutterFilterCubit>().state;
-
           return context.cubit<ShutterCubit>().fetchInitial(
             Pair(filters.status, filters.query),
           );
@@ -55,19 +53,18 @@ class _ShutterListScrnState extends State<ShutterListScrn> {
             childBuilder: (context, entry) => ShutterPackingWidget(
               shutter: entry,
               onTap: () async {
-                      final refresh = await AppRoute.newshutterPackaging.push<bool?>(
-                        context,
-                        extra: entry,
-                      );
-                      if(!context.mounted) return;
-                      if (refresh == true) {
-                        _fetchInital(context);
-                      }
-                    },
+                await AppRoute.newshutterPackaging.push<bool?>(
+                  context,
+                  extra: entry,
+                );
+                if (!context.mounted) return;
+                _fetchInital(context);
+              },
             ),
             fetchInitial: () => _fetchInital(context),
             fetchMore: () => fetchMore(context),
-            emptyListText: 'No Shutter Packing Found.',
+            emptyListText:
+                'No shutter packing records yet.\nTap New to pack shutters for a sales order.',
           ),
         ),
       ),
@@ -77,13 +74,14 @@ class _ShutterListScrnState extends State<ShutterListScrn> {
   void _fetchInital(BuildContext context) {
     final filters = context.read<ShutterFilterCubit>().state;
     context.cubit<ShutterCubit>().fetchInitial(
-        Pair(filters.status, filters.query));
+      Pair(filters.status, filters.query),
+    );
   }
 
   void fetchMore(BuildContext context) {
     final filters = context.read<ShutterFilterCubit>().state;
-
     context.cubit<ShutterCubit>().fetchMore(
-        Pair(filters.status, filters.query));
+      Pair(filters.status, filters.query),
+    );
   }
 }

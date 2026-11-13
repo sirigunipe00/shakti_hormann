@@ -33,14 +33,21 @@ class CustomAppBar extends StatelessWidget {
                   color: AppColors.liteyellow),
             ),
           ),
-          const SizedBox(width: 60),
-          SvgPicture.asset(
-            'assets/images/hormann_logo.svg',
-            width: 180,
-            fit: BoxFit.contain,
-             
-            
+          const SizedBox(width: 16),
+          Expanded(
+            child: Align(
+              alignment: Alignment.center,
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: SvgPicture.asset(
+                  'assets/images/hormann_brand_logo.svg',
+                  width: 180,
+                  fit: BoxFit.contain,
+                ),
+              ),
+            ),
           ),
+          const SizedBox(width: 16),
         ],
       ),
     );

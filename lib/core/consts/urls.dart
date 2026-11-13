@@ -12,8 +12,25 @@ class Urls {
   const Urls(this.url);
 
 
+  /// Resolves a file path for download/display.
+  /// Absolute `http(s)://` object-storage URLs are returned as-is (normalized)
+  /// so we don't produce broken doubles like `https://host//https://cdn/...`.
   static String filepath(String path) {
-    return '${baseUrl.replaceAll('api', '')}/${path.replaceAll('/private', '').replaceAll("///", '/')}';
+    final trimmed = path.trim();
+    if (trimmed.isEmpty) return trimmed;
+
+    final lower = trimmed.toLowerCase();
+    if (lower.startsWith('http://') || lower.startsWith('https://')) {
+      // Normalize spaces / odd encoding in object keys (e.g. "Gate Entry").
+      return Uri.parse(trimmed).toString();
+    }
+
+    final cleaned = trimmed
+        .replaceAll('/private', '')
+        .replaceAll('///', '/')
+        .replaceFirst(RegExp(r'^/+'), '');
+    final origin = baseUrl.replaceAll(RegExp(r'/api/?$'), '');
+    return Uri.parse('$origin/$cleaned').toString();
   }
 
 
@@ -28,6 +45,7 @@ class Urls {
 
   static final login = '$cusWs/login';
   static final getList = '$cusWs/frappe.client.get_list';
+  static final getCount = '$cusWs/frappe.client.get_count';
   static final getUsers = '$cusWs/shaktihormann.api.getUsers';
 
   static final appVersion = '$cusWs/easy_common.api.get_app_version';

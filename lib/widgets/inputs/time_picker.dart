@@ -87,11 +87,8 @@ class _TimePickerFieldState extends State<TimePickerField> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-      
-          CaptionText(title: widget.title, isRequired: widget.isRequired),
-          // const SizedBox(height: 3),
-        
-        const SizedBox(height: 12),
+        CaptionText(title: widget.title, isRequired: widget.isRequired),
+        const SizedBox(height: 7),
         TextField(
           controller: _controller,
           readOnly: true,

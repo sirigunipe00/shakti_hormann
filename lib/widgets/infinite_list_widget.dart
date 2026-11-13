@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shakti_hormann/core/cubit/infinite_list/infinite_list_cubit.dart';
 import 'package:shakti_hormann/core/model/failure.dart';
+import 'package:shakti_hormann/core/utils/responsive.dart';
 import 'package:shakti_hormann/widgets/app_failure_widget.dart';
 import 'package:shakti_hormann/widgets/app_spacer.dart';
 import 'package:shakti_hormann/widgets/empty_data_widget.dart';
@@ -16,13 +17,18 @@ class InfiniteListViewWidget<T extends StateStreamable<InfiniteListState<D>>, D>
     required this.fetchInitial,
     required this.fetchMore,
     required this.emptyListText,
+    this.dense = false,
+    this.indexedChildBuilder,
     super.key,
   });
 
   final ChildWidgetBuilder<D> childBuilder;
+  final Widget Function(BuildContext context, D data, int index)?
+      indexedChildBuilder;
   final VoidCallback fetchInitial;
   final VoidCallback fetchMore;
   final String emptyListText;
+  final bool dense;
 
   @override
   Widget build(BuildContext context) {
@@ -50,10 +56,12 @@ class InfiniteListViewWidget<T extends StateStreamable<InfiniteListState<D>>, D>
             return _InfiniteListView<D>(
               data: data,
               childBuilder: childBuilder,
+              indexedChildBuilder: indexedChildBuilder,
               fetchInitial: fetchInitial,
               fetchMore: fetchMore,
               hasReachedMax: hasReachedMax,
               failure: failure,
+              dense: dense,
             );
           },
           failed:
@@ -74,16 +82,21 @@ class _InfiniteListView<T> extends StatefulWidget {
     required this.fetchInitial,
     required this.fetchMore,
     required this.hasReachedMax,
+    this.indexedChildBuilder,
     this.failure,
+    this.dense = false,
     super.key,
   });
 
   final ChildWidgetBuilder<T> childBuilder;
+  final Widget Function(BuildContext context, T data, int index)?
+      indexedChildBuilder;
   final List<T> data;
   final bool hasReachedMax;
   final VoidCallback fetchInitial;
   final VoidCallback fetchMore;
   final Failure? failure;
+  final bool dense;
 
   @override
   State<_InfiniteListView<T>> createState() => _InfiniteListViewState<T>();
@@ -120,9 +133,13 @@ class _InfiniteListViewState<T> extends State<_InfiniteListView<T>> {
     return Material(
       type: MaterialType.transparency,
       child: ListView.separated(
-        separatorBuilder: (_, __) => AppSpacer.p4(),
+        separatorBuilder: (_, __) =>
+            widget.dense ? const SizedBox.shrink() : AppSpacer.p2(),
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.all(0.0),
+        // Clear floating bottom nav + "New" FAB (extendBody overlay).
+        padding: EdgeInsets.only(
+          bottom: Responsive.listBottomClearance(context),
+        ),
         itemCount: listLen,
         controller: _scrollController,
         itemBuilder: (BuildContext ctx, int idx) {
@@ -142,6 +159,10 @@ class _InfiniteListViewState<T> extends State<_InfiniteListView<T>> {
             );
           }
 
+          final indexed = widget.indexedChildBuilder;
+          if (indexed != null) {
+            return indexed(context, data[idx], idx);
+          }
           return widget.childBuilder(context, data[idx]);
         },
       ),

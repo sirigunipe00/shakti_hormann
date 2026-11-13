@@ -85,26 +85,25 @@ class CreatePalletCubit extends AppBaseCubit<CreatePalletState> {
   }
 
   void addAllLines(List<PalletItems> lines) {
-    emitSafeState(state.copyWith(lines: lines));
+    emitSafeState(
+      state.copyWith(
+        lines: lines,
+        form: state.form.copyWith(noofPallets: _totalPallets(lines)),
+      ),
+    );
   }
 
   void addPalletItem(PalletItems item) {
     shouldAskForConfirmation.value = true;
+    final lines = [...state.lines, item];
     emitSafeState(
-      state.copyWith(lines: [...state.lines, item], isModified: true),
+      state.copyWith(
+        lines: lines,
+        isModified: true,
+        form: state.form.copyWith(noofPallets: _totalPallets(lines)),
+      ),
     );
   }
-//   void addPalletItem(PalletItems item) {
-//     shouldAskForConfirmation.value = true;
-//   final updatedLines = List<PalletItems>.from(state.lines)
-//     ..add(item);
-
-//   emit(
-//     state.copyWith(
-//       lines: updatedLines,
-//     ),
-//   );
-// }
 
   void updatePalletItemAt(int index, PalletItems updatedItem) {
     if (index < 0 || index >= state.lines.length) return;
@@ -116,16 +115,65 @@ class CreatePalletCubit extends AppBaseCubit<CreatePalletState> {
     final updatedLines = [...state.lines];
     updatedLines[index] = merged;
 
-    emitSafeState(state.copyWith(lines: updatedLines, isModified: true));
+    emitSafeState(
+      state.copyWith(
+        lines: updatedLines,
+        isModified: true,
+        form: state.form.copyWith(noofPallets: _totalPallets(updatedLines)),
+      ),
+    );
   }
 
   void removeLineAt(int index) {
+    if (index < 0 || index >= state.lines.length) return;
+    shouldAskForConfirmation.value = true;
     final lines = [...state.lines]..removeAt(index);
-    emitSafeState(state.copyWith(lines: lines, isModified: true));
+    emitSafeState(
+      state.copyWith(
+        lines: lines,
+        isModified: true,
+        form: state.form.copyWith(noofPallets: _totalPallets(lines)),
+      ),
+    );
   }
 
   void resetLines() {
-    emitSafeState(state.copyWith(lines: []));
+    emitSafeState(
+      state.copyWith(
+        lines: [],
+        form: state.form.copyWith(noofPallets: 0),
+      ),
+    );
+  }
+
+  /// Same product type + size already on the pallet — blocks silent duplicates.
+  bool hasDuplicateLine(PalletItems item, {int? excludingIndex}) {
+    for (var i = 0; i < state.lines.length; i++) {
+      if (excludingIndex != null && i == excludingIndex) continue;
+      final line = state.lines[i];
+      if (_sameLine(line, item)) return true;
+    }
+    return false;
+  }
+
+  static bool _sameLine(PalletItems a, PalletItems b) {
+    final typeA = (a.productType ?? '').trim().toLowerCase();
+    final typeB = (b.productType ?? '').trim().toLowerCase();
+    final sizeA = _normalizeSize(a.size);
+    final sizeB = _normalizeSize(b.size);
+    return typeA == typeB && sizeA == sizeB;
+  }
+
+  static String _normalizeSize(String? size) {
+    return (size ?? '')
+        .toLowerCase()
+        .replaceAll(' ', '')
+        .replaceAll('×', '*')
+        .replaceAll('x', '*');
+  }
+
+  static int _totalPallets(List<PalletItems> lines) {
+    return lines.fold<int>(0, (sum, line) => sum + (line.noOfPallets ?? 0));
   }
 
   void save() async {
@@ -185,7 +233,14 @@ class CreatePalletCubit extends AppBaseCubit<CreatePalletState> {
   void submit() async {
     final form = state.form;
     final docName = form.name;
-    if (docName == null || docName.isEmpty) return;
+    if (docName == null || docName.isEmpty) {
+      _emitError(const Pair('Save the pallet as draft before submitting', 0));
+      return;
+    }
+    if (state.lines.isEmpty) {
+      _emitError(const Pair('Add at least one pallet item before submitting', 0));
+      return;
+    }
 
     emitSafeState(state.copyWith(isLoading: true, isSuccess: false));
 
@@ -232,10 +287,37 @@ class CreatePalletCubit extends AppBaseCubit<CreatePalletState> {
     final form = state.form;
 
     if (form.salesOrder == null || form.salesOrder!.isEmpty) {
-      return optionOf(const Pair('Select Sales Order', 0));
+      return optionOf(const Pair('Select a Sales Order', 0));
     }
     if (state.lines.isEmpty) {
-      return optionOf(const Pair('Add at least one pallet entry', 0));
+      return optionOf(const Pair('Add at least one pallet item', 0));
+    }
+
+    for (var i = 0; i < state.lines.length; i++) {
+      final line = state.lines[i];
+      final type = line.productType?.trim() ?? '';
+      final size = line.size?.trim() ?? '';
+      final qty = line.noOfPallets ?? 0;
+      if (type.isEmpty) {
+        return optionOf(Pair('Row ${i + 1}: product type is required', 0));
+      }
+      if (size.isEmpty) {
+        return optionOf(Pair('Row ${i + 1}: pallet size is required', 0));
+      }
+      if (qty <= 0) {
+        return optionOf(Pair('Row ${i + 1}: pallet count must be at least 1', 0));
+      }
+      if (qty > 100) {
+        return optionOf(Pair('Row ${i + 1}: pallet count cannot exceed 100', 0));
+      }
+      if (hasDuplicateLine(line, excludingIndex: i)) {
+        return optionOf(
+          Pair(
+            'Duplicate item: $type / $size appears more than once',
+            0,
+          ),
+        );
+      }
     }
 
     return const None();

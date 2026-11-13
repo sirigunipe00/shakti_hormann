@@ -34,12 +34,10 @@ class _FrameListScrnState extends State<FrameListScrn> {
       mode: PageMode2.framePacking,
       scaffoldBg: '',
       backgroundColor: AppColors.white,
-     onNew: () async {
-        final refresh = await AppRoute.newframePackaging.push<bool>(context);
-        if(!context.mounted) return;
-        if (refresh == true) {
-          _fetchInital(context);
-        }
+      onNew: () async {
+        await AppRoute.newframePackaging.push<bool>(context);
+        if (!context.mounted) return;
+        _fetchInital(context);
       },
       child: RefreshIndicator(
         onRefresh: () {
@@ -55,19 +53,18 @@ class _FrameListScrnState extends State<FrameListScrn> {
             childBuilder: (context, entry) => FrameWidget(
               frame: entry,
               onTap: () async {
-                      final refresh = await AppRoute.newframePackaging.push<bool?>(
-                        context,
-                        extra: entry,
-                      );
-                      if(!context.mounted) return;
-                      if (refresh == true) {
-                        _fetchInital(context);
-                      }
-                    },
+                await AppRoute.newframePackaging.push<bool?>(
+                  context,
+                  extra: entry,
+                );
+                if (!context.mounted) return;
+                _fetchInital(context);
+              },
             ),
             fetchInitial: () => _fetchInital(context),
             fetchMore: () => fetchMore(context),
-            emptyListText: 'No Frame Packing Found.',
+            emptyListText:
+                'No frame packing records yet.\nTap New to pack frames for a sales order.',
           ),
         ),
       ),

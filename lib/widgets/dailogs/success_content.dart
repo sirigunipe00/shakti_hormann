@@ -1,204 +1,50 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
-import 'package:shakti_hormann/widgets/app_spacer.dart';
-import 'package:shakti_hormann/widgets/spaced_column.dart';
+import 'package:shakti_hormann/widgets/dailogs/app_popup_card.dart';
 
 class SuccessContent extends StatelessWidget {
   const SuccessContent({
     super.key,
     this.title,
-    required this.imagePath,
     required this.content,
+    required this.onTapDismiss,
     this.buttonText = 'Thank you',
-    required this.onTapDismiss,
+    /// Kept for call-site compatibility; icon is rendered by [AppPopupCard].
+    this.imagePath,
   });
 
   final String? title;
   final String content;
-  final String imagePath;
+  final String? imagePath;
   final String buttonText;
+  /// Kept for call-site compatibility. Dismiss always pops this dialog route;
+  /// do not use this for Navigator pops (e.g. `context.exit`).
   final VoidCallback onTapDismiss;
-  
-  
 
-  @override
-  Widget build(BuildContext context) {
-    return Align(
-      alignment: Alignment.center,
-      child: Material(
-        color: Colors.transparent,
-        child: Container(
-          width:  MediaQuery.of(context).size.width * 0.7,
-          margin: const EdgeInsets.all(24),
-          padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: SpacedColumn(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Stack(
-                alignment: Alignment.center,
-                children: [
-                  SvgPicture.asset(
-                    imagePath, 
-                    width: 64,
-                    height: 64,
-                  ),
-                  const Icon(Icons.check, size: 32, color: Colors.white),
-                ],
-              ),
-
-              const SizedBox(height: 16),
-             if (title.containsValidValue)
-                Text(
-                  title.valueOrEmpty,
-                  textAlign: TextAlign.center,
-                  style: context.textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),  // if (title.containsValidValue) ...[
-              //   Text(title.valueOrEmpty, style: TextStyles.labelLarge(context)),
-              // ],
-              // Text(title.valueOrEmpty, style: TextStyles.labelLarge(context)),
-              Text(
-                content,
-                textAlign: TextAlign.center,
-                style: context.textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              AppSpacer.p32(),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context, rootNavigator: true).pop();
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.green,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(0),
-                  ),
-                ),
-                child: Text(
-                  buttonText,
-                  style: context.textTheme.titleLarge?.copyWith(
-                    color: AppColors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
+  void _close(BuildContext context) {
+    // Always pop the dialog route itself. Call-site `context.exit` uses the
+    // page context and can fail to dismiss when root/nested navigators differ.
+    final nav = Navigator.of(context, rootNavigator: true);
+    if (nav.canPop()) {
+      nav.pop();
+    }
   }
-}
-
-
-
-
-
-
-
-
-
-class ErrorContent extends StatelessWidget {
-  const ErrorContent({
-    super.key,
-    this.title,
-    required this.imagePath,
-    required this.content,
-    this.buttonText = 'Cancel',
-    required this.onTapDismiss,
-  });
-
-  final String? title;
-  final String content;
-  final String imagePath;
-  final String buttonText;
-  final VoidCallback onTapDismiss;
-  
-  
 
   @override
   Widget build(BuildContext context) {
-    return Align(
-      alignment: Alignment.center,
-      child: Material(
-        color: Colors.transparent,
-        child: Container(
-          width:  MediaQuery.of(context).size.width * 0.7,
-          margin: const EdgeInsets.all(24),
-          padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: SpacedColumn(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Stack(
-                alignment: Alignment.center,
-                children: [
-                  SvgPicture.asset(
-                    imagePath, 
-                    width: 64,
-                    height: 64,
-                  ),
-                  // const Icon(Icons.check, size: 32, color: Colors.white),
-                ],
-              ),
-
-              const SizedBox(height: 16),
-             if (title.containsValidValue)
-                Text(
-                  title.valueOrEmpty,
-                  textAlign: TextAlign.center,
-                  style: context.textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),  // if (title.containsValidValue) ...[
-              //   Text(title.valueOrEmpty, style: TextStyles.labelLarge(context)),
-              // ],
-              // Text(title.valueOrEmpty, style: TextStyles.labelLarge(context)),
-              Text(
-                content,
-                textAlign: TextAlign.center,
-                style: context.textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              AppSpacer.p32(),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context, rootNavigator: true).pop();
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.red,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(0),
-                  ),
-                ),
-                child: Text(
-                  buttonText,
-                  style: context.textTheme.titleLarge?.copyWith(
-                    color: AppColors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
+    return AppPopupCard(
+      title: title.containsValidValue ? title! : 'Success',
+      icon: Icons.check_rounded,
+      iconBackground: const Color(0xFFDCFCE7),
+      iconColor: AppColors.green,
+      onClose: () => _close(context),
+      body: Text(content, textAlign: TextAlign.center),
+      singleAction: true,
+      confirmText: buttonText,
+      confirmIcon: Icons.check_circle_outline_rounded,
+      confirmColor: AppColors.green,
+      onConfirm: () => _close(context),
     );
   }
 }

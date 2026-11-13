@@ -86,13 +86,14 @@ class StringUtils {
     }
   }
   static String docStatusVehicle(String? status){
+    // ERP Vehicle Reporting status values are title-case (e.g. Reported).
     switch (status?.toLowerCase()){
       case 'reported':
-      return 'reported';
+      return 'Reported';
       case 'cancelled':
-      return 'cancelled';
+      return 'Cancelled';
       case 'rejected':
-      return 'rejected';
+      return 'Rejected';
       case 'draft':
       return '';
       case 'all':

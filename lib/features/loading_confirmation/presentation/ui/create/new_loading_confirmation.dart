@@ -23,6 +23,34 @@ class NewLoadingConfirmation extends StatefulWidget {
 class _NewLoadingConfirmationState extends State<NewLoadingConfirmation> {
   VehicleReportingForm? vehicleReportingForm;
 
+  /// Submit path: show informational pending pallet/box alert, then continue.
+  Future<void> _onPrimaryAction(BuildContext context) async {
+    final cubit = context.read<CreateLoadingCnfmCubit>();
+    final view = cubit.state.view;
+
+    if (view == LoadingView.completed) {
+      final pendingMsg = await cubit.pendingSubmitAlertMessage();
+      if (!context.mounted) return;
+      if (pendingMsg != null) {
+        final proceed = await AppDialog.confirm(
+          context,
+          title: 'Pending Items',
+          content: pendingMsg,
+          cancelText: 'Cancel',
+          confirmText: 'Continue',
+          icon: Icons.info_outline_rounded,
+          iconBackground: const Color(0xFFE8F0FE),
+          iconColor: AppColors.darkBlue,
+          confirmIcon: Icons.arrow_forward_rounded,
+          confirmColor: AppColors.darkBlue,
+        );
+        if (proceed != true || !context.mounted) return;
+      }
+    }
+
+    cubit.save();
+  }
+
   @override
   Widget build(BuildContext context) {
     final loadingState = context.watch<CreateLoadingCnfmCubit>().state;
@@ -50,7 +78,7 @@ class _NewLoadingConfirmationState extends State<NewLoadingConfirmation> {
                           textStyle: const TextStyle(color: AppColors.darkBlue,fontWeight: FontWeight.bold,fontSize: 15),
                           isLoading: state.isLoading,
                           borderColor: Colors.grey,
-                          onPressed: context.read<CreateLoadingCnfmCubit>().save,
+                          onPressed: () => _onPrimaryAction(context),
                         );
                       },
                     ),
@@ -73,9 +101,7 @@ class _NewLoadingConfirmationState extends State<NewLoadingConfirmation> {
                           borderColor: Colors.grey,
                           label: state.view.toName(),
                           isLoading: state.isLoading,
-                          onPressed: () =>{
-                            context.read<CreateLoadingCnfmCubit>().save(),
-                          } 
+                          onPressed: () => _onPrimaryAction(context),
                         );
                       },
                     ),

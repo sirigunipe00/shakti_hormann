@@ -59,7 +59,15 @@ class _SearchMultiDropDownListState<T>
   @override
   void initState() {
     super.initState();
-    _selectedValues = widget.defaultSelection;
+    _selectedValues = List<T>.from(widget.defaultSelection);
+  }
+
+  @override
+  void didUpdateWidget(covariant SearchMultiDropDownList<T> oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.defaultSelection != widget.defaultSelection) {
+      _selectedValues = List<T>.from(widget.defaultSelection);
+    }
   }
 
   @override
@@ -91,185 +99,24 @@ class _SearchMultiDropDownListState<T>
             absorbing: widget.readOnly || widget.isloading,
             child: GestureDetector(
               onTap: () async {
-                // make a local copy, so edits don’t affect parent state until confirmed
-                final tempSelected = List<T>.from(_selectedValues);
                 final results = await showModalBottomSheet<List<T>>(
                   context: context,
                   isScrollControlled: true,
+                  useRootNavigator: true,
                   backgroundColor: Colors.white,
                   builder: (context) {
-                    final availableItems = widget.items;
-                    List<T> filteredItems = List.from(availableItems);
-                    final searchController = TextEditingController();
-
-                    return StatefulBuilder(
-                      builder: (context, setModalState) {
-                        void filterItems(String query) {
-                          setModalState(() {
-                            filteredItems =
-                                availableItems.where((item) {
-                                  String itemName = '';
-
-                                  if (item is PurchaseOrderForm) {
-                                    itemName = [
-                                      item.name ?? '',
-                                      item.supplier ?? '',
-                                      item.supplierName ?? '',
-                                    ].join(' ');
-                                  } else if (item is SalesOrderForm) {
-                                    itemName = [
-                                      item.name ?? '',
-                                      item.customerName ?? '',
-                                    ].join(' ');
-                                  } else if (item is SalesInvoiceForm) {
-                                    itemName = [
-                                      item.name ?? '',
-                                      item.vehicleNo ?? '',
-                                    ].join(' ');
-                                  } else {
-                                    itemName = item.toString();
-                                  }
-
-                                  return itemName.toLowerCase().contains(
-                                    query.toLowerCase(),
-                                  );
-                                }).toList();
-                          });
-                        }
-
-                        // IMPORTANT:
-                        // Recalculate this every time the modal rebuilds.
-                        final displayItems = List<T>.from(filteredItems)
-                          ..sort((a, b) {
-                            final aSelected = tempSelected.contains(a);
-                            final bSelected = tempSelected.contains(b);
-
-                            if (aSelected && !bSelected) {
-                              return -1;
-                            }
-
-                            if (!aSelected && bSelected) {
-                              return 1;
-                            }
-
-                            return 0;
-                          });
-
-                        return SafeArea(
-                          child: SizedBox(
-                            height: MediaQuery.of(context).size.height * 0.8,
-                            child: Column(
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.only(
-                                    left: 8.0,
-                                    right: 8.0,
-                                    bottom: 8.0,
-                                    top: 20.0,
-                                  ),
-                                  child: TextField(
-                                    controller: searchController,
-                                    decoration: InputDecoration(
-                                      prefixIcon: const Icon(Icons.search),
-                                      hintText: 'Search...',
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                    ),
-                                    onChanged: filterItems,
-                                  ),
-                                ),
-
-                                Expanded(
-                                  child:
-                                      displayItems.isNotEmpty
-                                          ? ListView.builder(
-                                            controller: scrollCtlr,
-                                            itemCount: displayItems.length,
-                                            itemBuilder: (context, index) {
-                                              final item = displayItems[index];
-                                              final isSelected = tempSelected
-                                                  .contains(item);
-
-                                              return CheckboxListTile(
-                                                title:
-                                                    widget.listItemBuilder !=
-                                                            null
-                                                        ? widget
-                                                            .listItemBuilder!(
-                                                          context,
-                                                          item,
-                                                          index,
-                                                          isSelected,
-                                                        )
-                                                        : Text(
-                                                          item
-                                                                  is PurchaseOrderForm
-                                                              ? (item.name ??
-                                                                  '')
-                                                              : item
-                                                                  is SalesOrderForm
-                                                              ? (item.name ??
-                                                                  '')
-                                                              : item
-                                                                  is SalesInvoiceForm
-                                                              ? (item.name ??
-                                                                  '')
-                                                              : item.toString(),
-                                                        ),
-                                                value: isSelected,
-                                                onChanged: (checked) {
-                                                  setModalState(() {
-                                                    if (checked == true) {
-                                                      if (!tempSelected
-                                                          .contains(item)) {
-                                                        tempSelected.add(item);
-                                                      }
-                                                    } else {
-                                                      tempSelected.remove(item);
-                                                    }
-                                                  });
-                                                },
-                                              );
-                                            },
-                                          )
-                                          : const Center(
-                                            child: Text(
-                                              'No results found',
-                                              style: TextStyle(
-                                                color: Colors.grey,
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.w500,
-                                              ),
-                                            ),
-                                          ),
-                                ),
-
-                                Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: AppColors.darkBlue,
-                                    ),
-                                    onPressed: () {
-                                      Navigator.pop(context, tempSelected);
-                                    },
-                                    child: const Text(
-                                      'Done',
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
+                    return _MultiSelectSearchSheet<T>(
+                      title: widget.title ?? 'Select',
+                      hint: widget.hint ?? 'Search...',
+                      items: widget.items,
+                      initialSelected: List<T>.from(_selectedValues),
+                      listItemBuilder: widget.listItemBuilder,
+                      scrollController: scrollCtlr,
                     );
                   },
                 );
 
-                // ✅ commit only if Done pressed
+                // Commit only if Done pressed
                 if (results != null) {
                   setState(() {
                     _selectedValues = results;
@@ -280,80 +127,331 @@ class _SearchMultiDropDownListState<T>
 
               child: Container(
                 width: MediaQuery.of(context).size.width,
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 13,
+                ),
                 decoration: BoxDecoration(
                   color: backgroundColor,
-                  border: Border.all(color: borderColor, width: 1),
-                  borderRadius: BorderRadius.circular(8.0),
+                  border: Border.all(
+                    color: isReadOnlyMode
+                        ? borderColor
+                        : const Color(0xFFD6DCE8),
+                    width: 1.2,
+                  ),
+                  borderRadius: BorderRadius.circular(14),
                 ),
-                child:
-                    widget.isloading
-                        ? const Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2),
+                child: widget.isloading
+                    ? const Row(
+                        children: [
+                          SizedBox(
+                            height: 18,
+                            width: 18,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
+                          SizedBox(width: 10),
+                          Text(
+                            'Loading...',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontFamily: 'Urbanist',
+                              fontWeight: FontWeight.w600,
                             ),
-                            SizedBox(width: 10),
-                            Text('Loading...', style: TextStyle(fontSize: 14)),
-                          ],
-                        )
-                        : _selectedValues.isNotEmpty
-                        ? Text(
-                          _selectedValues
-                              .map((e) {
-                                if (e is PurchaseOrderForm) return e.name ?? '';
-                                if (e is SalesOrderForm) return e.name ?? '';
-                                if (e is SalesInvoiceForm) return e.name ?? '';
-                                return e.toString();
-                              })
-                              .where((name) => name.isNotEmpty)
-                              .join(', '),
-                          style: context.textTheme.titleMedium?.copyWith(
-                            color:
-                                widget.readOnly
-                                    ? AppColors.white
-                                    : AppColors.black,
-                            fontWeight: FontWeight.w600,
-                            fontFamily: 'Urbanist',
                           ),
-                          maxLines: 10,
-                          overflow: TextOverflow.ellipsis,
-                        )
-                        : Text(
-                          widget.hint ?? 'Select items',
-                          style: context.textTheme.titleMedium?.copyWith(
-                            color: AppColors.black.withValues(alpha: 0.6),
-                            fontWeight: FontWeight.w400,
-                            fontFamily: 'Urbanist',
+                        ],
+                      )
+                    : Row(
+                        children: [
+                          Icon(
+                            Icons.receipt_long_outlined,
+                            size: 20,
+                            color: _selectedValues.isNotEmpty
+                                ? const Color(0xFF0E1446)
+                                : const Color(0xFF6B7280),
                           ),
-                        ),
-
-                // Wrap(
-                //   spacing: 8,
-                //   children:
-                //       _selectedValues.isNotEmpty
-                //           ? _selectedValues
-                //               .map((e) => Chip(label: Text(e.toString())))
-                //               .toList()
-                //           : [
-                //             Text(
-                //               widget.hint ?? "Select items",
-                //               style: context.textTheme.titleMedium?.copyWith(
-                //                 color: AppColors.black,
-                //                 fontWeight: FontWeight.w600,
-                //                 fontFamily: 'Urbanist',
-                //               ),
-                //             ),
-                //           ],
-                // ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: _selectedValues.isNotEmpty
+                                ? Text(
+                                    _selectedValues
+                                        .map((e) {
+                                          if (e is PurchaseOrderForm) {
+                                            return e.name ?? '';
+                                          }
+                                          if (e is SalesOrderForm) {
+                                            return e.name ?? '';
+                                          }
+                                          if (e is SalesInvoiceForm) {
+                                            return e.name ?? '';
+                                          }
+                                          return e.toString();
+                                        })
+                                        .where((name) => name.isNotEmpty)
+                                        .join(', '),
+                                    style: TextStyle(
+                                      color: widget.readOnly &&
+                                              widget.color == Colors.white
+                                          ? Colors.white
+                                          : const Color(0xFF0E1446),
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 15,
+                                      fontFamily: 'Urbanist',
+                                    ),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  )
+                                : Text(
+                                    widget.hint ?? 'Select items',
+                                    style: const TextStyle(
+                                      color: Color(0xFF6B7280),
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 15,
+                                      fontFamily: 'Urbanist',
+                                    ),
+                                  ),
+                          ),
+                          if (widget.readOnly)
+                            Icon(
+                              Icons.lock_outline,
+                              size: 18,
+                              color: widget.color == Colors.white
+                                  ? Colors.white70
+                                  : const Color(0xFF6B7280),
+                            )
+                          else
+                            const Icon(
+                              Icons.keyboard_arrow_down_rounded,
+                              color: Color(0xFF6B7280),
+                            ),
+                        ],
+                      ),
               ),
             ),
           ),
           AppSpacer.p4(),
         ],
+      ),
+    );
+  }
+}
+
+/// Owns search state so keyboard dismiss / MediaQuery rebuilds do not clear
+/// the query text or reset filtered results.
+class _MultiSelectSearchSheet<T> extends StatefulWidget {
+  const _MultiSelectSearchSheet({
+    required this.title,
+    required this.hint,
+    required this.items,
+    required this.initialSelected,
+    required this.listItemBuilder,
+    required this.scrollController,
+  });
+
+  final String title;
+  final String hint;
+  final List<T> items;
+  final List<T> initialSelected;
+  final ListMultiItemBuilder<T>? listItemBuilder;
+  final ScrollController scrollController;
+
+  @override
+  State<_MultiSelectSearchSheet<T>> createState() =>
+      _MultiSelectSearchSheetState<T>();
+}
+
+class _MultiSelectSearchSheetState<T> extends State<_MultiSelectSearchSheet<T>> {
+  late final TextEditingController _searchController;
+  late List<T> _selected;
+  late List<T> _filteredItems;
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController = TextEditingController();
+    _selected = List<T>.from(widget.initialSelected);
+    _filteredItems = List<T>.from(widget.items);
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  String _searchBlob(T item) {
+    if (item is PurchaseOrderForm) {
+      return [
+        item.name ?? '',
+        item.supplier ?? '',
+        item.supplierName ?? '',
+      ].join(' ');
+    }
+    if (item is SalesOrderForm) {
+      return [item.name ?? '', item.customerName ?? ''].join(' ');
+    }
+    if (item is SalesInvoiceForm) {
+      return [
+        item.name ?? '',
+        item.customerName ?? '',
+        item.vehicleNo ?? '',
+      ].join(' ');
+    }
+    return item.toString();
+  }
+
+  String _fallbackLabel(T item) {
+    if (item is PurchaseOrderForm) return item.name ?? '';
+    if (item is SalesOrderForm) return item.name ?? '';
+    if (item is SalesInvoiceForm) return item.name ?? '';
+    return item.toString();
+  }
+
+  void _filterItems(String query) {
+    final search = query.trim().toLowerCase();
+    setState(() {
+      if (search.isEmpty) {
+        _filteredItems = List<T>.from(widget.items);
+      } else {
+        _filteredItems = widget.items
+            .where((item) => _searchBlob(item).toLowerCase().contains(search))
+            .toList();
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final displayItems = List<T>.from(_filteredItems)
+      ..sort((a, b) {
+        final aSelected = _selected.contains(a);
+        final bSelected = _selected.contains(b);
+        if (aSelected && !bSelected) return -1;
+        if (!aSelected && bSelected) return 1;
+        return 0;
+      });
+
+    return SafeArea(
+      child: SizedBox(
+        height: MediaQuery.of(context).size.height * 0.8,
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      widget.title,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w800,
+                        fontFamily: 'Urbanist',
+                        color: Color(0xFF0E1446),
+                      ),
+                    ),
+                  ),
+                  Text(
+                    '${_selected.length} selected',
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      fontFamily: 'Urbanist',
+                      color: Color(0xFF6B7280),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+              child: TextField(
+                controller: _searchController,
+                textInputAction: TextInputAction.search,
+                onChanged: _filterItems,
+                onSubmitted: _filterItems,
+                decoration: InputDecoration(
+                  prefixIcon: const Icon(Icons.search_rounded),
+                  hintText: widget.hint,
+                  filled: true,
+                  fillColor: const Color(0xFFF8FAFD),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
+              ),
+            ),
+            Expanded(
+              child: displayItems.isNotEmpty
+                  ? ListView.builder(
+                      controller: widget.scrollController,
+                      itemCount: displayItems.length,
+                      itemBuilder: (context, index) {
+                        final item = displayItems[index];
+                        final isSelected = _selected.contains(item);
+
+                        return CheckboxListTile(
+                          title: widget.listItemBuilder != null
+                              ? widget.listItemBuilder!(
+                                  context,
+                                  item,
+                                  index,
+                                  isSelected,
+                                )
+                              : Text(_fallbackLabel(item)),
+                          value: isSelected,
+                          onChanged: (checked) {
+                            setState(() {
+                              if (checked == true) {
+                                if (!_selected.contains(item)) {
+                                  _selected.add(item);
+                                }
+                              } else {
+                                _selected.remove(item);
+                              }
+                            });
+                          },
+                        );
+                      },
+                    )
+                  : const Center(
+                      child: Text(
+                        'No results found',
+                        style: TextStyle(
+                          color: Colors.grey,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+              child: SizedBox(
+                width: double.infinity,
+                height: 48,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.darkBlue,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  onPressed: () => Navigator.pop(context, _selected),
+                  child: const Text(
+                    'Done',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w800,
+                      fontFamily: 'Urbanist',
+                      fontSize: 15,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

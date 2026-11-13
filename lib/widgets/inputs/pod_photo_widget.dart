@@ -60,31 +60,36 @@ class _PodPhotoWidgetState extends State<PodPhotoWidget>
   Future<void> _showImagePickOptions() async {
     showModalBottomSheet(
       context: context,
+      useRootNavigator: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
       builder: (context) {
-        return SizedBox(
-          height: 150,
-          child: Column(
-            children: [
-              ListTile(
-                leading: const Icon(Icons.camera_alt),
-                title: const Text('Camera'),
-                onTap: () {
-                  Navigator.pop(context);
-                  _capture(ImageSource.camera);
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.photo),
-                title: const Text('Gallery'),
-                onTap: () {
-                  Navigator.pop(context);
-                  _capture(ImageSource.gallery);
-                },
-              ),
-            ],
+        final bottomInset = MediaQuery.paddingOf(context).bottom;
+        return Padding(
+          padding: EdgeInsets.only(bottom: bottomInset),
+          child: SizedBox(
+            height: 150,
+            child: Column(
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.camera_alt),
+                  title: const Text('Camera'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    _capture(ImageSource.camera);
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.photo),
+                  title: const Text('Gallery'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    _capture(ImageSource.gallery);
+                  },
+                ),
+              ],
+            ),
           ),
         );
       },

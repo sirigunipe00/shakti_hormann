@@ -36,41 +36,42 @@ class PalletWidget extends StatelessWidget {
       onTap: onTap,
       child: Card(
         color: Colors.white,
+        margin: const EdgeInsets.symmetric(horizontal: 2, vertical: 1),
+        elevation: 0.5,
         surfaceTintColor: AppColors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10.0),
-          side: const BorderSide(color: AppColors.white),
+          side: const BorderSide(color: Color(0xFFE8ECF4)),
         ),
         child: SpacedColumn(
-          defaultHeight: 2,
-          margin: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+          defaultHeight: 0,
+          margin: const EdgeInsets.fromLTRB(10, 9, 10, 8),
           children: [
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  width: 70,
-                  height: 70,
+                  width: 48,
+                  height: 48,
                   decoration: BoxDecoration(
                     color: const Color(0xFF2957A4).withValues(alpha: 0.10),
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(10),
                   ),
                   child: Center(
                     child: Text(
                       _palletDisplayNumber,
                       style: const TextStyle(
-                        fontSize: 22,
+                        fontSize: 15,
                         fontWeight: FontWeight.bold,
                         color: Color(0xFF2957A4),
-                        letterSpacing: 1.5,
+                        letterSpacing: 0.5,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ),
-
-                const SizedBox(width: 12),
+                const SizedBox(width: 10),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -84,46 +85,49 @@ class PalletWidget extends StatelessWidget {
                               style: AppTextStyles.titleLarge(context).copyWith(
                                 color: AppColors.black,
                                 fontWeight: FontWeight.bold,
+                                fontSize: 14,
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                          const SizedBox(width: 10),
+                          const SizedBox(width: 8),
                           Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               const Icon(
                                 Icons.calendar_month,
-                                size: 14,
+                                size: 13,
                                 color: Color(0xFF163A6B),
                               ),
-                              const SizedBox(width: 4),
+                              const SizedBox(width: 3),
                               Text(
                                 DFU.ddMMyyyyFromStr(pallet.creationDate ?? ''),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 style: const TextStyle(
                                   color: Color(0xFF163A6B),
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
                                 ),
                               ),
                             ],
                           ),
                         ],
                       ),
-                      const SizedBox(height: 5),
-                      // Second row now holds only the sales order.
+                      const SizedBox(height: 3),
                       Text(
-                        'Sales Order: ${pallet.salesOrder ?? ''}',
+                        pallet.salesOrder?.isNotEmpty == true
+                            ? 'Sales Order: ${pallet.salesOrder}'
+                            : 'Sales Order: —',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
                           color: AppColors.grey,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w600,
                           letterSpacing: 0,
-                          fontSize: 14,
+                          fontSize: 12,
+                          fontFamily: 'Urbanist',
                         ),
                       ),
                     ],
@@ -131,9 +135,8 @@ class PalletWidget extends StatelessWidget {
                 ),
               ],
             ),
-
             const Padding(
-              padding: EdgeInsets.symmetric(vertical: 4.0),
+              padding: EdgeInsets.symmetric(vertical: 5.0),
               child: DottedLine(
                 direction: Axis.horizontal,
                 lineLength: double.infinity,
@@ -143,7 +146,6 @@ class PalletWidget extends StatelessWidget {
                 dashGapLength: 4.0,
               ),
             ),
-
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
@@ -155,7 +157,7 @@ class PalletWidget extends StatelessWidget {
                     style: const TextStyle(
                       color: Colors.orange,
                       fontWeight: FontWeight.bold,
-                      fontSize: 15,
+                      fontSize: 13,
                     ),
                   ),
                 ),

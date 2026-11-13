@@ -50,22 +50,17 @@ class _StatusMenuWidgetState extends State<StatusMenuWidget>
               pageMode: widget.mode,
             );
 
-            if (selected != null) {
-              setState(() {
-                _selectedDuration = selected;
-              });
-            } 
-
-
-            widget.onChange.call(selected ?? _selectedDuration ?? '');
+            if (selected == null || !mounted) return;
+            setState(() => _selectedDuration = selected);
+            widget.onChange.call(selected);
           },
           borderRadius: BorderRadius.circular(12),
           child: const Padding(
             padding: EdgeInsets.all(8.0),
             child: Icon(
-              Icons.filter_list,
+              Icons.filter_alt_rounded,
               size: 20,
-              color: Color.fromARGB(255, 255, 183, 0),
+              color: Color(0xFFF2A93E),
             ),
           ),
         ),

@@ -328,14 +328,29 @@ class DispatchLoadedData {
       });
     }
 
+    final palletsLoaded = (json['pallets_loaded'] as num?)?.toInt() ?? 0;
+    final boxesLoaded = (json['related_boxes_loaded'] as num?)?.toInt() ?? 0;
+    final palletsRequired = (json['pallets_required'] as num?)?.toInt() ?? 0;
+    final boxesRequired = (json['boxes_required'] as num?)?.toInt() ?? 0;
+    final palletsPending = json.containsKey('pallets_pending')
+        ? (json['pallets_pending'] as num?)?.toInt() ?? 0
+        : (palletsRequired - palletsLoaded).clamp(0, 1 << 30);
+    final boxesPending = json.containsKey('boxes_pending')
+        ? (json['boxes_pending'] as num?)?.toInt() ?? 0
+        : (boxesRequired - boxesLoaded).clamp(0, 1 << 30);
+
     return DispatchLoadedData(
       name: json['name'] as String?,
       docstatus: (json['docstatus'] as num?)?.toInt(),
       vehicleStatus: json['vehicle_status'] as String?,
       dispatchLoadingStatus: json['dispatch_loading_status'] as String?,
       lastScannedPallet: json['last_scanned_pallet'] as String?,
-      palletsLoaded: (json['pallets_loaded'] as num?)?.toInt() ?? 0,
-      relatedBoxesLoaded: (json['related_boxes_loaded'] as num?)?.toInt() ?? 0,
+      palletsRequired: palletsRequired,
+      boxesRequired: boxesRequired,
+      palletsLoaded: palletsLoaded,
+      relatedBoxesLoaded: boxesLoaded,
+      palletsPending: palletsPending,
+      boxesPending: boxesPending,
       isComplete: json['is_complete'] == true,
       pendingNotes:
           pendingRaw is List
@@ -344,8 +359,8 @@ class DispatchLoadedData {
       loadedRows:
           rowsRaw is List
               ? rowsRaw
-                  .whereType<Map<String, dynamic>>()
-                  .map(LoadedRow.fromJson)
+                  .whereType<Map>()
+                  .map((e) => LoadedRow.fromJson(Map<String, dynamic>.from(e)))
                   .toList()
               : const [],
       relatedPackingBySo: relatedBySo,
@@ -370,8 +385,12 @@ class DispatchLoadedData {
     this.vehicleStatus,
     this.dispatchLoadingStatus,
     this.lastScannedPallet,
+    this.palletsRequired = 0,
+    this.boxesRequired = 0,
     this.palletsLoaded = 0,
     this.relatedBoxesLoaded = 0,
+    this.palletsPending = 0,
+    this.boxesPending = 0,
     this.isComplete = false,
     this.pendingNotes = const [],
     this.loadedRows = const [],
@@ -384,13 +403,19 @@ class DispatchLoadedData {
   final String? vehicleStatus;
   final String? dispatchLoadingStatus;
   final String? lastScannedPallet;
+  final int palletsRequired;
+  final int boxesRequired;
   final int palletsLoaded;
   final int relatedBoxesLoaded;
+  final int palletsPending;
+  final int boxesPending;
   final bool isComplete;
   final List<String> pendingNotes;
   final List<LoadedRow> loadedRows;
   final Map<String, RelatedPacking> relatedPackingBySo;
   final String? popupMessage;
+
+  bool get hasPendingUnits => palletsPending > 0 || boxesPending > 0;
 
   bool get isSubmitted => docstatus == 1;
   bool get isDispatched =>
@@ -438,6 +463,26 @@ String dispatchPopupMessage(Map<String, dynamic> envelope) {
     if (popup != null && popup.isNotEmpty) return popup;
   }
   return envelope['message'] as String? ?? 'Request failed';
+}
+
+/// Informational Submit alert. Returns null when nothing is pending.
+String? formatPendingDispatchAlert({
+  required int palletsPending,
+  required int boxesPending,
+}) {
+  if (palletsPending <= 0 && boxesPending <= 0) return null;
+
+  String unitLabel(int count, String singular, String plural) =>
+      '$count ${count == 1 ? singular : plural}';
+
+  if (palletsPending > 0 && boxesPending > 0) {
+    return '${unitLabel(palletsPending, 'Pallet', 'Pallets')} and '
+        '${unitLabel(boxesPending, 'Box', 'Boxes')} Pending';
+  }
+  if (palletsPending > 0) {
+    return '${unitLabel(palletsPending, 'Pallet', 'Pallets')} Pending';
+  }
+  return '${unitLabel(boxesPending, 'Box', 'Boxes')} Pending';
 }
 
 bool isPalletQr(String qr) {

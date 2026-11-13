@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:image_picker/image_picker.dart';
@@ -15,15 +14,13 @@ import 'package:shakti_hormann/features/loading_confirmation/presentation/bloc/c
 import 'package:shakti_hormann/features/loading_confirmation/presentation/ui/create/sales_order_table.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/widgets/dailogs/app_dialogs.dart';
+import 'package:shakti_hormann/widgets/dailogs/app_popup_card.dart';
 import 'package:shakti_hormann/widgets/dailogs/app_snack_bar_widget.dart';
-import 'package:shakti_hormann/widgets/input_filed.dart';
-import 'package:shakti_hormann/widgets/inputs/date_picker_field.dart';
 import 'package:shakti_hormann/widgets/inputs/new_upload_photo_widget.dart';
-import 'package:shakti_hormann/widgets/inputs/search_dropdown_widget.dart';
-import 'package:shakti_hormann/widgets/inputs/time_picker.dart';
+import 'package:shakti_hormann/widgets/scan/burst_scan_page.dart';
+import 'package:shakti_hormann/widgets/scan/scan_outcome.dart';
 import 'package:shakti_hormann/widgets/sectionheader.dart';
 import 'package:shakti_hormann/widgets/spaced_column.dart';
-import 'package:simple_barcode_scanner/simple_barcode_scanner.dart';
 
 class LoadingCnfmFormWidget extends StatefulWidget {
   const LoadingCnfmFormWidget({super.key});
@@ -64,312 +61,109 @@ class _LoadingCnfmFormWidget extends State<LoadingCnfmFormWidget> {
           },
         ),
       ],
-      child: Container(
-        color: Colors.purple.shade100.withValues(alpha: 0.15),
+      child: ColoredBox(
+        color: const Color(0xFFF7F8FA),
         child: SingleChildScrollView(
           controller: _scrollController,
+          padding: ShellInsets.scrollPadding(context),
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           child: SpacedColumn(
             crossAxisAlignment: CrossAxisAlignment.start,
             margin: const EdgeInsets.all(12.0),
             defaultHeight: 0,
             children: [
               const Padding(
-                padding: EdgeInsets.only(left: 16.0),
+                padding: EdgeInsets.only(left: 12.0, top: 4),
                 child: SectionHeader(
-                  title: 'Vehicle Request Details',
+                  title: 'Trip Summary',
                   assetIcon: 'assets/images/gateentryicon.svg',
                 ),
               ),
-              Container(
-                width: MediaQuery.of(context).size.width,
-
-                margin: const EdgeInsets.all(2),
-                child: Stack(
-                  children: [
-                    Card(
-                      color: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                        side: const BorderSide(
-                          color: Color(0xFFE8ECF4),
-                          width: 1,
-                        ),
-                      ),
-
-                      elevation: 0,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        padding: const EdgeInsets.only(
-                          top: 15,
-                          left: 16,
-                          right: 16,
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            InputField(
-                              title: 'Plant Name',
-                              hintText: 'Enter Plant Name',
-                              readOnly: true,
-                              isRequired: true,
-                              borderColor: AppColors.grey,
-                              initialValue: newform.plantName,
-                              onChanged: (p0) {},
-                            ),
-                            const SizedBox(height: 12),
-                            InputField(
-                              title: 'Linked Transporter No',
-                              hintText: 'Linked Transporter No',
-                              readOnly: true,
-                              isRequired: true,
-                              borderColor: AppColors.grey,
-                              initialValue:
-                                  newform.linkedTransporterConfirmation,
-
-                              onChanged: (p0) {},
-                            ),
-                            AppDateField(
-                              title: 'Vehicle Reporting Date',
-                              hintText: 'Select Date',
-                              readOnly: true,
-                              startDate: DateTime(2020),
-                              endDate: DateTime(2030),
-                              initialDate: DFU.ddMMyyyyFromStr(
-                                newform.vehicleReportingEntryVreDate ?? '',
-                              ),
-                              onSelected: (DateTime date) {},
-                              fillColor: Colors.grey[200],
-                            ),
-                            const SizedBox(height: 12),
-                            InputField(
-                              title: 'Transporter Name',
-                              readOnly: true,
-                              borderColor: AppColors.grey,
-                              initialValue: [
-                                    newform.transporterName,
-                                    newform.transporterName2,
-                                  ]
-                                  .where((e) => e != null && e.isNotEmpty)
-                                  .join(' - '),
-                              onChanged: (p0) => context,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
+              Padding(
+                padding: const EdgeInsets.fromLTRB(8, 6, 8, 0),
+                child: _DispatchTripSummary(
+                  form: newform,
+                  arrivalTimeLabel: formatTime(newform.arrivalTime),
                 ),
               ),
-              const SizedBox(height: 15),
+              const SizedBox(height: 10),
               const Padding(
-                padding: EdgeInsets.only(left: 16.0),
+                padding: EdgeInsets.only(left: 12.0),
                 child: SectionHeader(
                   title: 'Sales Orders',
                   assetIcon: 'assets/images/vehicleinvoicicon.svg',
                 ),
               ),
-              Card(
-                color: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                  side: const BorderSide(color: Color(0xFFE8ECF4), width: 1),
+              const SizedBox(height: 6),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: BlocBuilder<Logistic, LogisticState>(
+                  builder: (context, state) {
+                    return state.maybeWhen(
+                      loading: () => const Padding(
+                        padding: EdgeInsets.all(20),
+                        child: Center(
+                          child: SizedBox(
+                            width: 22,
+                            height: 22,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
+                        ),
+                      ),
+                      failure: (msg) => Text(
+                        'Sales orders unavailable: $msg',
+                        style: const TextStyle(
+                          color: Color(0xFFC2410C),
+                          fontSize: 12,
+                          fontFamily: 'Urbanist',
+                        ),
+                      ),
+                      success: (salesOrders) {
+                        if (salesOrders.isNotEmpty) {
+                          context.cubit<ItemList>().request(salesOrders);
+                        }
+                        return SalesOrderTables(salesOrders: salesOrders);
+                      },
+                      orElse: () => const SizedBox.shrink(),
+                    );
+                  },
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: BlocBuilder<Logistic, LogisticState>(
-                    builder: (context, state) {
-                      return state.maybeWhen(
-                        loading:
-                            () => const Center(
-                              child: CircularProgressIndicator(),
-                            ),
-                        failure: (msg) => Center(child: Text('Error: $msg')),
-                        success: (salesOrders) {
-                          if (salesOrders.isNotEmpty) {
-                            context.cubit<ItemList>().request(salesOrders);
-                          }
-
-                          return SalesOrderTables(
-                            salesOrders: salesOrders,
-                            widthFactor: 1.2,
-                          );
-                        },
-                        orElse: () => const SizedBox(),
-                      );
-                    },
+              ),
+              if (!isLocked) ...[
+                const SizedBox(height: 10),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: _DispatchReadinessBanner(
+                    hasLoadedVehiclePhoto:
+                        newform.loadedVehiclePhotoImg != null ||
+                        (newform.loadedVehiclePhoto?.trim().isNotEmpty ??
+                            false),
                   ),
                 ),
-              ),
-
-              const SizedBox(height: 15),
+              ],
+              const SizedBox(height: 10),
               const Padding(
-                padding: EdgeInsets.only(left: 16.0),
-                child: SectionHeader(
-                  title: 'Vehicle and Driver Details',
-                  assetIcon: 'assets/images/vehicleinvoicicon.svg',
-                ),
-              ),
-              Card(
-                color: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                  side: const BorderSide(color: Color(0xFFE8ECF4), width: 1),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: AppDateField(
-                              title: 'Arrival Date',
-                              hintText: 'Select Date',
-                              isRequired: true,
-                              readOnly: true,
-                              key: ValueKey(newform.arrivalDate ?? ''),
-                              startDate: DateTime.now(),
-                              endDate: DateTime(2030),
-                              initialDate: DFU.ddMMyyyyFromStr(
-                                newform.arrivalDate ?? '',
-                              ),
-                              onSelected: (DateTime date) {},
-                              fillColor: Colors.white,
-                            ),
-                          ),
-                          const SizedBox(width: 13),
-                          Expanded(
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                TimePickerField(
-                                  title: 'Arrival Time',
-                                  readOnly: true,
-                                  isRequired: true,
-                                  key: UniqueKey(),
-                                  hintText: 'Select Time',
-                                  initialTime: formatTime(newform.arrivalTime),
-                                  onTimeChanged: (selectedTime) {},
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      const SizedBox(height: 12),
-
-                      InputField(
-                        title: 'Vehicle Number',
-                        hintText: 'Vehicle No',
-                        readOnly: true,
-                        borderColor: AppColors.grey,
-                        initialValue: newform.vehicleNumber,
-                        onChanged: (p0) {},
-                      ),
-                      const SizedBox(height: 12),
-                      InputField(
-                        title: 'Driver Contact No',
-                        hintText: 'Enter Contact Number',
-                        readOnly: true,
-                        inputType: TextInputType.number,
-                        borderColor: AppColors.grey,
-                        initialValue: newform.driverContact,
-                        inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly,
-                          LengthLimitingTextInputFormatter(10),
-                        ],
-                        onChanged: (p0) {},
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-              const Padding(
-                padding: EdgeInsets.only(left: 16.0),
+                padding: EdgeInsets.only(left: 12.0),
                 child: SectionHeader(
                   title: 'Photo',
                   assetIcon: 'assets/images/photoicon.svg',
                 ),
               ),
+              const SizedBox(height: 6),
               Padding(
-                padding: const EdgeInsets.only(left: 16, right: 16),
-                child: Card(
-                  color: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                    side: const BorderSide(color: Color(0xFFE8ECF4), width: 1),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      NewUploadPhotoWidget(
-                        fileName: 'driverid',
-                        imageUrl: newform.driverIdPhoto,
-                        title: 'Driver ID Proof',
-                        isReadOnly: true,
-                      onFileCapture: (file) {
-                        // context.cubit<CreateLoadingCnfmCubit>().onValueChanged(
-                        //   driverIdPhoto: file,
-                        // );
-                      },
-                      focusNode: focusNodes.elementAt(27),
-                    ),
-                    NewUploadPhotoWidget(
-                      fileName: 'vehiclefront',
-                      isRequired: true,
-                      imageUrl: newform.loadedVehiclePhoto,
-                      title: 'Loaded Vehicle Photo',
-                      isReadOnly: isLocked,
-                      onFileCapture: (file) {
-                        context.cubit<CreateLoadingCnfmCubit>().onValueChanged(
-                          loadedVehiclePhoto: file,
-                        );
-                      },
-                      focusNode: focusNodes.elementAt(27),
-                    ),
-                    ],
-                  ),
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: _DispatchPhotosCards(
+                  driverIdUrl: newform.driverIdPhoto,
+                  loadedVehicleUrl: newform.loadedVehiclePhoto,
+                  loadedVehicleFile: newform.loadedVehiclePhotoImg,
+                  isLocked: isLocked,
+                  onCaptureLoadedVehicle: (file) {
+                    context.cubit<CreateLoadingCnfmCubit>().onValueChanged(
+                      loadedVehiclePhoto: file,
+                    );
+                  },
                 ),
               ),
-              // const SizedBox(height: 10),
-              // const Padding(
-              //   padding: EdgeInsets.only(left: 16.0),
-              //   child: SectionHeader(
-              //     title: 'Vehicle Photo',
-              //     assetIcon: 'assets/images/photoicon.svg',
-              //   ),
-              // ),
-              // Padding(
-              //   padding: const EdgeInsets.only(left: 16, right: 16),
-              //   child: Card(
-              //     color: Colors.white,
-              //     shape: RoundedRectangleBorder(
-              //       borderRadius: BorderRadius.circular(20),
-              //       side: const BorderSide(color: Color(0xFFE8ECF4), width: 1),
-              //     ),
-              //     child: Center(
-              //       child: NewUploadPhotoWidget(
-              //         fileName: 'vehiclefront',
-              //         isRequired: true,
-              //         imageUrl: newform.loadedVehiclePhoto,
-              //         title: 'Loaded Vehicle Photo',
-              //         isReadOnly: isLocked,
-              //         onFileCapture: (file) {
-              //           context.cubit<CreateLoadingCnfmCubit>().onValueChanged(
-              //             loadedVehiclePhoto: file,
-              //           );
-              //         },
-              //         focusNode: focusNodes.elementAt(27),
-              //       ),
-              //     ),
-              //   ),
-              // ),
 
               const SizedBox(height: 12),
               BlocBuilder<GetLoadedList, GetLoadedState>(
@@ -555,22 +349,40 @@ bool get _canEdit {
       return;
     }
 
-    final result = await Navigator.push<String>(
+    setState(() => _isScanning = true);
+    await Navigator.push<int>(
       context,
       MaterialPageRoute(
         builder:
-            (_) => const SimpleBarcodeScannerPage(
-              appBarTitle: 'Scan Pallet / Box',
-              isShowFlashIcon: true,
+            (_) => BurstScanPage(
+              title: 'Multi-Scan Pallet / Box',
+              hint: 'Keep scanning units — tap Stop when done',
+              onValidate: (code) => _validateAndAddScannedUnit(vrName, code),
             ),
       ),
     );
-    if (result == null || result == '-1' || !mounted) return;
+    if (mounted) setState(() => _isScanning = false);
+  }
 
-    final scanned = result.trim();
-    if (scanned.isEmpty) return;
+  Future<ScanOutcome> _validateAndAddScannedUnit(
+    String vrName,
+    String scannedRaw,
+  ) async {
+    final scanned = scannedRaw.trim();
+    if (scanned.isEmpty) {
+      return const ScanOutcome.fail('Empty code');
+    }
 
-    setState(() => _isScanning = true);
+    final photoGate = _scannedRowMissingPhoto();
+    if (photoGate != null) {
+      final qr = photoGate.scanQr?.trim();
+      return ScanOutcome.fail(
+        qr != null && qr.isNotEmpty
+            ? 'Capture photo for $qr before next scan'
+            : 'Capture photo for last item before next scan',
+        shouldStop: true,
+      );
+    }
 
     final repo = LoadingCnfmBlocProvider.get().repo;
     final parentPalletQr = isPalletQr(scanned) ? null : _activePalletQr;
@@ -581,22 +393,14 @@ bool get _canEdit {
       parentPalletQr: parentPalletQr,
     );
 
-    if (!mounted) return;
-
-    await lookup.fold(
-      (failure) async {
-        setState(() => _isScanning = false);
-        _showSnack(failure.error, isError: true);
-      },
+    return await lookup.fold(
+      (failure) async => ScanOutcome.fail(failure.error),
       (scanResult) async {
         if (scanResult.scannedOnThisVehicle) {
-          setState(() => _isScanning = false);
-          _showSnack(
+          return ScanOutcome.fail(
             scanResult.popupMessage ??
                 'This unit is already scanned on this vehicle.',
-            isError: true,
           );
-          return;
         }
 
         final item = <String, dynamic>{'scan_qr': scanned};
@@ -607,20 +411,19 @@ bool get _canEdit {
         }
 
         final addResult = await repo.updateScannedItems(vrName, [item]);
-        if (!mounted) return;
-
-        addResult.fold(
-          (failure) {
-            setState(() => _isScanning = false);
-            _showSnack(failure.error, isError: true);
-          },
+        return addResult.fold(
+          (failure) => ScanOutcome.fail(failure.error),
           (data) {
-            setState(() => _isScanning = false);
-            _applyDispatchData(data);
-            _showSnack(
-              data.popupMessage ??
-                  scanResult.popupMessage ??
-                  'Scanned successfully.',
+            if (mounted) _applyDispatchData(data);
+            final msg =
+                data.popupMessage ??
+                scanResult.popupMessage ??
+                'Scanned successfully';
+            // Loading requires a photo per unit before the next scan.
+            final needsPhoto = _scannedRowMissingPhoto() != null;
+            return ScanOutcome.ok(
+              needsPhoto ? '$msg — capture photo next' : msg,
+              shouldStop: needsPhoto,
             );
           },
         );
@@ -632,25 +435,16 @@ bool get _canEdit {
     final vrName = widget.vrName;
     if (vrName == null || !_canEdit) return;
 
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder:
-          (ctx) => AlertDialog(
-            title: const Text('Remove scan?'),
-            content: const Text(
-              'Remove this scanned item from the vehicle loading?',
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(ctx, false),
-                child: const Text('Cancel'),
-              ),
-              TextButton(
-                onPressed: () => Navigator.pop(ctx, true),
-                child: const Text('Remove'),
-              ),
-            ],
-          ),
+    final confirmed = await AppDialog.confirm(
+      context,
+      title: 'Remove scan?',
+      content: 'Remove this scanned item from the vehicle loading?',
+      confirmText: 'Remove',
+      icon: Icons.delete_outline_rounded,
+      iconBackground: const Color(0xFFFEE2E2),
+      iconColor: const Color(0xFFE11D48),
+      confirmIcon: Icons.delete_rounded,
+      confirmColor: const Color(0xFFE11D48),
     );
     if (confirmed != true || !mounted) return;
 
@@ -819,169 +613,827 @@ bool get _canEdit {
   @override
   Widget build(BuildContext context) {
     final scannedRows = _dispatchData.scannedRows;
+    final photoGate = _scannedRowMissingPhoto();
+    final scanEnabled =
+        _canEdit && photoGate == null && _photoUploadingRowName == null;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: const EdgeInsets.only(left: 4, right: 4, bottom: 8),
-          child: Row(
-            children: [
-              const Expanded(
-                child: SectionHeader(
-                  title: 'Item Details',
-                  assetIcon: 'assets/images/remarksicon.svg',
+        const SectionHeader(
+          title: 'Item Details',
+          assetIcon: 'assets/images/remarksicon.svg',
+        ),
+        const SizedBox(height: 8),
+        if (_canEdit) ...[
+          if (photoGate != null)
+            Container(
+              width: double.infinity,
+              margin: const EdgeInsets.only(bottom: 10),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFFF7ED),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: const Color(0xFFFDBA74)),
+              ),
+              child: Text(
+                'Photo required for ${photoGate.scanQr ?? 'last scanned item'} before the next scan.',
+                style: const TextStyle(
+                  color: Color(0xFF9A3412),
+                  fontWeight: FontWeight.w700,
+                  fontFamily: 'Urbanist',
+                  fontSize: 13,
                 ),
               ),
-              if (_canEdit &&
-                  _scannedRowMissingPhoto() == null &&
-                  _photoUploadingRowName == null)
-                Tooltip(
-                  message: 'Scan pallet / box',
-                  child: Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      onTap: _isScanning ? null : _scanAndAddUnit,
-                      borderRadius: BorderRadius.circular(12),
-                      child: Ink(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 25,
-                          vertical: 8,
+            ),
+          SizedBox(
+            width: double.infinity,
+            height: 52,
+            child: ElevatedButton.icon(
+              onPressed: scanEnabled && !_isScanning ? _scanAndAddUnit : null,
+              icon:
+                  _isScanning
+                      ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: AppColors.darkBlue,
                         ),
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [
-                              Color.fromARGB(255, 242, 171, 6),
-                              Color.fromARGB(255, 247, 175, 7),
-                            ],
-                          ),
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: AppColors.yellow.withValues(alpha: 0.45),
-                              blurRadius: 8,
-                              offset: const Offset(0, 3),
-                            ),
-                          ],
-                        ),
-                        child:
-                            _isScanning
-                                ? const SizedBox(
-                                  width: 22,
-                                  height: 22,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    color: AppColors.darkBlue,
-                                  ),
-                                )
-                                : const Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(
-                                      Icons.qr_code_scanner,
-                                      color: AppColors.darkBlue,
-                                      size: 32,
-                                    ),
-                                    SizedBox(width: 6),
-                                    Text(
-                                      'Scan',
-                                      style: TextStyle(
-                                        color: AppColors.darkBlue,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 18,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                      ),
-                    ),
-                  ),
+                      )
+                      : const Icon(Icons.qr_code_scanner_rounded, size: 26),
+              label: Text(
+                _isScanning ? 'Opening scanner…' : 'Multi-Scan Pallet / Box',
+                style: const TextStyle(
+                  fontWeight: FontWeight.w900,
+                  fontSize: 16,
+                  fontFamily: 'Urbanist',
                 ),
-            ],
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFF2AB06),
+                foregroundColor: AppColors.darkBlue,
+                disabledBackgroundColor: Colors.grey.shade300,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+              ),
+            ),
           ),
-        ),
+          const SizedBox(height: 6),
+          Text(
+            'Camera stays open. Validation runs before the next scan. Tap Stop when done.',
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.grey.shade600,
+              fontFamily: 'Urbanist',
+            ),
+          ),
+          const SizedBox(height: 14),
+        ],
         if (_isRefreshing)
           const Padding(
             padding: EdgeInsets.all(12),
             child: Center(child: CircularProgressIndicator()),
           ),
-        // if (_dispatchData.pendingNotes.isNotEmpty)
-        //   Padding(
-        //     padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
-        //     child: Column(
-        //       crossAxisAlignment: CrossAxisAlignment.start,
-        //       children:
-        //           _dispatchData.pendingNotes
-        //               .map(
-        //                 (note) => Padding(
-        //                   padding: const EdgeInsets.only(bottom: 4),
-        //                   child: Text(
-        //                     note,
-        //                     style: TextStyle(
-        //                       color: Colors.orange.shade800,
-        //                       fontWeight: FontWeight.w600,
-        //                       fontSize: 12,
-        //                     ),
-        //                   ),
-        //                 ),
-        //               )
-        //               .toList(),
-        //     ),
-        //   ),
-        // if (scannedRows.isNotEmpty)
-          _ScannedItemsTable(
-            rows: scannedRows,
-            canEdit: _canEdit,
-            activePalletQr: _activePalletQr,
-            localPhotos: _scannedLocalPhotos,
-            photoUploadingRowName: _photoUploadingRowName,
-            onSelectPallet: (qr) => setState(() => _activePalletQr = qr),
-            onDelete: _deleteScannedRow,
-            onCapturePhoto: _captureScannedPhoto,
-            buildPhoto: (path) => _buildImage(path, context: context),
-          ),
-        const SizedBox(height: 12),
+        _ScannedItemsTable(
+          rows: scannedRows,
+          canEdit: _canEdit,
+          activePalletQr: _activePalletQr,
+          localPhotos: _scannedLocalPhotos,
+          photoUploadingRowName: _photoUploadingRowName,
+          onSelectPallet: (qr) => setState(() => _activePalletQr = qr),
+          onDelete: _deleteScannedRow,
+          onCapturePhoto: _captureScannedPhoto,
+          buildPhoto: (path) => _buildImage(path, context: context),
+        ),
+        const SizedBox(height: 16),
         const Padding(
-          padding: EdgeInsets.only(left: 8, bottom: 6),
+          padding: EdgeInsets.only(left: 4, bottom: 8),
           child: Text(
-            'Manual Added Item : ',
+            'Manual Items',
             style: TextStyle(
               fontWeight: FontWeight.w800,
-              fontSize: 20,
+              fontSize: 18,
               color: AppColors.darkBlue,
+              fontFamily: 'Urbanist',
             ),
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8),
-          child: _ManualItemsTable(
-            rows: rows,
-            canEdit: _canEdit,
-            onEdit: (index) => addRow(index: index),
-            onCamera: _openCamera,
-            buildPhoto: (path) => _buildImage(path, context: context),
-          ),
+        _ManualItemsTable(
+          rows: rows,
+          canEdit: _canEdit,
+          onEdit: (index) => addRow(index: index),
+          onCamera: _openCamera,
+          buildPhoto: (path) => _buildImage(path, context: context),
         ),
-        const SizedBox(height: 10),
-        const SizedBox(height: 10),
-if (_canEdit &&
-    _scannedRowMissingPhoto() == null &&
-    _photoUploadingRowName == null) ...[
-  Align(
-    alignment: Alignment.centerLeft,
-    child: ElevatedButton.icon(
-      onPressed: () => addRow(),
-      icon: const Icon(Icons.add),
-      label: const Text('Add Item'),
-      style: ElevatedButton.styleFrom(
-        backgroundColor: AppColors.darkBlue,
-        foregroundColor: Colors.white,
-      ),
-    ),
-  ),
-],
+        if (_canEdit && photoGate == null && _photoUploadingRowName == null) ...[
+          const SizedBox(height: 12),
+          Align(
+            alignment: Alignment.centerRight,
+            child: Material(
+              color: const Color(0xFFF2A93E),
+              borderRadius: BorderRadius.circular(28),
+              child: InkWell(
+                onTap: () => addRow(),
+                borderRadius: BorderRadius.circular(28),
+                child: const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.add, color: AppColors.darkBlue, size: 22),
+                      SizedBox(width: 6),
+                      Text(
+                        'Add Item',
+                        style: TextStyle(
+                          color: AppColors.darkBlue,
+                          fontWeight: FontWeight.w900,
+                          fontSize: 15,
+                          fontFamily: 'Urbanist',
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
         const SizedBox(height: 8),
       ],
+    );
+  }
+}
+
+
+const _ink = Color(0xFF0E1446);
+const _muted = Color(0xFF6B7280);
+const _lineColor = Color(0xFFE6EAF2);
+const _headerBlue = Color(0xFF0E2A5C);
+
+class _DispatchTripSummary extends StatelessWidget {
+  const _DispatchTripSummary({
+    required this.form,
+    required this.arrivalTimeLabel,
+  });
+
+  final LoadingCnfmForm form;
+  final String? arrivalTimeLabel;
+
+  String get _transporter => [
+        form.transporterName,
+        form.transporterName2,
+      ].where((e) => e != null && e.trim().isNotEmpty).join(' - ');
+
+  String get _vreDate =>
+      DFU.ddMMyyyyFromStr(form.vehicleReportingEntryVreDate ?? '');
+
+  String get _arrivalDate => DFU.ddMMyyyyFromStr(form.arrivalDate ?? '');
+
+  @override
+  Widget build(BuildContext context) {
+    final vehicle = form.vehicleNumber?.trim().isNotEmpty == true
+        ? form.vehicleNumber!.trim()
+        : '—';
+    final lr = form.linkedTransporterConfirmation?.trim().isNotEmpty == true
+        ? form.linkedTransporterConfirmation!.trim()
+        : '—';
+
+    return Card(
+      color: Colors.white,
+      elevation: 0,
+      margin: EdgeInsets.zero,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: const BorderSide(color: Color(0xFFE8ECF4)),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Theme(
+        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+        child: ExpansionTile(
+          initiallyExpanded: false,
+          tilePadding: const EdgeInsets.fromLTRB(14, 4, 10, 4),
+          childrenPadding: const EdgeInsets.fromLTRB(14, 0, 14, 12),
+          leading: Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: const Color(0xFFEFF4FB),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: const Icon(
+              Icons.local_shipping_outlined,
+              size: 18,
+              color: Color(0xFF2957A4),
+            ),
+          ),
+          title: Text(
+            '$vehicle  ·  $lr',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              color: _ink,
+              fontSize: 14,
+              fontWeight: FontWeight.w800,
+              fontFamily: 'Urbanist',
+            ),
+          ),
+          subtitle: Text(
+            [
+              if (_vreDate.isNotEmpty) _vreDate,
+              'Tap to view trip details',
+            ].join('  ·  '),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              color: _muted,
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              fontFamily: 'Urbanist',
+            ),
+          ),
+          children: [
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 8,
+                  vertical: 4,
+                ),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF1F5F9),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.lock_outline, size: 13, color: _muted),
+                    SizedBox(width: 4),
+                    Text(
+                      'Read-only from Vehicle Reporting',
+                      style: TextStyle(
+                        color: _muted,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        fontFamily: 'Urbanist',
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
+            _infoTile(
+              icon: Icons.factory_outlined,
+              label: 'Plant',
+              value: form.plantName,
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Expanded(
+                  child: _infoTile(
+                    icon: Icons.local_shipping_outlined,
+                    label: 'LR No',
+                    value: form.linkedTransporterConfirmation,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: _infoTile(
+                    icon: Icons.calendar_month_outlined,
+                    label: 'VRE Date',
+                    value: _vreDate,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            _infoTile(
+              icon: Icons.business_outlined,
+              label: 'Transporter',
+              value: _transporter.isEmpty ? null : _transporter,
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Expanded(
+                  child: _infoTile(
+                    icon: Icons.directions_car_outlined,
+                    label: 'Vehicle',
+                    value: form.vehicleNumber,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: _infoTile(
+                    icon: Icons.call_outlined,
+                    label: 'Driver contact',
+                    value: form.driverContact,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Expanded(
+                  child: _infoTile(
+                    icon: Icons.event_available_outlined,
+                    label: 'Arrival date',
+                    value: _arrivalDate,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: _infoTile(
+                    icon: Icons.schedule_outlined,
+                    label: 'Arrival time',
+                    value: arrivalTimeLabel,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _infoTile({
+    required IconData icon,
+    required String label,
+    required String? value,
+  }) {
+    final display = (value == null || value.trim().isEmpty) ? '—' : value.trim();
+    return Semantics(
+      label: '$label: $display',
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF8FAFD),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: const Color(0xFFE8ECF4)),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(icon, size: 16, color: const Color(0xFF2957A4)),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label,
+                    style: const TextStyle(
+                      color: _muted,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      fontFamily: 'Urbanist',
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    display,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: _ink,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      fontFamily: 'Urbanist',
+                      height: 1.25,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _DispatchReadinessBanner extends StatelessWidget {
+  const _DispatchReadinessBanner({
+    required this.hasLoadedVehiclePhoto,
+  });
+
+  final bool hasLoadedVehiclePhoto;
+
+  @override
+  Widget build(BuildContext context) {
+    if (hasLoadedVehiclePhoto) {
+      return Semantics(
+        liveRegion: true,
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          decoration: BoxDecoration(
+            color: const Color(0xFFECFDF3),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: const Color(0xFFBBF7D0)),
+          ),
+          child: const Row(
+            children: [
+              Icon(Icons.check_circle_outline, size: 18, color: Color(0xFF15803D)),
+              SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'Loaded vehicle photo ready. Scan items, then Submit.',
+                  style: TextStyle(
+                    color: Color(0xFF166534),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    fontFamily: 'Urbanist',
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return Semantics(
+      liveRegion: true,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        decoration: BoxDecoration(
+          color: const Color(0xFFFFF7ED),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: const Color(0xFFFED7AA)),
+        ),
+        child: const Row(
+          children: [
+            Icon(Icons.warning_amber_rounded, size: 18, color: Color(0xFFC2410C)),
+            SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                'Required: capture Loaded Vehicle Photo before Submit. Item photos are required after each scan.',
+                style: TextStyle(
+                  color: Color(0xFF9A3412),
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  fontFamily: 'Urbanist',
+                  height: 1.3,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _DispatchPhotosCards extends StatelessWidget {
+  const _DispatchPhotosCards({
+    required this.driverIdUrl,
+    required this.loadedVehicleUrl,
+    required this.loadedVehicleFile,
+    required this.isLocked,
+    required this.onCaptureLoadedVehicle,
+  });
+
+  final String? driverIdUrl;
+  final String? loadedVehicleUrl;
+  final File? loadedVehicleFile;
+  final bool isLocked;
+  final ValueChanged<File> onCaptureLoadedVehicle;
+
+  bool get _hasDriverId =>
+      driverIdUrl != null && driverIdUrl!.trim().isNotEmpty;
+
+  bool get _hasLoadedVehicle =>
+      loadedVehicleFile != null ||
+      (loadedVehicleUrl != null && loadedVehicleUrl!.trim().isNotEmpty);
+
+  String _fullUrl(String? url) {
+    if (url == null || url.isEmpty) return '';
+    if (url.startsWith('http://') || url.startsWith('https://')) return url;
+    final base = Urls.baseUrl.replaceAll('/api', '');
+    return '$base$url';
+  }
+
+  Future<void> _openPreview(
+    BuildContext context, {
+    required String title,
+    String? imageUrl,
+    File? image,
+    required bool readOnly,
+    Future<void> Function()? onRetake,
+  }) async {
+    await context.goToPage(
+      ImagePreviewPage(
+        title: title,
+        imageUrl: imageUrl,
+        image: image,
+        isReadOnly: readOnly,
+        onRetake: () async {
+          Navigator.pop(context);
+          if (onRetake != null) await onRetake();
+        },
+        onDone: () => Navigator.pop(context),
+      ),
+    );
+  }
+
+  Future<void> _captureVehicle(BuildContext context) async {
+    try {
+      final picker = ImagePicker();
+      final picked = await picker.pickImage(
+        source: ImageSource.camera,
+        imageQuality: 45,
+      );
+      if (picked == null) return;
+      onCaptureLoadedVehicle(File(picked.path));
+    } catch (e) {
+      debugPrint('Loaded vehicle capture failed: $e');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0xFFE8ECF4)),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF0E1446).withValues(alpha: 0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: _photoCard(
+              context: context,
+              title: 'Driver ID Proof',
+              subtitle: 'From Vehicle Reporting',
+              required: false,
+              locked: true,
+              hasPhoto: _hasDriverId,
+              accent: const Color(0xFF3681F2),
+              soft: const Color(0xFFE8F0FE),
+              icon: Icons.badge_outlined,
+              onTap: _hasDriverId
+                  ? () => _openPreview(
+                        context,
+                        title: 'Driver ID Proof',
+                        imageUrl: driverIdUrl,
+                        readOnly: true,
+                      )
+                  : null,
+              thumb: _hasDriverId ? _networkThumb(driverIdUrl!) : null,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: _photoCard(
+              context: context,
+              title: 'Loaded Vehicle',
+              subtitle: isLocked
+                  ? 'Locked after submit'
+                  : 'Required before submit',
+              required: true,
+              locked: isLocked,
+              hasPhoto: _hasLoadedVehicle,
+              accent: const Color(0xFF0D9488),
+              soft: const Color(0xFFE6F7F5),
+              icon: Icons.local_shipping_outlined,
+              onTap: _hasLoadedVehicle
+                  ? () => _openPreview(
+                        context,
+                        title: 'Loaded Vehicle Photo',
+                        imageUrl:
+                            loadedVehicleFile == null ? loadedVehicleUrl : null,
+                        image: loadedVehicleFile,
+                        readOnly: isLocked,
+                        onRetake:
+                            isLocked ? null : () => _captureVehicle(context),
+                      )
+                  : (isLocked ? null : () => _captureVehicle(context)),
+              thumb: _hasLoadedVehicle
+                  ? (loadedVehicleFile != null
+                      ? Image.file(loadedVehicleFile!, fit: BoxFit.cover)
+                      : _networkThumb(loadedVehicleUrl!))
+                  : null,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _photoCard({
+    required BuildContext context,
+    required String title,
+    required String subtitle,
+    required bool required,
+    required bool locked,
+    required bool hasPhoto,
+    required Color accent,
+    required Color soft,
+    required IconData icon,
+    required VoidCallback? onTap,
+    required Widget? thumb,
+  }) {
+    final status = hasPhoto
+        ? 'Captured'
+        : (required ? 'Required' : 'Missing');
+    final statusColor = hasPhoto
+        ? const Color(0xFF15803D)
+        : (required ? const Color(0xFFC2410C) : _muted);
+
+    return Material(
+      color: soft,
+      borderRadius: BorderRadius.circular(12),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: !hasPhoto && required
+                  ? const Color(0xFFFDBA74)
+                  : soft,
+            ),
+          ),
+          child: Column(
+            children: [
+              Stack(
+                alignment: Alignment.center,
+                children: [
+                  Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white,
+                      border: Border.all(color: accent.withValues(alpha: 0.25)),
+                    ),
+                    clipBehavior: Clip.antiAlias,
+                    child: thumb ??
+                        Icon(icon, size: 22, color: accent),
+                  ),
+                  if (locked)
+                    Positioned(
+                      right: 0,
+                      bottom: 0,
+                      child: Container(
+                        padding: const EdgeInsets.all(2),
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.lock_outline,
+                          size: 10,
+                          color: _muted,
+                        ),
+                      ),
+                    )
+                  else if (!hasPhoto)
+                    Positioned(
+                      right: 0,
+                      bottom: 0,
+                      child: Container(
+                        padding: const EdgeInsets.all(3),
+                        decoration: BoxDecoration(
+                          color: accent,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.camera_alt_rounded,
+                          size: 10,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 6),
+              RichText(
+                textAlign: TextAlign.center,
+                text: TextSpan(
+                  text: title,
+                  style: const TextStyle(
+                    color: _ink,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w800,
+                    fontFamily: 'Urbanist',
+                  ),
+                  children: [
+                    if (required)
+                      const TextSpan(
+                        text: ' *',
+                        style: TextStyle(
+                          color: Color(0xFFD64545),
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 1),
+              Text(
+                subtitle,
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: _muted,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
+                  fontFamily: 'Urbanist',
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                status,
+                style: TextStyle(
+                  color: statusColor,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w800,
+                  fontFamily: 'Urbanist',
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _networkThumb(String url) {
+    return Image.network(
+      _fullUrl(url),
+      fit: BoxFit.cover,
+      loadingBuilder: (context, child, progress) {
+        if (progress == null) return child;
+        return const Center(
+          child: SizedBox(
+            width: 16,
+            height: 16,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ),
+        );
+      },
+      errorBuilder: (_, __, ___) => Icon(
+        Icons.broken_image_outlined,
+        size: 28,
+        color: Colors.grey.shade400,
+      ),
+    );
+  }
+}
+
+class _DispatchActionIcon extends StatelessWidget {
+  const _DispatchActionIcon({
+    required this.icon,
+    required this.color,
+    required this.background,
+    required this.tooltip,
+    this.onPressed,
+  });
+
+  final IconData icon;
+  final Color color;
+  final Color background;
+  final String tooltip;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return Tooltip(
+      message: tooltip,
+      child: Material(
+        color: background,
+        borderRadius: BorderRadius.circular(10),
+        child: InkWell(
+          onTap: onPressed,
+          borderRadius: BorderRadius.circular(10),
+          child: Padding(
+            padding: const EdgeInsets.all(8),
+            child: Icon(icon, color: color, size: 18),
+          ),
+        ),
+      ),
     );
   }
 }
@@ -1001,123 +1453,270 @@ class _ManualItemsTable extends StatelessWidget {
   final void Function(int index) onCamera;
   final Widget Function(String path) buildPhoto;
 
+  /// #, Code, Name, Qty, UOM, Photo, Edit?
+  static const _flexEdit = [2, 3, 5, 2, 2, 2, 2];
+  static const _flexView = [2, 4, 6, 2, 2, 2];
+
+  List<int> get _flexes => canEdit ? _flexEdit : _flexView;
+
   @override
   Widget build(BuildContext context) {
-    Widget headerCell(String text) => Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
-      child: Text(
-        text,
-        style: const TextStyle(
-          color: Colors.white,
-          fontWeight: FontWeight.bold,
-          fontSize: 11,
-        ),
-        softWrap: true,
-        textAlign: TextAlign.center,
+    final headers = [
+      'Item\nCode',
+      'Item Name',
+      'Qty',
+      'UOM',
+      'Photo',
+      if (canEdit) 'Edit',
+    ];
+
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        color: Colors.white,
+        border: Border.all(color: const Color(0xFFE8ECF4)),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF0E1446).withValues(alpha: 0.05),
+            blurRadius: 14,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
-    );
-
-    Widget dataText(String text) => Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
-      child: Center(
-        child: Text(
-          text,
-          style: const TextStyle(fontSize: 11),
-          softWrap: true,
-          maxLines: 4,
-        ),
-      ),
-    );
-
-    Widget dataWidget(Widget child) => Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
-      child: child,
-    );
-
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        return Table(
-          border: TableBorder.all(color: Colors.grey.shade300),
-          columnWidths: {
-            0: const FixedColumnWidth(28),
-            1: const FlexColumnWidth(1.1),
-            2: const FlexColumnWidth(2.0),
-            3: const FlexColumnWidth(0.7),
-            4: const FlexColumnWidth(0.6),
-            5: const FlexColumnWidth(0.8),
-            if (canEdit) 6: const FlexColumnWidth(0.5),
-          },
-          defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-          children: [
-            TableRow(
-              decoration: const BoxDecoration(color: AppColors.darkBlue),
-              children: [
-                headerCell('#'),
-                headerCell('Item Code'),
-                headerCell('Item Name'),
-                headerCell('Qty'),
-                headerCell('UOM'),
-                headerCell('Photo'),
-                if (canEdit) headerCell('Edit'),
-              ],
-            ),
-            ...List.generate(rows.length, (index) {
-              final row = rows[index];
-              final photo = row['photo'] as String?;
-              final hasPhoto = photo != null && photo.isNotEmpty;
-
-              return TableRow(
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _headerRow(headers),
+          if (rows.isEmpty)
+            const Padding(
+              padding: EdgeInsets.fromLTRB(20, 28, 20, 28),
+              child: Column(
                 children: [
-                  dataText('${index + 1}'),
-                  dataText(row['itemCode']?.toString() ?? ''),
-                  dataText(row['itemName']?.toString() ?? ''),
-                  dataText(row['qty']?.toString() ?? ''),
-                  dataText(row['uom']?.toString() ?? ''),
-                  dataWidget(
-                    Center(
-                      child:
-                          hasPhoto
-                              ? buildPhoto(photo)
-                              : canEdit
-                              ? IconButton(
-                                padding: EdgeInsets.zero,
-                                constraints: const BoxConstraints(
-                                  minWidth: 36,
-                                  minHeight: 36,
-                                ),
-                                icon: const Icon(
-                                  Icons.camera_alt,
-                                  color: Colors.white,
-                                  size: 20,
-                                ),
-                                style: ButtonStyle(
-                                  backgroundColor: WidgetStateProperty.all(
-                                    AppColors.darkBlue,
-                                  ),
-                                ),
-                                onPressed: () => onCamera(index),
-                              )
-                              : const Text('N/A'),
+                  Icon(Icons.inventory_2_outlined, size: 32, color: Color(0xFF6B849F)),
+                  SizedBox(height: 10),
+                  Text(
+                    'No manual items yet',
+                    style: TextStyle(
+                      color: _ink,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w800,
+                      fontFamily: 'Urbanist',
                     ),
                   ),
-                  if (canEdit)
-                    dataWidget(
-                      IconButton(
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(
-                          minWidth: 36,
-                          minHeight: 36,
-                        ),
-                        onPressed: () => onEdit(index),
-                        icon: const Icon(Icons.edit, color: Colors.blue),
-                      ),
+                  SizedBox(height: 4),
+                  Text(
+                    'Use Add Item when a unit cannot be scanned.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: _muted,
+                      fontSize: 13,
+                      fontFamily: 'Urbanist',
                     ),
+                  ),
                 ],
-              );
-            }),
-          ],
+              ),
+            )
+          else
+            for (var i = 0; i < rows.length; i++)
+              _dataRow(
+                index: i,
+                isLast: i == rows.length - 1,
+                isAlt: i.isOdd,
+              ),
+        ],
+      ),
+    );
+  }
+
+  Widget _headerRow(List<String> headers) {
+    return _rowShell(
+      isHeader: true,
+      isLast: false,
+      isAlt: false,
+      children: [
+        _serialCell(null, isHeader: true),
+        for (var col = 0; col < headers.length; col++) ...[
+          _vDivider(isHeader: true),
+          Expanded(
+            flex: _flexes[col + 1],
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 10),
+              child: Center(
+                child: Text(
+                  headers[col],
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 12,
+                    fontFamily: 'Urbanist',
+                    height: 1.2,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _dataRow({
+    required int index,
+    required bool isLast,
+    required bool isAlt,
+  }) {
+    final row = rows[index];
+    final photo = row['photo'] as String?;
+    final hasPhoto = photo != null && photo.isNotEmpty;
+
+    Widget photoCell() {
+      if (hasPhoto) {
+        return Center(child: buildPhoto(photo));
+      }
+      if (canEdit) {
+        return Center(
+          child: _DispatchActionIcon(
+            tooltip: 'Capture photo',
+            icon: Icons.camera_alt_outlined,
+            color: const Color(0xFF2957A4),
+            background: const Color(0xFFE8F0FB),
+            onPressed: () => onCamera(index),
+          ),
         );
-      },
+      }
+      return const Center(
+        child: Text('N/A', style: TextStyle(fontSize: 12, color: _muted)),
+      );
+    }
+
+    return _rowShell(
+      isHeader: false,
+      isLast: isLast,
+      isAlt: isAlt,
+      children: [
+        _serialCell(index + 1, isHeader: false),
+        _vDivider(isHeader: false),
+        _textCell(row['itemCode']?.toString() ?? '-', _flexes[1]),
+        _vDivider(isHeader: false),
+        _textCell(row['itemName']?.toString() ?? '-', _flexes[2], maxLines: 2),
+        _vDivider(isHeader: false),
+        _textCell(row['qty']?.toString() ?? '-', _flexes[3]),
+        _vDivider(isHeader: false),
+        _textCell(row['uom']?.toString() ?? '-', _flexes[4]),
+        _vDivider(isHeader: false),
+        Expanded(flex: _flexes[5], child: photoCell()),
+        if (canEdit) ...[
+          _vDivider(isHeader: false),
+          Expanded(
+            flex: _flexes[6],
+            child: Center(
+              child: _DispatchActionIcon(
+                tooltip: 'Edit item',
+                icon: Icons.edit_outlined,
+                color: const Color(0xFF2957A4),
+                background: const Color(0xFFE8F0FB),
+                onPressed: () => onEdit(index),
+              ),
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _serialCell(int? n, {required bool isHeader}) {
+    return Expanded(
+      flex: _flexes.first,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 12),
+        child: Center(
+          child: isHeader
+              ? const Text(
+                  '#',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 12,
+                    fontFamily: 'Urbanist',
+                  ),
+                )
+              : Container(
+                  width: 28,
+                  height: 28,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFEFF4FB),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    n!.toString().padLeft(2, '0'),
+                    style: const TextStyle(
+                      color: Color(0xFF2957A4),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w800,
+                      fontFamily: 'Urbanist',
+                    ),
+                  ),
+                ),
+        ),
+      ),
+    );
+  }
+
+  Widget _textCell(String text, int flex, {int maxLines = 1}) {
+    return Expanded(
+      flex: flex,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 10),
+        child: Center(
+          child: Text(
+            text,
+            textAlign: TextAlign.center,
+            maxLines: maxLines,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              color: _ink,
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              fontFamily: 'Urbanist',
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _vDivider({required bool isHeader}) {
+    return Container(
+      width: 1,
+      color: isHeader ? Colors.white.withValues(alpha: 0.18) : _lineColor,
+    );
+  }
+
+  Widget _rowShell({
+    required bool isHeader,
+    required bool isLast,
+    required bool isAlt,
+    required List<Widget> children,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: isHeader
+            ? _headerBlue
+            : (isAlt ? const Color(0xFFF8FAFD) : Colors.white),
+        border: isLast || isHeader
+            ? null
+            : const Border(bottom: BorderSide(color: _lineColor)),
+      ),
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: children,
+        ),
+      ),
     );
   }
 }
@@ -1145,6 +1744,12 @@ class _ScannedItemsTable extends StatelessWidget {
   final void Function(LoadedRow row) onCapturePhoto;
   final Widget Function(String path) buildPhoto;
 
+  /// #, QR, Product, Size, Qty, Photo, Del?
+  static const _flexEdit = [2, 5, 3, 2, 2, 2, 2];
+  static const _flexView = [2, 5, 3, 3, 2, 2];
+
+  List<int> get _flexes => canEdit ? _flexEdit : _flexView;
+
   String? _photoPath(LoadedRow row) {
     final rowName = row.itemRowName;
     if (rowName != null && localPhotos[rowName] != null) {
@@ -1157,177 +1762,324 @@ class _ScannedItemsTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Padding(
-            padding: EdgeInsets.only(left: 4, bottom: 6),
-            child: Text(
-              'Scanned Items :',
-              style: TextStyle(
-                fontWeight: FontWeight.w800,
-                fontSize: 20,
-                color: AppColors.darkBlue,
+    final headers = [
+      'Scan QR',
+      'Product',
+      'Size',
+      'Qty',
+      'Photo',
+      if (canEdit) 'Del',
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 4, bottom: 8),
+          child: Text(
+            'Scanned Items (${rows.length})',
+            style: const TextStyle(
+              fontWeight: FontWeight.w800,
+              fontSize: 18,
+              color: AppColors.darkBlue,
+              fontFamily: 'Urbanist',
+            ),
+          ),
+        ),
+        Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            color: Colors.white,
+            border: Border.all(color: const Color(0xFFE8ECF4)),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF0E1446).withValues(alpha: 0.05),
+                blurRadius: 14,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _headerRow(headers),
+              if (rows.isEmpty)
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(20, 28, 20, 28),
+                  child: Column(
+                    children: [
+                      Icon(Icons.qr_code_scanner_rounded, size: 32, color: Color(0xFF6B849F)),
+                      SizedBox(height: 10),
+                      Text(
+                        'No scanned items yet',
+                        style: TextStyle(
+                          color: _ink,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w800,
+                          fontFamily: 'Urbanist',
+                        ),
+                      ),
+                      SizedBox(height: 4),
+                      Text(
+                        'Tap Multi-Scan Pallet / Box to load units.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: _muted,
+                          fontSize: 13,
+                          fontFamily: 'Urbanist',
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              else
+                for (var i = 0; i < rows.length; i++)
+                  _dataRow(
+                    index: i,
+                    isLast: i == rows.length - 1,
+                    isAlt: i.isOdd,
+                  ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _headerRow(List<String> headers) {
+    return _rowShell(
+      isHeader: true,
+      isLast: false,
+      isAlt: false,
+      highlight: false,
+      children: [
+        _serialCell(null, isHeader: true),
+        for (var col = 0; col < headers.length; col++) ...[
+          _vDivider(isHeader: true),
+          Expanded(
+            flex: _flexes[col + 1],
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 10),
+              child: Center(
+                child: Text(
+                  headers[col],
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 12,
+                    fontFamily: 'Urbanist',
+                    height: 1.2,
+                  ),
+                ),
               ),
             ),
           ),
-          LayoutBuilder(
-            builder: (context, constraints) {
-              Widget headerCell(String text) => Padding(
-                padding: const EdgeInsets.symmetric(
-                  vertical: 10,
-                  horizontal: 3,
-                ),
-                child: Text(
-                  text,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 10.5,
-                  ),
-                  softWrap: true,
-                  textAlign: TextAlign.center,
-                ),
-              );
-
-              Widget dataCell(
-                String text, {
-                FontWeight fontWeight = FontWeight.normal,
-                Color? color,
-              }) => Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 3),
-                child: Text(
-                  text,
-                  style: TextStyle(
-                    fontSize: 10.5,
-                    fontWeight: fontWeight,
-                    color: color,
-                  ),
-                  softWrap: true,
-                  maxLines: 4,
-                  textAlign: TextAlign.center,
-                ),
-              );
-
-              Widget dataWidget(Widget child) => Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 2),
-                child: child,
-              );
-
-              return Table(
-                border: TableBorder.all(color: Colors.grey.shade300),
-                columnWidths: const {
-                  0: FixedColumnWidth(24),
-                  1: FlexColumnWidth(2.2),
-                  2: FlexColumnWidth(1.2),
-                  3: FlexColumnWidth(1.0),
-                  4: FlexColumnWidth(0.7),
-                  5: FlexColumnWidth(0.8),
-                },
-                defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-                children: [
-                  TableRow(
-                    decoration: const BoxDecoration(color: AppColors.darkBlue),
-                    children: [
-                      headerCell('#'),
-                      headerCell('Scan QR'),
-                      headerCell('Product'),
-                      headerCell('Size'),
-                      headerCell('Qty'),
-                      headerCell('Photo'),
-                    ],
-                  ),
-                  ...List.generate(rows.length, (index) {
-                    final row = rows[index];
-                    final isPallet = row.isPallet;
-                    final isActive = isPallet && activePalletQr == row.scanQr;
-                    final bgColor =
-                        isActive
-                            ? AppColors.darkBlue.withValues(alpha: 0.08)
-                            : null;
-                    final photoPath = _photoPath(row);
-                    final hasPhoto =
-                        photoPath != null && photoPath.isNotEmpty;
-                    final isPhotoUploading =
-                        row.itemRowName != null &&
-                        row.itemRowName == photoUploadingRowName;
-
-                    return TableRow(
-                      decoration:
-                          bgColor != null
-                              ? BoxDecoration(color: bgColor)
-                              : null,
-                      children: [
-                        GestureDetector(
-                          onTap:
-                              isPallet && row.scanQr != null
-                                  ? () => onSelectPallet(row.scanQr!)
-                                  : null,
-                          child: dataCell('${index + 1}'),
-                        ),
-                        GestureDetector(
-                          onTap:
-                              isPallet && row.scanQr != null
-                                  ? () => onSelectPallet(row.scanQr!)
-                                  : null,
-                          child: dataCell(row.scanQr ?? ''),
-                        ),
-                        dataCell(row.productType ?? ''),
-                        dataCell(row.palletSize ?? '-'),
-                        dataCell(row.qtyLoaded?.toString() ?? ''),
-                        dataWidget(
-                          Center(
-                            child:
-                                isPhotoUploading
-                                    ? const SizedBox(
-                                      width: 28,
-                                      height: 28,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        color: AppColors.darkBlue,
-                                      ),
-                                    )
-                                    : hasPhoto
-                                    ? GestureDetector(
-                                      onTap:
-                                          canEdit && !row.isDispatched
-                                              ? () => onCapturePhoto(row)
-                                              : null,
-                                      child: buildPhoto(photoPath),
-                                    )
-                                    : canEdit && !row.isDispatched
-                                    ? IconButton(
-                                      padding: EdgeInsets.zero,
-                                      constraints: const BoxConstraints(
-                                        minWidth: 36,
-                                        minHeight: 36,
-                                      ),
-                                      icon: const Icon(
-                                        Icons.camera_alt,
-                                        color: Colors.white,
-                                        size: 18,
-                                      ),
-                                      style: ButtonStyle(
-                                        backgroundColor:
-                                            WidgetStateProperty.all(
-                                          AppColors.darkBlue,
-                                        ),
-                                      ),
-                                      onPressed: () => onCapturePhoto(row),
-                                    )
-                                    : const Center(child: Text('N/A')),
-                          ),
-                        ),
-                      ],
-                    );
-                  }),
-                ],
-              );
-            },
-          ),
         ],
+      ],
+    );
+  }
+
+  Widget _dataRow({
+    required int index,
+    required bool isLast,
+    required bool isAlt,
+  }) {
+    final row = rows[index];
+    final isPallet = row.isPallet;
+    final isActive = isPallet && activePalletQr == row.scanQr;
+    final photoPath = _photoPath(row);
+    final hasPhoto = photoPath != null && photoPath.isNotEmpty;
+    final needsPhoto = canEdit && !row.isDispatched && !hasPhoto;
+    final isPhotoUploading =
+        row.itemRowName != null && row.itemRowName == photoUploadingRowName;
+
+    Widget photoCell() {
+      if (isPhotoUploading) {
+        return const Center(
+          child: SizedBox(
+            width: 22,
+            height: 22,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ),
+        );
+      }
+      if (hasPhoto) {
+        return Center(
+          child: GestureDetector(
+            onTap: canEdit && !row.isDispatched
+                ? () => onCapturePhoto(row)
+                : null,
+            child: buildPhoto(photoPath),
+          ),
+        );
+      }
+      if (canEdit && !row.isDispatched) {
+        return Center(
+          child: _DispatchActionIcon(
+            tooltip: needsPhoto ? 'Photo required' : 'Capture photo',
+            icon: Icons.camera_alt_outlined,
+            color: needsPhoto ? const Color(0xFFC2410C) : const Color(0xFF2957A4),
+            background: needsPhoto
+                ? const Color(0xFFFFF1E6)
+                : const Color(0xFFE8F0FB),
+            onPressed: () => onCapturePhoto(row),
+          ),
+        );
+      }
+      return const Center(
+        child: Text('N/A', style: TextStyle(fontSize: 12, color: _muted)),
+      );
+    }
+
+    return GestureDetector(
+      onTap: isPallet && row.scanQr != null
+          ? () => onSelectPallet(row.scanQr!)
+          : null,
+      child: _rowShell(
+        isHeader: false,
+        isLast: isLast,
+        isAlt: isAlt,
+        highlight: isActive || needsPhoto,
+        highlightColor: needsPhoto
+            ? const Color(0xFFFFF7ED)
+            : AppColors.darkBlue.withValues(alpha: 0.06),
+        children: [
+          _serialCell(index + 1, isHeader: false, pallet: isPallet),
+          _vDivider(isHeader: false),
+          _textCell(row.scanQr ?? '-', _flexes[1], maxLines: 2),
+          _vDivider(isHeader: false),
+          _textCell(row.productType ?? '-', _flexes[2]),
+          _vDivider(isHeader: false),
+          _textCell(
+            (row.palletSize == null || row.palletSize == '-')
+                ? '-'
+                : row.palletSize!,
+            _flexes[3],
+          ),
+          _vDivider(isHeader: false),
+          _textCell(row.qtyLoaded?.toString() ?? '-', _flexes[4]),
+          _vDivider(isHeader: false),
+          Expanded(flex: _flexes[5], child: photoCell()),
+          if (canEdit) ...[
+            _vDivider(isHeader: false),
+            Expanded(
+              flex: _flexes[6],
+              child: Center(
+                child: (row.itemRowName ?? '').isNotEmpty && !row.isDispatched
+                    ? _DispatchActionIcon(
+                        tooltip: 'Remove',
+                        icon: Icons.delete_outline_rounded,
+                        color: const Color(0xFFD64545),
+                        background: const Color(0xFFFDECEC),
+                        onPressed: () => onDelete(row.itemRowName!),
+                      )
+                    : const SizedBox.shrink(),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _serialCell(int? n, {required bool isHeader, bool pallet = false}) {
+    return Expanded(
+      flex: _flexes.first,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 12),
+        child: Center(
+          child: isHeader
+              ? const Text(
+                  '#',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 12,
+                    fontFamily: 'Urbanist',
+                  ),
+                )
+              : Container(
+                  width: 28,
+                  height: 28,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: pallet
+                        ? AppColors.darkBlue
+                        : const Color(0xFFEFF4FB),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    n!.toString().padLeft(2, '0'),
+                    style: TextStyle(
+                      color: pallet ? Colors.white : const Color(0xFF2957A4),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w800,
+                      fontFamily: 'Urbanist',
+                    ),
+                  ),
+                ),
+        ),
+      ),
+    );
+  }
+
+  Widget _textCell(String text, int flex, {int maxLines = 1}) {
+    return Expanded(
+      flex: flex,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 10),
+        child: Center(
+          child: Text(
+            text,
+            textAlign: TextAlign.center,
+            maxLines: maxLines,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              color: _ink,
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              fontFamily: 'Urbanist',
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _vDivider({required bool isHeader}) {
+    return Container(
+      width: 1,
+      color: isHeader ? Colors.white.withValues(alpha: 0.18) : _lineColor,
+    );
+  }
+
+  Widget _rowShell({
+    required bool isHeader,
+    required bool isLast,
+    required bool isAlt,
+    required bool highlight,
+    Color? highlightColor,
+    required List<Widget> children,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: isHeader
+            ? _headerBlue
+            : highlight
+                ? (highlightColor ?? const Color(0xFFF8FAFD))
+                : (isAlt ? const Color(0xFFF8FAFD) : Colors.white),
+        border: isLast || isHeader
+            ? null
+            : const Border(bottom: BorderSide(color: _lineColor)),
+      ),
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: children,
+        ),
       ),
     );
   }
@@ -1404,6 +2156,414 @@ Widget _buildImage(String path, {BuildContext? context}) {
   );
 }
 
+class _ItemCodeSelectField extends StatefulWidget {
+  const _ItemCodeSelectField({
+    required this.items,
+    required this.isLoading,
+    required this.selected,
+    required this.onSelected,
+  });
+
+  final List<ItemModel> items;
+  final bool isLoading;
+  final ItemModel? selected;
+  final ValueChanged<ItemModel> onSelected;
+
+  @override
+  State<_ItemCodeSelectField> createState() => _ItemCodeSelectFieldState();
+}
+
+class _ItemCodeSelectFieldState extends State<_ItemCodeSelectField> {
+  bool _expanded = false;
+  late final TextEditingController _search;
+  late List<ItemModel> _filtered;
+
+  @override
+  void initState() {
+    super.initState();
+    _search = TextEditingController();
+    _filtered = widget.items;
+  }
+
+  @override
+  void didUpdateWidget(covariant _ItemCodeSelectField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.items != widget.items) {
+      _applyFilter(_search.text);
+    }
+  }
+
+  @override
+  void dispose() {
+    _search.dispose();
+    super.dispose();
+  }
+
+  void _applyFilter(String query) {
+    final q = query.trim().toLowerCase();
+    setState(() {
+      if (q.isEmpty) {
+        _filtered = widget.items;
+      } else {
+        _filtered = widget.items.where((item) {
+          final code = (item.itemCode ?? item.name ?? '').toLowerCase();
+          final name = (item.itemName ?? '').toLowerCase();
+          final uom = (item.uomValue ?? '').toLowerCase();
+          return code.contains(q) || name.contains(q) || uom.contains(q);
+        }).toList();
+      }
+    });
+  }
+
+  void _toggle() {
+    setState(() {
+      _expanded = !_expanded;
+      if (!_expanded) {
+        _search.clear();
+        _filtered = widget.items;
+      }
+    });
+  }
+
+  void _select(ItemModel item) {
+    widget.onSelected(item);
+    setState(() {
+      _expanded = false;
+      _search.clear();
+      _filtered = widget.items;
+    });
+  }
+
+  String get _selectedCode =>
+      widget.selected?.itemCode ?? widget.selected?.name ?? '';
+
+  @override
+  Widget build(BuildContext context) {
+    final hasValue = _selectedCode.isNotEmpty;
+    final borderColor = _expanded
+        ? const Color(0xFF2957A4)
+        : const Color(0xFFE2E8F0);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        RichText(
+          text: const TextSpan(
+            text: 'Item Code',
+            style: TextStyle(
+              color: _ink,
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              fontFamily: 'Urbanist',
+            ),
+            children: [
+              TextSpan(
+                text: ' *',
+                style: TextStyle(
+                  color: Color(0xFFD64545),
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 8),
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: borderColor, width: 1.2),
+            boxShadow: _expanded
+                ? [
+                    BoxShadow(
+                      color: const Color(0xFF0E1446).withValues(alpha: 0.08),
+                      blurRadius: 16,
+                      offset: const Offset(0, 6),
+                    ),
+                  ]
+                : null,
+          ),
+          child: Column(
+            children: [
+              Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(14),
+                  onTap: widget.isLoading ? null : _toggle,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 12,
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 34,
+                          height: 34,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFEFF4FB),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Icon(
+                            hasValue
+                                ? Icons.qr_code_2_rounded
+                                : Icons.search_rounded,
+                            size: 18,
+                            color: const Color(0xFF2957A4),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: widget.isLoading
+                              ? const Text(
+                                  'Loading items…',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: _muted,
+                                    fontFamily: 'Urbanist',
+                                  ),
+                                )
+                              : Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      hasValue
+                                          ? _selectedCode
+                                          : 'Search & select item code',
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: hasValue
+                                            ? FontWeight.w800
+                                            : FontWeight.w500,
+                                        color: hasValue ? _ink : _muted,
+                                        fontFamily: 'Urbanist',
+                                      ),
+                                    ),
+                                    if (hasValue &&
+                                        (widget.selected?.itemName ?? '')
+                                            .isNotEmpty) ...[
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        widget.selected!.itemName!,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(
+                                          fontSize: 11,
+                                          color: _muted,
+                                          fontFamily: 'Urbanist',
+                                        ),
+                                      ),
+                                    ],
+                                  ],
+                                ),
+                        ),
+                        if (widget.isLoading)
+                          const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        else
+                          AnimatedRotation(
+                            turns: _expanded ? 0.5 : 0,
+                            duration: const Duration(milliseconds: 180),
+                            child: const Icon(
+                              Icons.keyboard_arrow_down_rounded,
+                              color: _muted,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              if (_expanded) ...[
+                const Divider(height: 1, color: Color(0xFFE8ECF4)),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(10, 10, 10, 6),
+                  child: TextField(
+                    controller: _search,
+                    autofocus: true,
+                    onChanged: _applyFilter,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontFamily: 'Urbanist',
+                      fontWeight: FontWeight.w600,
+                    ),
+                    decoration: InputDecoration(
+                      hintText: 'Type code or name…',
+                      hintStyle: const TextStyle(
+                        color: _muted,
+                        fontWeight: FontWeight.w500,
+                        fontFamily: 'Urbanist',
+                      ),
+                      prefixIcon: const Icon(
+                        Icons.search_rounded,
+                        size: 18,
+                        color: _muted,
+                      ),
+                      suffixIcon: _search.text.isEmpty
+                          ? null
+                          : IconButton(
+                              icon: const Icon(Icons.close_rounded, size: 18),
+                              color: _muted,
+                              onPressed: () {
+                                _search.clear();
+                                _applyFilter('');
+                              },
+                            ),
+                      filled: true,
+                      fillColor: const Color(0xFFF8FAFD),
+                      contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
+                  ),
+                ),
+                Builder(
+                  builder: (context) {
+                    final keyboard = MediaQuery.viewInsetsOf(context).bottom;
+                    final maxListHeight = keyboard > 0 ? 120.0 : 180.0;
+                    return ConstrainedBox(
+                  constraints: BoxConstraints(maxHeight: maxListHeight),
+                  child: _filtered.isEmpty
+                      ? const Padding(
+                          padding: EdgeInsets.fromLTRB(16, 8, 16, 16),
+                          child: Text(
+                            'No matching items',
+                            style: TextStyle(
+                              color: _muted,
+                              fontFamily: 'Urbanist',
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        )
+                      : ListView.separated(
+                          shrinkWrap: true,
+                          padding: const EdgeInsets.fromLTRB(8, 0, 8, 10),
+                          itemCount: _filtered.length,
+                          separatorBuilder: (_, __) =>
+                              const SizedBox(height: 4),
+                          itemBuilder: (context, index) {
+                            final item = _filtered[index];
+                            final code = item.itemCode ?? item.name ?? '—';
+                            final selected = code == _selectedCode;
+                            return Material(
+                              color: selected
+                                  ? const Color(0xFFFFF4E4)
+                                  : Colors.transparent,
+                              borderRadius: BorderRadius.circular(12),
+                              child: InkWell(
+                                borderRadius: BorderRadius.circular(12),
+                                onTap: () => _select(item),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 10,
+                                    vertical: 10,
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        width: 34,
+                                        height: 34,
+                                        alignment: Alignment.center,
+                                        decoration: BoxDecoration(
+                                          color: selected
+                                              ? const Color(0xFFF2A93E)
+                                              : const Color(0xFFEFF4FB),
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                        ),
+                                        child: Text(
+                                          code.length <= 2
+                                              ? code
+                                              : code.substring(
+                                                  code.length - 2,
+                                                ),
+                                          style: TextStyle(
+                                            color: selected
+                                                ? Colors.white
+                                                : const Color(0xFF2957A4),
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.w800,
+                                            fontFamily: 'Urbanist',
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 10),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              code,
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: TextStyle(
+                                                fontSize: 13,
+                                                fontWeight: FontWeight.w800,
+                                                color: _ink,
+                                                fontFamily: 'Urbanist',
+                                              ),
+                                            ),
+                                            if ((item.itemName ?? '')
+                                                .isNotEmpty) ...[
+                                              const SizedBox(height: 2),
+                                              Text(
+                                                item.itemName!,
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: const TextStyle(
+                                                  fontSize: 11,
+                                                  color: _muted,
+                                                  fontFamily: 'Urbanist',
+                                                ),
+                                              ),
+                                            ],
+                                            const SizedBox(height: 2),
+                                            Text(
+                                              'UOM ${item.uomValue ?? '—'}  ·  Qty ${item.qty ?? '—'}',
+                                              style: const TextStyle(
+                                                fontSize: 10,
+                                                color: _muted,
+                                                fontWeight: FontWeight.w600,
+                                                fontFamily: 'Urbanist',
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      if (selected)
+                                        const Icon(
+                                          Icons.check_circle_rounded,
+                                          size: 18,
+                                          color: Color(0xFFF2A93E),
+                                        ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                    );
+                  },
+                ),
+              ],
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class ItemDialogWidget extends StatefulWidget {
   const ItemDialogWidget({super.key, this.initialRow});
   final Map<String, dynamic>? initialRow;
@@ -1469,233 +2629,297 @@ class _ItemDialogWidgetState extends State<ItemDialogWidget> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      title: const Text('Add / Edit Item'),
-      content: SingleChildScrollView(
-        child: Column(
+  InputDecoration _fieldDecoration({
+    required String label,
+    bool required = false,
+    String? hint,
+    Widget? prefix,
+    Widget? suffix,
+  }) {
+    return InputDecoration(
+      label: RichText(
+        text: TextSpan(
+          text: label,
+          style: const TextStyle(
+            color: _ink,
+            fontSize: 13,
+            fontWeight: FontWeight.w700,
+            fontFamily: 'Urbanist',
+          ),
           children: [
-            BlocBuilder<ItemList, ItemState>(
-              builder: (_, state) {
-                final allData = state.maybeWhen(
-                  orElse: () => <ItemModel>[],
-                  success: (data) => data,
-                );
-
-                return SearchDropDownList<ItemModel>(
-                  key: UniqueKey(),
-                  title: 'Item Code',
-                  hint: 'Search Item Code',
-                  color: Colors.black,
-                  items: allData,
-                  isRequired: true,
-                  defaultSelection: itemFrom,
-                  isloading: state.isLoading,
-                  futureRequest: (query) async {
-                    if (query.isEmpty) return allData;
-
-                    final lowerQuery = query.toLowerCase();
-
-                    return allData.where((item) {
-                      final code = item.name?.toLowerCase() ?? '';
-                      final name = item.itemName?.toLowerCase() ?? '';
-                      final uom = item.uomValue?.toLowerCase() ?? '';
-
-                      return code.contains(lowerQuery) ||
-                          name.contains(lowerQuery) ||
-                          uom.contains(lowerQuery);
-                    }).toList();
-                  },
-                  headerBuilder: (_, item, __) => Text(item.itemCode ?? ''),
-                  listItemBuilder:
-                      (_, item, __, ___) => Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Item Code: ${item.itemCode ?? ''}',
-                            style: const TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          if (item.itemName != null)
-                            Text('Item Name : ${item.itemName}'),
-                          Text('Sales UOM: ${item.uomValue ?? ''}'),
-                          Text('Quantity: ${item.qty ?? ''}'),
-                          const Divider(height: 8),
-                        ],
-                      ),
-                  onSelected: (selected) {
-                    setState(() {
-                      itemFrom = selected;
-                      selectedCode = selected.itemCode;
-                      itemNameController.text = selected.itemName ?? '';
-                      uomController.text = selected.uomValue ?? '';
-                      qtyController.text = selected.qty.toString();
-                    });
-                  },
-                  focusNode: FocusNode(),
-                );
-              },
-            ),
-
-            const SizedBox(height: 10),
-            TextFormField(
-              readOnly: true,
-              controller: itemNameController,
-              decoration: InputDecoration(
-                label: RichText(
-                  text: const TextSpan(
-                    text: 'Item Name',
-                    style: TextStyle(color: Colors.black, fontSize: 18),
-                    children: [
-                      TextSpan(
-                        text: '*',
-                        style: TextStyle(
-                          color: Colors.red,
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
-                    ],
-                  ),
+            if (required)
+              const TextSpan(
+                text: ' *',
+                style: TextStyle(
+                  color: Color(0xFFD64545),
+                  fontWeight: FontWeight.w900,
                 ),
               ),
-            ),
-
-            const SizedBox(height: 10),
-            TextFormField(
-              readOnly: true,
-              controller: uomController,
-              decoration: const InputDecoration(
-                labelText: 'UOM',
-                labelStyle: TextStyle(
-                  color: AppColors.black,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: 'Urbanist',
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 10),
-            TextFormField(
-              readOnly: false,
-              controller: qtyController,
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(
-                label: RichText(
-                  text: const TextSpan(
-                    text: 'Quantity Loaded',
-                    style: TextStyle(color: Colors.black, fontSize: 18),
-                    children: [
-                      TextSpan(
-                        text: '*',
-                        style: TextStyle(
-                          color: Colors.red,
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 10),
-            Row(
-              children: [
-                if (photoPath != null)
-                  Stack(
-                    children: [
-                      _buildImage(photoPath!, context: context),
-                      Center(
-                        child: IconButton(
-                          icon: const Icon(Icons.camera_alt, color: Colors.white),
-                          style: ButtonStyle(
-                            backgroundColor: WidgetStateProperty.all(
-                              AppColors.darkBlue,
-                            ),
-                          ),
-                          onPressed: _pickPhoto,
-                        ),
-                      ),
-                    ],
-                  )
-                else
-                  Center(
-                    child: IconButton(
-                      icon: const Icon(Icons.camera_alt),
-                      onPressed: _pickPhoto,
-                    ),
-                  ),
-              ],
-            ),
           ],
         ),
       ),
-      actionsAlignment: MainAxisAlignment.center,
-      actions: [
-        ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.red,
-            foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            elevation: 0,
-          ),
-          onPressed: () => Navigator.pop(context),
-          child: const Text(
-            'Cancel',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-          ),
-        ),
-        ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.green,
-            foregroundColor: Colors.white,
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
-          ),
-          onPressed: () {
-            final qtyText = qtyController.text.trim();
-            final qtyValue = double.tryParse(qtyText);
+      hintText: hint,
+      hintStyle: const TextStyle(
+        color: _muted,
+        fontSize: 13,
+        fontFamily: 'Urbanist',
+      ),
+      filled: true,
+      fillColor: const Color(0xFFF8FAFD),
+      prefixIcon: prefix,
+      suffixIcon: suffix,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: Color(0xFF2957A4), width: 1.4),
+      ),
+    );
+  }
 
-            if (qtyValue == null || qtyValue <= 0) {
-              context.showSnackbar(
-                'Quantity Loaded must be greater than 0',
-                AppSnackBarType.error,
+  void _onSave() {
+    if (selectedCode == null || selectedCode!.trim().isEmpty) {
+      context.showSnackbar(
+        'Please select an Item Code',
+        AppSnackBarType.error,
+      );
+      return;
+    }
+
+    final qtyText = qtyController.text.trim();
+    final qtyValue = double.tryParse(qtyText);
+
+    if (qtyValue == null || qtyValue <= 0) {
+      context.showSnackbar(
+        'Quantity Loaded must be greater than 0',
+        AppSnackBarType.error,
+      );
+      return;
+    }
+
+    final row = {
+      'itemCode': selectedCode,
+      'itemName': itemNameController.text,
+      'uom': uomController.text,
+      'qty': qtyValue.toString(),
+      'photo': photoFile != null ? photoFile!.path : photoPath,
+    };
+
+    final lineItem = ItemModel(
+      itemCode: selectedCode,
+      itemName: itemNameController.text,
+      uomValue: uomController.text,
+      sampleQuantity: qtyValue.toInt(),
+      stockUom: uomController.text,
+      imageFile: photoFile,
+      loadedItemPhoto: photoFile != null ? null : photoPath,
+    );
+
+    Navigator.pop(context, {'row': row, 'model': lineItem});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final hasPhoto = photoPath != null && photoPath!.trim().isNotEmpty;
+
+    return AppFormDialogShell(
+      title: 'Add / Edit Item',
+      subtitle: 'Search item code, confirm quantity, then save.',
+      icon: Icons.inventory_2_outlined,
+      iconBackground: const Color(0xFFE8F0FE),
+      iconColor: AppColors.darkBlue,
+      maxWidth: 360,
+      onClose: () => Navigator.pop(context),
+      cancelText: 'Cancel',
+      cancelIsDestructive: false,
+      onCancel: () => Navigator.pop(context),
+      confirmText: 'Save Item',
+      confirmIcon: Icons.check_rounded,
+      confirmColor: AppColors.darkBlue,
+      onConfirm: _onSave,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          BlocBuilder<ItemList, ItemState>(
+            builder: (_, state) {
+              final allData = state.maybeWhen(
+                orElse: () => <ItemModel>[],
+                success: (data) => data,
               );
-              return;
-            }
 
-            final row = {
-              'itemCode': selectedCode,
-              'itemName': itemNameController.text,
-              'uom': uomController.text,
-              'qty': qtyValue.toString(),
-              'photo': photoFile != null ? photoFile!.path : photoPath,
-            };
-
-            final lineItem = ItemModel(
-              itemCode: selectedCode,
-              itemName: itemNameController.text,
-              uomValue: uomController.text,
-              sampleQuantity: qtyValue.toInt(),
-              stockUom: uomController.text,
-              imageFile: photoFile,
-              loadedItemPhoto: photoFile != null ? null : photoPath,
-            );
-
-            Navigator.pop(context, {'row': row, 'model': lineItem});
-          },
-          child: const Text(
-            'Save',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              return _ItemCodeSelectField(
+                items: allData,
+                isLoading: state.isLoading,
+                selected: itemFrom,
+                onSelected: (selected) {
+                  setState(() {
+                    itemFrom = selected;
+                    selectedCode = selected.itemCode ?? selected.name;
+                    itemNameController.text = selected.itemName ?? '';
+                    uomController.text = selected.uomValue ?? '';
+                    qtyController.text = (selected.qty ?? 0).toString();
+                  });
+                },
+              );
+            },
           ),
-        ),
-      ],
+          const SizedBox(height: 12),
+          TextFormField(
+            readOnly: true,
+            controller: itemNameController,
+            style: const TextStyle(
+              fontFamily: 'Urbanist',
+              fontWeight: FontWeight.w600,
+              color: _ink,
+            ),
+            decoration: _fieldDecoration(
+              label: 'Item Name',
+              required: true,
+              hint: 'Auto-filled from item code',
+              prefix: const Icon(Icons.label_outline, size: 18, color: _muted),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: TextFormField(
+                  readOnly: true,
+                  controller: uomController,
+                  style: const TextStyle(
+                    fontFamily: 'Urbanist',
+                    fontWeight: FontWeight.w600,
+                    color: _ink,
+                  ),
+                  decoration: _fieldDecoration(
+                    label: 'UOM',
+                    hint: 'Unit',
+                    prefix: const Icon(
+                      Icons.straighten_outlined,
+                      size: 18,
+                      color: _muted,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: TextFormField(
+                  controller: qtyController,
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                  style: const TextStyle(
+                    fontFamily: 'Urbanist',
+                    fontWeight: FontWeight.w700,
+                    color: _ink,
+                  ),
+                  decoration: _fieldDecoration(
+                    label: 'Qty Loaded',
+                    required: true,
+                    hint: '0',
+                    prefix: const Icon(
+                      Icons.numbers_rounded,
+                      size: 18,
+                      color: _muted,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Material(
+            color: hasPhoto
+                ? const Color(0xFFECFDF3)
+                : const Color(0xFFF8FAFD),
+            borderRadius: BorderRadius.circular(14),
+            child: InkWell(
+              onTap: _pickPhoto,
+              borderRadius: BorderRadius.circular(14),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(
+                    color: hasPhoto
+                        ? const Color(0xFFBBF7D0)
+                        : const Color(0xFFE2E8F0),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    if (hasPhoto)
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: SizedBox(
+                          width: 56,
+                          height: 56,
+                          child: _buildImage(photoPath!, context: context),
+                        ),
+                      )
+                    else
+                      Container(
+                        width: 56,
+                        height: 56,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFE8F0FE),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(
+                          Icons.camera_alt_outlined,
+                          color: Color(0xFF2957A4),
+                        ),
+                      ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            hasPhoto ? 'Photo attached' : 'Add item photo',
+                            style: const TextStyle(
+                              color: _ink,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w800,
+                              fontFamily: 'Urbanist',
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            hasPhoto
+                                ? 'Tap to retake from camera'
+                                : 'Optional — capture now or later from the list',
+                            style: const TextStyle(
+                              color: _muted,
+                              fontSize: 11,
+                              fontFamily: 'Urbanist',
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Icon(
+                      hasPhoto
+                          ? Icons.refresh_rounded
+                          : Icons.chevron_right_rounded,
+                      color: const Color(0xFF2957A4),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

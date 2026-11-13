@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Android 12+: rectangular Home logo via brandingImage (not circular icon). -->
+    <style name="LaunchTheme" parent="@android:style/Theme.Light.NoTitleBar">
+        <item name="android:windowSplashScreenBackground">@android:color/white</item>
+        <!-- Blank center icon so the system does not draw a circular adaptive logo. -->
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_empty</item>
+        <item name="android:windowSplashScreenIconBackgroundColor">@android:color/white</item>
+        <!--
+          Branding slot is fixed at 200dp × 80dp (2.5:1). Asset is letterboxed
+          to that ratio so Android scales uniformly — logo stays Home aspect.
+        -->
+        <item name="android:windowSplashScreenBrandingImage">@drawable/splash_branding</item>
+        <item name="android:windowBackground">@drawable/launch_background</item>
+    </style>
+    <style name="NormalTheme" parent="@android:style/Theme.Light.NoTitleBar">
+        <item name="android:windowBackground">?android:colorBackground</item>
+    </style>
+</resources>

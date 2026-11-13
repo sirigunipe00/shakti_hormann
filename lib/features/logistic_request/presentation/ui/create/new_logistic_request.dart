@@ -61,12 +61,7 @@ class _NewLogisticRequestState extends State<NewLogisticRequest> {
                           ),
                           borderColor: Colors.grey,
                           label: state.view.toName(),
-                          onPressed: () {
-                            final cubit = context.read<CreateLogisticCubit>();
-                            if (!cubit.state.isLoading) {
-                              cubit.save();
-                            }
-                          },
+                          onPressed: () => _onPrimaryAction(context),
                         );
                       },
                     ),
@@ -81,7 +76,6 @@ class _NewLogisticRequestState extends State<NewLogisticRequest> {
                     final names = allData.toList();
 
                     return SearchMultiDropDownList<SalesOrderForm>(
-                      key: UniqueKey(),
                       title: 'Sales Order No',
                       hint: 'Search Order No',
                       color: AppColors.white,
@@ -214,13 +208,11 @@ class _NewLogisticRequestState extends State<NewLogisticRequest> {
                                     color: Colors.white,
                                     fontWeight: FontWeight.bold,
                                   ),
-                                  width: 150,
+                                  width: 120,
                                   isLoading: state.isLoading,
                                   borderColor: Colors.grey,
                                   label: state.view.toName(),
-                                  onPressed: () {
-                                    context.cubit<CreateLogisticCubit>().save();
-                                  },
+                                  onPressed: () => _onPrimaryAction(context),
                                 );
                               },
                             )
@@ -242,7 +234,6 @@ class _NewLogisticRequestState extends State<NewLogisticRequest> {
                             [];
 
                         return SearchMultiDropDownList<SalesOrderForm>(
-                          key: UniqueKey(),
                           title: 'Sales Order No',
                           hint: 'Search Order No',
                           color: AppColors.white,
@@ -420,6 +411,100 @@ class _NewLogisticRequestState extends State<NewLogisticRequest> {
           );
         },
       ),
+    );
+  }
+
+  Future<void> _onPrimaryAction(BuildContext context) async {
+    final cubit = context.read<CreateLogisticCubit>();
+    if (cubit.state.isLoading) return;
+
+    // Create stays immediate; only "Send For Transporter" needs confirm.
+    if (cubit.state.view != LogisticPlanningView.edit) {
+      cubit.save();
+      return;
+    }
+
+    final form = cubit.state.form;
+    final soCount = form.salesOrder?.length ?? 0;
+    final transporter = [
+      form.transporterName,
+      form.transporterNAme2,
+    ].where((e) => e != null && e.trim().isNotEmpty).join(' · ');
+
+    await AppDialog.askForConfirmation(
+      context,
+      title: 'Send to Transporter?',
+      content:
+          'Are you sure you want to send this logistic request to the transporter for confirmation? You can cancel and keep editing if something looks wrong.',
+      buttonText: 'Keep Editing',
+      confirmBtnText: 'Yes, Send',
+      icon: Icons.local_shipping_rounded,
+      iconBackground: const Color(0xFFE8F5E9),
+      iconColor: const Color(0xFF1B7A3D),
+      confirmIcon: Icons.send_rounded,
+      confirmColor: const Color(0xFF1B7A3D),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (form.name.trim().isNotEmpty)
+            _ConfirmMetaRow(label: 'Request', value: form.name),
+          if (transporter.isNotEmpty) ...[
+            const SizedBox(height: 6),
+            _ConfirmMetaRow(label: 'Transporter', value: transporter),
+          ],
+          if (soCount > 0) ...[
+            const SizedBox(height: 6),
+            _ConfirmMetaRow(
+              label: 'Sales Orders',
+              value: '$soCount selected',
+            ),
+          ],
+        ],
+      ),
+      onTapDismiss: () => Navigator.of(context).pop(false),
+      onTapConfirm: () {
+        Navigator.of(context).pop(true);
+        cubit.save();
+      },
+    );
+  }
+}
+
+class _ConfirmMetaRow extends StatelessWidget {
+  const _ConfirmMetaRow({required this.label, required this.value});
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          width: 96,
+          child: Text(
+            label,
+            style: const TextStyle(
+              color: Color(0xFF6B7280),
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              fontFamily: 'Urbanist',
+            ),
+          ),
+        ),
+        Expanded(
+          child: Text(
+            value,
+            style: const TextStyle(
+              color: Color(0xFF0E1446),
+              fontSize: 13,
+              fontWeight: FontWeight.w800,
+              fontFamily: 'Urbanist',
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

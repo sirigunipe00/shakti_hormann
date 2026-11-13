@@ -18,33 +18,31 @@ class StorageListScrn extends StatefulWidget {
 }
 
 class _StorageListScrnState extends State<StorageListScrn> {
-    String? status;
+  String? status;
   String? query;
 
-    @override
+  @override
   void initState() {
     status = 'Draft';
     context.read<StorageFilterCubit>().onChangeStatus('Draft');
     context.read<StorageFilterCubit>().onSearch(null);
     super.initState();
   }
+
   @override
   Widget build(BuildContext context) {
     return AppPageView2<StorageFilterCubit>(
       mode: PageMode2.storageAllocation,
       scaffoldBg: '',
       backgroundColor: AppColors.white,
-     onNew: () async {
-        final refresh = await AppRoute.newStorageAllocation.push<bool>(context);
-        if(!context.mounted) return;
-        if (refresh == true) {
-          _fetchInital(context);
-        }
+      onNew: () async {
+        await AppRoute.newStorageAllocation.push<bool>(context);
+        if (!context.mounted) return;
+        _fetchInital(context);
       },
       child: RefreshIndicator(
         onRefresh: () {
           final filters = context.read<StorageFilterCubit>().state;
-
           return context.cubit<StorageCubit>().fetchInitial(
             Pair(StringUtils.docStatusInt(filters.status), filters.query),
           );
@@ -55,19 +53,18 @@ class _StorageListScrnState extends State<StorageListScrn> {
             childBuilder: (context, entry) => StorageWidget(
               gateEntry: entry,
               onTap: () async {
-                      final refresh = await AppRoute.newStorageAllocation.push<bool?>(
-                        context,
-                        extra: entry,
-                      );
-                      if(!context.mounted) return;
-                      if (refresh == true) {
-                        _fetchInital(context);
-                      }
-                    },
+                await AppRoute.newStorageAllocation.push<bool?>(
+                  context,
+                  extra: entry,
+                );
+                if (!context.mounted) return;
+                _fetchInital(context);
+              },
             ),
             fetchInitial: () => _fetchInital(context),
             fetchMore: () => fetchMore(context),
-            emptyListText: 'No Storage Allocation Found.',
+            emptyListText:
+                'No storage / zone records yet.\nTap New to scan a pallet and assign a zone.',
           ),
         ),
       ),
@@ -77,13 +74,14 @@ class _StorageListScrnState extends State<StorageListScrn> {
   void _fetchInital(BuildContext context) {
     final filters = context.read<StorageFilterCubit>().state;
     context.cubit<StorageCubit>().fetchInitial(
-        Pair(StringUtils.docStatusInt(filters.status), filters.query));
+      Pair(StringUtils.docStatusInt(filters.status), filters.query),
+    );
   }
 
   void fetchMore(BuildContext context) {
     final filters = context.read<StorageFilterCubit>().state;
-
     context.cubit<StorageCubit>().fetchMore(
-        Pair(StringUtils.docStatusInt(filters.status), filters.query));
+      Pair(StringUtils.docStatusInt(filters.status), filters.query),
+    );
   }
 }

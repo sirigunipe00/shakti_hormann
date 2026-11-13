@@ -1,186 +1,160 @@
-
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/features/auth/presentation/bloc/auth/auth_cubit.dart';
-import 'dart:math' as math;
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/widgets/buttons/app_btn.dart';
 
 class AppProfilePage extends StatelessWidget {
   const AppProfilePage({super.key});
 
+  void _goHome(BuildContext context) {
+    final shell = StatefulNavigationShell.maybeOf(context);
+    if (shell != null) {
+      shell.goBranch(0);
+      return;
+    }
+    if (context.canPop()) {
+      context.pop();
+      return;
+    }
+    context.go(AppRoute.home.path);
+  }
+
   @override
   Widget build(BuildContext context) {
-      return Scaffold(
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          final height = constraints.maxHeight;
-          final width = constraints.maxWidth;
-          return Column(
-            children: [
-              Container(
-                height: height * 0.28,
-                width: double.infinity,
-                decoration: const BoxDecoration(
-                  color: Color(0xFFFDCB27),
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(30),
-                    bottomRight: Radius.circular(30),
-                  ),
+    final user = context.user;
+    final name = (user.firstName ?? '').trim().isEmpty
+        ? 'User'
+        : user.firstName!.trim();
+    final email = user.email?.toString() ?? '';
+    final media = MediaQuery.of(context);
+    final width = media.size.width;
+    final height = media.size.height;
+    final shortest = media.size.shortestSide;
+
+    // Scale logo + overlap for phones / large phones / tablets.
+    final logoHeight = (shortest * 0.055).clamp(28.0, 40.0);
+    final cardOverlap = (shortest * 0.09).clamp(48.0, 72.0);
+    // Space under logo must exceed overlap so the card never covers it.
+    final logoBottomGap = cardOverlap + 12;
+
+    return Scaffold(
+      backgroundColor: const Color(0xFFF7F8FA),
+      body: SingleChildScrollView(
+        padding: EdgeInsets.only(
+          bottom: media.padding.bottom + 100,
+        ),
+        child: Column(
+          children: [
+            // Header grows with content — logo always reserved above overlap.
+            Container(
+              width: double.infinity,
+              decoration: const BoxDecoration(
+                color: Color(0xFFF2A93E),
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(28),
+                  bottomRight: Radius.circular(28),
                 ),
-                child: SafeArea(
+              ),
+              child: SafeArea(
+                bottom: false,
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(
+                    width * 0.04,
+                    8,
+                    width * 0.04,
+                    0,
+                  ),
                   child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: width * 0.04,
-                          vertical: height * 0.015,
-                        ),
-                        child: const Row(
-                          children: [
-                            SizedBox(width: 8),
-                            Text(
-                              'Profile',
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.black,
+                      Row(
+                        children: [
+                          Material(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            elevation: 1,
+                            shadowColor: Colors.black26,
+                            child: InkWell(
+                              onTap: () => _goHome(context),
+                              borderRadius: BorderRadius.circular(12),
+                              child: const SizedBox(
+                                width: 40,
+                                height: 40,
+                                child: Icon(
+                                  Icons.arrow_back_ios_new_rounded,
+                                  size: 18,
+                                  color: Color(0xFF0E1446),
+                                ),
                               ),
                             ),
-                          ],
+                          ),
+                          const SizedBox(width: 12),
+                          const Expanded(
+                            child: Text(
+                              'Profile',
+                              style: TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.w800,
+                                color: Color(0xFF0E1446),
+                                fontFamily: 'Urbanist',
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: (height * 0.012).clamp(8.0, 16.0)),
+                      // Explicit logo band — always visible on every Android size.
+                      SizedBox(
+                        height: logoHeight,
+                        child: Center(
+                          child: SvgPicture.asset(
+                            'assets/images/hormann_brand_logo.svg',
+                            height: logoHeight,
+                            fit: BoxFit.contain,
+                            placeholderBuilder: (_) => const SizedBox.shrink(),
+                          ),
                         ),
                       ),
-                      SizedBox(height: height * 0.01),
-                      SvgPicture.asset(
-                        'assets/images/hormann_logo.svg',
-                        height: height * 0.05,
-                      ),
-                      SizedBox(height: height * 0.02),
+                      SizedBox(height: logoBottomGap),
                     ],
                   ),
                 ),
               ),
-
-              Expanded(
+            ),
+            Transform.translate(
+              offset: Offset(0, -cardOverlap),
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: width * 0.075),
+                child: _ProfileCard(
+                  name: name,
+                  email: email,
+                  width: width,
+                ),
+              ),
+            ),
+            Transform.translate(
+              offset: Offset(0, -cardOverlap + 12),
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: width * 0.06),
                 child: Column(
                   children: [
-                    Transform.translate(
-                      offset: Offset(0, -height * 0.06),
-                      child: Container(
-                        width: width * 0.85,
-                        padding: EdgeInsets.all(width * 0.05),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(24),
-                          border: const Border(
-                            bottom: BorderSide(
-                              color: AppColors.darkBlue,
-                              width: 10,
-                            ),
-                          ),
-                          boxShadow: const [
-                            BoxShadow(
-                              color: Colors.black12,
-                              blurRadius: 10,
-                              spreadRadius: 2,
-                              offset: Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          children: [
-                
-                            
-                            Stack(
-                              children: [
-                                Container(
-                                padding: EdgeInsets.all(width * 0.02),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(60),
-
-                                  border: Border.all(
-                                    color: AppColors.darkBlue,
-                                    width: 2,
-                                  ),
-                                ),
-                                child: CircleAvatar(
-                                  radius: width * 0.09,
-                                  backgroundColor: Colors.transparent,
-                                  child: Icon(
-                                    Icons.person,
-                                    size: width * 0.12,
-                                    color: const Color(0xFFFDCB27),
-                                  ),
-                                ),
-                              ),
-                
-                              Positioned.fill(
-                              child: CustomPaint(
-                                  painter: _RightArcPainter(),
-                                ),
-                            ),
-                
-                              ],
-                            ),
-                            
-                
-                            
-
-                             
-                            SizedBox(height: height * 0.015),
-                            Text(
-                              context.user.firstName ?? '',
-
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: width * 0.045,
-                                color: Colors.black,
-                                fontFamily: 'Urbanist',
-                              ),
-                            ),
-                            SizedBox(height: height * 0.02),
-                            Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: width * 0.04,
-                                vertical: height * 0.008,
-                              ),
-                              decoration: BoxDecoration(
-                                color: AppColors.darkBlue,
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Text(
-                                context.user.email.toString(),
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: width * 0.035,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                    const _InfoCard(
+                      icon: Icons.apartment_rounded,
+                      label: 'Company',
+                      value: 'Shakti Hormann Private Limited',
                     ),
-                
-                    _infoRow(
-                      'Company',
-                      const Text(
-                        'Shakti Hormann Private Limited',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.black,
-                          fontFamily: 'Urbanist',
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                
-                    _infoRow(
-                      'App Version',
-                      FutureBuilder<String>(
-                        future: _appversion(),
+                    const SizedBox(height: 10),
+                    _InfoCard(
+                      icon: Icons.layers_outlined,
+                      label: 'App Version',
+                      valueWidget: FutureBuilder<String>(
+                        future: _appVersion(),
                         builder: (_, snapshot) {
                           if (snapshot.connectionState ==
                                   ConnectionState.done &&
@@ -189,9 +163,9 @@ class AppProfilePage extends StatelessWidget {
                               snapshot.data!,
                               style: const TextStyle(
                                 fontSize: 14,
-                                color: Colors.black,
+                                color: Color(0xFF0E1446),
                                 fontFamily: 'Urbanist',
-                                fontWeight: FontWeight.w600,
+                                fontWeight: FontWeight.w700,
                               ),
                             );
                           }
@@ -203,97 +177,241 @@ class AppProfilePage extends StatelessWidget {
                         },
                       ),
                     ),
-                
-                    SizedBox(height: height * 0.035),
-                
-                    Center(
-                      child: AppButton(
-                        label: 'Logout',
-                        width: width * 0.85,
-                        icon: Transform.rotate(
-                          angle: 180 * math.pi / 180,
-                          child: const Icon(
-                            Icons.logout_outlined,
-                            color: AppColors.white,
-                          ),
-                        ),
-                        onPressed: context.cubit<AuthCubit>().signOut,
-                        bgColor: AppColors.darkBlue,
-                        margin: EdgeInsets.symmetric(
-                          horizontal: width * 0.08,
+                    SizedBox(height: (height * 0.028).clamp(16.0, 28.0)),
+                    AppButton(
+                      label: 'Logout',
+                      width: width * 0.88,
+                      icon: Transform.rotate(
+                        angle: math.pi,
+                        child: const Icon(
+                          Icons.logout_rounded,
+                          color: AppColors.white,
                         ),
                       ),
+                      onPressed: context.cubit<AuthCubit>().signOut,
+                      bgColor: AppColors.darkBlue,
+                      margin: EdgeInsets.zero,
                     ),
                   ],
                 ),
               ),
-            ],
-          );
-        },
+            ),
+          ],
+        ),
       ),
     );
   }
+}
 
-  static Widget _infoRow(String label, Widget value) {
+class _ProfileCard extends StatelessWidget {
+  const _ProfileCard({
+    required this.name,
+    required this.email,
+    required this.width,
+  });
+
+  final String name;
+  final String email;
+  final double width;
+
+  @override
+  Widget build(BuildContext context) {
+    final avatarRadius = (width * 0.072).clamp(26.0, 34.0);
+
+    return Material(
+      color: Colors.transparent,
+      child: Container(
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(22),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF0E1446).withValues(alpha: 0.10),
+              blurRadius: 16,
+              offset: const Offset(0, 6),
+            ),
+          ],
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 14),
+              child: Column(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(3),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: const Color(0xFFF2A93E),
+                        width: 3,
+                      ),
+                    ),
+                    child: Container(
+                      padding: const EdgeInsets.all(2.5),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: AppColors.darkBlue,
+                          width: 2,
+                        ),
+                      ),
+                      child: CircleAvatar(
+                        radius: avatarRadius,
+                        backgroundColor: const Color(0xFFE8EEF8),
+                        child: Icon(
+                          Icons.person_rounded,
+                          size: avatarRadius * 1.25,
+                          color: AppColors.darkBlue,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    name,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w800,
+                      fontSize: (width * 0.055).clamp(18.0, 24.0),
+                      color: const Color(0xFF0E1446),
+                      fontFamily: 'Urbanist',
+                      letterSpacing: -0.2,
+                    ),
+                  ),
+                  if (email.isNotEmpty) ...[
+                    const SizedBox(height: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFEFF4FF),
+                        borderRadius: BorderRadius.circular(22),
+                        border: Border.all(color: const Color(0xFFD6E4FF)),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.mail_outline_rounded,
+                            size: 16,
+                            color: Color(0xFF2957A4),
+                          ),
+                          const SizedBox(width: 6),
+                          Flexible(
+                            child: Text(
+                              email,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                color: const Color(0xFF1E3A8A),
+                                fontSize: (width * 0.032).clamp(12.0, 14.0),
+                                fontWeight: FontWeight.w600,
+                                fontFamily: 'Urbanist',
+                                height: 1.2,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            Container(
+              height: 8,
+              width: double.infinity,
+              color: AppColors.darkBlue,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _InfoCard extends StatelessWidget {
+  const _InfoCard({
+    required this.icon,
+    required this.label,
+    this.value,
+    this.valueWidget,
+  });
+
+  final IconData icon;
+  final String label;
+  final String? value;
+  final Widget? valueWidget;
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-      decoration: const BoxDecoration(
-        border: Border(bottom: BorderSide(color: Colors.black12, width: 1)),
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE8ECF4)),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF0E1446).withValues(alpha: 0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 14,
-              color: Colors.grey,
-              fontFamily: 'Urbanist',
-              fontWeight: FontWeight.w600,
+          Container(
+            width: 42,
+            height: 42,
+            decoration: BoxDecoration(
+              color: const Color(0xFFEFF4FF),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(icon, color: const Color(0xFF2957A4), size: 22),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Color(0xFF6B7280),
+                    fontFamily: 'Urbanist',
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 3),
+                valueWidget ??
+                    Text(
+                      value ?? '',
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Color(0xFF0E1446),
+                        fontFamily: 'Urbanist',
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+              ],
             ),
           ),
-          value,
         ],
       ),
     );
   }
 }
 
-Future<String> _appversion() async {
+Future<String> _appVersion() async {
   final pinfo = await PackageInfo.fromPlatform();
-  final version = pinfo.version;
-  final buildNumber = pinfo.buildNumber;
-  return '$version ($buildNumber)';
+  return '${pinfo.version} (${pinfo.buildNumber})';
 }
-
-class _RightArcPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = const Color(0xFFFDCB27)
-      ..strokeWidth = 6.5
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round;
-
-
-    final double extra = 6; 
-    final rect = Rect.fromLTWH(
-      -extra, 
-      -extra, 
-      size.width + extra * 2, 
-      size.height + extra * 2, 
-    );
-
-    canvas.drawArc(
-      rect.deflate(2),
-      math.pi * 1.5, 
-      math.pi / 0.9, 
-      false,
-      paint,
-    );
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
-

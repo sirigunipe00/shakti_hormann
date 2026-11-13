@@ -28,91 +28,135 @@ class ProductSelectionTable extends StatelessWidget {
                 assetIcon: 'assets/images/vehicleinvoicicon.svg',
               ),
             ),
-            Card(
-              color: Colors.white,
-              margin: const EdgeInsets.symmetric(horizontal: 18),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-                side: const BorderSide(color: Color(0xFFE8ECF4), width: 1),
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 2),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: const Color(0xFFE8ECF4)),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF0E1446).withValues(alpha: 0.04),
+                    blurRadius: 10,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
               ),
               child: Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.all(10),
                 child: Column(
                   children: [
-                    Container(
-                      clipBehavior: Clip.antiAlias,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: Colors.grey.shade300),
-                      ),
-                      child: Table(
-                        border: TableBorder(
-                          horizontalInside:
-                              BorderSide(color: Colors.grey.shade300),
-                          verticalInside:
-                              BorderSide(color: Colors.grey.shade300),
-                        ),
-                        columnWidths: const {
-                          0: FixedColumnWidth(44),
-                          1: FlexColumnWidth(2),
-                          2: FlexColumnWidth(1.4),
-                          3: FlexColumnWidth(1.8),
-                        },
-                        children: [
-                          const TableRow(
-                            decoration: BoxDecoration(
-                              color: AppColors.darkBlue,
-                            ),
-                            children: [
-                              _HeaderCell('#'),
-                              _HeaderCell('Product Type'),
-                              _HeaderCell('Boxes'),
-                              _HeaderCell('Status'),
-                            ],
+                    if (items.isEmpty)
+                      const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 20),
+                        child: Text(
+                          'No items yet. Tap Add Item to begin.',
+                          style: TextStyle(
+                            color: Color(0xFF64748B),
+                            fontWeight: FontWeight.w600,
+                            fontSize: 13,
                           ),
-                          for (int index = 0; index < items.length; index++)
-                            TableRow(
-                              decoration: const BoxDecoration(
-                                color: Color(0xFFF3F4F8),
+                        ),
+                      )
+                    else
+                      Container(
+                        clipBehavior: Clip.antiAlias,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: const Color(0xFFE8ECF4)),
+                        ),
+                        child: Table(
+                          border: const TableBorder(
+                            horizontalInside: BorderSide(
+                              color: Color(0xFFE8ECF4),
+                            ),
+                          ),
+                          columnWidths: const {
+                            0: FixedColumnWidth(40),
+                            1: FlexColumnWidth(2.2),
+                            2: FlexColumnWidth(1),
+                            3: FlexColumnWidth(1.6),
+                          },
+                          children: [
+                            const TableRow(
+                              decoration: BoxDecoration(
+                                color: AppColors.darkBlue,
                               ),
                               children: [
-                                _Cell(
-                                  child: Text(
-                                    (index + 1).toString(),
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: AppColors.darkBlue,
-                                    ),
-                                  ),
-                                ),
-                                _Cell(
-                                  child: Text(
-                                    items[index].productType ?? '',
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ),
-                                _Cell(
-                                  child: Text(
-                                    items[index].noOfBoxes?.toString() ?? '',
-                                  ),
-                                ),
-                                _Cell(
-                                  child: _RowStatusCell(
-                                    index: index,
-                                    item: items[index],
-                                    cubit: cubit,
-                                  ),
-                                ),
+                                _HeaderCell('#'),
+                                _HeaderCell('Product Type'),
+                                _HeaderCell('Boxes'),
+                                _HeaderCell('Status'),
                               ],
                             ),
-                        ],
+                            for (int index = 0; index < items.length; index++)
+                              TableRow(
+                                decoration: BoxDecoration(
+                                  color: index.isEven
+                                      ? Colors.white
+                                      : const Color(0xFFF8FAFC),
+                                ),
+                                children: [
+                                  _Cell(
+                                    child: Text(
+                                      (index + 1).toString(),
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.w800,
+                                        color: Color(0xFF2957A4),
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ),
+                                  _Cell(
+                                    child: Text(
+                                      items[index].productType ?? '',
+                                      textAlign: TextAlign.center,
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                  _Cell(
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 3,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFFFF4E4),
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: Text(
+                                        items[index].noOfBoxes?.toString() ??
+                                            '—',
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.w800,
+                                          fontSize: 12,
+                                          color: Color(0xFFC97800),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  _Cell(
+                                    child: _RowStatusCell(
+                                      index: index,
+                                      item: items[index],
+                                      cubit: cubit,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                          ],
+                        ),
                       ),
-                    ),
                     const SizedBox(height: 10),
                     if (state.form.docStatus != 1)
                       Align(
                         alignment: Alignment.centerLeft,
-                        child: ElevatedButton.icon(
+                        child: TextButton.icon(
                           onPressed:
                               cubit.canAddNewItem && !state.isLoading
                                   ? () => _openAddItemDialog(context, cubit)
@@ -123,14 +167,15 @@ class ProductSelectionTable extends StatelessWidget {
                                   height: 16,
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2,
-                                    color: Colors.white,
                                   ),
                                 )
-                              : const Icon(Icons.add),
+                              : const Icon(Icons.add_rounded, size: 18),
                           label: const Text('Add Item'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.darkBlue,
-                            foregroundColor: Colors.white,
+                          style: TextButton.styleFrom(
+                            foregroundColor: AppColors.darkBlue,
+                            textStyle: const TextStyle(
+                              fontWeight: FontWeight.w700,
+                            ),
                           ),
                         ),
                       ),
@@ -192,11 +237,54 @@ class _Cell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
       child: Center(child: child),
     );
   }
 }
+
+class _StatusPill extends StatelessWidget {
+  const _StatusPill({
+    required this.label,
+    required this.fg,
+    required this.bg,
+    this.icon,
+  });
+
+  final String label;
+  final Color fg;
+  final Color bg;
+  final IconData? icon;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (icon != null) ...[
+            Icon(icon, size: 12, color: fg),
+            const SizedBox(width: 3),
+          ],
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w700,
+              color: fg,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _RowStatusCell extends StatelessWidget {
   const _RowStatusCell({
     required this.index,
@@ -217,9 +305,10 @@ class _RowStatusCell extends StatelessWidget {
         state.form.name != null && state.form.name!.isNotEmpty;
 
     if (isSubmitted) {
-      return const Text(
-        'Locked',
-        style: TextStyle(fontSize: 11, color: Colors.grey),
+      return const _StatusPill(
+        label: 'Locked',
+        fg: Color(0xFF64748B),
+        bg: Color(0xFFF1F5F9),
       );
     }
 
@@ -227,48 +316,49 @@ class _RowStatusCell extends StatelessWidget {
       if (!isFormSaved) {
         return const Tooltip(
           message: 'Save the form to enable printing',
-          child: Text(
-            'Save first',
-            style: TextStyle(fontSize: 14, color: Colors.black),
+          child: _StatusPill(
+            label: 'Save first',
+            fg: Color(0xFF9A6700),
+            bg: Color(0xFFFFF7E0),
           ),
         );
       }
 
       return SizedBox(
-        height: 34,
+        height: 32,
         child: ElevatedButton(
           onPressed:
               state.isPrintLoading ? null : () => cubit.printItemSticker(index),
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.darkBlue,
             foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(horizontal: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            minimumSize: Size.zero,
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
           ),
           child:
               state.isPrintLoading
                   ? const SizedBox(
-                    width: 16,
-                    height: 16,
+                    width: 14,
+                    height: 14,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
                       color: Colors.white,
                     ),
                   )
-                  : const Text('Print', style: TextStyle(fontSize: 12)),
+                  : const Text('Print', style: TextStyle(fontSize: 11)),
         ),
       );
     }
 
-    return const Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(Icons.check_circle, color: Colors.green, size: 16),
-        SizedBox(width: 4),
-        Text(
-          'Printed',
-          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-        ),
-      ],
+    return const _StatusPill(
+      label: 'Printed',
+      fg: Color(0xFF16A34A),
+      bg: Color(0xFFECFDF5),
+      icon: Icons.check_circle_rounded,
     );
   }
 }

@@ -174,7 +174,7 @@ final result = childResponse.process((r) => right(r.data ?? []));
           'delivery_address_1': form.shippingAddress1,
           'delivery_address_2': form.shippingAddress2,
           'shipping_country': form.country,
-          'shipping_state': form.city,
+          'shipping_state': form.states,
           'shipping_city': form.city,
           'shipping_pin_code': form.pincode,
 
@@ -244,7 +244,7 @@ final result = childResponse.process((r) => right(r.data ?? []));
           'delivery_address_1': form.shippingAddress1,
           'delivery_address_2': form.shippingAddress2,
           'shipping_country': form.country,
-          'shipping_state': form.city,
+          'shipping_state': form.states,
           'shipping_city': form.city,
           'shipping_pin_code': form.pincode,
 
@@ -346,15 +346,29 @@ final result = childResponse.process((r) => right(r.data ?? []));
       if (!hasRole && plantName != null && plantName.isNotEmpty) {
         filters.add(['company', '=', plantName]);
       }
-      if (name.isNotEmpty) {
-      filters.add(['name', 'like', '%$name%']); 
-    }
+      final query = name.trim();
+      if (query.isNotEmpty) {
+        filters.add(['name', 'like', '%$query%']);
+      }
+      // Cap page size — include shipping fields so SO table shows State/City
+      // immediately on select (not only after save).
       final reqParams = {
         'limit_start': 0,
-        'limit_page_length': 'None',
+        'limit_page_length': 40,
         'order_by': 'creation desc',
         'doctype': 'SAP Sales Order',
-        'fields': ['*'],
+        'fields': jsonEncode([
+          'name',
+          'customer_name',
+          'company',
+          'order_date',
+          'shipping_address_1',
+          'shipping_address_2',
+          'shipping_city',
+          'shipping_state',
+          'shipping_country',
+          'shipping_pin_code',
+        ]),
         'filters': jsonEncode(filters),
       };
 

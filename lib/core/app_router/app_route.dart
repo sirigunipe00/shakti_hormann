@@ -40,6 +40,7 @@ abstract class _AppRoutePaths {
   static const newvisionPanel = '/home/visionPanel/newvisionPanel';
   static const installation = '/home/installation';
   static const newinstallation = '/home/installation/newinstallation';
+  static const whereIsMyMaterial = '/home/whereIsMyMaterial';
 }
 
 enum AppRoute {
@@ -80,10 +81,8 @@ enum AppRoute {
   visionPanel(_AppRoutePaths.visionPanel),
   newvisionPanel(_AppRoutePaths.newvisionPanel),
   installation(_AppRoutePaths.installation),
-  newinstallation(_AppRoutePaths.newinstallation);
-
-
-
+  newinstallation(_AppRoutePaths.newinstallation),
+  whereIsMyMaterial(_AppRoutePaths.whereIsMyMaterial);
 
   const AppRoute(this.path);
   final String path;

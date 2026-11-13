@@ -88,42 +88,24 @@ class CreateVehicleCubit extends AppBaseCubit<CreateVehicleState> {
   void initDetails(Object? entry) {
     shouldAskForConfirmation.value = false;
     if (entry is VehicleReportingForm) {
-      final status = entry.docstatus;
+      final status = entry.docstatus ?? 0;
 
       final isSubmitted = StringUtils.equalsIgnoreCase(
-        StringUtils.docStatus(status!),
+        StringUtils.docStatus(status),
         'Submitted',
       );
       final isCancelled = StringUtils.equalsIgnoreCase(
         StringUtils.docStatus(status).trim(),
         'Cancelled',
       );
-      final form = state.form;
-      final updatedForm = form.copyWith(
-        docstatus: entry.docstatus,
-        name: entry.name,
-        remarks: entry.remarks,
-        status: entry.status,
-        plantName: entry.plantName,
-        loadedByUser: entry.loadedByUser,
-        vehicleNumber: entry.vehicleNumber,
-        arrivalDate: entry.arrivalDate,
-        arrivalTime: entry.arrivalTime,
-        driverIdPhoto: entry.driverIdPhoto,
-        vehicleReportingEntryVreDate: entry.vehicleReportingEntryVreDate,
-        linkedTransporterConfirmation: entry.linkedTransporterConfirmation,
-        transporterName: entry.transporterName,
-        rejectReason:  entry.rejectReason,
-        driverContact: entry.driverContact,
-        transporterName2: entry.transporterName2,
-      );
+      // Use the list/doc entry as-is so Link fields like
+      // linked_transporter_confirmation are never dropped by copyWith.
       final mode =
           (isSubmitted || isCancelled)
               ? VehicleView.completed
               : VehicleView.edit;
-      emitSafeState(state.copyWith(form: updatedForm, view: mode));
+      emitSafeState(state.copyWith(form: entry, view: mode));
     }
-    if (entry == null) return;
   }
 
   void clearDriverIdPhoto() {

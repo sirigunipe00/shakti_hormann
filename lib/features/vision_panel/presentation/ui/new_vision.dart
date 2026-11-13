@@ -19,6 +19,16 @@ class NewVision extends StatefulWidget {
 }
 
 class _NewVisionState extends State<NewVision> {
+  bool _needsListRefresh = false;
+
+  void _refreshListCubit() {
+    if (!mounted) return;
+    final filters = context.read<VisionPanelFilterCubit>().state;
+    context.cubit<VisionPanelCubit>().fetchInitial(
+      Pair(StringUtils.docStatusInt(filters.status), filters.query),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<CreateVisionPanelCubit, CreateVisionPanelState>(
@@ -27,194 +37,226 @@ class _NewVisionState extends State<NewVision> {
         final status = form.docStatus;
         final docName = form.name;
 
-        return Scaffold(
-          backgroundColor: AppColors.white,
-          appBar:
-              (docName == null || docName.isEmpty)
-                  ? SimpleAppBar(
-                    title: 'New Accessories Packing',
-                    actionButton: BlocBuilder<
-                      CreateVisionPanelCubit,
-                      CreateVisionPanelState
-                    >(
-                      builder: (context, state) {
-                        final hasSO =
-                            (state.form.salesOrderNo?.trim().isNotEmpty ??
-                                false);
-                        final firstItem = state.items.firstOrNull;
-                        final hasValidFirstRow =
-                            firstItem != null &&
-                            (firstItem.productType?.isNotEmpty ?? false) &&
-                            (firstItem.noOfBoxes ?? 0) > 0;
+        return PopScope(
+          canPop: false,
+          onPopInvokedWithResult: (didPop, _) {
+            if (didPop) return;
+            Navigator.of(context).pop(_needsListRefresh);
+          },
+          child: Scaffold(
+            backgroundColor: AppColors.white,
+            appBar:
+                (docName == null || docName.isEmpty)
+                    ? SimpleAppBar(
+                      title: 'New Accessories Packing',
+                      actionButton: BlocBuilder<
+                        CreateVisionPanelCubit,
+                        CreateVisionPanelState
+                      >(
+                        builder: (context, state) {
+                          final hasSO =
+                              (state.form.salesOrderNo?.trim().isNotEmpty ??
+                                  false);
+                          final firstItem = state.items.firstOrNull;
+                          final hasValidFirstRow =
+                              firstItem != null &&
+                              (firstItem.productType?.isNotEmpty ?? false) &&
+                              (firstItem.noOfBoxes ?? 0) > 0;
 
-                        final canSave = hasSO && hasValidFirstRow;
+                          final canSave = hasSO && hasValidFirstRow;
 
-                        return AppButton(
-                          borderColor: Colors.grey,
-                          bgColor: const Color.fromARGB(255, 250, 193, 47),
-                          textStyle: const TextStyle(
-                            color: AppColors.darkBlue,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 15,
-                          ),
-                          isLoading: state.isLoading,
-                          useRootLoadingOverlay: false,
-                          label: 'Save',
-                          onPressed:
-                              canSave
-                                  ? () => context
-                                      .cubit<CreateVisionPanelCubit>()
-                                      .createEntry()
-                                  : null,
+                          return AppButton(
+                            borderColor: Colors.grey,
+                            bgColor:
+                                canSave
+                                    ? const Color.fromARGB(255, 250, 193, 47)
+                                    : const Color(0xFFCBD5E1),
+                            textStyle: const TextStyle(
+                              color: AppColors.darkBlue,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15,
+                            ),
+                            isLoading: state.isLoading,
+                            useRootLoadingOverlay: false,
+                            label: 'Save',
+                            onPressed: () {
+                              if (!canSave) {
+                                if (!hasSO) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                        'Select a Sales Order first',
+                                      ),
+                                      behavior: SnackBarBehavior.floating,
+                                    ),
+                                  );
+                                  return;
+                                }
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                      'Add a product type and box count first',
+                                    ),
+                                    behavior: SnackBarBehavior.floating,
+                                  ),
+                                );
+                                return;
+                              }
+                              context
+                                  .cubit<CreateVisionPanelCubit>()
+                                  .createEntry();
+                            },
+                          );
+                        },
+                      ),
+                    )
+                    : TitleStatusAppBar(
+                          title: docName,
+                          status: StringUtils.docStatus(status ?? 0),
+                          textColor: AppColors.white,
+                          pageMode: PageMode2.visionPanel,
+                          onSubmit: () {},
+                          onReject: () {},
+                          actionButton:
+                              (form.docStatus == 1)
+                                  ? null
+                                  : BlocBuilder<
+                                    CreateVisionPanelCubit,
+                                    CreateVisionPanelState
+                                  >(
+                                    builder: (context, state) {
+                                      final canSubmit =
+                                          state.isUpdated && !state.isLoading;
+
+                                      return AppButton(
+                                        borderColor: Colors.grey,
+                                        bgColor:
+                                            canSubmit
+                                                ? AppColors.green
+                                                : const Color(0xFFCBD5E1),
+                                        textStyle:
+                                            canSubmit
+                                                ? const TextStyle(
+                                                  color: AppColors.white,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 18,
+                                                )
+                                                : null,
+                                        isLoading:
+                                            state.isLoading && state.isUpdated,
+                                        useRootLoadingOverlay: false,
+                                        label: 'Submit',
+                                        onPressed:
+                                            canSubmit
+                                                ? () => context
+                                                    .cubit<
+                                                      CreateVisionPanelCubit
+                                                    >()
+                                                    .submit()
+                                                : null,
+                                      );
+                                    },
+                                  ),
+                        )
+                        as PreferredSizeWidget,
+            body: ResponsiveContent(
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  BlocListener<CreateVisionPanelCubit, CreateVisionPanelState>(
+                    listener: (_, state) async {
+                      if (state.isSuccess && state.successMsg.isNotNull) {
+                        if (!context.mounted) return;
+                        await AppDialog.showSuccessDialog(
+                          context,
+                          title: 'Success',
+                          content: state.successMsg.valueOrEmpty,
+                          onTapDismiss: () {
+                            Navigator.of(context, rootNavigator: true).pop();
+                          },
                         );
-                      },
-                    ),
-                  )
-                  : TitleStatusAppBar(
-                        title: docName,
-                        status: StringUtils.docStatus(status ?? 0),
-                        textColor: AppColors.white,
-                        pageMode: PageMode2.visionPanel,
-                        onSubmit: () {},
-                        onReject: () {},
-                        actionButton:
-                            (form.docStatus == 1)
-                                ? null
-                                : BlocBuilder<
-                                  CreateVisionPanelCubit,
-                                  CreateVisionPanelState
-                                >(
-                                  builder: (context, state) {
-                                    final canSubmit =
-                                        state.isUpdated && !state.isLoading;
 
-                                    return AppButton(
-                                      borderColor: Colors.grey,
-                                      bgColor:
-                                          canSubmit
-                                              ? AppColors.green
-                                              : const Color(0xFFCBD5E1),
-                                      textStyle:
-                                          canSubmit
-                                              ? const TextStyle(
-                                                color: AppColors.white,
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 18,
-                                              )
-                                              : null,
-                                      isLoading:
-                                          state.isLoading && state.isUpdated,
-                                      useRootLoadingOverlay: false,
-                                      label: 'Submit',
-                                      onPressed:
-                                          canSubmit
-                                              ? () => context
-                                                  .cubit<CreateVisionPanelCubit>()
-                                                  .submit()
-                                              : null,
-                                    );
-                                  },
+                        if (!context.mounted) return;
+                        context.cubit<CreateVisionPanelCubit>().errorHandled();
+
+                        _needsListRefresh = true;
+                        _refreshListCubit();
+
+                        if (state.form.docStatus == 1) {
+                          shouldAskForConfirmation.value = false;
+                          Navigator.pop(context, true);
+                        }
+                      }
+
+                      if (state.error.isNotNull) {
+                        if (!context.mounted) return;
+                        await AppDialog.showErrorDialog(
+                          context,
+                          title: state.error?.title,
+                          content: state.error!.error,
+                          onTapDismiss: () {
+                            Navigator.of(context, rootNavigator: true).pop();
+                          },
+                        );
+
+                        if (!context.mounted) return;
+                        context.cubit<CreateVisionPanelCubit>().errorHandled();
+                      }
+                    },
+                    child: const VisionPanelFormWidget(),
+                  ),
+                  BlocBuilder<CreateVisionPanelCubit, CreateVisionPanelState>(
+                    buildWhen:
+                        (p, c) =>
+                            p.isLoading != c.isLoading ||
+                            p.isUpdated != c.isUpdated ||
+                            p.isModified != c.isModified,
+                    builder: (context, state) {
+                      if (!state.isLoading) return const SizedBox.shrink();
+
+                      final hasDoc =
+                          state.form.name != null &&
+                          state.form.name!.isNotEmpty;
+                      final isImageUploading =
+                          hasDoc && state.isModified && !state.isUpdated;
+                      final isSubmitting = state.isUpdated;
+
+                      if (!isImageUploading && !isSubmitting) {
+                        return const SizedBox.shrink();
+                      }
+
+                      final label =
+                          isImageUploading
+                              ? 'Uploading box images...'
+                              : 'Submitting document...';
+
+                      return AbsorbPointer(
+                        child: ColoredBox(
+                          color: Colors.black.withValues(alpha: 0.25),
+                          child: Center(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const CircularProgressIndicator(),
+                                const SizedBox(height: 16),
+                                Text(
+                                  label,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
-                      )
-                      as PreferredSizeWidget,
-          body: Stack(
-            fit: StackFit.expand,
-            children: [
-              BlocListener<CreateVisionPanelCubit, CreateVisionPanelState>(
-                listener: (_, state) async {
-                  if (state.isSuccess && state.successMsg.isNotNull) {
-                    if (!context.mounted) return;
-                    await AppDialog.showSuccessDialog(
-                      context,
-                      title: 'Success',
-                      content: state.successMsg.valueOrEmpty,
-                      onTapDismiss: () {
-                        Navigator.of(context, rootNavigator: true).pop();
-                      },
-                    );
-
-                    if (!context.mounted) return;
-                    context.cubit<CreateVisionPanelCubit>().errorHandled();
-
-                    if (state.form.docStatus == 1) {
-                      shouldAskForConfirmation.value = false;
-                      final filters =
-                          context.read<VisionPanelFilterCubit>().state;
-                      context.cubit<VisionPanelCubit>().fetchInitial(
-                        Pair(
-                          StringUtils.docStatusInt(filters.status),
-                          filters.query,
+                              ],
+                            ),
+                          ),
                         ),
                       );
-                      Navigator.pop(context, true);
-                    }
-                  }
-
-                  if (state.error.isNotNull) {
-                    if (!context.mounted) return;
-                    await AppDialog.showErrorDialog(
-                      context,
-                      title: state.error?.title,
-                      content: state.error!.error,
-                      onTapDismiss: () {
-                        Navigator.of(context, rootNavigator: true).pop();
-                      },
-                    );
-
-                    if (!context.mounted) return;
-                    context.cubit<CreateVisionPanelCubit>().errorHandled();
-                  }
-                },
-                child: const VisionPanelFormWidget(),
+                    },
+                  ),
+                ],
               ),
-              // Lightweight overlay for image upload + submit (Installation style).
-              BlocBuilder<CreateVisionPanelCubit, CreateVisionPanelState>(
-                buildWhen: (p, c) =>
-                    p.isLoading != c.isLoading ||
-                    p.isUpdated != c.isUpdated ||
-                    p.isModified != c.isModified,
-                builder: (context, state) {
-                  if (!state.isLoading) return const SizedBox.shrink();
-
-                  final hasDoc =
-                      state.form.name != null && state.form.name!.isNotEmpty;
-                  final isImageUploading =
-                      hasDoc && state.isModified && !state.isUpdated;
-                  final isSubmitting = state.isUpdated;
-
-                  if (!isImageUploading && !isSubmitting) {
-                    return const SizedBox.shrink();
-                  }
-
-                  final label = isImageUploading
-                      ? 'Uploading box images...'
-                      : 'Submitting document...';
-
-                  return AbsorbPointer(
-                    child: ColoredBox(
-                      color: Colors.black.withValues(alpha: 0.25),
-                      child: Center(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const CircularProgressIndicator(),
-                            const SizedBox(height: 16),
-                            Text(
-                              label,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 15,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ],
+            ),
           ),
         );
       },

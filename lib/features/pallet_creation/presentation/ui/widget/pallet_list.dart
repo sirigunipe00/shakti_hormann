@@ -18,33 +18,31 @@ class PalletList extends StatefulWidget {
 }
 
 class _PalletListState extends State<PalletList> {
-    String? status;
+  String? status;
   String? query;
 
-    @override
+  @override
   void initState() {
     status = 'Draft';
     context.read<PalletFilterCubit>().onChangeStatus('Draft');
     context.read<PalletFilterCubit>().onSearch(null);
     super.initState();
   }
+
   @override
   Widget build(BuildContext context) {
     return AppPageView2<PalletFilterCubit>(
       mode: PageMode2.palletCreation,
       scaffoldBg: '',
       backgroundColor: AppColors.white,
-     onNew: () async {
-        final refresh = await AppRoute.newPalletCreation.push<bool>(context);
-        if(!context.mounted) return;
-        if (refresh == true) {
-          _fetchInital(context);
-        }
+      onNew: () async {
+        await AppRoute.newPalletCreation.push<bool>(context);
+        if (!context.mounted) return;
+        _fetchInital(context);
       },
       child: RefreshIndicator(
         onRefresh: () {
           final filters = context.read<PalletFilterCubit>().state;
-
           return context.cubit<PalletCubit>().fetchInitial(
             Pair(StringUtils.docStatusInt(filters.status), filters.query),
           );
@@ -55,19 +53,18 @@ class _PalletListState extends State<PalletList> {
             childBuilder: (context, entry) => PalletWidget(
               pallet: entry,
               onTap: () async {
-                      final refresh = await AppRoute.newPalletCreation.push<bool?>(
-                        context,
-                        extra: entry,
-                      );
-                      if(!context.mounted) return;
-                      if (refresh == true) {
-                        _fetchInital(context);
-                      }
-                    },
+                await AppRoute.newPalletCreation.push<bool?>(
+                  context,
+                  extra: entry,
+                );
+                if (!context.mounted) return;
+                _fetchInital(context);
+              },
             ),
             fetchInitial: () => _fetchInital(context),
             fetchMore: () => fetchMore(context),
-            emptyListText: 'No Pallet Creation Found.',
+            emptyListText:
+                'No pallet records yet.\nTap New to create pallets for a sales order.',
           ),
         ),
       ),
@@ -77,13 +74,14 @@ class _PalletListState extends State<PalletList> {
   void _fetchInital(BuildContext context) {
     final filters = context.read<PalletFilterCubit>().state;
     context.cubit<PalletCubit>().fetchInitial(
-        Pair(StringUtils.docStatusInt(filters.status), filters.query));
+      Pair(StringUtils.docStatusInt(filters.status), filters.query),
+    );
   }
 
   void fetchMore(BuildContext context) {
     final filters = context.read<PalletFilterCubit>().state;
-
     context.cubit<PalletCubit>().fetchMore(
-        Pair(StringUtils.docStatusInt(filters.status), filters.query));
+      Pair(StringUtils.docStatusInt(filters.status), filters.query),
+    );
   }
 }

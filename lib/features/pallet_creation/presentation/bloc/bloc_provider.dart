@@ -40,8 +40,12 @@ class PalletBlocProvider {
    PalletItemCubit getPalletItems() => PalletItemCubit(
     onRequest: (params, state) => repo.fetchPalletItems(params ?? ''),
   );
+  /// [params] is an optional search string from the Sales Order picker.
   PalletSales saleOrder() => PalletSales(
-    onRequest: (params, state) => repo.salesOrder(),
+    onRequest: (params, state) => repo.salesOrder(
+      search: (params != null && params.trim().isNotEmpty) ? params : null,
+      limit: 40,
+    ),
   );
 
 }

@@ -6,9 +6,9 @@ import 'package:shakti_hormann/features/pallet_creation/presentation/bloc/bloc_p
 import 'package:shakti_hormann/features/vision_panel/presentation/bloc/create_vision_panel/create_vision_panel.dart';
 import 'package:shakti_hormann/features/vision_panel/presentation/widget/image_capture_table.dart';
 import 'package:shakti_hormann/features/vision_panel/presentation/widget/product_table.dart';
+import 'package:shakti_hormann/features/vision_panel/presentation/widget/vision_select_fields.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/widgets/input_filed.dart';
-import 'package:shakti_hormann/widgets/inputs/search_dropdown_widget.dart';
 import 'package:shakti_hormann/widgets/sectionheader.dart';
 import 'package:shakti_hormann/widgets/spaced_column.dart';
 
@@ -20,8 +20,14 @@ class VisionPanelFormWidget extends StatefulWidget {
 }
 
 class _VisionPanelFormWidgetState extends State<VisionPanelFormWidget> {
-  SalesOrderForm? invoiceform;
+  SalesOrderForm? _selectedOrder;
   final ScrollController _scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,29 +43,38 @@ class _VisionPanelFormWidgetState extends State<VisionPanelFormWidget> {
         .length;
 
     return Container(
-      color: Colors.purple.shade100.withValues(alpha: 0.15),
+      color: AppColors.white,
       child: SingleChildScrollView(
         controller: _scrollController,
-        padding: const EdgeInsets.only(top: 5, bottom: 24),
+        padding: ShellInsets.scrollPadding(
+          context,
+          left: 16,
+          right: 16,
+          top: 8,
+        ),
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         child: SpacedColumn(
           crossAxisAlignment: CrossAxisAlignment.start,
           defaultHeight: 12,
           children: [
-            const Padding(
-              padding: EdgeInsets.only(left: 16.0,top: 0),
-              child: SectionHeader(
-                title: 'SO Details',
-                assetIcon: 'assets/images/vehicleinvoicicon.svg',
-              ),
+            const SectionHeader(
+              title: 'SO Details',
+              assetIcon: 'assets/images/vehicleinvoicicon.svg',
             ),
             Container(
-              padding: const EdgeInsets.only(top: 12, bottom: 0,left: 12,right: 12),
+              padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
               width: MediaQuery.of(context).size.width,
-              margin: const EdgeInsets.symmetric(horizontal: 18),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.grey.shade300),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: const Color(0xFFE8ECF4)),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF0E1446).withValues(alpha: 0.04),
+                    blurRadius: 10,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
               ),
               child: Column(
                 children: [
@@ -70,66 +85,33 @@ class _VisionPanelFormWidgetState extends State<VisionPanelFormWidget> {
                         success: (data) => data,
                       );
 
-                      final names = allData.toList();
-                      if (invoiceform == null &&
+                      if (_selectedOrder == null &&
                           newform.salesOrderNo != null &&
-                          names.isNotEmpty) {
-                        invoiceform = names.firstWhere(
+                          allData.isNotEmpty) {
+                        final match = allData.where(
                           (item) => item.name == newform.salesOrderNo,
                         );
+                        if (match.isNotEmpty) {
+                          _selectedOrder = match.first;
+                        } else {
+                          _selectedOrder = SalesOrderForm(
+                            name: newform.salesOrderNo,
+                            customerName: newform.customerName,
+                          );
+                        }
                       }
 
-                      return SearchDropDownList<SalesOrderForm>(
-                        title: 'Sales Order No.',
-                        hint: 'Select Order No',
-                        key: const ValueKey('sales_order_dropdown'),
-                        color: AppColors.black,
-                        items: names,
-                        readOnly: isLocked,
-                        defaultSelection: invoiceform,
-                        isloading: state.isLoading,
-                        isRequired: true,
-                        futureRequest: (query) async {
-                          if (query.isEmpty) return names;
-                          return names.where((item) {
-                            final orderNo = item.name?.toLowerCase() ?? '';
-                            final customer =
-                                item.customerName?.toLowerCase() ?? '';
-                            final search = query.toLowerCase();
-                            return orderNo.contains(search) ||
-                                customer.contains(search);
-                          }).toList();
-                        },
-                        headerBuilder: (_, item, __) => Text(item.name ?? ''),
-                           listItemBuilder:
-                                      (_, item, __, ___) => Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            'Sales Order: ${item.name ?? ''}',
-                                            style: const TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                          if (item.customerName != null)
-                                            Text(
-                                              'Customer Name : ${item.customerName}',
-                                            ),
-                                          Text(
-                                            'Order Date: ${DFU.ddMMyyyyFromStr(item.orderDate ?? '')} ',
-                                          ),
-                                        ],
-                                      ),
+                      return VisionSalesOrderSelect(
+                        orders: allData,
+                        selected: _selectedOrder,
+                        isLoading: state.isLoading,
+                        locked: isLocked,
                         onSelected: (selected) {
-                          setState(() {
-                            invoiceform = selected;
-                          });
+                          setState(() => _selectedOrder = selected);
                           context
                               .cubit<CreateVisionPanelCubit>()
                               .onSalesOrderSelected(selected.name!);
                         },
-                        focusNode: FocusNode(),
                       );
                     },
                   ),
@@ -147,19 +129,25 @@ class _VisionPanelFormWidgetState extends State<VisionPanelFormWidget> {
                 ],
               ),
             ),
-            if(newform.docStatus != 1 && newform.docStatus != 0)
-            
-            const Center(child: Text('**Please Add Atleast One Product To Save the Record**',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 15),)),
-            const ProductSelectionTable(),
-
-            const Padding(
-              padding: EdgeInsets.only(left: 16.0),
-              child: SectionHeader(
-                title: 'Box Details',
-                assetIcon: 'assets/images/vehicleinvoicicon.svg',
+            if (newform.docStatus != 1 &&
+                newform.docStatus != 0 &&
+                formState.items.isEmpty)
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 4),
+                child: Text(
+                  'Add at least one product type before saving.',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 13,
+                    color: Color(0xFF64748B),
+                  ),
+                ),
               ),
+            const ProductSelectionTable(),
+            const SectionHeader(
+              title: 'Box Details',
+              assetIcon: 'assets/images/vehicleinvoicicon.svg',
             ),
-
             const ImageCaptureTable(),
           ],
         ),

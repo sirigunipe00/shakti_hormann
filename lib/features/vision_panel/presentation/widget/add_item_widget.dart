@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shakti_hormann/features/vision_panel/model/product_type.dart';
 import 'package:shakti_hormann/features/vision_panel/presentation/bloc/bloc_provider.dart';
+import 'package:shakti_hormann/features/vision_panel/presentation/widget/vision_select_fields.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
-import 'package:shakti_hormann/widgets/buttons/app_btn.dart';
-import 'package:shakti_hormann/widgets/inputs/search_dropdown_widget.dart';
+import 'package:shakti_hormann/widgets/dailogs/app_popup_card.dart';
 
 class AddVisionItemDialog extends StatefulWidget {
   const AddVisionItemDialog({super.key});
@@ -34,119 +34,66 @@ class _AddVisionItemDialogState extends State<AddVisionItemDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: StatefulBuilder(
-          builder: (context, setDialogState) {
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Add Item',
-                  style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 4),
-                const Text(
-                  'Select a product type and enter the number of boxes.',
-                  style: TextStyle(fontSize: 12, color: Color(0xFF64748B)),
-                ),
-                const SizedBox(height: 16),
-                BlocBuilder<ProductCubit, ProductState>(
-                  builder: (_, productState) {
-                    final products = productState.maybeWhen(
-                      orElse: () => <ProductType>[],
-                      success: (data) => data,
-                    );
-                    return SearchDropDownList<ProductType>(
-                      title: 'Product Type',
-                      hint: 'Select Product',
-                      isRequired: true,
-                      color: AppColors.black,
-                      items: products,
-                      futureRequest: (query) async {
-                        if (query.isEmpty) return products;
-                        final search = query.toLowerCase();
-                        return products
-                            .where(
-                              (p) =>
-                                  (p.name ?? '').toLowerCase().contains(search),
-                            )
-                            .toList();
-                      },
-                      headerBuilder:
-                          (_, p, __) => Text(
-                            p.name ?? '',
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                      listItemBuilder:
-                          (_, p, __, ___) => Padding(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 10.0,
-                              horizontal: 4.0,
-                            ),
-                            child: Text(p.name ?? ''),
-                          ),
-                      onSelected:
-                          (p) => setDialogState(() => _selectedProduct = p),
-                      focusNode: FocusNode(),
-                    );
-                  },
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: _boxesController,
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
-                    labelText: 'No. of Boxes',
-                    hintText: 'Enter quantity',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
+    return StatefulBuilder(
+      builder: (context, setDialogState) {
+        return AppFormDialogShell(
+          title: 'Add Item',
+          subtitle: 'Select a product type and enter the number of boxes.',
+          icon: Icons.add_box_outlined,
+          iconBackground: const Color(0xFFE8F0FE),
+          iconColor: AppColors.darkBlue,
+          onClose: () => Navigator.of(context).pop(),
+          cancelText: 'Cancel',
+          onCancel: () => Navigator.of(context).pop(),
+          confirmText: 'Add',
+          confirmIcon: Icons.check_rounded,
+          confirmColor: AppColors.darkBlue,
+          onConfirm: _canSubmit
+              ? () => Navigator.of(context).pop((
+                    _selectedProduct!.name!,
+                    int.parse(_boxesController.text),
+                  ))
+              : null,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              BlocBuilder<ProductCubit, ProductState>(
+                builder: (_, productState) {
+                  final products = productState.maybeWhen(
+                    orElse: () => <ProductType>[],
+                    success: (data) => data,
+                  );
+                  return VisionProductTypeSelect(
+                    products: products,
+                    selected: _selectedProduct,
+                    isLoading: productState.isLoading,
+                    onSelected: (p) =>
+                        setDialogState(() => _selectedProduct = p),
+                  );
+                },
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: _boxesController,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  labelText: 'No. of Boxes',
+                  hintText: 'Enter quantity',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
                   ),
-                  onChanged: (_) => setDialogState(() {}),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 10,
+                  ),
                 ),
-                const SizedBox(height: 20),
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                        child: const Text('Cancel'),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: AppButton(
-                        bgColor: AppColors.darkBlue,
-                        label: 'Add',
-                        isLoading: false,
-                        useRootLoadingOverlay: false,
-                        onPressed:
-                            _canSubmit
-                                ? () => Navigator.of(context).pop((
-                                  _selectedProduct!.name!,
-                                  int.parse(_boxesController.text),
-                                ))
-                                : null,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            );
-          },
-        ),
-      ),
+                onChanged: (_) => setDialogState(() {}),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

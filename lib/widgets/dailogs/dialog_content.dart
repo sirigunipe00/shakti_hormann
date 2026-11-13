@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:shakti_hormann/styles/app_color.dart';
-import 'package:shakti_hormann/widgets/app_spacer.dart';
-import 'package:shakti_hormann/widgets/buttons/app_btn.dart';
-import 'package:shakti_hormann/widgets/dailogs/app_dialogs.dart';
 import 'package:shakti_hormann/core/core.dart';
-
+import 'package:shakti_hormann/styles/app_color.dart';
+import 'package:shakti_hormann/widgets/dailogs/app_dialogs.dart';
+import 'package:shakti_hormann/widgets/dailogs/app_popup_card.dart';
 
 class DialogWidget extends StatelessWidget {
-  const DialogWidget({super.key, 
+  const DialogWidget({
+    super.key,
     required this.content,
     required this.buttonText,
     required this.onTapDismiss,
@@ -15,91 +14,76 @@ class DialogWidget extends StatelessWidget {
     this.title,
     this.onTapConfirm,
     this.confirmBtnText,
+    this.body,
+    this.icon,
+    this.iconBackground,
+    this.iconColor,
+    this.confirmIcon,
+    this.confirmColor,
+    this.showClose = true,
   });
 
   final String? title;
   final String content;
+  final Widget? body;
   final String buttonText;
   final VoidCallback onTapDismiss;
   final DialogType dialogType;
-
   final VoidCallback? onTapConfirm;
   final String? confirmBtnText;
-  
+  final IconData? icon;
+  final Color? iconBackground;
+  final Color? iconColor;
+  final IconData? confirmIcon;
+  final Color? confirmColor;
+  final bool showClose;
+
+  bool get _isConfirm => dialogType == DialogType.confirmRetry;
+
   @override
   Widget build(BuildContext context) {
-    return Align(
-      alignment: Alignment.center,
-      child: Material(
-        color: Colors.transparent,
-        child: Container(
-          constraints: const BoxConstraints(maxWidth: 340),
-          margin: const EdgeInsets.all(24),
-          padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: AppColors.white,
-            borderRadius: BorderRadius.circular(15),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              AppSpacer.p8(),
-              if (title.containsValidValue) ...[
-                Text(
-                  title!,
-                  style: const TextStyle(
-                    fontSize: 24,
-                    height: 1.2,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF707070),
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ] else ...[
-                AppSpacer.p4(),
-              ],
-              AppSpacer.p8(),
-              Text(
-                content,
-                style: const TextStyle(
-                  color: AppColors.black,
-                  height: 1.5,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w400,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              AppSpacer.p32(),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Expanded(
-                    child: AppButton(
-                      label: buttonText,
-                      onPressed: onTapDismiss,
-                      bgColor: AppColors.darkBlue,
-                   
-                    ),
-                  ),
-                  if (dialogType == DialogType.confirmRetry) ...[
-                    const SizedBox(width: 24),
-                    Expanded(
-                      child: AppButton(
-                        label: confirmBtnText!, onPressed: onTapConfirm, 
-                        bgColor: AppColors.darkBlue,
-                      
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
+    final isConfirm = _isConfirm;
+
+    return AppPopupCard(
+      title: title.containsValidValue
+          ? title!
+          : (isConfirm ? 'Confirm' : 'Notice'),
+      icon: icon ??
+          (isConfirm
+              ? Icons.help_outline_rounded
+              : Icons.info_outline_rounded),
+      iconBackground: iconBackground ?? const Color(0xFFE8F0FE),
+      iconColor: iconColor ?? AppColors.darkBlue,
+      showClose: showClose,
+      body: body ?? Text(content, textAlign: TextAlign.center),
+      singleAction: !isConfirm,
+      cancelText: isConfirm ? buttonText : null,
+      onCancel: isConfirm
+          ? () {
+              onTapDismiss();
+            }
+          : null,
+      confirmText: isConfirm ? (confirmBtnText ?? 'Confirm') : buttonText,
+      confirmIcon: confirmIcon ??
+          (isConfirm ? Icons.check_rounded : Icons.check_circle_outline_rounded),
+      confirmColor: confirmColor ?? AppColors.darkBlue,
+      onConfirm: () {
+        if (isConfirm) {
+          (onTapConfirm ?? onTapDismiss)();
+        } else {
+          // Single-action notice: pop this dialog route directly.
+          final nav = Navigator.of(context, rootNavigator: true);
+          if (nav.canPop()) nav.pop();
+        }
+      },
+      onClose: () {
+        if (isConfirm) {
+          onTapDismiss();
+        } else {
+          final nav = Navigator.of(context, rootNavigator: true);
+          if (nav.canPop()) nav.pop();
+        }
+      },
     );
   }
 }

@@ -43,6 +43,10 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+/android/build/
+
+# Local APK share copies (never commit binaries)
+*.apk
 
 # FVM Version Cache
 .fvm/

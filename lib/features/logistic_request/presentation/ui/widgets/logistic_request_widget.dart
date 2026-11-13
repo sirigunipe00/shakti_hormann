@@ -7,6 +7,7 @@ import 'package:shakti_hormann/features/logistic_request/presentation/bloc/bloc_
 import 'package:shakti_hormann/features/logistic_request/presentation/bloc/create_lr_cubit/logistic_planning_cubit.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/styles/app_text_styles.dart';
+import 'package:shakti_hormann/widgets/doc_status_widget.dart';
 import 'package:shakti_hormann/widgets/spaced_column.dart';
 
 class LogisticRequestWidget extends StatelessWidget {
@@ -19,46 +20,68 @@ class LogisticRequestWidget extends StatelessWidget {
   final LogisticPlanningForm logistic;
   final VoidCallback onTap;
 
+  String get _status =>
+      logistic.docstatus == 2 ? 'Cancelled' : (logistic.status ?? 'Draft');
+
+  String get _badgeLabel {
+    final raw = logistic.name;
+    if (raw.isEmpty) return 'LR';
+    final digits =
+        RegExp(r'\d+').allMatches(raw).map((m) => m.group(0)!).toList();
+    if (digits.isEmpty) {
+      return raw.substring(0, raw.length.clamp(0, 3)).toUpperCase();
+    }
+    return digits.last;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final transporter = [
+      logistic.transporterName,
+      logistic.transporterNAme2,
+    ].where((e) => e != null && e.isNotNull).join(' - ');
+    final timeLabel = formatTime(logistic.requestedDeliveryTime);
 
     return GestureDetector(
       onTap: onTap,
       child: Card(
         color: Colors.white,
+        margin: const EdgeInsets.symmetric(horizontal: 2, vertical: 1),
+        elevation: 0.5,
         surfaceTintColor: AppColors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10.0),
-          side: const BorderSide(color: AppColors.white),
+          side: const BorderSide(color: Color(0xFFE8ECF4)),
         ),
         child: SpacedColumn(
-          defaultHeight: 4,
-          // margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
-          margin: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+          defaultHeight: 0,
+          margin: const EdgeInsets.fromLTRB(10, 9, 10, 8),
           children: [
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  width: 70,
-                  height: 70,
+                  width: 48,
+                  height: 48,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFAB94FF).withValues(alpha: 0.30),
-                    borderRadius: BorderRadius.circular(12),
+                    color: const Color(0xFF2957A4).withValues(alpha: 0.10),
+                    borderRadius: BorderRadius.circular(10),
                   ),
-                  alignment: Alignment.center,
-                  child: const Text(
-                    'QL',
-                    style: TextStyle(
-                      fontFamily: 'Urbanist',
-                      fontSize: 20,
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFFAB94FF),
+                  child: Center(
+                    child: Text(
+                      _badgeLabel,
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF2957A4),
+                        letterSpacing: 0.5,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ),
-
-                const SizedBox(width: 12),
+                const SizedBox(width: 10),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -69,26 +92,25 @@ class LogisticRequestWidget extends StatelessWidget {
                           Expanded(
                             child: Text(
                               logistic.name,
-                              style: AppTextStyles.titleLarge(
-                                context,
-                              ).copyWith(
+                              style: AppTextStyles.titleLarge(context).copyWith(
                                 color: AppColors.black,
                                 fontWeight: FontWeight.bold,
+                                fontSize: 14,
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                          const SizedBox(width: 10),
+                          const SizedBox(width: 8),
                           Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               const Icon(
                                 Icons.calendar_month,
-                                size: 14,
+                                size: 13,
                                 color: Color(0xFF163A6B),
                               ),
-                              const SizedBox(width: 4),
+                              const SizedBox(width: 3),
                               Text(
                                 DFU.ddMMyyyyFromStr(
                                   logistic.requestedDeliveryDate ?? '',
@@ -97,50 +119,55 @@ class LogisticRequestWidget extends StatelessWidget {
                                 overflow: TextOverflow.ellipsis,
                                 style: const TextStyle(
                                   color: Color(0xFF163A6B),
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
                                 ),
                               ),
                             ],
                           ),
                         ],
                       ),
-                      const SizedBox(height: 5),
+                      const SizedBox(height: 3),
                       Text(
-                        [
-                              logistic.transporterName,
-                              logistic.transporterNAme2,
-                            ]
-                            .where((e) => e != null && e.isNotNull)
-                            .join(' - '),
+                        transporter.isNotEmpty ? transporter : '—',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
                           color: AppColors.grey,
-                          fontWeight: FontWeight.normal,
+                          fontWeight: FontWeight.w600,
                           letterSpacing: 0,
+                          fontSize: 12,
+                          fontFamily: 'Urbanist',
                         ),
                       ),
-                      const SizedBox(height: 5),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Image.asset('assets/images/timeicon.png'),
-                          Text(
-                            formatTime(logistic.requestedDeliveryTime) ??
-                                '',
-                            style: AppTextStyles.titleMedium(
-                              context,
-                              AppColors.darkBlue,
-                            ).copyWith(color: AppColors.litecyan),
-                          ),
-                        ],
-                      ),
+                      if (timeLabel != null && timeLabel.isNotEmpty) ...[
+                        const SizedBox(height: 2),
+                        Row(
+                          children: [
+                            Image.asset(
+                              'assets/images/timeicon.png',
+                              height: 12,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              timeLabel,
+                              style: const TextStyle(
+                                color: AppColors.litecyan,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 11,
+                                fontFamily: 'Urbanist',
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ],
                   ),
                 ),
               ],
             ),
             const Padding(
-              padding: EdgeInsets.symmetric(vertical: 4.0),
+              padding: EdgeInsets.symmetric(vertical: 5.0),
               child: DottedLine(
                 direction: Axis.horizontal,
                 lineLength: double.infinity,
@@ -150,76 +177,54 @@ class LogisticRequestWidget extends StatelessWidget {
                 dashGapLength: 4.0,
               ),
             ),
-
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                BlocBuilder<SalesOrders, SalesState>(
-                  builder: (context, state) {
-                    return state.maybeWhen(
-                      success: (data) {
-                        context.read<CreateLogisticCubit>().addsaleseorders(
-                          salesorder: data,
-                        );
-                        return Expanded(
-                          child: Wrap(
-                            runSpacing: 2,
-                            spacing: 2,
-                            children: [
-                              Text(
-                                data
-                                    .map((po) => po.name ?? '')
-                                    .where((e) => e.isNotEmpty)
-                                    .join(', '),
-                                style: const TextStyle(
-                                  color: Color(0xFF2957A4),
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ],
+                Expanded(
+                  child: BlocBuilder<SalesOrders, SalesState>(
+                    builder: (context, state) {
+                      return state.maybeWhen(
+                        success: (data) {
+                          context.read<CreateLogisticCubit>().addsaleseorders(
+                                salesorder: data,
+                              );
+                          final label = data
+                              .map((po) => po.name ?? '')
+                              .where((e) => e.isNotEmpty)
+                              .join(', ');
+                          return Text(
+                            label.isNotEmpty ? label : 'SO: —',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: Color(0xFF2957A4),
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                            ),
+                          );
+                        },
+                        orElse: () => const Text(
+                          'SO: —',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: Color(0xFF2957A4),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
                           ),
-                        );
-                      },
-                      orElse: () => const SizedBox(),
-                    );
-                  },
-                ),
-
-                Text(
-                  logistic.docstatus == 2 ? 'Cancelled' : logistic.status ?? '',
-                  style: AppTextStyles.titleLarge(context).copyWith(
-                    color: _getStatusColor(
-                      logistic.docstatus == 2
-                          ? 'Cancelled'
-                          : logistic.status ?? '',
-                    ),
-                    fontWeight: FontWeight.bold,
-                    fontSize: 12,
+                        ),
+                      );
+                    },
                   ),
                 ),
+                const SizedBox(width: 8),
+                DocStatusWidget(status: _status),
               ],
             ),
           ],
         ),
       ),
     );
-  }
-}
-
-Color _getStatusColor(String? status) {
-  switch (status?.toLowerCase()) {
-    case 'transporter confirmed':
-      return Colors.green;
-    case 'transporter rejected':
-      return Colors.red;
-    case 'cancelled':
-      return Colors.red;
-    case 'pending from transporter':
-      return Colors.orange;
-    default:
-      return Colors.black;
   }
 }
 
@@ -240,7 +245,6 @@ String formatDateTime(String? date, String? time) {
 
   final parts = time.split(':');
   if (parts.length < 2) return formattedDate;
-
 
   int hour = int.tryParse(parts[0]) ?? 0;
   final minute = parts[1];

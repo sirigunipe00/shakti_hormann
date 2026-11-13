@@ -14,18 +14,26 @@ import 'package:shakti_hormann/core/logger/app_logger.dart';
 import 'package:shakti_hormann/firebase_options.dart';
 
 Future<void> bootstrap(void Function() runApp) async {
-  WidgetsFlutterBinding.ensureInitialized();
- 
-  await SystemChrome.setPreferredOrientations(
-      [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
-  await _initInjector();
-  if(kDebugMode) {
-    await register<Urls>(Urls.shaktiHormannUAT(), instanceName: 'baseUrl');
-  } else {
-    await register<Urls>(Urls.shaktiHormannUAT(), instanceName: 'baseUrl');
-  }
-  await _initFirebase();
-  _setupErrorHandling(runApp);
+  await runZonedGuarded<Future<void>>(
+    () async {
+      WidgetsFlutterBinding.ensureInitialized();
+
+      await SystemChrome.setPreferredOrientations(
+          [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+      await _initInjector();
+      if (kDebugMode) {
+        await register<Urls>(Urls.shaktiHormannUAT(), instanceName: 'baseUrl');
+      } else {
+        await register<Urls>(Urls.shaktiHormannUAT(), instanceName: 'baseUrl');
+      }
+      await _initFirebase();
+      _setupErrorHandling();
+      runApp();
+    },
+    (error, stack) {
+      FirebaseCrashlytics.instance.recordError(error, stack);
+    },
+  );
 }
 
 Future<void> _initInjector() async {
@@ -47,7 +55,7 @@ Future<void> _initFirebase() async {
 }
 
 
-void _setupErrorHandling(void Function() runApp) {
+void _setupErrorHandling() {
   Isolate.current.addErrorListener(
     RawReceivePort((pair) async {
       try {
@@ -62,12 +70,5 @@ void _setupErrorHandling(void Function() runApp) {
     }).sendPort,
   );
 
-  runZonedGuarded<Future<void>>(
-    () async {
-      
-      FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
-      runApp();
-    },
-    FirebaseCrashlytics.instance.recordError,
-  );
+  FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
 }

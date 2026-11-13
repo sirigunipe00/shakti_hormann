@@ -80,7 +80,6 @@ class _NewGateExitState extends State<NewGateExit> {
                     return SearchMultiDropDownList<SalesInvoiceForm>(
                       title: 'Invoice No',
                       hint: 'Search Invoice No',
-                      key: UniqueKey(),
                       color: AppColors.white,
                       items: names,
                       readOnly: status == 1,
@@ -239,32 +238,14 @@ class _NewGateExitState extends State<NewGateExit> {
                                 vehicleNumber ?? matchedInvoice.vehicleNo,
                           );
                         } else {
-                          showDialog(
-                            context: context,
-                            builder:
-                                (_) => AlertDialog(
-                                  title: const Text(
-                                    'Invoice Not Found',
-                                    style: TextStyle(
-                                      color: Colors.red,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  content: const Text(
-                                    'The scanned invoice number does not match any existing invoice.',
-                                  ),
-                                  actions: [
-                                    TextButton(
-                                      child: const Text('OK'),
-                                      onPressed:
-                                          () =>
-                                              Navigator.of(
-                                                context,
-                                                rootNavigator: true,
-                                              ).pop(),
-                                    ),
-                                  ],
-                                ),
+                          await AppDialog.showErrorDialog(
+                            context,
+                            title: 'Invoice Not Found',
+                            content:
+                                'The scanned invoice number does not match any existing invoice.',
+                            onTapDismiss: () {
+                              Navigator.of(context, rootNavigator: true).pop();
+                            },
                           );
                         }
                       } else {
@@ -273,26 +254,14 @@ class _NewGateExitState extends State<NewGateExit> {
                         );
                       }
                     } catch (e) {
-                      showDialog(
-                        context: context,
-                        builder:
-                            (_) => AlertDialog(
-                              title: const Text('Invalid QR Code'),
-                              content: Text(
-                                'Scanned data is not valid JSON or missing fields.\n\nError: $e',
-                              ),
-                              actions: [
-                                TextButton(
-                                  child: const Text('OK'),
-                                  onPressed:
-                                      () =>
-                                          Navigator.of(
-                                            context,
-                                            rootNavigator: true,
-                                          ).pop(),
-                                ),
-                              ],
-                            ),
+                      await AppDialog.showErrorDialog(
+                        context,
+                        title: 'Invalid QR Code',
+                        content:
+                            'Scanned data is not valid JSON or missing fields.\n\nError: $e',
+                        onTapDismiss: () {
+                          Navigator.of(context, rootNavigator: true).pop();
+                        },
                       );
                     }
                   }
@@ -371,7 +340,6 @@ class _NewGateExitState extends State<NewGateExit> {
                         return SearchMultiDropDownList<SalesInvoiceForm>(
                           title: 'Invoice No',
                           hint: 'Search Invoice No',
-                          key: UniqueKey(),
                           color: AppColors.white,
                           items: names,
                           readOnly: status == 1,
@@ -554,32 +522,15 @@ class _NewGateExitState extends State<NewGateExit> {
                                         matchedInvoice.vehicleNo,
                                   );
                             } else {
-                              showDialog(
-                                context: context,
-                                builder:
-                                    (_) => AlertDialog(
-                                      title: const Text(
-                                        'Invoice Not Found',
-                                        style: TextStyle(
-                                          color: Colors.red,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      content: const Text(
-                                        'The scanned invoice number does not match any existing invoice.',
-                                      ),
-                                      actions: [
-                                        TextButton(
-                                          child: const Text('OK'),
-                                          onPressed:
-                                              () =>
-                                                  Navigator.of(
-                                                    context,
-                                                    rootNavigator: true,
-                                                  ).pop(),
-                                        ),
-                                      ],
-                                    ),
+                              await AppDialog.showErrorDialog(
+                                context,
+                                title: 'Invoice Not Found',
+                                content:
+                                    'The scanned invoice number does not match any existing invoice.',
+                                onTapDismiss: () {
+                                  Navigator.of(context, rootNavigator: true)
+                                      .pop();
+                                },
                               );
                             }
                           } else {
@@ -588,26 +539,14 @@ class _NewGateExitState extends State<NewGateExit> {
                             );
                           }
                         } catch (e) {
-                          showDialog(
-                            context: context,
-                            builder:
-                                (_) => AlertDialog(
-                                  title: const Text('Invalid QR Code'),
-                                  content: Text(
-                                    'Scanned data is not valid JSON or missing fields.\n\nError: $e',
-                                  ),
-                                  actions: [
-                                    TextButton(
-                                      child: const Text('OK'),
-                                      onPressed:
-                                          () =>
-                                              Navigator.of(
-                                                context,
-                                                rootNavigator: true,
-                                              ).pop(),
-                                    ),
-                                  ],
-                                ),
+                          await AppDialog.showErrorDialog(
+                            context,
+                            title: 'Invalid QR Code',
+                            content:
+                                'Scanned data is not valid JSON or missing fields.\n\nError: $e',
+                            onTapDismiss: () {
+                              Navigator.of(context, rootNavigator: true).pop();
+                            },
                           );
                         }
                       }

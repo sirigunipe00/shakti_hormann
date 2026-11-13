@@ -1,15 +1,14 @@
 import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:shakti_hormann/core/utils/date_format_util.dart';
 import 'package:shakti_hormann/core/utils/string_utils.dart';
+import 'package:shakti_hormann/features/gate_exit/model/gate_exit_form.dart';
 import 'package:shakti_hormann/features/gate_exit/presentation/bloc/bloc_provider.dart';
 import 'package:shakti_hormann/features/gate_exit/presentation/bloc/create_gate_cubit/gate_exit_cubit.dart';
-import 'package:shakti_hormann/widgets/doc_status_widget.dart';
-import 'package:shakti_hormann/features/gate_exit/model/gate_exit_form.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/styles/app_text_styles.dart';
+import 'package:shakti_hormann/widgets/doc_status_widget.dart';
 import 'package:shakti_hormann/widgets/spaced_column.dart';
 
 class GateExitWidget extends StatelessWidget {
@@ -20,43 +19,64 @@ class GateExitWidget extends StatelessWidget {
   });
   final GateExitForm gateExit;
   final VoidCallback onTap;
+
+  String get _badgeLabel {
+    final raw = gateExit.name;
+    if (raw == null || raw.isEmpty) return 'GX';
+    final digits =
+        RegExp(r'\d+').allMatches(raw).map((m) => m.group(0)!).toList();
+    if (digits.isEmpty) {
+      return raw.substring(0, raw.length.clamp(0, 3)).toUpperCase();
+    }
+    return digits.last;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final vehicle = gateExit.vehicleNo?.trim().isNotEmpty == true
+        ? gateExit.vehicleNo!
+        : '—';
+
     return GestureDetector(
       onTap: onTap,
       child: Card(
         color: Colors.white,
+        margin: const EdgeInsets.symmetric(horizontal: 2, vertical: 1),
+        elevation: 0.5,
         surfaceTintColor: AppColors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10.0),
-          side: const BorderSide(color: AppColors.white),
+          side: const BorderSide(color: Color(0xFFE8ECF4)),
         ),
         child: SpacedColumn(
-          defaultHeight: 2,
-          // margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
-          margin: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+          defaultHeight: 0,
+          margin: const EdgeInsets.fromLTRB(10, 9, 10, 8),
           children: [
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  width: 70,
-                  height: 70,
+                  width: 48,
+                  height: 48,
                   decoration: BoxDecoration(
                     color: const Color(0xFF2957A4).withValues(alpha: 0.10),
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(10),
                   ),
                   child: Center(
-                    child: SvgPicture.asset(
-                      'assets/images/gateexiticon.svg',
-
-                      fit: BoxFit.fill,
-                      height: 50,
+                    child: Text(
+                      _badgeLabel,
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF2957A4),
+                        letterSpacing: 0.5,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ),
-
-                const SizedBox(width: 12),
+                const SizedBox(width: 10),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -67,26 +87,25 @@ class GateExitWidget extends StatelessWidget {
                           Expanded(
                             child: Text(
                               gateExit.name ?? '',
-                              style: AppTextStyles.titleLarge(
-                                context,
-                              ).copyWith(
+                              style: AppTextStyles.titleLarge(context).copyWith(
                                 color: AppColors.black,
                                 fontWeight: FontWeight.bold,
+                                fontSize: 14,
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                          const SizedBox(width: 10),
+                          const SizedBox(width: 8),
                           Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               const Icon(
                                 Icons.calendar_month,
-                                size: 14,
+                                size: 13,
                                 color: Color(0xFF163A6B),
                               ),
-                              const SizedBox(width: 4),
+                              const SizedBox(width: 3),
                               Text(
                                 DFU.ddMMyyyyFromStr(
                                   gateExit.gateEntryDate ?? '',
@@ -95,21 +114,25 @@ class GateExitWidget extends StatelessWidget {
                                 overflow: TextOverflow.ellipsis,
                                 style: const TextStyle(
                                   color: Color(0xFF163A6B),
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
                                 ),
                               ),
                             ],
                           ),
                         ],
                       ),
-                      const SizedBox(height: 5),
+                      const SizedBox(height: 3),
                       Text(
-                        gateExit.vehicleNo ?? '',
+                        'Vehicle: $vehicle',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
                           color: AppColors.grey,
-                          fontWeight: FontWeight.normal,
+                          fontWeight: FontWeight.w600,
                           letterSpacing: 0,
+                          fontSize: 12,
+                          fontFamily: 'Urbanist',
                         ),
                       ),
                     ],
@@ -118,7 +141,7 @@ class GateExitWidget extends StatelessWidget {
               ],
             ),
             const Padding(
-              padding: EdgeInsets.symmetric(vertical: 4.0),
+              padding: EdgeInsets.symmetric(vertical: 5.0),
               child: DottedLine(
                 direction: Axis.horizontal,
                 lineLength: double.infinity,
@@ -128,42 +151,47 @@ class GateExitWidget extends StatelessWidget {
                 dashGapLength: 4.0,
               ),
             ),
-
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                BlocBuilder<Sales, SalesState>(
-                  builder: (context, state) {
-                    return state.maybeWhen(
-                      success: (data) {
-                        context.read<CreateGateExitCubit>().addSalesInvoices(
-                          salesInvoices: data,
-                        );
-                        return Expanded(
-                          child: Wrap(
-                            runSpacing: 2,
-                            spacing: 2,
-                            children: [
-                              Text(
-                                data
-                                    .map((po) => po.name ?? '')
-                                    .where((e) => e.isNotEmpty)
-                                    .join(', '),
-                                style: const TextStyle(
-                                  color: Color(0xFF2957A4),
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ],
+                Expanded(
+                  child: BlocBuilder<Sales, SalesState>(
+                    builder: (context, state) {
+                      return state.maybeWhen(
+                        success: (data) {
+                          context
+                              .read<CreateGateExitCubit>()
+                              .addSalesInvoices(salesInvoices: data);
+                          final label = data
+                              .map((po) => po.name ?? '')
+                              .where((e) => e.isNotEmpty)
+                              .join(', ');
+                          return Text(
+                            label.isNotEmpty ? label : 'Invoice: —',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: Color(0xFF2957A4),
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                            ),
+                          );
+                        },
+                        orElse: () => const Text(
+                          'Invoice: —',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: Color(0xFF2957A4),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
                           ),
-                        );
-                      },
-                      orElse: () => const SizedBox(),
-                    );
-                  },
+                        ),
+                      );
+                    },
+                  ),
                 ),
+                const SizedBox(width: 8),
                 DocStatusWidget(
                   status: StringUtils.docStatus(gateExit.docStatus ?? 0),
                 ),

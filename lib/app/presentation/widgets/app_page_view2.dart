@@ -66,7 +66,7 @@ class _AppPageView2State<T extends PageViewFiltersCubit>
     PageMode2.logisticRequest => 'Search LR',
     PageMode2.transportConfirmation => 'Search LR',
     PageMode2.vehicleReporting => 'Search VRE',
-    PageMode2.loadingConfirmation => 'Search VRE',
+    PageMode2.loadingConfirmation => 'Search VR ID',
     PageMode2.proofOfDelivery => 'Search POD',
     PageMode2.gateManagement => 'Search GM',
     PageMode2.storageAllocation => 'Search ID / SO',
@@ -76,7 +76,7 @@ class _AppPageView2State<T extends PageViewFiltersCubit>
     PageMode2.shutterPacking => 'Search ID / SO',
     PageMode2.palletCreation => 'Search ID / SO',
     PageMode2.visionPanel => 'Serach ID / SO',
-    PageMode2.installation => 'Serach ID / SO',
+    PageMode2.installation => 'Search ID / SO',
   };
 
   Color get bgColor => switch (widget.mode) {
@@ -343,19 +343,28 @@ class _AppPageView2State<T extends PageViewFiltersCubit>
         ],
       ),
       floatingActionButton:
-          widget.mode != PageMode2.transportConfirmation && widget.mode != PageMode2.loadingConfirmation 
-              ? FloatingActionButton.extended(
-                extendedPadding: const EdgeInsets.symmetric(horizontal: 28),
-                onPressed: widget.onNew,
-                backgroundColor: AppColors.darkBlue,
-                icon: const Icon(Icons.add, color: AppColors.white),
-                label: Text(
-                  'New',
-                  style: AppTextStyles.titleLarge(
-                    context,
-                  ).copyWith(color: AppColors.white, fontSize: 22),
-                ),
-              )
+          widget.mode != PageMode2.transportConfirmation &&
+                  widget.mode != PageMode2.loadingConfirmation
+              ? Padding(
+                  // Parent shell uses extendBody + floating nav — lift FAB above it.
+                  padding: EdgeInsets.only(
+                    bottom: Responsive.fabBottomOffset(context),
+                  ),
+                  child: FloatingActionButton.extended(
+                    extendedPadding: const EdgeInsets.symmetric(horizontal: 28),
+                    onPressed: widget.onNew,
+                    backgroundColor: AppColors.darkBlue,
+                    elevation: 6,
+                    icon: const Icon(Icons.add, color: AppColors.white),
+                    label: Text(
+                      'New',
+                      style: AppTextStyles.titleLarge(context).copyWith(
+                        color: AppColors.white,
+                        fontSize: 22,
+                      ),
+                    ),
+                  ),
+                )
               : null,
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );

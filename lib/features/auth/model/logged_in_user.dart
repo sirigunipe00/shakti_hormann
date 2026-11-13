@@ -32,19 +32,22 @@ class LoggedInUser with _$LoggedInUser {
     @JsonKey(name: 'mobile_no') String? mobileNo,
     @JsonKey(name: 'otp_verified') bool? isOtpVerified,
     @JsonKey(name: 'roles') List<UserRole>? roles,
-    @JsonKey(name: 'role_status') RoleStatus? roleStatus,
+    @JsonKey(name: 'role_status', fromJson: roleStatusFromJson)
+    RoleStatus? roleStatus,
   }) = _LoggedInUser;
 
   factory LoggedInUser.fromJson(Map<String, dynamic> json) =>
       _$LoggedInUserFromJson(json);
 }
+
 @freezed
 class UserRole with _$UserRole {
   const factory UserRole({
     @JsonKey(name: 'role') String? role,
   }) = _UserRole;
 
-  factory UserRole.fromJson(Map<String, dynamic> json) => _$UserRoleFromJson(json);
+  factory UserRole.fromJson(Map<String, dynamic> json) =>
+      _$UserRoleFromJson(json);
 }
 
 @freezed
@@ -55,21 +58,64 @@ class RoleStatus with _$RoleStatus {
     @JsonKey(name: 'Show Dashboards in Mobile App') int? showDashboards,
     @JsonKey(name: 'Show Gate Entry in Mobile App') int? showGateEntry,
     @JsonKey(name: 'Show Gate Exit in Mobile App') int? showGateExit,
-    @JsonKey(name: 'Show Logistic Request in Mobile App') int? showLogisticRequest,
-    @JsonKey(name: 'Show Transporter Confirmation in Mobile App') int? showTransporterConfirmation,
-    @JsonKey(name: 'Show Vehicle Reporting in Mobile App') int? showVehicleReporting,
-    @JsonKey(name: 'Show Loading Confirmation in Mobile App') int? showLoadingConfirmation,
+    @JsonKey(name: 'Show Logistic Request in Mobile App')
+    int? showLogisticRequest,
+    @JsonKey(name: 'Show Transporter Confirmation in Mobile App')
+    int? showTransporterConfirmation,
+    @JsonKey(name: 'Show Vehicle Reporting in Mobile App')
+    int? showVehicleReporting,
+    @JsonKey(name: 'Show Loading Confirmation in Mobile App')
+    int? showLoadingConfirmation,
     @JsonKey(name: 'Show Proof of Delivery in Mobile App') int? showpod,
-    @JsonKey(name: 'Show Gate Management in Mobile App') int? showgateManagement,
-    @JsonKey(name: 'Shutter Packing-SH') int? showShutter,
-    @JsonKey(name: 'Hardware Packing-SH') int? showHardware,
-    @JsonKey(name: 'Frame Packing-SH') int? showFrame,
-    @JsonKey(name: 'Installation Packing-SH') int? showInstalltion,
-    @JsonKey(name: 'Pallet Creation-SH') int? showPallet,
-    @JsonKey(name: 'Storage-SH') int? showStorage,
-    @JsonKey(name: 'Accessories Packing-SH') int? showVision,
+    @JsonKey(name: 'Show Gate Management in Mobile App')
+    int? showgateManagement,
+    // Scanning & Packaging — same "Show … in Mobile App" pattern as logistics.
+    @JsonKey(name: 'Show Pallet Creation in Mobile App') int? showPallet,
+    @JsonKey(name: 'Show Shutter Packaging in Mobile App') int? showShutter,
+    @JsonKey(name: 'Show Frame Packaging in Mobile App') int? showFrame,
+    @JsonKey(name: 'Show Storage Allocation in Mobile App') int? showStorage,
+    @JsonKey(name: 'Show Installation Packaging in Mobile App')
+    int? showInstalltion,
+    @JsonKey(name: 'Show Accessories Packaging in Mobile App') int? showVision,
+    @JsonKey(name: 'Show Hardware Packaging in Mobile App') int? showHardware,
+    @JsonKey(name: 'Show Where Is My Material in Mobile App')
+    int? showWhereIsMyMaterial,
   }) = _RoleStatus;
 
   factory RoleStatus.fromJson(Map<String, dynamic> json) =>
       _$RoleStatusFromJson(json);
+}
+
+/// Parses role_status and maps legacy `*-SH` keys to the new
+/// `Show … in Mobile App` names during backend migration.
+RoleStatus? roleStatusFromJson(Object? json) {
+  if (json == null) return null;
+  if (json is! Map) return null;
+  final normalized = Map<String, dynamic>.from(json);
+
+  const aliases = <String, String>{
+    'Show Pallet Creation in Mobile App': 'Pallet Creation-SH',
+    'Show Shutter Packaging in Mobile App': 'Shutter Packing-SH',
+    'Show Frame Packaging in Mobile App': 'Frame Packing-SH',
+    'Show Storage Allocation in Mobile App': 'Storage-SH',
+    'Show Installation Packaging in Mobile App': 'Installation Packing-SH',
+    'Show Accessories Packaging in Mobile App': 'Accessories Packing-SH',
+    'Show Hardware Packaging in Mobile App': 'Hardware Packing-SH',
+  };
+
+  for (final entry in aliases.entries) {
+    if (normalized[entry.key] == null && normalized[entry.value] != null) {
+      normalized[entry.key] = normalized[entry.value];
+    }
+  }
+
+  // Legacy: no dedicated Where Is My Material flag — any packing module on.
+  if (normalized['Show Where Is My Material in Mobile App'] == null) {
+    final anyPacking = aliases.keys.any((k) => normalized[k] == 1);
+    if (anyPacking) {
+      normalized['Show Where Is My Material in Mobile App'] = 1;
+    }
+  }
+
+  return RoleStatus.fromJson(normalized);
 }

@@ -89,6 +89,7 @@ import 'package:shakti_hormann/features/vision_panel/presentation/bloc/bloc_prov
 import 'package:shakti_hormann/features/vision_panel/presentation/bloc/create_vision_panel/create_vision_panel.dart';
 import 'package:shakti_hormann/features/vision_panel/presentation/ui/new_vision.dart';
 import 'package:shakti_hormann/features/vision_panel/presentation/ui/vision_panel_list.dart';
+import 'package:shakti_hormann/features/where_is_my_material/presentation/ui/where_is_my_material_screen.dart';
 import 'package:shakti_hormann/features/zone_transfer/model/zone_transfer.dart';
 import 'package:shakti_hormann/features/zone_transfer/presentation/bloc/bloc_provider.dart';
 import 'package:shakti_hormann/features/zone_transfer/presentation/bloc/create_zone_cubit/create_zone_cubit.dart';
@@ -164,6 +165,12 @@ class AppRouterConfig {
                           ],
                           child: const NotificationListScreen(),
                         ),
+                  ),
+                  GoRoute(
+                    path: _getPath(AppRoute.whereIsMyMaterial),
+                    // Cover bottom nav so users stay focused on this page only.
+                    parentNavigatorKey: parentNavigatorKey,
+                    builder: (_, __) => const WhereIsMyMaterialScreen(),
                   ),
                   GoRoute(
                     path: _getPath(AppRoute.gateEntry),

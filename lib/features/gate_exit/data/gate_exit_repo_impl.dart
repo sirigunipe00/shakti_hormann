@@ -3,9 +3,7 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:dartz/dartz.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
-import 'package:http/http.dart' as http;
 import 'package:injectable/injectable.dart';
-import 'package:path/path.dart' as p;
 import 'package:shakti_hormann/features/auth/model/logged_in_user.dart';
 import 'package:shakti_hormann/features/gate_exit/data/gate_exit_repo.dart';
 import 'package:shakti_hormann/features/gate_exit/model/gate_exit_form.dart';
@@ -102,35 +100,19 @@ final plantName = user().plantName;
   @override
   AsyncValueOf<Pair<String, String>> submitGateExit(GateExitForm form) async {
     return await executeSafely(() async {
-      Uint8List? vehiclefrontcompressedBytes;
-      Uint8List? vehiclebackcompressedBytes;
+      // Only upload newly picked local files. Existing object-storage URLs are
+      // already attached on the Gate Exit doc — re-downloading them often hits
+      // 404/403 and masks real validation errors.
+      final vehiclefrontcompressedBytes = await _compressLocalOrNull(
+        form.vehiclePhotoImg,
+      );
+      final vehiclebackcompressedBytes = await _compressLocalOrNull(
+        form.vehicleBackPhotoImg,
+      );
 
-      if (form.vehiclePhotoImg != null) {
-        final filePath = form.vehiclePhotoImg!.path;
-        vehiclefrontcompressedBytes =
-            await FlutterImageCompress.compressWithFile(filePath, quality: 50);
-      } else if (form.vehiclePhoto != null) {
-        vehiclefrontcompressedBytes = await fetchAndConvertToBase64(
-          form.vehiclePhoto ?? '',
-        );
-      }
-
-      if (form.vehicleBackPhotoImg != null) {
-        final filePath = form.vehicleBackPhotoImg!.path;
-        vehiclebackcompressedBytes =
-            await FlutterImageCompress.compressWithFile(filePath, quality: 50);
-      } else if (form.vehicleBackPhoto != null) {
-        vehiclebackcompressedBytes = await fetchAndConvertToBase64(
-          form.vehicleBackPhoto ?? '',
-        );
-      }
-
-         final cleanedJson = removeNullValues(form.toJson());
-    cleanedJson['status'] = 'Draft';
-     final Map<String, dynamic> requestBody = {
-         'gate_exit_id': form.name,
-         'plant_name': form.plantName,
-        
+      final Map<String, dynamic> requestBody = {
+        'gate_exit_id': form.name,
+        'plant_name': form.plantName,
         'sales_invoices': form.salesInvoices,
         'vehicle_no': form.vehicleNo,
         'vehicle_back_photo':
@@ -144,12 +126,12 @@ final plantName = user().plantName;
         'gate_entry_date': form.gateEntryDate,
         'remarks': form.remarks,
         'by_mobile_app': 1,
-        
       };
-        if (form.plantName != null && form.plantName!.trim().isNotEmpty && form.plantName != '') {
-
-      requestBody['plant_name'] = form.plantName;
-    }
+      if (form.plantName != null &&
+          form.plantName!.trim().isNotEmpty &&
+          form.plantName != '') {
+        requestBody['plant_name'] = form.plantName;
+      }
 
       final config = RequestConfig(
         url: Urls.submitGateExit,
@@ -157,7 +139,6 @@ final plantName = user().plantName;
           final data = json['message']['message'] as String;
           return Pair(data, '');
         },
-
         body: jsonEncode(requestBody),
         headers: {HttpHeaders.contentTypeHeader: 'application/json'},
       );
@@ -171,40 +152,16 @@ final plantName = user().plantName;
 
   @override
   AsyncValueOf<Pair<String, String>> createGateExit(GateExitForm form) async {
-    final formJson = form.toJson();
-
-    formJson['status'] = 'Draft';
-    Uint8List? vehiclefrontcompressedBytes;
-    Uint8List? vehiclebackcompressedBytes;
-
-    if (form.vehiclePhotoImg != null) {
-      final filePath = form.vehiclePhotoImg!.path;
-      vehiclefrontcompressedBytes = await FlutterImageCompress.compressWithFile(
-        filePath,
-        quality: 50,
+    return await executeSafely(() async {
+      final vehiclefrontcompressedBytes = await _compressLocalOrNull(
+        form.vehiclePhotoImg,
       );
-    } else if (form.vehiclePhoto != null) {
-      vehiclefrontcompressedBytes = await fetchAndConvertToBase64(
-        form.vehiclePhoto ?? '',
+      final vehiclebackcompressedBytes = await _compressLocalOrNull(
+        form.vehicleBackPhotoImg,
       );
-    }
 
-    if (form.vehicleBackPhotoImg != null) {
-      final filePath = form.vehicleBackPhotoImg!.path;
-      vehiclebackcompressedBytes = await FlutterImageCompress.compressWithFile(
-        filePath,
-        quality: 50,
-      );
-    } else if (form.vehicleBackPhoto != null) {
-      vehiclebackcompressedBytes = await fetchAndConvertToBase64(
-        form.vehicleBackPhoto ?? '',
-      );
-    }
-
-    final cleanedJson = removeNullValues(form.toJson());
-    cleanedJson['status'] = 'Draft';
-     final Map<String, dynamic> requestBody = {
-         'plant_name': form.plantName,
+      final Map<String, dynamic> requestBody = {
+        'plant_name': form.plantName,
         'sales_invoices': form.salesInvoices,
         'vehicle_no': form.vehicleNo,
         'vehicle_back_photo':
@@ -218,31 +175,36 @@ final plantName = user().plantName;
         'gate_entry_date': form.gateEntryDate,
         'remarks': form.remarks,
         'by_mobile_app': 1,
-        
       };
-        if (form.plantName != null && form.plantName!.trim().isNotEmpty && form.plantName != '') {
+      if (form.plantName != null &&
+          form.plantName!.trim().isNotEmpty &&
+          form.plantName != '') {
+        requestBody['plant_name'] = form.plantName;
+      }
 
-      requestBody['plant_name'] = form.plantName;
-    }
+      final config = RequestConfig(
+        url: Urls.createGateExit,
+        parser: (json) {
+          final data = json['message']['message'] as String;
+          final name = json['message']['data']['name'] as String;
+          return Pair(name, data);
+        },
+        body: jsonEncode(requestBody),
+        headers: {HttpHeaders.contentTypeHeader: 'application/json'},
+      );
 
-    final config = RequestConfig(
-      url: Urls.createGateExit,
-      parser: (json) {
-        final data = json['message']['message'] as String;
-        final name = json['message']['data']['name'] as String;
-        return Pair(name, data);
-      },
-     
-
-      body: jsonEncode(requestBody),
-      headers: {HttpHeaders.contentTypeHeader: 'application/json'},
-    );
-
-    final response = await post(config);
-    $logger.devLog('response.....$config');
-    return response.processAsync((r) async {
-      return right(Pair(r.data!.first, r.data!.second));
+      final response = await post(config);
+      $logger.devLog('response.....$config');
+      return response.processAsync((r) async {
+        return right(Pair(r.data!.first, r.data!.second));
+      });
     });
+  }
+
+  Future<Uint8List?> _compressLocalOrNull(File? file) async {
+    if (file == null) return null;
+    if (!await file.exists()) return null;
+    return FlutterImageCompress.compressWithFile(file.path, quality: 50);
   }
 
   @override
@@ -286,19 +248,4 @@ final hasRole = users.roles!.any((r) => r.role == 'Admin Role-SH');
     });
   }
 
-  Future<Uint8List?> fetchAndConvertToBase64(String relativePath) async {
-    if (p.extension(relativePath).isEmpty) {
-      return null;
-    }
-
-    final String url = Urls.filepath(relativePath);
-
-    final response = await http.get(Uri.parse(url));
-
-    if (response.statusCode == 200) {
-      return response.bodyBytes;
-    } else {
-      throw Exception('Failed to load file: ${response.statusCode}');
-    }
-  }
 }

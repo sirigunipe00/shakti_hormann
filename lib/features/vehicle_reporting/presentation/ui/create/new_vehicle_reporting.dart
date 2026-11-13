@@ -9,8 +9,8 @@ import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/widgets/buttons/app_btn.dart';
 import 'package:shakti_hormann/widgets/dailogs/app_dialogs.dart';
 import 'package:shakti_hormann/widgets/form_page_loading_stack.dart';
+import 'package:shakti_hormann/widgets/inputs/compact_search_select.dart';
 import 'package:shakti_hormann/widgets/inputs/rejectreasondailog.dart';
-import 'package:shakti_hormann/widgets/inputs/search_dropdown_widget.dart';
 import 'package:shakti_hormann/widgets/simple_app_bar.dart';
 import 'package:shakti_hormann/widgets/title_status_app_bar.dart';
 
@@ -64,98 +64,21 @@ class _NewVehicleReportingState extends State<NewVehicleReporting> {
                     ),
                 dropdown: BlocBuilder<LogisticRequest, LogisticRequestState>(
                   builder: (_, state) {
-                    final allData = state.maybeWhen(
-                      orElse: () => <TransportConfirmationForm>[],
-                      success: (data) => data,
-                    );
-
-                    final names = allData.toList();
-
-                    return SearchDropDownList<TransportConfirmationForm>(
-                      title: 'Logistic Request No',
-                      hint: 'Search Logistic No',
-                      color: AppColors.white,
-                      key: UniqueKey(),
-                      defaultSelection: transporterForm,
-                      items: names,
-                      readOnly: newform.status == 'Reported' || newform.status == 'Rejected',
-                      isloading: state.isLoading,
-                      futureRequest: (query) async {
-                        if (query.isEmpty) return names;
-
-                        return names.where((item) {
-                          final orderNo = item.name?.toLowerCase() ?? '';
-                          final customer =
-                              item.vehicleNumber?.toLowerCase() ?? '';
-                          final transporter =
-                              item.transporterName?.toLowerCase() ?? '';
-                          final transporterName = 
-                             item.transporterName2?.toLowerCase() ?? '';
-                          final search = query.toLowerCase();
-                          
-
-
-                          return orderNo.contains(search) ||
-                              customer.contains(search) ||
-                              transporterName.contains(search) ||
-                              transporter.contains(search);
-                        }).toList();
-                      },
-
-                      headerBuilder:
-                          (_, item, __) => Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [Text(item.name ?? '')],
-                          ),
-                      listItemBuilder:
-                          (_, item, __, ___) => Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Logistic No: ${item.name ?? ''}',
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              if (item.transporterName != null)
-                                Text(
-                                  'Transporter ID : ${item.transporterName}',
-                                ),
-                                if(item.transporterName2 != null )
-                                Text(
-                                  'Transporter Name : ${item.transporterName2}',
-                                ),
-                              Text('Vehicle No: ${item.vehicleNumber ?? ''}'),
-                              const Divider(height: 8),
-                            ],
-                          ),
-
-                      onSelected: (selected) {
-                        setState(() {
-                          transporterForm = selected;
-                        });
-                        final combinedTransporterName =
-                      [selected.transporterName, selected.transporterName2]
-                      .where((e) => e != null && e.isNotEmpty)
-                         .join(' - ');
-                        context.cubit<CreateVehicleCubit>().onValueChanged(
-                          plantName: selected.plantName,
-                          transporterName: combinedTransporterName,
-                          vehicleNo: selected.vehicleNumber,
-                          linkedTransporterConfirmation: selected.name,
-                          driverContact: selected.driverContact,
-                          arrivalDate: selected.estimatedArrivalDate,
-                          arrivalTime: selected.estimatedArrivalTime
-                        );
-                      },
-                      focusNode: FocusNode(),
+                    return _buildLogisticSelect(
+                      context: context,
+                      state: state,
+                      linkedName: newform.linkedTransporterConfirmation,
+                      locked: newform.status == 'Reported' ||
+                          newform.status == 'Rejected',
+                      labelColor: Colors.white,
                     );
                   },
                 ),
                 showScanner: false,
               )
               : PreferredSize(
-                preferredSize: const Size.fromHeight(200),
+                // Title row + Accept/Reject row + logistic dropdown.
+                preferredSize: const Size.fromHeight(236),
                 child: BlocBuilder<CreateVehicleCubit, CreateVehicleState>(
                   builder: (context, state) {
                     return TitleStatusAppBar(
@@ -166,129 +89,39 @@ class _NewVehicleReportingState extends State<NewVehicleReporting> {
                       showRejectButton: true,
                       isSubmitting: state.isSubmitting,
                       isRejecting: state.isRejecting,
-                      onSubmit: () {
-                        context.cubit<CreateVehicleCubit>().approve();
-                      },
+                      onSubmit: () => _confirmAcceptVehicle(context),
                       onReject: () {
                         showRejectDialogs(context);
                       },
-                      dropdown: BlocBuilder<
-                        LogisticRequest,
-                        LogisticRequestState
-                      >(
-                        builder: (_, state) {
-                          final allData = state.maybeWhen(
-                            orElse: () => <TransportConfirmationForm>[],
-                            success: (data) => data,
-                          );
-
-                          final names = allData.toList();
-                          final selectedOrders =
-                              context
-                                  .watch<CreateVehicleCubit>()
-                                  .state
-                                  .form
-                                  .linkedTransporterConfirmation ??
+                      dropdown: BlocBuilder<CreateVehicleCubit, CreateVehicleState>(
+                        builder: (context, vehicleCubitState) {
+                          final linked = vehicleCubitState
+                                  .form.linkedTransporterConfirmation
+                                  ?.trim() ??
                               '';
+                          final isLocked = status == 'Reported' ||
+                              status == 'Rejected';
 
-                          return SearchDropDownList<TransportConfirmationForm>(
-                            title: 'Logistic Request No',
-                            hint: 'Search Logistic No',
-                            color: AppColors.white,
-                            key: UniqueKey(),
-                            readOnly: status == 'Reported' || status == 'Rejected',
-                            defaultSelection: () {
-                              if (names.isEmpty || selectedOrders.isEmpty) {
-                                return null;
-                              }
+                          if (linked.isNotEmpty && isLocked) {
+                            return _LinkedLogisticReadonlyField(
+                              value: linked,
+                              locked: true,
+                            );
+                          }
 
-                              final selected = names.firstWhere(
-                                (item) => item.name == selectedOrders,
-                                orElse:
-                                    () => TransportConfirmationForm(
-                                      name: selectedOrders,
-                                    ),
+                          return BlocBuilder<
+                            LogisticRequest,
+                            LogisticRequestState
+                          >(
+                            builder: (_, state) {
+                              return _buildLogisticSelect(
+                                context: context,
+                                state: state,
+                                linkedName: linked,
+                                locked: isLocked,
+                                labelColor: Colors.white,
                               );
-
-                              return selected;
-                            }(),
-                            items: names,
-                            isloading: state.isLoading,
-                            futureRequest: (query) async {
-                              if (query.isEmpty) return names;
-
-                              return names.where((item) {
-                                final orderNo = item.name?.toLowerCase() ?? '';
-                                final customer =
-                                    item.vehicleNumber?.toLowerCase() ?? '';
-                                final transporter =
-                                    item.transporterName?.toLowerCase() ?? '';
-                                    final transporterName = 
-                             item.transporterName2?.toLowerCase() ?? '';
-                                final search = query.toLowerCase();
-
-                                return orderNo.contains(search) ||
-                                    customer.contains(search) ||
-                                    transporterName.contains(search) || 
-                                    transporter.contains(search);
-                              }).toList();
                             },
-
-                            headerBuilder:
-                                (_, item, __) => Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [Text(item.name ?? '',style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: status == 'Reported' || status == 'Rejected' ? Colors.white : AppColors.black,
-                                  ),)],
-                                ),
-                            listItemBuilder:
-                                (_, item, __, ___) => Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Logistic No: ${item.name ?? ''}',
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color: AppColors.black,
-                                        
-                                      ),
-                                    ),
-                                    if (item.transporterName != null)
-                                      Text(
-                                        'Transporter ID : ${item.transporterName}',
-                                      ),
-                                      if(item.transporterName2 != null )
-                                Text(
-                                  'Transporter Name : ${item.transporterName2}',
-                                ),
-                                    Text(
-                                      'Vehicle No: ${item.vehicleNumber ?? ''}',
-                                    ),
-                                    const Divider(height: 8),
-                                  ],
-                                ),
-
-                            onSelected: (selected) {
-                              setState(() {
-                                transporterForm = selected;
-                              });     
-                          final combinedTransporterName =
-                            [selected.transporterName, selected.transporterName2]
-                             .where((e) => e != null && e.isNotEmpty)
-                             .join(' - ');
-                              context
-                                  .cubit<CreateVehicleCubit>()
-                                  .onValueChanged(
-                                    plantName: selected.plantName,
-                                    transporterName: combinedTransporterName,
-                                    vehicleNo: selected.vehicleNumber,
-                                    linkedTransporterConfirmation:
-                                        selected.name,
-                                    driverContact: selected.driverContact,
-                                  );
-                            },
-                            focusNode: FocusNode(),
                           );
                         },
                       ),
@@ -371,6 +204,219 @@ class _NewVehicleReportingState extends State<NewVehicleReporting> {
           );
         },
       ),
+    );
+  }
+
+  /// Keep the already-linked TC visible even when fetchLogistics filters it out
+  /// (e.g. vehicle_reported_loaded=1 or outside yesterday/today window).
+  List<TransportConfirmationForm> _withLinkedLogistic(
+    List<TransportConfirmationForm> source,
+    String? linkedName,
+  ) {
+    final names = List<TransportConfirmationForm>.from(source);
+    final linked = linkedName?.trim() ?? '';
+    if (linked.isEmpty) return names;
+    final exists = names.any((e) => e.name == linked);
+    if (!exists) {
+      names.insert(0, TransportConfirmationForm(name: linked));
+    }
+    return names;
+  }
+
+  TransportConfirmationForm? _linkedOrNull(
+    List<TransportConfirmationForm> names,
+    String? linkedName,
+  ) {
+    final linked = linkedName?.trim() ?? '';
+    if (linked.isEmpty || names.isEmpty) return null;
+    return names.firstWhere(
+      (item) => item.name == linked,
+      orElse: () => TransportConfirmationForm(name: linked),
+    );
+  }
+
+  Widget _buildLogisticSelect({
+    required BuildContext context,
+    required LogisticRequestState state,
+    required String? linkedName,
+    required bool locked,
+    required Color labelColor,
+  }) {
+    final allData = state.maybeWhen(
+      orElse: () => <TransportConfirmationForm>[],
+      success: (data) => data,
+    );
+    final names = _withLinkedLogistic(allData, linkedName);
+    final selected = transporterForm ?? _linkedOrNull(names, linkedName);
+
+    return CompactSearchSelect<TransportConfirmationForm>(
+      key: ValueKey('vre_lr_${selected?.name ?? 'new'}_${names.length}'),
+      label: 'Logistic Request No',
+      hint: 'Search Logistic No',
+      labelColor: labelColor,
+      isRequired: true,
+      locked: locked,
+      isLoading: state.isLoading && names.isEmpty,
+      leadingIcon: Icons.receipt_long_outlined,
+      maxMenuHeight: 240,
+      options: names,
+      value: selected,
+      labelOf: (e) => e.name ?? '',
+      subtitleOf: (e) {
+        final parts = <String>[
+          if (e.transporterName?.isNotEmpty == true) e.transporterName!,
+          if (e.transporterName2?.isNotEmpty == true) e.transporterName2!,
+          if (e.vehicleNumber?.isNotEmpty == true) 'Veh: ${e.vehicleNumber!}',
+        ];
+        return parts.isEmpty ? null : parts.join(' · ');
+      },
+      matchesQuery: (item, query) {
+        final haystack = [
+          item.name,
+          item.transporterName,
+          item.transporterName2,
+          item.vehicleNumber,
+        ].whereType<String>().join(' ').toLowerCase();
+        return haystack.contains(query);
+      },
+      onChanged: (picked) => _onLogisticSelected(context, picked),
+    );
+  }
+
+  void _onLogisticSelected(
+    BuildContext context,
+    TransportConfirmationForm selected,
+  ) {
+    setState(() => transporterForm = selected);
+    final combinedTransporterName = [
+      selected.transporterName,
+      selected.transporterName2,
+    ].where((e) => e != null && e.isNotEmpty).join(' - ');
+    context.cubit<CreateVehicleCubit>().onValueChanged(
+          plantName: selected.plantName,
+          transporterName: combinedTransporterName,
+          vehicleNo: selected.vehicleNumber,
+          linkedTransporterConfirmation: selected.name,
+          driverContact: selected.driverContact,
+          arrivalDate: selected.estimatedArrivalDate,
+          arrivalTime: selected.estimatedArrivalTime,
+        );
+  }
+
+  Future<void> _confirmAcceptVehicle(BuildContext context) async {
+    final cubit = context.read<CreateVehicleCubit>();
+    if (cubit.state.isSubmitting) return;
+    final form = cubit.state.form;
+
+    await AppDialog.askForConfirmation(
+      context,
+      title: 'Accept Vehicle?',
+      content:
+          'Confirm that the vehicle has reported correctly. This will mark the vehicle reporting entry as accepted.',
+      buttonText: 'Keep Editing',
+      confirmBtnText: 'Accept Vehicle',
+      icon: Icons.verified_rounded,
+      iconBackground: const Color(0xFFE8F5E9),
+      iconColor: const Color(0xFF16A34A),
+      confirmIcon: Icons.check_circle_rounded,
+      confirmColor: const Color(0xFF16A34A),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if ((form.name ?? '').isNotEmpty)
+            Text(
+              form.name!,
+              style: const TextStyle(
+                fontWeight: FontWeight.w800,
+                fontFamily: 'Urbanist',
+                color: Color(0xFF0E1446),
+              ),
+            ),
+          if ((form.vehicleNumber ?? '').isNotEmpty) ...[
+            const SizedBox(height: 4),
+            Text(
+              'Vehicle: ${form.vehicleNumber}',
+              style: const TextStyle(
+                fontWeight: FontWeight.w700,
+                fontFamily: 'Urbanist',
+                color: Color(0xFF6B7280),
+              ),
+            ),
+          ],
+        ],
+      ),
+      onTapDismiss: () => Navigator.of(context).pop(false),
+      onTapConfirm: () {
+        Navigator.of(context).pop(true);
+        cubit.approve();
+      },
+    );
+  }
+}
+
+/// Shows ERP `linked_transporter_confirmation` without depending on the
+/// fresh Transport Confirmation picker list.
+class _LinkedLogisticReadonlyField extends StatelessWidget {
+  const _LinkedLogisticReadonlyField({
+    required this.value,
+    required this.locked,
+  });
+
+  final String value;
+  final bool locked;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Logistic Request No',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 15,
+            fontWeight: FontWeight.w700,
+            fontFamily: 'Urbanist',
+          ),
+        ),
+        const SizedBox(height: 4),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          decoration: BoxDecoration(
+            color: locked
+                ? Colors.white.withValues(alpha: 0.14)
+                : Colors.white,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: Colors.white.withValues(alpha: 0.28),
+            ),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  value,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: locked ? Colors.white : AppColors.black,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                    fontFamily: 'Urbanist',
+                  ),
+                ),
+              ),
+              if (locked)
+                Icon(
+                  Icons.lock_outline,
+                  size: 16,
+                  color: Colors.white.withValues(alpha: 0.85),
+                ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

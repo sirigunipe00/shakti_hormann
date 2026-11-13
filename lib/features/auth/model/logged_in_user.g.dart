@@ -34,12 +34,7 @@ _$LoggedInUserImpl _$$LoggedInUserImplFromJson(Map<String, dynamic> json) =>
           (json['roles'] as List<dynamic>?)
               ?.map((e) => UserRole.fromJson(e as Map<String, dynamic>))
               .toList(),
-      roleStatus:
-          json['role_status'] == null
-              ? null
-              : RoleStatus.fromJson(
-                json['role_status'] as Map<String, dynamic>,
-              ),
+      roleStatus: roleStatusFromJson(json['role_status']),
     );
 
 Map<String, dynamic> _$$LoggedInUserImplToJson(_$LoggedInUserImpl instance) =>
@@ -76,31 +71,36 @@ _$UserRoleImpl _$$UserRoleImplFromJson(Map<String, dynamic> json) =>
 Map<String, dynamic> _$$UserRoleImplToJson(_$UserRoleImpl instance) =>
     <String, dynamic>{'role': instance.role};
 
-_$RoleStatusImpl _$$RoleStatusImplFromJson(Map<String, dynamic> json) =>
-    _$RoleStatusImpl(
-      showDashboards: (json['Show Dashboards in Mobile App'] as num?)?.toInt(),
-      showGateEntry: (json['Show Gate Entry in Mobile App'] as num?)?.toInt(),
-      showGateExit: (json['Show Gate Exit in Mobile App'] as num?)?.toInt(),
-      showLogisticRequest:
-          (json['Show Logistic Request in Mobile App'] as num?)?.toInt(),
-      showTransporterConfirmation:
-          (json['Show Transporter Confirmation in Mobile App'] as num?)
-              ?.toInt(),
-      showVehicleReporting:
-          (json['Show Vehicle Reporting in Mobile App'] as num?)?.toInt(),
-      showLoadingConfirmation:
-          (json['Show Loading Confirmation in Mobile App'] as num?)?.toInt(),
-      showpod: (json['Show Proof of Delivery in Mobile App'] as num?)?.toInt(),
-      showgateManagement:
-          (json['Show Gate Management in Mobile App'] as num?)?.toInt(),
-      showShutter: (json['Shutter Packing-SH'] as num?)?.toInt(),
-      showHardware: (json['Hardware Packing-SH'] as num?)?.toInt(),
-      showFrame: (json['Frame Packing-SH'] as num?)?.toInt(),
-      showInstalltion: (json['Installation Packing-SH'] as num?)?.toInt(),
-      showPallet: (json['Pallet Creation-SH'] as num?)?.toInt(),
-      showStorage: (json['Storage-SH'] as num?)?.toInt(),
-      showVision: (json['Accessories Packing-SH'] as num?)?.toInt(),
-    );
+_$RoleStatusImpl _$$RoleStatusImplFromJson(
+  Map<String, dynamic> json,
+) => _$RoleStatusImpl(
+  showDashboards: (json['Show Dashboards in Mobile App'] as num?)?.toInt(),
+  showGateEntry: (json['Show Gate Entry in Mobile App'] as num?)?.toInt(),
+  showGateExit: (json['Show Gate Exit in Mobile App'] as num?)?.toInt(),
+  showLogisticRequest:
+      (json['Show Logistic Request in Mobile App'] as num?)?.toInt(),
+  showTransporterConfirmation:
+      (json['Show Transporter Confirmation in Mobile App'] as num?)?.toInt(),
+  showVehicleReporting:
+      (json['Show Vehicle Reporting in Mobile App'] as num?)?.toInt(),
+  showLoadingConfirmation:
+      (json['Show Loading Confirmation in Mobile App'] as num?)?.toInt(),
+  showpod: (json['Show Proof of Delivery in Mobile App'] as num?)?.toInt(),
+  showgateManagement:
+      (json['Show Gate Management in Mobile App'] as num?)?.toInt(),
+  showPallet: (json['Show Pallet Creation in Mobile App'] as num?)?.toInt(),
+  showShutter: (json['Show Shutter Packaging in Mobile App'] as num?)?.toInt(),
+  showFrame: (json['Show Frame Packaging in Mobile App'] as num?)?.toInt(),
+  showStorage: (json['Show Storage Allocation in Mobile App'] as num?)?.toInt(),
+  showInstalltion:
+      (json['Show Installation Packaging in Mobile App'] as num?)?.toInt(),
+  showVision:
+      (json['Show Accessories Packaging in Mobile App'] as num?)?.toInt(),
+  showHardware:
+      (json['Show Hardware Packaging in Mobile App'] as num?)?.toInt(),
+  showWhereIsMyMaterial:
+      (json['Show Where Is My Material in Mobile App'] as num?)?.toInt(),
+);
 
 Map<String, dynamic> _$$RoleStatusImplToJson(
   _$RoleStatusImpl instance,
@@ -115,11 +115,12 @@ Map<String, dynamic> _$$RoleStatusImplToJson(
   'Show Loading Confirmation in Mobile App': instance.showLoadingConfirmation,
   'Show Proof of Delivery in Mobile App': instance.showpod,
   'Show Gate Management in Mobile App': instance.showgateManagement,
-  'Shutter Packing-SH': instance.showShutter,
-  'Hardware Packing-SH': instance.showHardware,
-  'Frame Packing-SH': instance.showFrame,
-  'Installation Packing-SH': instance.showInstalltion,
-  'Pallet Creation-SH': instance.showPallet,
-  'Storage-SH': instance.showStorage,
-  'Accessories Packing-SH': instance.showVision,
+  'Show Pallet Creation in Mobile App': instance.showPallet,
+  'Show Shutter Packaging in Mobile App': instance.showShutter,
+  'Show Frame Packaging in Mobile App': instance.showFrame,
+  'Show Storage Allocation in Mobile App': instance.showStorage,
+  'Show Installation Packaging in Mobile App': instance.showInstalltion,
+  'Show Accessories Packaging in Mobile App': instance.showVision,
+  'Show Hardware Packaging in Mobile App': instance.showHardware,
+  'Show Where Is My Material in Mobile App': instance.showWhereIsMyMaterial,
 };

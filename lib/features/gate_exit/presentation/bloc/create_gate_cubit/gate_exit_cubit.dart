@@ -203,12 +203,14 @@ class CreateGateExitCubit extends AppBaseCubit<CreateGateExitState> {
   Option<Pair<String, int?>> _validate() {
     final form = state.form;
 
-   if (form.salesInvoices == null || form.salesInvoices!.isEmpty) {
+    if (form.plantName.isNull || (form.plantName?.trim().isEmpty ?? true)) {
+      return optionOf(const Pair('Missing Plant Name', 0));
+    } else if (form.salesInvoices == null || form.salesInvoices!.isEmpty) {
       return optionOf(const Pair('Select Sales Invoice', 0));
-   } else if (form.vehicleNo.isNull || 
-             (form.vehicleNo?.trim().isEmpty ?? true)) {
-    return optionOf(const Pair('Missing Vehicle Number', 0));
-  }else if (form.vehiclePhoto.doesNotHaveValue &&
+    } else if (form.vehicleNo.isNull ||
+        (form.vehicleNo?.trim().isEmpty ?? true)) {
+      return optionOf(const Pair('Missing Vehicle Number', 0));
+    } else if (form.vehiclePhoto.doesNotHaveValue &&
         form.vehiclePhotoImg.isNull) {
       return optionOf(const Pair('Capture Vehicle Front Photo.', 0));
     } else if (form.vehicleBackPhoto.doesNotHaveValue &&

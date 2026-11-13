@@ -52,7 +52,10 @@ class ShutterBlocProvider {
     onRequest: (params, state) => repo.getPalletSize(),
   );
    SalesOrdersCubit getSales() => SalesOrdersCubit(
-    onRequest: (params, state) => repo.getSales(q: params ?? ''),
+    onRequest: (params, state) => repo.getSales(
+      q: params ?? '',
+      limit: 40,
+    ),
   );
 
 }

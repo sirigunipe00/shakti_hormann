@@ -32,6 +32,7 @@ class __ZoneFormWidgetState extends State<ZoneFormWidget> {
     final formState = context.watch<CreateZoneCubit>().state;
     final isCompleted = formState.view == ZoneView.completed;
     final newform = formState.form;
+    final hasZone = newform.zoneQr?.trim().isNotEmpty ?? false;
 
     return MultiBlocListener(
       listeners: [
@@ -44,7 +45,13 @@ class __ZoneFormWidgetState extends State<ZoneFormWidget> {
         ],
       child: SingleChildScrollView(
         controller: _scrollController,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: ShellInsets.scrollPadding(
+          context,
+          left: 16,
+          right: 16,
+          top: 12,
+        ),
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -233,31 +240,37 @@ class __ZoneFormWidgetState extends State<ZoneFormWidget> {
             //   assetIcon: 'assets/images/phot.svg',
             // ),
 
-            DashedBorderBox(
-              borderRadius: 12,
-              child: 
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Column(
-                  children: [
-                   NewUploadPhotoWidget(
-                      fileName: 'zone_icon',
-                      imageUrl: newform.locationPhoto,
-                      title: 'New Zone Image',
-                      isRequired: true,
-                      isReadOnly: isCompleted,
-                      onFileCapture: (file) {
-                        context.cubit<CreateZoneCubit>().onValueChanged(
-                          zonePhoto: file,
-                        );
-                      },
+            Opacity(
+              opacity: hasZone || isCompleted ? 1 : 0.55,
+              child: IgnorePointer(
+                ignoring: !hasZone && !isCompleted,
+                child: DashedBorderBox(
+                  borderRadius: 12,
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                  ],
+                    child: Column(
+                      children: [
+                        NewUploadPhotoWidget(
+                          fileName: 'zone_icon',
+                          imageUrl: newform.locationPhoto,
+                          title: 'New Zone Image',
+                          isRequired: true,
+                          // Photo is proof of zone — locked until zone QR is scanned.
+                          isReadOnly: isCompleted || !hasZone,
+                          onFileCapture: (file) {
+                            context.cubit<CreateZoneCubit>().onValueChanged(
+                              zonePhoto: file,
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
             ),

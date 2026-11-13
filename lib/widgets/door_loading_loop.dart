@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shakti_hormann/widgets/hormann_door_loading_loop.dart';
+import 'package:shakti_hormann/widgets/hormann_loading_controller.dart';
 
 /// Backwards-compatible alias for [HormannDoorLoadingLoop].
 class DoorLoadingLoop extends StatelessWidget {
@@ -11,6 +12,9 @@ class DoorLoadingLoop extends StatelessWidget {
     this.loopDuration = const Duration(milliseconds: 2000),
     this.onFirstCycleComplete,
     this.holdCompleteAssembly = false,
+    this.progressController,
+    this.onProgressFinished,
+    this.expandBackgroundColor = Colors.white,
   });
 
   final double width;
@@ -19,6 +23,9 @@ class DoorLoadingLoop extends StatelessWidget {
   final Duration loopDuration;
   final VoidCallback? onFirstCycleComplete;
   final bool holdCompleteAssembly;
+  final HormannLoadingController? progressController;
+  final VoidCallback? onProgressFinished;
+  final Color expandBackgroundColor;
 
   @override
   Widget build(BuildContext context) {
@@ -29,6 +36,9 @@ class DoorLoadingLoop extends StatelessWidget {
       loopDuration: loopDuration,
       onFirstCycleComplete: onFirstCycleComplete,
       holdCompleteAssembly: holdCompleteAssembly,
+      progressController: progressController,
+      onProgressFinished: onProgressFinished,
+      expandBackgroundColor: expandBackgroundColor,
     );
   }
 }

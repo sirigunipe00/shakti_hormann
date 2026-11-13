@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shakti_hormann/core/utils/packing_sticker_decoder.dart';
+import 'package:shakti_hormann/core/utils/shell_insets.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
 class ScanFramePage extends StatefulWidget {
@@ -106,7 +107,12 @@ class _ScanFramePageState extends State<ScanFramePage> {
           Align(
             alignment: Alignment.bottomCenter,
             child: Padding(
-              padding: const EdgeInsets.only(bottom: 80),
+              padding: EdgeInsets.fromLTRB(
+                24,
+                0,
+                24,
+                ShellInsets.overlayAboveNav(context),
+              ),
               child: Text(
                 widget.hint,
                 style: const TextStyle(

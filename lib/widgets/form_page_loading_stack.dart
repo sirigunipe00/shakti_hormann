@@ -80,8 +80,10 @@
 // }
 
 import 'dart:math' as math;
-import 'dart:ui';
+
 import 'package:flutter/material.dart';
+import 'package:shakti_hormann/widgets/frosted_door_loading_popup.dart';
+import 'package:shakti_hormann/widgets/hormann_loading_controller.dart';
 
 /// Native Flutter recreation of the Hörmann branded door-loading animation.
 /// Loops every 2 seconds, mirroring the original CSS keyframe timings:
@@ -730,49 +732,84 @@ class FormPageLoadingStack extends StatefulWidget {
 }
 
 class _FormPageLoadingStackState extends State<FormPageLoadingStack> {
-  static const _minVisible = Duration(milliseconds: 2000);
+  static const _minVisible = Duration(milliseconds: 1600);
 
+  HormannLoadingController? _progress;
   bool _showOverlay = false;
+  bool _finishing = false;
   DateTime? _shownAt;
 
   @override
   void initState() {
     super.initState();
-    _showOverlay = widget.isLoading;
-    if (_showOverlay) _shownAt = DateTime.now();
+    if (widget.isLoading) {
+      _beginShow();
+    }
+  }
+
+  @override
+  void dispose() {
+    _progress?.dispose();
+    _progress = null;
+    super.dispose();
   }
 
   @override
   void didUpdateWidget(covariant FormPageLoadingStack oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    if (widget.isLoading && !_showOverlay) {
-      setState(() {
-        _showOverlay = true;
-        _shownAt = DateTime.now();
-      });
-    } else if (!widget.isLoading && _showOverlay) {
-      final elapsed = DateTime.now().difference(_shownAt ?? DateTime.now());
-      final remaining = _minVisible - elapsed;
+    if (widget.isLoading && !_showOverlay && !_finishing) {
+      _beginShow();
+      return;
+    }
 
-      if (remaining <= Duration.zero) {
-        setState(() => _showOverlay = false);
-      } else {
-        Future.delayed(remaining, () {
-          if (!mounted) return;
-          if (!widget.isLoading) {
-            setState(() => _showOverlay = false);
-          }
-        });
-      }
+    if (!widget.isLoading && _showOverlay && !_finishing) {
+      _beginHide();
     }
   }
 
-  static const double _cardRadius = 24.0;
+  void _beginShow() {
+    _progress?.dispose();
+    // Stage labels stay splash-style ("Fitting the frame"...).
+    // Action text (Saving/Submitting) is shown under the door via [message].
+    final controller = HormannLoadingController()
+      ..setStage(0.16)
+      ..startIdleCreep(ceiling: 0.88);
+    _progress = controller;
+    _finishing = false;
+    _shownAt = DateTime.now();
+    setState(() => _showOverlay = true);
+  }
+
+  Future<void> _beginHide() async {
+    if (_finishing) return;
+    _finishing = true;
+
+    final shownAt = _shownAt ?? DateTime.now();
+    final elapsed = DateTime.now().difference(shownAt);
+    final remaining = _minVisible - elapsed;
+    if (remaining > Duration.zero) {
+      await Future<void>.delayed(remaining);
+    }
+    if (!mounted) return;
+
+    final controller = _progress;
+    if (controller != null && !controller.isCompleted) {
+      await controller.complete(label: 'Ready');
+    }
+    if (!mounted) return;
+
+    setState(() {
+      _showOverlay = false;
+      _finishing = false;
+    });
+    _progress?.dispose();
+    _progress = null;
+  }
 
   @override
   Widget build(BuildContext context) {
-    if (!_showOverlay) return widget.child;
+    if (!_showOverlay || _progress == null) return widget.child;
 
     return Stack(
       fit: StackFit.expand,
@@ -780,92 +817,9 @@ class _FormPageLoadingStackState extends State<FormPageLoadingStack> {
         widget.child,
         Positioned.fill(
           child: AbsorbPointer(
-            child: ColoredBox(
-              color: Colors.black.withValues(alpha: 0.22),
-              child: Center(
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(_cardRadius),
-                  child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 28,
-                        horizontal: 34,
-                      ),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(_cardRadius),
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            Colors.white.withValues(alpha: 0.34),
-                            Colors.white.withValues(alpha: 0.12),
-                            Colors.white.withValues(alpha: 0.20),
-                          ],
-                          stops: const [0.0, 0.55, 1.0],
-                        ),
-                        border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.55),
-                          width: 1.2,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.20),
-                            blurRadius: 36,
-                            offset: const Offset(0, 18),
-                          ),
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.12),
-                            blurRadius: 8,
-                            offset: const Offset(0, 3),
-                          ),
-                        ],
-                      ),
-                      foregroundDecoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(_cardRadius),
-                        border: Border.all(
-                          color: Colors.black.withValues(alpha: 0.05),
-                          width: 0.6,
-                        ),
-                        gradient: LinearGradient(
-                          begin: const Alignment(-1, -1),
-                          end: const Alignment(0.3, 0.5),
-                          colors: [
-                            Colors.white.withValues(alpha: 0.35),
-                            Colors.white.withValues(alpha: 0.0),
-                          ],
-                          stops: const [0.0, 0.65],
-                        ),
-                      ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          const DoorLoadingIndicator(scale: 0.95),
-                          if (widget.message != null) ...[
-                            const SizedBox(height: 14),
-                            Text(
-                              widget.message!,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: const Color(0xFF1C4587),
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                shadows: [
-                                  Shadow(
-                                    color: Colors.white.withValues(alpha: 0.6),
-                                    blurRadius: 4,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
+            child: FrostedDoorLoadingPopup(
+              progress: _progress!,
+              message: widget.message,
             ),
           ),
         ),

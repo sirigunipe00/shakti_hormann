@@ -18,33 +18,31 @@ class HardwareListScrn extends StatefulWidget {
 }
 
 class _HardwareListScrnState extends State<HardwareListScrn> {
-    String? status;
+  String? status;
   String? query;
 
-    @override
+  @override
   void initState() {
     status = 'Draft';
     context.read<HardWareFilterCubit>().onChangeStatus('Draft');
     context.read<HardWareFilterCubit>().onSearch(null);
     super.initState();
   }
+
   @override
   Widget build(BuildContext context) {
     return AppPageView2<HardWareFilterCubit>(
       mode: PageMode2.hardwarePackaging,
       scaffoldBg: '',
       backgroundColor: AppColors.white,
-     onNew: () async {
-        final refresh = await AppRoute.newHardwarePackaging.push<bool>(context);
-        if(!context.mounted) return;
-        if (refresh == true) {
-          _fetchInital(context);
-        }
+      onNew: () async {
+        await AppRoute.newHardwarePackaging.push<bool>(context);
+        if (!context.mounted) return;
+        _fetchInital(context);
       },
       child: RefreshIndicator(
         onRefresh: () {
           final filters = context.read<HardWareFilterCubit>().state;
-
           return context.cubit<HardwareCubit>().fetchInitial(
             Pair(filters.status, filters.query),
           );
@@ -53,21 +51,20 @@ class _HardwareListScrnState extends State<HardwareListScrn> {
           listener: (_, state) => _fetchInital(context),
           child: InfiniteListViewWidget<HardwareCubit, HardwarePacking>(
             childBuilder: (context, entry) => HardwareWidget(
-              hardware: entry as dynamic,
+              hardware: entry,
               onTap: () async {
-                      final refresh = await AppRoute.newHardwarePackaging.push<bool?>(
-                        context,
-                        extra: entry,
-                      );
-                      if(!context.mounted) return;
-                      if (refresh == true) {
-                        _fetchInital(context);
-                      }
-                    },
+                await AppRoute.newHardwarePackaging.push<bool?>(
+                  context,
+                  extra: entry,
+                );
+                if (!context.mounted) return;
+                _fetchInital(context);
+              },
             ),
             fetchInitial: () => _fetchInital(context),
             fetchMore: () => fetchMore(context),
-            emptyListText: 'No Hardware Packing Found.',
+            emptyListText:
+                'No hardware packing records yet.\nTap New and capture an MES sticker to start.',
           ),
         ),
       ),
@@ -77,13 +74,14 @@ class _HardwareListScrnState extends State<HardwareListScrn> {
   void _fetchInital(BuildContext context) {
     final filters = context.read<HardWareFilterCubit>().state;
     context.cubit<HardwareCubit>().fetchInitial(
-        Pair(filters.status, filters.query));
+      Pair(filters.status, filters.query),
+    );
   }
 
   void fetchMore(BuildContext context) {
     final filters = context.read<HardWareFilterCubit>().state;
-
     context.cubit<HardwareCubit>().fetchMore(
-        Pair(filters.status, filters.query));
+      Pair(filters.status, filters.query),
+    );
   }
 }

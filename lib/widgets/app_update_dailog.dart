@@ -1,10 +1,18 @@
+import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:shakti_hormann/core/core.dart';
-import 'package:shakti_hormann/widgets/buttons/app_btn.dart';
+import 'package:shakti_hormann/styles/app_color.dart';
+import 'package:shakti_hormann/widgets/dailogs/app_popup_card.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-
+/// Blocking update gate when ERP reports a newer required app version.
+///
+/// What it does:
+/// 1. On Home, app calls `easy_common.api.get_app_version`
+/// 2. Compares server `app_version` to this install's version
+/// 3. If the phone is older → shows this dialog (cannot dismiss / back out)
+/// 4. "Open Play Store" (or browser APK link) so the operator must update
+///    before continuing — keeps mobile client in sync with ERP API changes
 class AppUpdateDialog extends StatelessWidget {
   const AppUpdateDialog({
     required this.appName,
@@ -19,44 +27,42 @@ class AppUpdateDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     return PopScope(
       canPop: false,
-      child: AlertDialog(
-        title: const Text('App Update Required', textAlign: TextAlign.center,style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold),),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'New version of $appName is available in Play Store. Please update the app to continue.',
-              textAlign: TextAlign.center,
-              style: context.textTheme.titleMedium,
-            ),
-            const Row(
-              children: [
-               
-              ],
-            ),
-          ],
+      child: AppPopupCard(
+        title: 'Update Required',
+        icon: Icons.system_update_rounded,
+        iconBackground: const Color(0xFFE8F0FE),
+        iconColor: AppColors.darkBlue,
+        showClose: false,
+        body: Text(
+          'ERP requires a newer $appName build.\n\n'
+          'This update includes API / workflow changes. '
+          'Please update now to keep using the app.',
+          textAlign: TextAlign.center,
         ),
-        actions: [
-          AppButton(
-            width: MediaQuery.of(context).size.width * 0.8  ,
-            label: 'Open PlayStore',
-            onPressed: () => launchPlayStore(packageName),
-          ),
-        ],
+        singleAction: true,
+        confirmText: Platform.isAndroid ? 'Open Play Store' : 'Update',
+        confirmIcon: Icons.open_in_new_rounded,
+        confirmColor: AppColors.darkBlue,
+        onConfirm: () => launchPlayStore(packageName),
       ),
     );
   }
 
-  void launchPlayStore(String appId) async {
-    var url =
-        Uri.parse('https://play.google.com/store/apps/details?id=$appId&hl=en');
-    
-    if (await canLaunchUrl(url)) {
-      await launchUrl(url, mode: LaunchMode.externalApplication);
-    } else {
-      throw 'Could not launch $url';
+  Future<void> launchPlayStore(String appId) async {
+    final market = Uri.parse('market://details?id=$appId');
+    final web = Uri.parse(
+      'https://play.google.com/store/apps/details?id=$appId&hl=en',
+    );
+
+    try {
+      if (await canLaunchUrl(market)) {
+        await launchUrl(market, mode: LaunchMode.externalApplication);
+        return;
+      }
+    } catch (_) {}
+
+    if (await canLaunchUrl(web)) {
+      await launchUrl(web, mode: LaunchMode.externalApplication);
     }
   }
 }

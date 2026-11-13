@@ -6,6 +6,7 @@ import 'package:injectable/injectable.dart';
 import 'package:shakti_hormann/features/shutter_packing/data/shutter_packaging_repo.dart';
 import 'package:shakti_hormann/features/shutter_packing/model/shutter_lines.dart';
 import 'package:shakti_hormann/features/shutter_packing/model/shutter_packing.dart';
+import 'package:shakti_hormann/widgets/scan/scan_outcome.dart';
 
 part 'create_shutter_cubit.freezed.dart';
 
@@ -262,23 +263,37 @@ class CreateShutterCubit extends AppBaseCubit<CreateShutterState> {
   }
 
   Future<void> onQrScanned(String rawQr, {List<String>? imagePaths}) async {
+    await processScannedCode(
+      rawQr,
+      imagePaths: imagePaths,
+      emitUiError: true,
+    );
+  }
+
+  /// Validates + saves one sticker. Used by burst scan (emitUiError: false)
+  /// so the camera overlay owns success/fail feedback.
+  Future<ScanOutcome> processScannedCode(
+    String rawQr, {
+    List<String>? imagePaths,
+    bool emitUiError = false,
+  }) async {
+    ScanOutcome fail(String message) {
+      if (emitUiError) _emitError(Pair(message, null));
+      return ScanOutcome.fail(message);
+    }
+
     final parsed = _ParsedShutterQr.tryParse(rawQr);
     if (parsed == null) {
-      _emitError(Pair('Invalid Barcode format: $rawQr', null));
-      return;
+      return fail('Invalid Barcode format: $rawQr');
     }
 
     final selectedSalesOrder = state.form.salesOrder;
     if (selectedSalesOrder != null &&
         selectedSalesOrder.isNotEmpty &&
         parsed.salesOrder != selectedSalesOrder) {
-      _emitError(
-        Pair(
-          'This item belongs to Sales Order ${parsed.salesOrder}, but the pallet is set to $selectedSalesOrder.',
-          null,
-        ),
+      return fail(
+        'This item belongs to Sales Order ${parsed.salesOrder}, but the pallet is set to $selectedSalesOrder.',
       );
-      return;
     }
 
     final salesOrder = parsed.salesOrder;
@@ -301,47 +316,39 @@ class CreateShutterCubit extends AppBaseCubit<CreateShutterState> {
             .toSet();
 
     if (scannedSeqNos.contains(seqNo)) {
-      _emitError(
-        Pair('Shutter $seqNo of $totalQty has already been scanned.', null),
-      );
-      return;
+      return fail('Shutter $seqNo of $totalQty has already been scanned.');
     }
     if (seqNo > totalQty) {
-      _emitError(
-        Pair(
-          'Shutter $seqNo is out of range for total quantity $totalQty.',
-          null,
-        ),
+      return fail(
+        'Shutter $seqNo is out of range for total quantity $totalQty.',
       );
-      return;
     }
 
     if (scannedSeqNos.length >= totalQty) {
-      _emitError(
-        Pair(
-          'Maximum quantity of $totalQty already scanned for this item.',
-          null,
-        ),
+      return fail(
+        'Maximum quantity of $totalQty already scanned for this item.',
       );
-      return;
     }
 
     emitSafeState(state.copyWith(isProcessingScan: true));
 
     final result = await repo.fetchItems(salesOrder, itemIndex);
-    await result.fold(
+    return await result.fold(
       (failure) async {
         emitSafeState(
-          state.copyWith(isProcessingScan: false, error: failure),
+          state.copyWith(
+            isProcessingScan: false,
+            error: emitUiError ? failure : null,
+          ),
         );
+        return ScanOutcome.fail(failure.error);
       },
       (items) async {
         if (items.isEmpty) {
           emitSafeState(state.copyWith(isProcessingScan: false));
-          _emitError(
-            Pair('No item found for SO: $salesOrder at index $itemIndex', null),
+          return fail(
+            'No item found for SO: $salesOrder at index $itemIndex',
           );
-          return;
         }
         final item = items.first;
 
@@ -364,13 +371,17 @@ class CreateShutterCubit extends AppBaseCubit<CreateShutterState> {
             newLines: newItems,
           ),
         );
-        await _syncLineToServer();
+        final sync = await _syncLineToServer(emitUiError: emitUiError);
+        if (!sync.success) return sync;
+        return ScanOutcome.ok('Shutter $seqNo of $totalQty added');
       },
     );
   }
 
-  Future<void> _syncLineToServer() async {
-    if (_isSyncingLine) return;
+  Future<ScanOutcome> _syncLineToServer({bool emitUiError = true}) async {
+    if (_isSyncingLine) {
+      return const ScanOutcome.fail('Please wait — previous scan is saving.');
+    }
     _isSyncingLine = true;
 
     try {
@@ -378,21 +389,20 @@ class CreateShutterCubit extends AppBaseCubit<CreateShutterState> {
       final docExists = form.name != null && form.name!.isNotEmpty;
 
       if (!docExists) {
-        _emitError(
-          const Pair(
-            'Please save the Sales Order and Pallet Code before scanning items.',
-            null,
-          ),
-        );
-        return;
+        const msg =
+            'Please save the Sales Order and Pallet Code before scanning items.';
+        if (emitUiError) _emitError(const Pair(msg, null));
+        return const ScanOutcome.fail(msg);
       }
 
       final pending = state.newLines;
       final allItems = state.lines;
-      if (allItems.isEmpty) return;
+      if (allItems.isEmpty) {
+        return const ScanOutcome.ok('Nothing to sync');
+      }
 
       final response = await repo.updateShutter(form, allItems);
-      response.fold(
+      final outcome = response.fold(
         (failure) {
           final failedQrs =
               pending
@@ -409,14 +419,17 @@ class CreateShutterCubit extends AppBaseCubit<CreateShutterState> {
             state.copyWith(
               lines: rolledBackLines,
               newLines: [],
-              error: failure,
+              error: emitUiError ? failure : null,
             ),
           );
+          return ScanOutcome.fail(failure.error);
         },
         (_) {
           emitSafeState(state.copyWith(newLines: []));
+          return const ScanOutcome.ok('Saved');
         },
       );
+      return outcome;
     } finally {
       _isSyncingLine = false;
     }

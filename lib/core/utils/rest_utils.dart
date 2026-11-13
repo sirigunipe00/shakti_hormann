@@ -1,29 +1,26 @@
+import 'dart:convert';
+
 class RestUtils {
   static Uri constructUri(String baseUrl, [Map<String, dynamic>? params]) {
-    final url = baseUrl.replaceAll('https://', '').replaceAll('https://', '');
+    final url = baseUrl
+        .replaceAll('https://', '')
+        .replaceAll('http://', '');
 
     final Map<String, dynamic> urlParams = {};
     params?.forEach((key, value) {
       if (value is List) {
-        if (value is List<List<String?>>) {
-          final res = value.nonNulls.map((e) => _encodeList(e)).toList();
-          urlParams[key] = res;
-        } else if (value is List<String>) {
-          final valuesMap = _encodeList(value);
-          urlParams[key] = valuesMap;
-        }
+        // Nested filter lists (e.g. [["user","=","a@b.com"]]) must be JSON
+        // encoded — Dart's `is List<List<String?>>` check is unreliable here
+        // and previously dropped filters entirely.
+        urlParams[key] = jsonEncode(value);
       } else {
         urlParams[key] = value;
       }
     });
     final encodedParams = encodeParams(urlParams);
-    final fullUrl = 'https://$url$encodedParams';
+    final scheme = baseUrl.startsWith('http://') ? 'http' : 'https';
+    final fullUrl = '$scheme://$url$encodedParams';
     return Uri.parse(fullUrl);
-  }
-
-  static List<String> _encodeList(List<String?> value) {
-    final valuesMap = value.nonNulls.map((e) => '"$e"').toList();
-    return valuesMap;
   }
 
   static String encodeParams(Map<String, dynamic> params) {

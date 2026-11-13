@@ -1,9 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shakti_hormann/features/logistic_request/presentation/bloc/bloc_provider.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
-
-
 
 class SalesOrderFilterButton extends StatelessWidget {
   const SalesOrderFilterButton({
@@ -23,8 +23,8 @@ class SalesOrderFilterButton extends StatelessWidget {
 
     return GestureDetector(
       onTap: () {
-
-        context.read<SalesOrderList>().request();
+        // Recent page only — full catalog was ~5k+ and timed out.
+        context.read<SalesOrderList>().request('');
         _showPicker(context);
       },
       child: AnimatedContainer(
@@ -64,8 +64,7 @@ class SalesOrderFilterButton extends StatelessWidget {
                 style: TextStyle(
                   color: isActive ? Colors.white : Colors.grey.shade500,
                   fontSize: 12,
-                  fontWeight:
-                      isActive ? FontWeight.w700 : FontWeight.w500,
+                  fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
                   fontFamily: 'Urbanist',
                 ),
               ),
@@ -93,25 +92,30 @@ class SalesOrderFilterButton extends StatelessWidget {
   }
 
   void _showPicker(BuildContext context) {
+    final salesOrders = context.read<SalesOrderList>();
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      useRootNavigator: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => BlocProvider.value(
-        value: context.read<SalesOrderList>(), 
-        child: _SalesOrderPickerSheet(
-          selected: selectedSalesOrder,
-          onSelect: (val) {
-            Navigator.pop(context);
-            onSelect(val);
-          },
-        ),
-      ),
+      builder: (sheetContext) {
+        return BlocProvider.value(
+          value: salesOrders,
+          child: _SalesOrderPickerSheet(
+            selected: selectedSalesOrder,
+            onSelect: (val) {
+              Navigator.of(sheetContext).pop();
+              // Apply filter after the sheet route is gone.
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                onSelect(val);
+              });
+            },
+          ),
+        );
+      },
     );
   }
 }
-
-
 
 class _SalesOrderPickerSheet extends StatefulWidget {
   const _SalesOrderPickerSheet({
@@ -128,30 +132,45 @@ class _SalesOrderPickerSheet extends StatefulWidget {
 
 class _SalesOrderPickerSheetState extends State<_SalesOrderPickerSheet> {
   final TextEditingController _searchCtrl = TextEditingController();
+  Timer? _debounce;
 
   @override
   void dispose() {
+    _debounce?.cancel();
     _searchCtrl.dispose();
     super.dispose();
+  }
+
+  void _onSearchChanged(String val) {
+    setState(() {});
+    _debounce?.cancel();
+    _debounce = Timer(const Duration(milliseconds: 400), () {
+      if (!mounted) return;
+      context.read<SalesOrderList>().request(val.trim());
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return DraggableScrollableSheet(
-      initialChildSize: 0.55,
+      initialChildSize: 0.6,
       minChildSize: 0.4,
-      maxChildSize: 0.85,
+      maxChildSize: 0.9,
       builder: (_, scrollController) {
         return Container(
           decoration: const BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
           ),
-          padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+          padding: EdgeInsets.fromLTRB(
+            20,
+            12,
+            20,
+            24 + MediaQuery.paddingOf(context).bottom,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ── Drag handle ──
               Center(
                 child: Container(
                   width: 40,
@@ -163,8 +182,6 @@ class _SalesOrderPickerSheetState extends State<_SalesOrderPickerSheet> {
                 ),
               ),
               const SizedBox(height: 16),
-
-              // ── Header ──
               Row(
                 children: [
                   const Icon(
@@ -183,38 +200,67 @@ class _SalesOrderPickerSheetState extends State<_SalesOrderPickerSheet> {
                       ),
                     ),
                   ),
-                  // ── item count badge ──
                   BlocBuilder<SalesOrderList, SalesOrderState>(
                     builder: (context, state) {
                       return state.maybeWhen(
-                        success: (items) => Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 3,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColors.darkBlue.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(
-                            '${items.length} items',
-                            style: const TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
-                              fontFamily: 'Urbanist',
-                              color: AppColors.darkBlue,
+                        success:
+                            (items) => Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 3,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppColors.darkBlue.withValues(
+                                  alpha: 0.1,
+                                ),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Text(
+                                '${items.length} shown',
+                                style: const TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                  fontFamily: 'Urbanist',
+                                  color: AppColors.darkBlue,
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
                         orElse: () => const SizedBox.shrink(),
                       );
                     },
                   ),
+                  const SizedBox(width: 4),
+                  Semantics(
+                    button: true,
+                    label: 'Close sales order filter',
+                    child: IconButton(
+                      tooltip: 'Close',
+                      visualDensity: VisualDensity.compact,
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(
+                        minWidth: 36,
+                        minHeight: 36,
+                      ),
+                      onPressed: () => Navigator.of(context).maybePop(),
+                      icon: Icon(
+                        Icons.close_rounded,
+                        size: 22,
+                        color: Colors.grey.shade700,
+                      ),
+                    ),
+                  ),
                 ],
               ),
-              const SizedBox(height: 14),
-
-              // ── Search field ──
+              const SizedBox(height: 6),
+              Text(
+                'Type SO number to search (shows up to 40 matches).',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey.shade600,
+                  fontFamily: 'Urbanist',
+                ),
+              ),
+              const SizedBox(height: 12),
               Container(
                 height: 44,
                 decoration: BoxDecoration(
@@ -224,19 +270,11 @@ class _SalesOrderPickerSheetState extends State<_SalesOrderPickerSheet> {
                 ),
                 child: TextField(
                   controller: _searchCtrl,
-                  onChanged: (val) {
-                    setState(() {}); 
-                    
-                    context.read<SalesOrderList>().request(val.trim());
-
-
-                  },
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontFamily: 'Urbanist',
-                  ),
+                  onChanged: _onSearchChanged,
+                  autofocus: true,
+                  style: const TextStyle(fontSize: 13, fontFamily: 'Urbanist'),
                   decoration: InputDecoration(
-                    hintText: 'Search sales order...',
+                    hintText: 'Search sales order…',
                     hintStyle: TextStyle(
                       fontSize: 13,
                       color: Colors.grey.shade400,
@@ -247,72 +285,83 @@ class _SalesOrderPickerSheetState extends State<_SalesOrderPickerSheet> {
                       size: 18,
                       color: Colors.grey.shade400,
                     ),
-                    suffixIcon: _searchCtrl.text.isNotEmpty
-                        ? GestureDetector(
-                            onTap: () {
-                              _searchCtrl.clear();
-                              setState(() {});
-                              context.read<SalesOrderList>().request(null);
-                            },
-                            child: Icon(
-                              Icons.close_rounded,
-                              size: 16,
-                              color: Colors.grey.shade400,
-                            ),
-                          )
-                        : null,
+                    suffixIcon:
+                        _searchCtrl.text.isNotEmpty
+                            ? GestureDetector(
+                              onTap: () {
+                                _searchCtrl.clear();
+                                setState(() {});
+                                context.read<SalesOrderList>().request('');
+                              },
+                              child: Icon(
+                                Icons.close_rounded,
+                                size: 16,
+                                color: Colors.grey.shade400,
+                              ),
+                            )
+                            : null,
                     border: InputBorder.none,
-                    contentPadding:
-                        const EdgeInsets.symmetric(vertical: 12),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 12),
                   ),
                 ),
               ),
               const SizedBox(height: 12),
-
-              // ── List ──
               Expanded(
                 child: BlocBuilder<SalesOrderList, SalesOrderState>(
                   builder: (context, state) {
                     return state.maybeWhen(
                       orElse: () => const SizedBox(),
-                      
-
-                      // ── Loading ──
-                      loading: () => const Center(
-                        child: CircularProgressIndicator(
-                          color: AppColors.darkBlue,
-                          strokeWidth: 2,
-                        ),
-                      ),
-
-                      // ── Error ──
-                      failure: (msg) => Center(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.error_outline,
-                                size: 40, color: Colors.grey.shade300),
-                            const SizedBox(height: 8),
-                            Text(
-                              msg.toString() ,
-                              style: TextStyle(
-                                color: Colors.grey.shade400,
-                                fontFamily: 'Urbanist',
+                      loading:
+                          () => const Center(
+                            child: CircularProgressIndicator(
+                              color: AppColors.darkBlue,
+                              strokeWidth: 2,
+                            ),
+                          ),
+                      failure:
+                          (msg) => Center(
+                            child: Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.wifi_off_rounded,
+                                    size: 40,
+                                    color: Colors.grey.shade300,
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    'Could not load sales orders.\nCheck network and retry.',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      color: Colors.grey.shade600,
+                                      fontFamily: 'Urbanist',
+                                    ),
+                                  ),
+                                  const SizedBox(height: 12),
+                                  TextButton(
+                                    onPressed:
+                                        () => context
+                                            .read<SalesOrderList>()
+                                            .request(_searchCtrl.text.trim()),
+                                    child: const Text('Retry'),
+                                  ),
+                                ],
                               ),
                             ),
-                          ],
-                        ),
-                      ),
-
-                      // ── Data ──
+                          ),
                       success: (items) {
                         if (items.isEmpty) {
                           return Center(
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(Icons.receipt_long_outlined,
-                                    size: 40, color: Colors.grey.shade300),
+                                Icon(
+                                  Icons.receipt_long_outlined,
+                                  size: 40,
+                                  color: Colors.grey.shade300,
+                                ),
                                 const SizedBox(height: 8),
                                 Text(
                                   'No sales orders found',
@@ -329,97 +378,87 @@ class _SalesOrderPickerSheetState extends State<_SalesOrderPickerSheet> {
                         return ListView.separated(
                           controller: scrollController,
                           itemCount: items.length,
-                          separatorBuilder: (_, __) => Divider(
-                            height: 1,
-                            color: Colors.grey.shade100,
-                          ),
+                          separatorBuilder:
+                              (_, __) =>
+                                  Divider(height: 1, color: Colors.grey.shade100),
                           itemBuilder: (_, i) {
                             final so = items[i];
-
                             final soValue = so.name;
                             final isSelected = soValue == widget.selected;
+                            final subtitle = [
+                              if ((so.customerName ?? '').isNotEmpty)
+                                so.customerName!,
+                              if ((so.plantName ?? '').isNotEmpty) so.plantName!,
+                            ].join(' · ');
 
-                            return GestureDetector(
-                              onTap: () => widget.onSelect(soValue.toString()),
-                              child: AnimatedContainer(
-                                duration: const Duration(milliseconds: 150),
-                                margin:
-                                    const EdgeInsets.symmetric(vertical: 3),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 14,
-                                  vertical: 12,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: isSelected
-                                      ? AppColors.darkBlue
-                                          .withValues(alpha: 0.07)
+                            return Material(
+                              color:
+                                  isSelected
+                                      ? AppColors.darkBlue.withValues(
+                                        alpha: 0.07,
+                                      )
                                       : Colors.transparent,
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(
-                                    color: isSelected
-                                        ? AppColors.darkBlue
-                                            .withValues(alpha: 0.3)
-                                        : Colors.transparent,
-                                  ),
+                              borderRadius: BorderRadius.circular(12),
+                              child: ListTile(
+                              onTap: () => widget.onSelect(soValue.toString()),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              leading: Container(
+                                width: 36,
+                                height: 36,
+                                decoration: BoxDecoration(
+                                  color:
+                                      isSelected
+                                          ? AppColors.darkBlue
+                                          : Colors.grey.shade100,
+                                  borderRadius: BorderRadius.circular(10),
                                 ),
-                                child: Row(
-                                  children: [
-                                    // ── Icon box ──
-                                    Container(
-                                      width: 36,
-                                      height: 36,
-                                      decoration: BoxDecoration(
-                                        color: isSelected
-                                            ? AppColors.darkBlue
-                                            : Colors.grey.shade100,
-                                        borderRadius:
-                                            BorderRadius.circular(10),
-                                      ),
-                                      child: Icon(
-                                        Icons.receipt_long_rounded,
-                                        size: 16,
-                                        color: isSelected
-                                            ? Colors.white
-                                            : Colors.grey.shade400,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 12),
-
-                                    // ── SO name ──
-                                    Expanded(
-                                      child: Text(
-                                        soValue ?? '',
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          fontFamily: 'Urbanist',
-                                          fontWeight: isSelected
-                                              ? FontWeight.w700
-                                              : FontWeight.w500,
-                                          color: isSelected
-                                              ? AppColors.darkBlue
-                                              : Colors.black87,
-                                        ),
-                                      ),
-                                    ),
-
-                                    // ── Check mark ──
-                                    if (isSelected)
-                                      Container(
-                                        width: 22,
-                                        height: 22,
-                                        decoration: const BoxDecoration(
-                                          color: AppColors.darkBlue,
-                                          shape: BoxShape.circle,
-                                        ),
-                                        child: const Icon(
-                                          Icons.check_rounded,
-                                          size: 13,
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                  ],
+                                child: Icon(
+                                  Icons.receipt_long_rounded,
+                                  size: 16,
+                                  color:
+                                      isSelected
+                                          ? Colors.white
+                                          : Colors.grey.shade400,
                                 ),
                               ),
+                              title: Text(
+                                soValue ?? '',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontFamily: 'Urbanist',
+                                  fontWeight:
+                                      isSelected
+                                          ? FontWeight.w700
+                                          : FontWeight.w600,
+                                  color:
+                                      isSelected
+                                          ? AppColors.darkBlue
+                                          : Colors.black87,
+                                ),
+                              ),
+                              subtitle:
+                                  subtitle.isEmpty
+                                      ? null
+                                      : Text(
+                                        subtitle,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.grey.shade600,
+                                          fontFamily: 'Urbanist',
+                                        ),
+                                      ),
+                              trailing:
+                                  isSelected
+                                      ? const Icon(
+                                        Icons.check_circle,
+                                        color: AppColors.darkBlue,
+                                      )
+                                      : null,
+                            ),
                             );
                           },
                         );

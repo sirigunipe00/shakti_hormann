@@ -58,121 +58,132 @@ class _SearchDropDownListState<T> extends State<SearchDropDownList<T>> {
     super.initState();
     _selectedValue = widget.defaultSelection;
   }
+
   @override
-void didUpdateWidget(covariant SearchDropDownList<T> oldWidget) {
-  super.didUpdateWidget(oldWidget);
-  if (widget.defaultSelection != oldWidget.defaultSelection) {
-    _selectedValue = widget.defaultSelection;
+  void didUpdateWidget(covariant SearchDropDownList<T> oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.defaultSelection != oldWidget.defaultSelection) {
+      _selectedValue = widget.defaultSelection;
+    }
   }
-}
 
-@override
-Widget build(BuildContext context) {
-  final isReadOnlyMode = widget.readOnly;
+  /// Keep a known selection visible even if the remote options list is empty
+  /// (filtered out / still loading / request failed).
+  List<T> get _effectiveItems {
+    if (widget.items.isNotEmpty) return widget.items;
+    final selected = _selectedValue;
+    if (selected != null) return <T>[selected];
+    return const [];
+  }
 
-  final backgroundColor =
-      isReadOnlyMode ? AppColors.grey.withValues(alpha: 0.20) : Colors.white;
+  @override
+  Widget build(BuildContext context) {
+    final isReadOnlyMode = widget.readOnly;
 
-  final borderColor =
-      isReadOnlyMode ? Colors.grey.withValues(alpha: 0.3) : AppColors.grey.withValues(alpha: 0.30);
+    final backgroundColor =
+        isReadOnlyMode ? AppColors.grey.withValues(alpha: 0.20) : Colors.white;
 
-  return Focus(
-    focusNode: widget.focusNode,
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (widget.title?.isNotEmpty == true) ...[
-          CaptionText(
-            title: widget.title ?? '',
-            color: widget.color,
-            isRequired: widget.isRequired,
-          ),
-          AppSpacer.p4(),
-        ],
+    final borderColor = isReadOnlyMode
+        ? Colors.grey.withValues(alpha: 0.3)
+        : AppColors.grey.withValues(alpha: 0.30);
 
-        // 🔹 Show loading indicator while fetching data
-        if (widget.isloading)
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: backgroundColor,
-              borderRadius: BorderRadius.circular(8.0),
-              border: Border.all(color: borderColor, width: 1),
+    final effectiveItems = _effectiveItems;
+
+    return Focus(
+      focusNode: widget.focusNode,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (widget.title?.isNotEmpty == true) ...[
+            CaptionText(
+              title: widget.title ?? '',
+              color: widget.color,
+              isRequired: widget.isRequired,
             ),
-            child: const Center(
-              child: SizedBox(
-                width: 24,
-                height: 24,
-                child: CircularProgressIndicator(strokeWidth: 2),
+            AppSpacer.p4(),
+          ],
+
+          if (widget.isloading && effectiveItems.isEmpty)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: backgroundColor,
+                borderRadius: BorderRadius.circular(8.0),
+                border: Border.all(color: borderColor, width: 1),
               ),
-            ),
-          )
-        else if (widget.items.isEmpty)
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: backgroundColor,
-              borderRadius: BorderRadius.circular(8.0),
-              border: Border.all(color: borderColor, width: 1),
-            ),
-            child: Text(
-              widget.hint ?? 'No options available',
-              style: context.textTheme.titleMedium?.copyWith(
-                color: AppColors.black.withValues(alpha: 0.55),
-                fontWeight: FontWeight.w500,
-                fontFamily: 'Urbanist',
+              child: const Center(
+                child: SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
               ),
-            ),
-          )
-        else
-          AbsorbPointer(
-            absorbing: widget.readOnly,
-            child: KeyedSubtree(
-              key: ValueKey(
-                '${widget.title}_${widget.defaultSelection}_'
-                '${widget.items.length}_${widget.readOnly}',
+            )
+          else if (effectiveItems.isEmpty)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: backgroundColor,
+                borderRadius: BorderRadius.circular(8.0),
+                border: Border.all(color: borderColor, width: 1),
               ),
-              child: CustomDropdown<T>.searchRequest(
-                hideSelectedFieldWhenExpanded: true,
-              excludeSelected: false,
-              closedHeaderPadding: const EdgeInsets.all(16.0),
-              expandedHeaderPadding: const EdgeInsets.all(16.0),
-              decoration: CustomDropdownDecoration(
-                closedFillColor: backgroundColor,
-                expandedFillColor: backgroundColor,
-                closedBorderRadius: BorderRadius.circular(8.0),
-                expandedBorderRadius: BorderRadius.circular(8.0),
-                closedBorder: Border.all(color: borderColor, width: 1),
-                expandedBorder: Border.all(color: borderColor, width: 1),
-                hintStyle: context.textTheme.titleMedium?.copyWith(
-                  color: AppColors.black,
-                  fontWeight: FontWeight.w600,
+              child: Text(
+                widget.hint ?? 'No options available',
+                style: context.textTheme.titleMedium?.copyWith(
+                  color: AppColors.black.withValues(alpha: 0.55),
+                  fontWeight: FontWeight.w500,
                   fontFamily: 'Urbanist',
                 ),
               ),
-              listItemPadding: const EdgeInsets.all(4.0),
-              hintBuilder: widget.hintBuilder,
-              futureRequest: widget.futureRequest,
-              hintText: widget.hint,
-              items: widget.items,
-              headerBuilder: widget.headerBuilder,
-              listItemBuilder: widget.listItemBuilder,
-              onChanged: (value) {
-                if (value != null) {
-                  widget.onSelected(value);
-                }
-              },
-              initialItem: _selectedValue,
+            )
+          else
+            AbsorbPointer(
+              absorbing: widget.readOnly,
+              child: KeyedSubtree(
+                key: ValueKey(
+                  '${widget.title}_${widget.defaultSelection}_'
+                  '${effectiveItems.length}_${widget.readOnly}',
+                ),
+                child: CustomDropdown<T>.searchRequest(
+                  hideSelectedFieldWhenExpanded: true,
+                  excludeSelected: false,
+                  closedHeaderPadding: const EdgeInsets.all(16.0),
+                  expandedHeaderPadding: const EdgeInsets.all(16.0),
+                  decoration: CustomDropdownDecoration(
+                    closedFillColor: backgroundColor,
+                    expandedFillColor: backgroundColor,
+                    closedBorderRadius: BorderRadius.circular(8.0),
+                    expandedBorderRadius: BorderRadius.circular(8.0),
+                    closedBorder: Border.all(color: borderColor, width: 1),
+                    expandedBorder: Border.all(color: borderColor, width: 1),
+                    hintStyle: context.textTheme.titleMedium?.copyWith(
+                      color: AppColors.black,
+                      fontWeight: FontWeight.w600,
+                      fontFamily: 'Urbanist',
+                    ),
+                  ),
+                  listItemPadding: const EdgeInsets.all(4.0),
+                  hintBuilder: widget.hintBuilder,
+                  futureRequest: widget.futureRequest,
+                  hintText: widget.hint,
+                  items: effectiveItems,
+                  headerBuilder: widget.headerBuilder,
+                  listItemBuilder: widget.listItemBuilder,
+                  onChanged: (value) {
+                    if (value != null) {
+                      widget.onSelected(value);
+                    }
+                  },
+                  initialItem: _selectedValue,
+                ),
+              ),
             ),
-            ),
-          ),
 
-        AppSpacer.p4(),
-      ],
-    ),
-  );
-}
-
+          AppSpacer.p4(),
+        ],
+      ),
+    );
+  }
 }

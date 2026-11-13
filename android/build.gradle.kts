@@ -1,25 +1,8 @@
-
-buildscript {
-    repositories {
-        google()
-        mavenCentral()
-    }
-    dependencies {
-        classpath("com.android.tools.build:gradle:8.5.2") 
-        classpath("com.google.gms:google-services:4.4.0")
-        classpath("com.google.firebase:firebase-crashlytics-gradle:2.9.9")
-        classpath(kotlin("gradle-plugin", version = "2.2.0")) 
-    }
-}
-
-
 allprojects {
     repositories {
         google()
         mavenCentral()
     }
- 
-
 }
 
 val newBuildDir: Directory = rootProject.layout.buildDirectory.dir("../../build").get()

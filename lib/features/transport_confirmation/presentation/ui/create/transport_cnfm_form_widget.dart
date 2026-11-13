@@ -33,6 +33,20 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
   TransportersForm? transportersForm;
   DateTime? selectedDate;
   bool? isRejectedMode = false;
+  String? _driverContactError;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final contact =
+          context.read<CreateTransportCubit>().state.form.driverContact;
+      if (contact != null && contact.isNotEmpty) {
+        setState(() => _driverContactError = _contactErrorFor(contact));
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,9 +67,11 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
         ),
       ],
       child: Container(
-        color: Colors.purple.shade100.withValues(alpha: 0.15),
+        color: const Color(0xFFF7F8FA),
         child: SingleChildScrollView(
           controller: _scrollController,
+          padding: ShellInsets.scrollPadding(context),
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           child: SpacedColumn(
             crossAxisAlignment: CrossAxisAlignment.start,
             margin: const EdgeInsets.all(12.0),
@@ -236,8 +252,9 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
               ),
               Card(
                 color: Colors.white,
+                elevation: 0,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(16),
                   side: const BorderSide(color: Color(0xFFE8ECF4), width: 1),
                 ),
                 child: Padding(
@@ -249,14 +266,10 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
                           context.read<CreateTransportCubit>().addsaleseorders(
                             salesorder: data,
                           );
-
-                          return SalesOrderTable(
-                            salesOrders: data,
-
-                            widthFactor: 1.2,
-                          );
+                          return SalesOrderTable(salesOrders: data);
                         },
-                        orElse: () => const SizedBox(),
+                        orElse: () =>
+                            const SalesOrderTable(salesOrders: []),
                       );
                     },
                   ),
@@ -265,21 +278,18 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
 
               Card(
                 color: Colors.white,
+                elevation: 0,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(16),
                   side: const BorderSide(color: Color(0xFFE8ECF4), width: 1),
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.only(
-                    top: 16,
-                    left: 16,
-                    right: 16,
-                    bottom: 4,
-                  ),
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Expanded(
                             child: AppDateField(
@@ -378,46 +388,126 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
                   assetIcon: 'assets/images/vehicleinvoicicon.svg',
                 ),
               ),
-              Container(
-                width: MediaQuery.of(context).size.width,
-
-                margin: const EdgeInsets.all(2),
-                child: Stack(
-                  children: [
-                    Card(
-                      color: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                        side: const BorderSide(
-                          color: Color(0xFFE8ECF4),
-                          width: 1,
+              Card(
+                color: Colors.white,
+                margin: const EdgeInsets.symmetric(horizontal: 2, vertical: 0),
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  side: const BorderSide(color: Color(0xFFE8ECF4), width: 1),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      AppDateField(
+                        title: 'Transporter Confirmation Date',
+                        hintText: 'Select Date',
+                        readOnly: true,
+                        startDate: DateTime(2020),
+                        endDate: DateTime(2030),
+                        initialDate: DFU.ddMMyyyyFromStr(
+                          newform.transporterConfirmationDate ?? '',
                         ),
+                        onSelected: (DateTime date) {
+                          setState(() {
+                            selectedDate = date;
+                            context
+                                .cubit<CreateTransportCubit>()
+                                .onValueChanged(
+                                  transporterConfirmationDate:
+                                      DateFormat('dd-MM-yyyy').format(date),
+                                );
+                          });
+                        },
+                        fillColor: Colors.grey.shade100,
                       ),
-
-                      elevation: 0,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(20),
+                      const SizedBox(height: 12),
+                      InputField(
+                        title: 'Driver Name',
+                        hintText: 'Enter Driver Name',
+                        isRequired: true,
+                        controller: driverNameController,
+                        borderColor: Colors.grey,
+                        readOnly: isCompleted,
+                        initialValue: newform.driverName,
+                        onChanged:
+                            (p0) => context
+                                .cubit<CreateTransportCubit>()
+                                .onValueChanged(driverName: p0),
+                      ),
+                      const SizedBox(height: 12),
+                      InputField(
+                        title: 'Vehicle Number',
+                        isRequired: true,
+                        hintText: 'Enter Vehicle Number',
+                        readOnly: isCompleted,
+                        controller: vehicleNumberController,
+                        borderColor: Colors.grey,
+                        initialValue: newform.vehicleNumber,
+                        onChanged:
+                            (p0) => context
+                                .cubit<CreateTransportCubit>()
+                                .onValueChanged(vehicleNumber: p0),
+                        inputFormatters: [
+                          UpperCaseTextFormatter(),
+                          FilteringTextInputFormatter.allow(
+                            RegExp(r'[A-Z0-9]'),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      InputField(
+                        title: 'Driver Contact No',
+                        isRequired: true,
+                        controller: driverContactController,
+                        hintText: 'Enter 10-digit Contact Number',
+                        readOnly: isCompleted,
+                        borderColor: _driverContactError != null
+                            ? Colors.red
+                            : AppColors.grey,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                          LengthLimitingTextInputFormatter(10),
+                        ],
+                        inputType: TextInputType.phone,
+                        initialValue: newform.driverContact,
+                        onChanged: (p0) {
+                          setState(() {
+                            _driverContactError = _contactErrorFor(p0);
+                          });
+                          context
+                              .cubit<CreateTransportCubit>()
+                              .onValueChanged(driverContact: p0);
+                        },
+                      ),
+                      if (_driverContactError != null) ...[
+                        const SizedBox(height: 6),
+                        Text(
+                          _driverContactError!,
+                          style: const TextStyle(
+                            color: Color(0xFFE11D48),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            fontFamily: 'Urbanist',
+                          ),
                         ),
-                        padding: const EdgeInsets.only(
-                          top: 20,
-                          left: 16,
-                          right: 16,
-                          bottom: 6,
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            AppDateField(
-                              title: 'Transporter Confirmation Date',
+                      ],
+                      const SizedBox(height: 12),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: AppDateField(
+                              title: 'Arrival Date',
                               hintText: 'Select Date',
-                              readOnly: true,
-
-                              startDate: DateTime(2020),
+                              isRequired: true,
+                              readOnly: isCompleted,
+                              startDate: DateTime.now(),
                               endDate: DateTime(2030),
-
                               initialDate: DFU.ddMMyyyyFromStr(
-                                newform.transporterConfirmationDate ?? '',
+                                newform.estimatedArrivalDate ?? '',
                               ),
                               onSelected: (DateTime date) {
                                 setState(() {
@@ -425,131 +515,39 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
                                   context
                                       .cubit<CreateTransportCubit>()
                                       .onValueChanged(
-                                        transporterConfirmationDate: DateFormat(
-                                          'dd-MM-yyyy',
-                                        ).format(date),
+                                        estimatesdArrivalDate:
+                                            DateFormat('dd-MM-yyyy')
+                                                .format(date),
                                       );
                                 });
                               },
-                              fillColor: Colors.grey.shade100,
+                              fillColor:
+                                  isCompleted ? Colors.grey[200] : Colors.white,
                             ),
-                            const SizedBox(height: 12),
-                            InputField(
-                              title: 'Driver Name',
-                              hintText: 'Enter Driver Name',
-                              isRequired: true,
-                              controller: driverNameController,
-                              borderColor: Colors.grey,
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: TimePickerField(
+                              title: 'Arrival Time',
                               readOnly: isCompleted,
-                              initialValue: newform.driverName,
-                              onChanged:
-                                  (p0) => context
-                                      .cubit<CreateTransportCubit>()
-                                      .onValueChanged(driverName: p0),
-                            ),
-
-                            const SizedBox(height: 12),
-
-                            InputField(
-                              title: 'Vehicle Number',
                               isRequired: true,
-                              hintText: 'Enter Vehicle Number',
-                              readOnly: isCompleted,
-                              controller: vehicleNumberController,
-                              borderColor: Colors.grey,
-                              initialValue: newform.vehicleNumber,
-                              onChanged:
-                                  (p0) => context
-                                      .cubit<CreateTransportCubit>()
-                                      .onValueChanged(vehicleNumber: p0),
-                              inputFormatters: [UpperCaseTextFormatter()],
+                              hintText: 'Select Time',
+                              initialTime: formatTime(
+                                newform.estimatedArrivalTime,
+                              ),
+                              onTimeChanged: (selectedTime) {
+                                context
+                                    .cubit<CreateTransportCubit>()
+                                    .onValueChanged(
+                                      estimatedArrivalTime: selectedTime,
+                                    );
+                              },
                             ),
-
-                            const SizedBox(height: 12),
-
-                            InputField(
-                              title: 'Driver Contact No',
-                              isRequired: true,
-                              controller: driverContactController,
-                              hintText: 'Enter Contract Number',
-                              readOnly: isCompleted,
-                              borderColor: AppColors.grey,
-
-                              inputFormatters: [
-                                FilteringTextInputFormatter.digitsOnly,
-                                LengthLimitingTextInputFormatter(10),
-                              ],
-                              inputType: TextInputType.number,
-
-                              initialValue: newform.driverContact,
-                              onChanged:
-                                  (p0) => context
-                                      .cubit<CreateTransportCubit>()
-                                      .onValueChanged(driverContact: p0),
-                            ),
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Expanded(
-                                  child: AppDateField(
-                                    title: 'Estimated Arrival Date',
-                                    hintText: 'Select Date',
-                                    isRequired: true,
-                                    // key: UniqueKey(),
-                                    readOnly: isCompleted,
-                                    startDate: DateTime.now(),
-                                    endDate: DateTime(2030),
-                                    initialDate: DFU.ddMMyyyyFromStr(
-                                      newform.estimatedArrivalDate ?? '',
-                                    ),
-                                    onSelected: (DateTime date) {
-                                      setState(() {
-                                        selectedDate = date;
-                                        context
-                                            .cubit<CreateTransportCubit>()
-                                            .onValueChanged(
-                                              estimatesdArrivalDate: DateFormat(
-                                                'dd-MM-yyyy',
-                                              ).format(date),
-                                            );
-                                      });
-                                    },
-                                    fillColor: Colors.grey[200],
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      TimePickerField(
-                                        title: 'Estimated Arrival Time',
-                                        readOnly: isCompleted,
-                                        // key: UniqueKey(),
-                                        isRequired: true,
-                                        hintText: 'Select Time',
-                                        initialTime: formatTime(
-                                          newform.estimatedArrivalTime,
-                                        ),
-                                        onTimeChanged: (selectedTime) {
-                                          context
-                                              .cubit<CreateTransportCubit>()
-                                              .onValueChanged(
-                                                estimatedArrivalTime:
-                                                    selectedTime,
-                                              );
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
 
@@ -557,7 +555,7 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
               const Padding(
                 padding: EdgeInsets.only(left: 16.0),
                 child: SectionHeader(
-                  title: 'Transporter Remarks Details',
+                  title: 'Transporter Remarks',
                   assetIcon: 'assets/images/remarksicon.svg',
                 ),
               ),
@@ -566,7 +564,7 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
                 child: Card(
                   color: Colors.white,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(16),
                     side: const BorderSide(color: Color(0xFFE8ECF4), width: 1),
                   ),
                   elevation: 0,
@@ -580,7 +578,6 @@ class _TransportCnfmFormWidgetState extends State<TransportCnfmFormWidget> {
                       maxLines: 3,
                       minLines: 3,
                       controller: remarks,
-
                       initialValue: newform.transporterRemarks,
                       onChanged:
                           (value) => context
@@ -606,4 +603,16 @@ String? formatTime(String? backendTime) {
   if (parts.length < 2) return backendTime;
 
   return '${parts[0]}:${parts[1]}'; // HH:MM only
+}
+
+String? _contactErrorFor(String? value) {
+  final contact = value?.trim() ?? '';
+  if (contact.isEmpty) return 'Contact number is required';
+  if (contact.length < 10) {
+    return 'Enter a complete 10-digit mobile number';
+  }
+  if (!RegExp(r'^[6-9]\d{9}$').hasMatch(contact)) {
+    return 'Mobile number must start with 6, 7, 8 or 9';
+  }
+  return null;
 }

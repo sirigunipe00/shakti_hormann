@@ -12,10 +12,11 @@ import 'package:shakti_hormann/features/gate_entry/presentation/bloc/bloc_provid
 import 'package:shakti_hormann/features/gate_entry/presentation/bloc/create_gate_cubit/gate_entry_cubit.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/widgets/input_filed.dart';
+import 'package:shakti_hormann/widgets/inputs/compact_search_select.dart';
 import 'package:shakti_hormann/widgets/inputs/date_picker_field.dart';
 import 'package:shakti_hormann/widgets/inputs/multiple_invoice.dart';
 import 'package:shakti_hormann/widgets/inputs/new_upload_photo_widget.dart';
-import 'package:shakti_hormann/widgets/inputs/search_dropdown_widget.dart';
+import 'package:shakti_hormann/widgets/linked_docs_table.dart';
 import 'package:shakti_hormann/widgets/sectionheader.dart';
 import 'package:shakti_hormann/widgets/spaced_column.dart';
 import 'package:simple_barcode_scanner/simple_barcode_scanner.dart';
@@ -120,9 +121,11 @@ class _GateEntryFormWidgetState extends State<GateEntryFormWidget> {
         ),
       ],
       child: Container(
-        color: Colors.purple.shade100.withValues(alpha: 0.15),
+        color: const Color(0xFFF7F8FA),
         child: SingleChildScrollView(
           controller: _scrollController,
+          padding: ShellInsets.scrollPadding(context),
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           child: SpacedColumn(
             crossAxisAlignment: CrossAxisAlignment.start,
             margin: const EdgeInsets.symmetric(vertical: 20),
@@ -141,8 +144,8 @@ class _GateEntryFormWidgetState extends State<GateEntryFormWidget> {
                 margin: const EdgeInsets.symmetric(horizontal: 18),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.grey.shade300),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: const Color(0xFFE8ECF4)),
                 ),
                 child: SpacedColumn(
                   defaultHeight: 6,
@@ -182,6 +185,25 @@ class _GateEntryFormWidgetState extends State<GateEntryFormWidget> {
               const Padding(
                 padding: EdgeInsets.only(left: 16.0),
                 child: SectionHeader(
+                  title: 'Purchase Orders',
+                  assetIcon: 'assets/images/vehicleinvoicicon.svg',
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: LinkedDocsTable(
+                  headerTitle: 'Purchase Order',
+                  docs: (newform.purchaseOrder ?? [])
+                      .map((e) => e.name ?? '')
+                      .where((e) => e.isNotEmpty)
+                      .toList(),
+                  emptyLabel: 'No linked purchase orders',
+                ),
+              ),
+              const SizedBox(height: 12),
+              const Padding(
+                padding: EdgeInsets.only(left: 16.0),
+                child: SectionHeader(
                   title: 'Invoice Details',
                   assetIcon: 'assets/images/vehicleinvoicicon.svg',
                 ),
@@ -192,8 +214,8 @@ class _GateEntryFormWidgetState extends State<GateEntryFormWidget> {
                 margin: const EdgeInsets.symmetric(horizontal: 18),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.grey.shade300),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: const Color(0xFFE8ECF4)),
                 ),
                 child: SpacedColumn(
                   defaultHeight: 6,
@@ -378,76 +400,52 @@ class _GateEntryFormWidgetState extends State<GateEntryFormWidget> {
                           orElse: () => <GateNumberForm>[],
                           success: (data) => data,
                         );
-                        final names = allData.toList();
-                        return SearchDropDownList(
-                          title: 'Gate Number',
+                        final names = allData
+                            .where((e) => (e.name ?? '').trim().isNotEmpty)
+                            .toList();
+                        final selectedName = context
+                                .read<CreateGateEntryCubit>()
+                                .state
+                                .form
+                                .gateNumber
+                                ?.trim() ??
+                            '';
+                        final GateNumberForm? selected = selectedName.isEmpty
+                            ? null
+                            : names
+                                    .where((g) => g.name == selectedName)
+                                    .cast<GateNumberForm?>()
+                                    .firstOrNull ??
+                                GateNumberForm(name: selectedName);
+                        return CompactSearchSelect<GateNumberForm>(
+                          label: 'Gate Number',
                           hint: 'Search Gate Number',
-                          key: ValueKey(newform.gateNumber),
-                          // key: UniqueKey(),
-                          color: AppColors.black,
-                          items: names,
-                          readOnly: isCompleted,
-                          isloading: state.isLoading,
-                          defaultSelection: names.firstWhere(
-                            (g) =>
-                                g.name ==
-                                context
-                                    .read<CreateGateEntryCubit>()
-                                    .state
-                                    .form
-                                    .gateNumber,
-                            orElse: () => const GateNumberForm(),
-                          ),
-                          futureRequest: (query) async {
-                            if (query.isEmpty) return names;
-                            return names.where((item) {
-                              final orderNo = item.name?.toLowerCase() ?? '';
-                              final pointName =
-                                  item.pointName?.toLowerCase() ?? '';
-                              final search = query.toLowerCase();
-                              return orderNo.contains(search) ||
-                                  pointName.contains(search);
-                            }).toList();
+                          isRequired: true,
+                          locked: isCompleted,
+                          isLoading: state.isLoading && names.isEmpty,
+                          leadingIcon: Icons.door_front_door_outlined,
+                          options: names,
+                          value: selected,
+                          labelOf: (e) => e.name ?? '',
+                          subtitleOf: (e) => e.pointName == null ||
+                                  e.pointName!.trim().isEmpty
+                              ? null
+                              : 'Unloading: ${e.pointName}',
+                          matchesQuery: (item, query) {
+                            final haystack = [
+                              item.name,
+                              item.pointName,
+                            ].whereType<String>().join(' ').toLowerCase();
+                            return haystack.contains(query);
                           },
-                          headerBuilder:
-                              (_, item, __) => Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    item.name ?? '',
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                          listItemBuilder:
-                              (_, item, __, ___) => Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Gate Number: ${item.name ?? ''}',
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  if (item.pointName != null)
-                                    Text(
-                                      'UnLoading Point Name : ${item.pointName}',
-                                    ),
-                                  const Divider(height: 8),
-                                ],
-                              ),
-                          onSelected: (selected) {
+                          onChanged: (picked) {
                             setState(() {
-                              gateNumberForm = selected;
+                              gateNumberForm = picked;
                               context
                                   .cubit<CreateGateEntryCubit>()
-                                  .onValueChanged(gateNumber: selected.name);
+                                  .onValueChanged(gateNumber: picked.name);
                             });
                           },
-
-                          focusNode: focusNodes.elementAt(3),
                         );
                       },
                     ),
@@ -467,14 +465,15 @@ class _GateEntryFormWidgetState extends State<GateEntryFormWidget> {
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: Card(
                   color: Colors.white,
+                  elevation: 0,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(16),
                     side: const BorderSide(color: Color(0xFFE8ECF4), width: 1),
                   ),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
-                      vertical: 16.0,
-                      horizontal: 8.0,
+                      vertical: 10.0,
+                      horizontal: 6.0,
                     ),
                     child: BlocBuilder<CreateGateEntryCubit,CreateGateEntryState>(
                       builder: (context, state) {
@@ -486,29 +485,35 @@ class _GateEntryFormWidgetState extends State<GateEntryFormWidget> {
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                NewUploadPhotoWidget(
-                                  fileName: 'vehiclefront',
-                                  imageUrl: newform.vehiclePhoto,
-                                  title: 'Vehicle Front',
-                                  isRequired: true,
-                                  isReadOnly: isCompleted,
-                                  onFileCapture: (file) {
-                                    context
-                                        .cubit<CreateGateEntryCubit>()
-                                        .onValueChanged(vehiclePhoto: file);
-                                  },
+                                Expanded(
+                                  child: NewUploadPhotoWidget(
+                                    fileName: 'vehiclefront',
+                                    imageUrl: newform.vehiclePhoto,
+                                    title: 'Vehicle Front',
+                                    isRequired: true,
+                                    isReadOnly: isCompleted,
+                                    onFileCapture: (file) {
+                                      context
+                                          .cubit<CreateGateEntryCubit>()
+                                          .onValueChanged(vehiclePhoto: file);
+                                    },
+                                  ),
                                 ),
-                                NewUploadPhotoWidget(
-                                  fileName: 'vehicleback',
-                                  imageUrl: newform.vehicleBackPhoto,
-                                  title: 'Vehicle Back',
-                                  isRequired: true,
-                                  isReadOnly: isCompleted,
-                                  onFileCapture: (file) {
-                                    context
-                                        .cubit<CreateGateEntryCubit>()
-                                        .onValueChanged(vehicleBackPhoto: file);
-                                  },
+                                Expanded(
+                                  child: NewUploadPhotoWidget(
+                                    fileName: 'vehicleback',
+                                    imageUrl: newform.vehicleBackPhoto,
+                                    title: 'Vehicle Back',
+                                    isRequired: true,
+                                    isReadOnly: isCompleted,
+                                    onFileCapture: (file) {
+                                      context
+                                          .cubit<CreateGateEntryCubit>()
+                                          .onValueChanged(
+                                            vehicleBackPhoto: file,
+                                          );
+                                    },
+                                  ),
                                 ),
 
                                 if (!isCompleted)

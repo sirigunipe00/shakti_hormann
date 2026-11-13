@@ -3,20 +3,17 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/core/utils/packing_sticker_decoder.dart';
 import 'package:shakti_hormann/core/utils/packing_sticker_document_capture.dart';
-import 'package:shakti_hormann/features/logistic_request/model/sales_order_form.dart';
 import 'package:shakti_hormann/features/pallet_creation/model/pallet_model.dart';
 import 'package:shakti_hormann/features/shutter_packing/model/pallet_code.dart';
-import 'package:shakti_hormann/features/shutter_packing/model/pallet_size.dart';
 import 'package:shakti_hormann/features/shutter_packing/presentation/bloc/bloc_provider.dart';
 import 'package:shakti_hormann/features/shutter_packing/presentation/bloc/create_shutter_cubit.dart/create_shutter_cubit.dart';
-import 'package:shakti_hormann/features/shutter_packing/presentation/ui/create/scan_shutter_page.dart';
 import 'package:shakti_hormann/features/shutter_packing/presentation/ui/widget/border_painter.dart';
 import 'package:shakti_hormann/features/shutter_packing/presentation/ui/widget/shutter_lines_widget.dart';
+import 'package:shakti_hormann/features/shutter_packing/presentation/ui/widget/shutter_select_fields.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/widgets/dailogs/app_dialogs.dart';
 import 'package:shakti_hormann/widgets/inputs/new_upload_photo_widget.dart';
-import 'package:shakti_hormann/widgets/inputs/search_dropdown_widget.dart';
-// import 'package:shakti_hormann/widgets/sectionheader.dart';
+import 'package:shakti_hormann/widgets/scan/burst_scan_page.dart';
 import 'package:simple_barcode_scanner/simple_barcode_scanner.dart';
 
 class ShutterPackingFormWidget extends StatefulWidget {
@@ -34,8 +31,6 @@ class ShutterPackingFormWidget extends StatefulWidget {
 
 class __ShutterPackingFormWidgetState extends State<ShutterPackingFormWidget> {
   final ScrollController _scrollController = ScrollController();
-  SalesOrderForm? invoiceform;
-  PalletSize? palletSize;
 
   @override
   void dispose() {
@@ -90,7 +85,13 @@ class __ShutterPackingFormWidgetState extends State<ShutterPackingFormWidget> {
       ],
       child: SingleChildScrollView(
         controller: _scrollController,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+        padding: ShellInsets.scrollPadding(
+          context,
+          left: 16,
+          right: 16,
+          top: 5,
+        ),
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -103,17 +104,19 @@ class __ShutterPackingFormWidgetState extends State<ShutterPackingFormWidget> {
             ),
             const SizedBox(height: 8),
             Container(
-              padding: const EdgeInsets.only(
-                left: 12,
-                right: 12,
-                bottom: 8,
-                top: 8,
-              ),
+              padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
               width: MediaQuery.of(context).size.width,
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.grey.shade300),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: const Color(0xFFE8ECF4)),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF0E1446).withValues(alpha: 0.04),
+                    blurRadius: 10,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
               ),
               child: Column(
                 children: [
@@ -125,7 +128,6 @@ class __ShutterPackingFormWidgetState extends State<ShutterPackingFormWidget> {
                       );
                       final savedSo = newform.salesOrder?.trim();
                       final names = allData.toList();
-                      // Reopened doc: keep saved SO visible even if not in picker API.
                       if (savedSo != null &&
                           savedSo.isNotEmpty &&
                           !names.any((e) => e.salesOrder == savedSo)) {
@@ -140,70 +142,27 @@ class __ShutterPackingFormWidgetState extends State<ShutterPackingFormWidget> {
                               : names.firstWhere(
                                 (g) => g.salesOrder == savedSo,
                               );
-                      return SearchDropDownList<PalletModel>(
-                        title: 'Sales Order No.',
-                        hint: 'Select Sales Order',
-                        key: ValueKey('${newform.name}_${newform.salesOrder}'),
-                        color: AppColors.black,
-                        items: names,
-                        isRequired: true,
-                        readOnly: isDropdownLocked,
-                        defaultSelection: defaultSelection,
-                        isloading: state.isLoading,
-                        futureRequest: (query) async {
-                          if (query.isEmpty) return names;
-                          return names.where((item) {
-                            final orderNo =
-                                item.salesOrder?.toLowerCase() ?? '';
-                            return orderNo.contains(query.toLowerCase());
-                          }).toList();
-                        },
-                        headerBuilder:
-                            (_, item, __) => Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  item.salesOrder ?? '',
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                        listItemBuilder:
-                            (_, item, __, ___) => Padding(
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 10.0,
-                                horizontal: 4.0,
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Order No: ${item.salesOrder ?? ''}',
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  if ((item.customerName ?? '').isNotEmpty)
-                                    Text('Customer: ${item.customerName}'),
-                                  if ((item.orderDate ?? '').isNotEmpty)
-                                    Text(
-                                      'Order Date: ${DFU.ddMMyyyyFromStr(item.orderDate!)}',
-                                    ),
-                                ],
-                              ),
-                            ),
+
+                      return ShutterSalesOrderSelect(
+                        key: ValueKey(
+                          'so_${newform.name}_${newform.salesOrder}_'
+                          '$isDropdownLocked',
+                        ),
+                        orders: names,
+                        selected: defaultSelection,
+                        isLoading: state.isLoading,
+                        locked: isDropdownLocked,
                         onSelected: (selected) {
+                          final so = selected.salesOrder;
+                          if (so == null || so.isEmpty) return;
                           context.cubit<CreateShutterCubit>().onValueChanged(
-                            salesOrder: selected.salesOrder,
+                            salesOrder: so,
                             palletCode: '',
                           );
-                          context.cubit<CreateShutterCubit>().getPalletCodes(
-                            selected.salesOrder!,
-                          );
+                          context
+                              .cubit<CreateShutterCubit>()
+                              .getPalletCodes(so);
                         },
-                        focusNode: FocusNode(),
                       );
                     },
                   ),
@@ -226,52 +185,31 @@ class __ShutterPackingFormWidgetState extends State<ShutterPackingFormWidget> {
                           PalletCodeModel(name: storedCode),
                         );
                       }
-                      final PalletCodeModel? selection =
-                          palletCodes
-                              .where((e) => e.name == storedCode)
-                              .firstOrNull;
+                      final PalletCodeModel? selection = palletCodes
+                          .where((e) => e.name == storedCode)
+                          .firstOrNull;
+
+                      final emptyHint =
+                          palletCodes.isEmpty &&
+                                  (newform.salesOrder?.isNotEmpty ?? false)
+                              ? 'No pallet codes available'
+                              : 'Select pallet code';
 
                       return Row(
-                        crossAxisAlignment: CrossAxisAlignment.end,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Expanded(
-                            child: SearchDropDownList<PalletCodeModel>(
-                              title: 'Pallet Select',
-                              hint:
-                                  palletCodes.isEmpty &&
-                                          (newform.salesOrder?.isNotEmpty ??
-                                              false)
-                                      ? 'No pallet codes available'
-                                      : 'Search Pallet',
-                              items: palletCodes,
+                            child: ShutterPalletCodeSelect(
                               key: ValueKey(
-                                '${state.form.name}_${state.form.salesOrder}_'
-                                '${state.form.palletCode}_${state.palletCodes.join()}',
+                                'pc_${state.form.name}_${state.form.salesOrder}_'
+                                '${state.form.palletCode}_'
+                                '${state.palletCodes.length}',
                               ),
-                              readOnly: isDropdownLocked,
-                              isRequired: true,
-                              isloading: state.isLoadingPalletCodes,
-                              color: AppColors.black,
-                              defaultSelection: selection,
-                              futureRequest: (query) async {
-                                if (query.isEmpty) return palletCodes;
-                                return palletCodes
-                                    .where(
-                                      (e) => e.name.toLowerCase().contains(
-                                        query.toLowerCase(),
-                                      ),
-                                    )
-                                    .toList();
-                              },
-                              headerBuilder: (_, item, __) => Text(item.name),
-                              listItemBuilder:
-                                  (_, item, __, ___) => Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 10.0,
-                                      horizontal: 4.0,
-                                    ),
-                                    child: Text(item.name),
-                                  ),
+                              codes: palletCodes,
+                              selected: selection,
+                              locked: isDropdownLocked,
+                              isLoading: state.isLoadingPalletCodes,
+                              emptyHint: emptyHint,
                               onSelected: (selected) {
                                 context
                                     .read<CreateShutterCubit>()
@@ -279,30 +217,29 @@ class __ShutterPackingFormWidgetState extends State<ShutterPackingFormWidget> {
                               },
                             ),
                           ),
-                          if (!isDropdownLocked)
+                          if (!isDropdownLocked) ...[
+                            const SizedBox(width: 8),
                             Padding(
-                              padding: const EdgeInsets.only(
-                                left: 4,
-                                bottom: 6,
-                              ),
-                              child: InkWell(
-                                borderRadius: BorderRadius.circular(8),
-                                onTap: () => _scanPalletCode(context),
-                                child: Container(
-                                  width: 48,
-                                  height: 54,
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFF1A3C6B),
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: const Icon(
-                                    Icons.qr_code_scanner,
-                                    color: Colors.white,
-                                    size: 24,
+                              padding: const EdgeInsets.only(top: 26),
+                              child: Material(
+                                color: const Color(0xFF1A3C6B),
+                                borderRadius: BorderRadius.circular(12),
+                                child: InkWell(
+                                  borderRadius: BorderRadius.circular(12),
+                                  onTap: () => _scanPalletCode(context),
+                                  child: const SizedBox(
+                                    width: 48,
+                                    height: 48,
+                                    child: Icon(
+                                      Icons.qr_code_scanner,
+                                      color: Colors.white,
+                                      size: 22,
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
+                          ],
                         ],
                       );
                     },
@@ -315,7 +252,7 @@ class __ShutterPackingFormWidgetState extends State<ShutterPackingFormWidget> {
               const SizedBox(height: 12),
               const _StepHint(
                 text:
-                    '**Select Sales Order and Pallet Code, then tap Save to proceed**',
+                    'Select Sales Order and Pallet Code, then tap Save to proceed',
               ),
             ],
 
@@ -335,7 +272,7 @@ class __ShutterPackingFormWidgetState extends State<ShutterPackingFormWidget> {
                     Expanded(
                       child: _ScanCard(
                         icon: Icons.qr_code_scanner,
-                        label: 'Scan Shutter\nSticker',
+                        label: 'Multi-Scan\nShutter Stickers',
                         isDisabled: isScanningDisabled,
                         onTap:
                             isScanningDisabled
@@ -358,10 +295,9 @@ class __ShutterPackingFormWidgetState extends State<ShutterPackingFormWidget> {
                   ],
                 ),
                 const SizedBox(height: 10),
-                const Center(
-                  child: Text(
-                    '**If Sticker is Not available , Please Upload the Image**',
-                  ),
+                const _StepHint(
+                  text:
+                      'If sticker is not available, please upload the image',
                 ),
                 const SizedBox(height: 10),
               ],
@@ -393,11 +329,12 @@ class __ShutterPackingFormWidgetState extends State<ShutterPackingFormWidget> {
                             style: ElevatedButton.styleFrom(
                               backgroundColor:
                                   canFreeze
-                                      ? const Color(0xFF2563EB)
+                                      ? AppColors.darkBlue
                                       : const Color(0xFFCBD5E1),
+                              elevation: 0,
                               padding: const EdgeInsets.symmetric(vertical: 14),
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
+                                borderRadius: BorderRadius.circular(14),
                               ),
                             ),
                             child:
@@ -414,8 +351,9 @@ class __ShutterPackingFormWidgetState extends State<ShutterPackingFormWidget> {
                                       'Freeze Quantity',
                                       style: TextStyle(
                                         color: Colors.white,
-                                        fontWeight: FontWeight.w600,
+                                        fontWeight: FontWeight.w800,
                                         fontSize: 15,
+                                        fontFamily: 'Urbanist',
                                       ),
                                     ),
                           ),
@@ -605,85 +543,7 @@ class __ShutterPackingFormWidgetState extends State<ShutterPackingFormWidget> {
   }
 
   Future<void> _onFreezeQuantity(BuildContext context) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder:
-          (dialogContext) => Dialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: 48,
-                    height: 48,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFCE7E7),
-                      borderRadius: BorderRadius.circular(24),
-                    ),
-                    child: const Icon(
-                      Icons.priority_high,
-                      color: Color(0xFFE53E3E),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'Freeze Quantity?',
-                    style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'Note: Once freezed you will not be able to change the inputs. '
-                    'The sticker will be printed automatically.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 13, color: Color(0xFF64748B)),
-                  ),
-                  const SizedBox(height: 20),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton(
-                          onPressed:
-                              () => Navigator.of(dialogContext).pop(false),
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: const Color(0xFFE53E3E),
-                            side: const BorderSide(color: Color(0xFFE53E3E)),
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
-                          child: const Text('Cancel'),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed:
-                              () => Navigator.of(dialogContext).pop(true),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF1A3C6B),
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
-                          child: const Text(
-                            'Freeze',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-    );
+    final confirmed = await AppDialog.confirmFreezeQuantity(context);
 
     if (confirmed != true || !context.mounted) return;
 
@@ -733,12 +593,18 @@ class __ShutterPackingFormWidgetState extends State<ShutterPackingFormWidget> {
   }
 
   Future<void> _onScanSticker(BuildContext context) async {
-    final raw = await Navigator.of(
-      context,
-    ).push<String>(MaterialPageRoute(builder: (_) => const ScanShutterPage()));
-
-    if (raw == null || !context.mounted) return;
-    context.cubit<CreateShutterCubit>().onQrScanned(raw);
+    final cubit = context.cubit<CreateShutterCubit>();
+    await Navigator.of(context).push<int>(
+      MaterialPageRoute(
+        builder:
+            (_) => BurstScanPage(
+              title: 'Multi-Scan Shutters',
+              hint: 'Keep scanning stickers — tap Stop when done',
+              decodePackingSticker: true,
+              onValidate: (code) => cubit.processScannedCode(code),
+            ),
+      ),
+    );
   }
 
   Future<void> _scanPalletCode(BuildContext context) async {
