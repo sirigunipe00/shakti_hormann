@@ -74,6 +74,10 @@ class AppIcons {
     '$imagesPath/accessories_packaging_loop.gif',
     stillPath: '$imagesPath/vision_panel.png',
   );
+  static const forkliftScanning = AppIcon(
+    '$imagesPath/forklift_scanning_loop.gif',
+    stillPath: '$imagesPath/forklift_scanning.png',
+  );
 }
 
 class AppIcon {

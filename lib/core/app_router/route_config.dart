@@ -89,6 +89,12 @@ import 'package:shakti_hormann/features/vision_panel/presentation/bloc/bloc_prov
 import 'package:shakti_hormann/features/vision_panel/presentation/bloc/create_vision_panel/create_vision_panel.dart';
 import 'package:shakti_hormann/features/vision_panel/presentation/ui/new_vision.dart';
 import 'package:shakti_hormann/features/vision_panel/presentation/ui/vision_panel_list.dart';
+import 'package:shakti_hormann/features/forklift/model/forklift_models.dart';
+import 'package:shakti_hormann/features/forklift/presentation/bloc/forklift_bloc_provider.dart';
+import 'package:shakti_hormann/features/forklift/presentation/ui/create/forklift_operator_detail.dart';
+import 'package:shakti_hormann/features/forklift/presentation/ui/create/new_forklift_operator.dart';
+import 'package:shakti_hormann/features/forklift/presentation/ui/widgets/forklift_operator_list.dart';
+import 'package:shakti_hormann/features/forklift/presentation/ui/widgets/forklift_status_list.dart';
 import 'package:shakti_hormann/features/where_is_my_material/presentation/ui/where_is_my_material_screen.dart';
 import 'package:shakti_hormann/features/zone_transfer/model/zone_transfer.dart';
 import 'package:shakti_hormann/features/zone_transfer/presentation/bloc/bloc_provider.dart';
@@ -171,6 +177,43 @@ class AppRouterConfig {
                     // Cover bottom nav so users stay focused on this page only.
                     parentNavigatorKey: parentNavigatorKey,
                     builder: (_, __) => const WhereIsMyMaterialScreen(),
+                  ),
+                  GoRoute(
+                    path: _getPath(AppRoute.forkliftOperator),
+                    builder: (ctxt, state) {
+                      return BlocProvider(
+                        create: (context) =>
+                            ForkliftBlocProvider.get().operatorLogs()
+                              ..fetchInitial(const Pair('All', null)),
+                        child: const ForkliftOperatorList(),
+                      );
+                    },
+                    routes: [
+                      GoRoute(
+                        path: _getPath(AppRoute.newForkliftOperator),
+                        parentNavigatorKey: parentNavigatorKey,
+                        builder: (_, __) => const NewForkliftOperatorEntry(),
+                      ),
+                      GoRoute(
+                        path: _getPath(AppRoute.forkliftOperatorDetail),
+                        parentNavigatorKey: parentNavigatorKey,
+                        builder: (_, state) {
+                          final session = state.extra as ForkliftSession;
+                          return ForkliftOperatorDetailPage(session: session);
+                        },
+                      ),
+                    ],
+                  ),
+                  GoRoute(
+                    path: _getPath(AppRoute.forkliftStatus),
+                    builder: (ctxt, state) {
+                      return BlocProvider(
+                        create: (context) =>
+                            ForkliftBlocProvider.get().statusList()
+                              ..fetchInitial(const Pair('All', null)),
+                        child: const ForkliftStatusList(),
+                      );
+                    },
                   ),
                   GoRoute(
                     path: _getPath(AppRoute.gateEntry),

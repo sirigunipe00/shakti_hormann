@@ -100,6 +100,10 @@ _$RoleStatusImpl _$$RoleStatusImplFromJson(
       (json['Show Hardware Packaging in Mobile App'] as num?)?.toInt(),
   showWhereIsMyMaterial:
       (json['Show Where Is My Material in Mobile App'] as num?)?.toInt(),
+  showForkliftOperator:
+      (json['Show Forklift Operator in Mobile App'] as num?)?.toInt(),
+  showForkliftStatus:
+      (json['Show Forklift Status in Mobile App'] as num?)?.toInt(),
 );
 
 Map<String, dynamic> _$$RoleStatusImplToJson(
@@ -123,4 +127,6 @@ Map<String, dynamic> _$$RoleStatusImplToJson(
   'Show Accessories Packaging in Mobile App': instance.showVision,
   'Show Hardware Packaging in Mobile App': instance.showHardware,
   'Show Where Is My Material in Mobile App': instance.showWhereIsMyMaterial,
+  'Show Forklift Operator in Mobile App': instance.showForkliftOperator,
+  'Show Forklift Status in Mobile App': instance.showForkliftStatus,
 };

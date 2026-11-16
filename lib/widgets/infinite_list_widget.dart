@@ -147,7 +147,7 @@ class _InfiniteListViewState<T> extends State<_InfiniteListView<T>> {
             if (widget.failure != null) {
               return AppFailureWidget(
                 message: widget.failure!.error,
-                onPress: widget.fetchMore,
+                onPress: hasReachedMax ? widget.fetchInitial : widget.fetchMore,
               );
             }
 

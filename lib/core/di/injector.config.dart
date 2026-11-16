@@ -28,6 +28,10 @@ import '../../features/auth/presentation/ui/sign_in/sign_in_cubit.dart'
 import '../../features/dashboard/data/dashboard_repoimpl.dart' as _i959;
 import '../../features/dashboard/data/dashboardrepo.dart' as _i886;
 import '../../features/dashboard/presentation/bloc_provider.dart' as _i627;
+import '../../features/forklift/data/forklift_repo.dart' as _i912;
+import '../../features/forklift/data/forklift_repo_impl.dart' as _i913;
+import '../../features/forklift/presentation/bloc/forklift_bloc_provider.dart'
+    as _i914;
 import '../../features/frame_packing/data/frame_packing_repo.dart' as _i117;
 import '../../features/frame_packing/data/frame_packing_repoimpl.dart' as _i210;
 import '../../features/frame_packing/presentation/bloc/bloc_provider.dart'
@@ -305,6 +309,12 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i925.CreatePalletCubit>(
       () => _i925.CreatePalletCubit(gh<_i1.PalletRepo>()),
+    );
+    gh.lazySingleton<_i912.ForkliftRepo>(
+      () => _i913.ForkliftRepoImpl(gh<_i351.ApiClient>()),
+    );
+    gh.lazySingleton<_i914.ForkliftBlocProvider>(
+      () => _i914.ForkliftBlocProvider(gh<_i912.ForkliftRepo>()),
     );
     gh.lazySingleton<_i710.ZoneRepo>(
       () => _i981.ZoneRepoImp(gh<_i351.ApiClient>()),

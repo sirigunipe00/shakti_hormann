@@ -24,8 +24,9 @@ enum PageMode2 {
   framePacking('Frame Packing'),
   palletCreation('Pallet Creation'),
   visionPanel('Accessories Packing'),
-  installation('Installation Packing');
-
+  installation('Installation Packing'),
+  forkliftOperator('Forklift Operator'),
+  forkliftStatus('Forklift Status');
 
   const PageMode2(this.name);
 
@@ -41,7 +42,7 @@ class AppPageView2<T extends PageViewFiltersCubit> extends StatefulWidget {
     required this.backgroundColor,
     required this.scaffoldBg,
     this.trailingAction,
-
+    this.appBarActions,
   });
 
   final Widget child;
@@ -50,6 +51,8 @@ class AppPageView2<T extends PageViewFiltersCubit> extends StatefulWidget {
   final Color backgroundColor;
   final String scaffoldBg;
   final Widget? trailingAction;
+  /// Shown in the app bar immediately before the Filter button.
+  final List<Widget>? appBarActions;
  
 
   @override
@@ -77,6 +80,8 @@ class _AppPageView2State<T extends PageViewFiltersCubit>
     PageMode2.palletCreation => 'Search ID / SO',
     PageMode2.visionPanel => 'Serach ID / SO',
     PageMode2.installation => 'Search ID / SO',
+    PageMode2.forkliftOperator => 'Search User / Forklift / Log ID',
+    PageMode2.forkliftStatus => 'Search Forklift ID',
   };
 
   Color get bgColor => switch (widget.mode) {
@@ -95,7 +100,9 @@ class _AppPageView2State<T extends PageViewFiltersCubit>
     PageMode2.shutterPacking => AppColors.white,
     PageMode2.palletCreation => AppColors.white,
     PageMode2.visionPanel => AppColors.white,
-    PageMode2.installation => AppColors.white
+    PageMode2.installation => AppColors.white,
+    PageMode2.forkliftOperator => AppColors.white,
+    PageMode2.forkliftStatus => AppColors.white,
   };
 
   @override
@@ -153,40 +160,27 @@ class _AppPageView2State<T extends PageViewFiltersCubit>
       case PageMode2.loadingConfirmation:
         filters = ['Draft', 'Reported', 'Rejected', 'Cancelled', 'All'];
         break;
+      case PageMode2.forkliftOperator:
+        filters = ['All', 'Active', 'Logged Out'];
+        break;
+      case PageMode2.forkliftStatus:
+        filters = ['All', 'Available', 'Occupied', 'Out of Service'];
+        break;
     }
     return Scaffold(
+      backgroundColor: widget.backgroundColor,
       resizeToAvoidBottomInset: false,
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60),
         child: AppBar(
           actions: [
-            // Padding(
-            //   padding: const EdgeInsets.only(right: 20),
-            //   child: Container(
-            //     width: 36,
-            //     height: 36,
-            //     decoration: BoxDecoration(
-            //       color: Colors.white,
-            //       border: Border.all(color: Colors.grey.shade200),
-            //       borderRadius: BorderRadius.circular(12),
-            //     ),
-            //     child: InkWell(
-                  
-            //       borderRadius: BorderRadius.circular(12),
-            //       child: const Padding(
-            //         padding: EdgeInsets.all(8.0),
-            //         child: Icon(Icons.filter_list, size: 20,color: AppColors.liteyellow,),
-            //       ),
-            //     ),
-            //   ),
-            // ),
+            ...?widget.appBarActions,
             StatusMenuWidget(
               defaultSel: context.read<T>().state.status,
               mode: widget.mode,
               items: filters,
               onChange: context.cubit<T>().onChangeStatus,
             ),
-            
           ],
           elevation: 0,
           automaticallyImplyLeading: false,
@@ -221,9 +215,13 @@ class _AppPageView2State<T extends PageViewFiltersCubit>
                   child: Text(
                     widget.mode.name,
                     style: AppTextStyles.titleLarge(context).copyWith(
-                      color: AppColors.black,
+                      color: widget.mode == PageMode2.forkliftOperator ||
+                              widget.mode == PageMode2.forkliftStatus
+                          ? const Color(0xFF0E1446)
+                          : AppColors.black,
                       fontSize: 20,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w800,
+                      fontFamily: 'Urbanist',
                     ),
                   ),
                 ),
@@ -344,7 +342,8 @@ class _AppPageView2State<T extends PageViewFiltersCubit>
       ),
       floatingActionButton:
           widget.mode != PageMode2.transportConfirmation &&
-                  widget.mode != PageMode2.loadingConfirmation
+                  widget.mode != PageMode2.loadingConfirmation &&
+                  widget.mode != PageMode2.forkliftStatus
               ? Padding(
                   // Parent shell uses extendBody + floating nav — lift FAB above it.
                   padding: EdgeInsets.only(

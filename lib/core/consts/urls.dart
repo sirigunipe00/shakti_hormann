@@ -120,4 +120,31 @@ class Urls {
   static final submitInstallation = '$cusWs/shaktihormann.p2_api.submit_installation_entry';
   static final getInstallationBoxSequence = '$cusWs/shaktihormann.p2_api.get_installation_box_sequence';
 
+  // Forklift Operator / Status
+  static final getForkliftHomeSummary =
+      '$cusWs/shaktihormann.api.get_forklift_home_summary';
+  static final getForkliftOperatorLogs =
+      '$cusWs/shaktihormann.api.get_forklift_operator_logs';
+  static final getForkliftOperatorLogDetail =
+      '$cusWs/shaktihormann.api.get_forklift_operator_log_detail';
+  static final getMyForkliftSession =
+      '$cusWs/shaktihormann.api.get_my_forklift_session';
+  static final getForkliftStatusList =
+      '$cusWs/shaktihormann.api.get_forklift_status_list';
+  static final getForkliftDetail =
+      '$cusWs/shaktihormann.api.get_forklift_detail';
+  static final scanForklift = '$cusWs/shaktihormann.api.scan_forklift';
+  static final markForkliftLogin =
+      '$cusWs/shaktihormann.api.mark_forklift_login';
+  static final markForkliftLogout =
+      '$cusWs/shaktihormann.api.mark_forklift_logout';
+  static final getForkliftUsageSummary =
+      '$cusWs/shaktihormann.api.get_forklift_usage_summary';
+  static final forkliftSupervisorRelease =
+      '$cusWs/shaktihormann.api.forklift_supervisor_release';
+  static final setForkliftOutOfService =
+      '$cusWs/shaktihormann.api.set_forklift_out_of_service';
+  static final clearForkliftOutOfService =
+      '$cusWs/shaktihormann.api.clear_forklift_out_of_service';
+
 }

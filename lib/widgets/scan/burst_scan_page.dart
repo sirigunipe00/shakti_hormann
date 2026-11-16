@@ -111,9 +111,11 @@ class _BurstScanPageState extends State<BurstScanPage> {
     setState(() => _banner = outcome);
     await ScanFeedback.play(outcome);
 
+    // Fail holds longer so floor operators can read duplicate / validation text
+    // (shared by Shutter, Frame, Dispatch Multi-Scan).
     final hold = outcome.success
         ? const Duration(milliseconds: 900)
-        : const Duration(milliseconds: 1400);
+        : const Duration(milliseconds: 3500);
     await Future<void>.delayed(hold);
 
     if (!mounted) return;

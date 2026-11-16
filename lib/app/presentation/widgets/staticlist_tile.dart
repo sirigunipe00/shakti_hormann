@@ -89,6 +89,10 @@ mixin StatusModeSelectionMixin {
         return ['Draft', 'Reported', 'Rejected', 'All'];
       case PageMode2.loadingConfirmation:
         return ['Reported', 'Submitted', 'All'];
+      case PageMode2.forkliftOperator:
+        return ['All', 'Active', 'Logged Out'];
+      case PageMode2.forkliftStatus:
+        return ['All', 'Available', 'Occupied', 'Out of Service'];
     }
   }
 
@@ -110,6 +114,8 @@ mixin StatusModeSelectionMixin {
       PageMode2.palletCreation => 'Filter Pallet Creation',
       PageMode2.visionPanel => 'Filter Accessories Packing',
       PageMode2.installation => 'Filter Installation Packing',
+      PageMode2.forkliftOperator => 'Filter Forklift Operator',
+      PageMode2.forkliftStatus => 'Filter Forklift Status',
     };
   }
 }

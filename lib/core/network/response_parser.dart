@@ -24,12 +24,16 @@ class FrappeApiResponseParser<T> implements ApiResponseParser<T> {
       }
       final messageObj = response['message'];
       if (messageObj is Map<String, dynamic>) {
-        if (messageObj.containsKey('status')) {
+        final okFlag = messageObj['ok'];
+        final hasStatus = messageObj.containsKey('status');
+        if (hasStatus || okFlag == false) {
           final status = messageObj['status'];
           // Some APIs return numeric 200; others return "success" (e.g. get_loaded_items).
-          final isSuccess = status == 200 ||
-              (status is String &&
-                  status.toLowerCase() == 'success');
+          final isSuccess = okFlag != false &&
+              (status == null ||
+                  status == 200 ||
+                  (status is String &&
+                      status.toLowerCase() == 'success'));
           if (isSuccess) {
             final result = parser(response);
             return ApiResponse.success(result);
@@ -63,6 +67,15 @@ class FrappeApiResponseParser<T> implements ApiResponseParser<T> {
             if (zone != null && zone.toString().isNotEmpty) {
               buffer.write('\nCurrent zone: $zone');
             }
+          }
+          if (code == 'SCAN_REQUIRED') {
+            // Keep API message; title is set by forklift scan flow.
+          }
+          // Structured refusal: operator must close active session first.
+          // Return success so Flutter can read action/record_link and route.
+          if (code == 'ACTIVE_ON_OTHER_FORKLIFT') {
+            final result = parser(response);
+            return ApiResponse.success(result);
           }
           final mappedStatus = status == 409 ? 409 : 400;
           return ApiResponse.failure(buffer.toString(), status: mappedStatus);

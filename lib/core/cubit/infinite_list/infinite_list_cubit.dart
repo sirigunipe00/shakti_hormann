@@ -28,16 +28,31 @@ class InfiniteListCubit<T, FIP, FMP> extends AppBaseCubit<InfiniteListState<T>> 
       _isFetchInProgress = true;
       final result = await requestInitial(params, state);
       result.fold(
-        (l) => emitSafeState(
-          state.copyWith(apiState: ApiState.failed, failure: l),
-        ),
+        (l) {
+          // Keep last good rows on refresh failure (e.g. flaky UAT workers).
+          if (state.records.isNotEmpty) {
+            emitSafeState(
+              state.copyWith(
+                apiState: ApiState.success,
+                failure: l,
+                hasReachedMax: true,
+              ),
+            );
+          } else {
+            emitSafeState(
+              state.copyWith(apiState: ApiState.failed, failure: l),
+            );
+          }
+        },
         (r) => emitSafeState(
           state.copyWith(
             apiState: ApiState.success,
             records: r,
-            // List APIs use limit_page_length: 'None' → full set in one call.
-            // Never trigger fetchMore / infinite append after this.
-            hasReachedMax: true,
+            failure: null,
+            // Paged lists (requestMore wired): keep loading while a full page
+            // returns. One-shot lists (no requestMore): treat as complete.
+            hasReachedMax:
+                requestMore == null || r.length < pageLength,
           ),
         ),
       );

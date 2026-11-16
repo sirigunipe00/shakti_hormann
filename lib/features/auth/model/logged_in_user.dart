@@ -80,6 +80,10 @@ class RoleStatus with _$RoleStatus {
     @JsonKey(name: 'Show Hardware Packaging in Mobile App') int? showHardware,
     @JsonKey(name: 'Show Where Is My Material in Mobile App')
     int? showWhereIsMyMaterial,
+    @JsonKey(name: 'Show Forklift Operator in Mobile App')
+    int? showForkliftOperator,
+    @JsonKey(name: 'Show Forklift Status in Mobile App')
+    int? showForkliftStatus,
   }) = _RoleStatus;
 
   factory RoleStatus.fromJson(Map<String, dynamic> json) =>
@@ -93,6 +97,7 @@ RoleStatus? roleStatusFromJson(Object? json) {
   if (json is! Map) return null;
   final normalized = Map<String, dynamic>.from(json);
 
+  // Preferred key → legacy / short aliases copied into the preferred key.
   const aliases = <String, String>{
     'Show Pallet Creation in Mobile App': 'Pallet Creation-SH',
     'Show Shutter Packaging in Mobile App': 'Shutter Packing-SH',
@@ -101,7 +106,29 @@ RoleStatus? roleStatusFromJson(Object? json) {
     'Show Installation Packaging in Mobile App': 'Installation Packing-SH',
     'Show Accessories Packaging in Mobile App': 'Accessories Packing-SH',
     'Show Hardware Packaging in Mobile App': 'Hardware Packing-SH',
+    'Show Forklift Operator in Mobile App': 'Forklift Operator',
+    'Show Forklift Status in Mobile App': 'Forklift Supervisor',
   };
+
+  // Extra short keys some Role Status docs use.
+  void copyIfMissing(String preferred, String alt) {
+    if (normalized[preferred] == null && normalized[alt] != null) {
+      normalized[preferred] = normalized[alt];
+    }
+  }
+
+  copyIfMissing(
+    'Show Forklift Operator in Mobile App',
+    'Forklift Operator-SH',
+  );
+  copyIfMissing(
+    'Show Forklift Status in Mobile App',
+    'Forklift Status',
+  );
+  copyIfMissing(
+    'Show Forklift Status in Mobile App',
+    'Forklift Status-SH',
+  );
 
   for (final entry in aliases.entries) {
     if (normalized[entry.key] == null && normalized[entry.value] != null) {

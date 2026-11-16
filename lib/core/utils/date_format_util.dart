@@ -14,6 +14,8 @@ abstract class _DateTimeFormats {
   static final friendlyFormat = DateFormat('dd/MMM/yyyy');
   static final toYYYYmmDDHHmmss = DateFormat('yyyy-MM-dd HH:mm:ss');
   static final ddMMyyyyHHmmss = DateFormat('dd-MM-yyyy HH:mm:ss');
+  static final ddMMyyyyHmma = DateFormat('dd-MM-yyyy · hh:mm a');
+  static final hmma = DateFormat('hh:mm a');
   static final hhmmss = DateFormat('HH:mm:ss');
   static final currentTimeFormat = DateFormat('dd-MMM-yyyy hh:mm a');
   // static final _ddMMyyyyHHmmss = DateFormat('dd-MM-yyyy HH:mm:ss');
@@ -54,6 +56,41 @@ abstract class DateFormatUtil {
     return '';
   }
 }
+
+  /// `2026-11-13 18:08:00` → `13-11-2026 · 06:08 PM`
+  static String ddMMyyyyAmPmFromStr(String? date) {
+    if (date == null || date.trim().isEmpty) return '';
+    try {
+      // Prefer full datetime; also accept date-only / time-only fragments.
+      final trimmed = date.trim();
+      DateTime? dateTime;
+      try {
+        dateTime = DateTime.parse(trimmed);
+      } catch (_) {
+        if (RegExp(r'^\d{2}:\d{2}(:\d{2})?$').hasMatch(trimmed)) {
+          final today = DateTime.now();
+          final p = trimmed.split(':');
+          dateTime = DateTime(
+            today.year,
+            today.month,
+            today.day,
+            int.parse(p[0]),
+            int.parse(p[1]),
+            p.length > 2 ? int.parse(p[2]) : 0,
+          );
+          return _DateTimeFormats.hmma.format(dateTime);
+        }
+        return trimmed;
+      }
+      // Date-only strings (yyyy-MM-dd) → date without time.
+      if (RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(trimmed)) {
+        return _DateTimeFormats.ddMMyyyy.format(dateTime);
+      }
+      return _DateTimeFormats.ddMMyyyyHmma.format(dateTime);
+    } catch (e) {
+      return date;
+    }
+  }
 static String formatArrivalDate(dynamic arrivalDateAndTime) {
   if (arrivalDateAndTime is DateTime) {
     return DateFormat('yyyy-MM-dd HH:mm:ss').format(arrivalDateAndTime);

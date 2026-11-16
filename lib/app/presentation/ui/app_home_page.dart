@@ -7,6 +7,7 @@ import 'package:shakti_hormann/app/presentation/widgets/greeting_widget.dart';
 import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/core/utils/notification_usecase.dart';
 import 'package:shakti_hormann/features/auth/model/logged_in_user.dart';
+import 'package:shakti_hormann/features/forklift/data/forklift_repo.dart';
 import 'package:shakti_hormann/styles/app_icons.dart';
 import 'package:shakti_hormann/widgets/app_update_dailog.dart';
 import 'package:shakti_hormann/widgets/feature_card_icon.dart';
@@ -134,10 +135,14 @@ class AppHomePage extends StatefulWidget {
 }
 
 class _AppHomePageState extends State<AppHomePage> {
+  /// From [get_forklift_home_summary]; null until loaded / on failure.
+  int? _apiShowForkliftOperator;
+
   @override
   void initState() {
     super.initState();
     $sl.get<NotificationUsecase>().updateOSDetails();
+    _loadForkliftHomeFlags();
 
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
@@ -146,6 +151,17 @@ class _AppHomePageState extends State<AppHomePage> {
         statusBarBrightness: Brightness.light,
       ),
     );
+  }
+
+  Future<void> _loadForkliftHomeFlags() async {
+    if (!$sl.isRegistered<ForkliftRepo>()) return;
+    final result = await $sl.get<ForkliftRepo>().getHomeSummary();
+    if (!mounted) return;
+    result.fold((_) {}, (summary) {
+      setState(() {
+        _apiShowForkliftOperator = summary.showForkliftOperator;
+      });
+    });
   }
 
   late final List<DashboardItem> dashboardItems = [
@@ -293,6 +309,19 @@ class _AppHomePageState extends State<AppHomePage> {
       },
       section: DashboardSection.scanningPackaging,
       permissionSelector: (roleStatus) => roleStatus?.showWhereIsMyMaterial,
+    ),
+    DashboardItem(
+      title: 'Forklift Operator',
+      icon: AppIcons.forkliftScanning,
+      onTap: (context) {
+        AppRoute.forkliftOperator.push<bool?>(context);
+      },
+      section: DashboardSection.scanningPackaging,
+      // Show unless Role Status explicitly turns it off (0).
+      // Null = backend field not shipped yet → still show.
+      // Status opens from the Forklift Operator app bar icon (not a home card).
+      permissionSelector: (roleStatus) =>
+          roleStatus?.showForkliftOperator == 0 ? 0 : 1,
     ),
   ];
 
@@ -699,20 +728,37 @@ class _AppHomePageState extends State<AppHomePage> {
       user = null;
     }
     final roleStatus = user?.roleStatus;
-    final hasPackingSupervisorRole =
-        user?.roleProfileName?.trim() == 'Packing Supervisor-SH' ||
-        user?.roles?.any(
-              (role) => role.role?.trim() == 'Packing Supervisor-SH',
-            ) ==
-            true;
+    final roleNames = <String>{
+      if (user?.roleProfileName?.trim().isNotEmpty == true)
+        user!.roleProfileName!.trim(),
+      ...?user?.roles
+          ?.map((r) => r.role?.trim())
+          .whereType<String>()
+          .where((r) => r.isNotEmpty),
+    };
+    bool hasRole(String name) =>
+        roleNames.any((r) => r.toLowerCase() == name.toLowerCase());
+
+    final hasPackingSupervisorRole = hasRole('Packing Supervisor-SH');
+    // UAT often grants Frappe role before Role Status checkboxes exist.
+    final hasForkliftOperatorRole =
+        hasRole('Forklift Operator') || hasRole('Forklift Supervisor');
+
     final visibleItems =
         dashboardItems
-            .where(
-              (item) =>
-                  item.canShow(roleStatus) ||
-                  (hasPackingSupervisorRole &&
-                      item.section == DashboardSection.scanningPackaging),
-            )
+            .where((item) {
+              if (item.canShow(roleStatus)) return true;
+              if (hasPackingSupervisorRole &&
+                  item.section == DashboardSection.scanningPackaging) {
+                return true;
+              }
+              if (item.title == 'Forklift Operator' &&
+                  (hasForkliftOperatorRole ||
+                      _apiShowForkliftOperator == 1)) {
+                return true;
+              }
+              return false;
+            })
             .toList();
     final logisticsItems =
         visibleItems

@@ -41,6 +41,10 @@ abstract class _AppRoutePaths {
   static const installation = '/home/installation';
   static const newinstallation = '/home/installation/newinstallation';
   static const whereIsMyMaterial = '/home/whereIsMyMaterial';
+  static const forkliftOperator = '/home/forkliftOperator';
+  static const newForkliftOperator = '/home/forkliftOperator/new';
+  static const forkliftOperatorDetail = '/home/forkliftOperator/detail';
+  static const forkliftStatus = '/home/forkliftStatus';
 }
 
 enum AppRoute {
@@ -82,7 +86,11 @@ enum AppRoute {
   newvisionPanel(_AppRoutePaths.newvisionPanel),
   installation(_AppRoutePaths.installation),
   newinstallation(_AppRoutePaths.newinstallation),
-  whereIsMyMaterial(_AppRoutePaths.whereIsMyMaterial);
+  whereIsMyMaterial(_AppRoutePaths.whereIsMyMaterial),
+  forkliftOperator(_AppRoutePaths.forkliftOperator),
+  newForkliftOperator(_AppRoutePaths.newForkliftOperator),
+  forkliftOperatorDetail(_AppRoutePaths.forkliftOperatorDetail),
+  forkliftStatus(_AppRoutePaths.forkliftStatus);
 
   const AppRoute(this.path);
   final String path;

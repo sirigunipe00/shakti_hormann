@@ -5,6 +5,7 @@ import 'package:shakti_hormann/app/presentation/bloc/geo_permission/geo_permissi
 import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/features/auth/presentation/bloc/auth/auth_cubit.dart';
 import 'package:shakti_hormann/features/auth/presentation/ui/sign_in/sign_in_cubit.dart';
+import 'package:shakti_hormann/features/forklift/presentation/bloc/forklift_filter_cubit.dart';
 import 'package:shakti_hormann/features/frame_packing/presentation/bloc/bloc_provider.dart';
 import 'package:shakti_hormann/features/frame_packing/presentation/bloc/frame_fliter_cubit.dart';
 import 'package:shakti_hormann/features/gate_entry/presentation/bloc/bloc_provider.dart';
@@ -97,6 +98,8 @@ class _ShaktiHormannState extends State<ShaktiHormann>
         BlocProvider(create: (_) => PalletFilterCubit()),
         BlocProvider(create: (_) => VisionPanelFilterCubit()),
         BlocProvider(create: (_) => InstallationFilterCubit()),
+        BlocProvider(create: (_) => ForkliftOperatorFilterCubit()),
+        BlocProvider(create: (_) => ForkliftStatusFilterCubit()),
         // BlocProvider<GeoPermissionHandler>(
         //   create: (_) => GeoPermissionHandler(),
         // ),

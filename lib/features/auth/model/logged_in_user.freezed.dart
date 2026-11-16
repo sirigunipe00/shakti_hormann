@@ -1017,6 +1017,10 @@ mixin _$RoleStatus {
   int? get showHardware => throw _privateConstructorUsedError;
   @JsonKey(name: 'Show Where Is My Material in Mobile App')
   int? get showWhereIsMyMaterial => throw _privateConstructorUsedError;
+  @JsonKey(name: 'Show Forklift Operator in Mobile App')
+  int? get showForkliftOperator => throw _privateConstructorUsedError;
+  @JsonKey(name: 'Show Forklift Status in Mobile App')
+  int? get showForkliftStatus => throw _privateConstructorUsedError;
 
   /// Serializes this RoleStatus to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -1060,6 +1064,10 @@ abstract class $RoleStatusCopyWith<$Res> {
     @JsonKey(name: 'Show Hardware Packaging in Mobile App') int? showHardware,
     @JsonKey(name: 'Show Where Is My Material in Mobile App')
     int? showWhereIsMyMaterial,
+    @JsonKey(name: 'Show Forklift Operator in Mobile App')
+    int? showForkliftOperator,
+    @JsonKey(name: 'Show Forklift Status in Mobile App')
+    int? showForkliftStatus,
   });
 }
 
@@ -1095,6 +1103,8 @@ class _$RoleStatusCopyWithImpl<$Res, $Val extends RoleStatus>
     Object? showVision = freezed,
     Object? showHardware = freezed,
     Object? showWhereIsMyMaterial = freezed,
+    Object? showForkliftOperator = freezed,
+    Object? showForkliftStatus = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -1183,6 +1193,16 @@ class _$RoleStatusCopyWithImpl<$Res, $Val extends RoleStatus>
                     ? _value.showWhereIsMyMaterial
                     : showWhereIsMyMaterial // ignore: cast_nullable_to_non_nullable
                         as int?,
+            showForkliftOperator:
+                freezed == showForkliftOperator
+                    ? _value.showForkliftOperator
+                    : showForkliftOperator // ignore: cast_nullable_to_non_nullable
+                        as int?,
+            showForkliftStatus:
+                freezed == showForkliftStatus
+                    ? _value.showForkliftStatus
+                    : showForkliftStatus // ignore: cast_nullable_to_non_nullable
+                        as int?,
           )
           as $Val,
     );
@@ -1223,6 +1243,10 @@ abstract class _$$RoleStatusImplCopyWith<$Res>
     @JsonKey(name: 'Show Hardware Packaging in Mobile App') int? showHardware,
     @JsonKey(name: 'Show Where Is My Material in Mobile App')
     int? showWhereIsMyMaterial,
+    @JsonKey(name: 'Show Forklift Operator in Mobile App')
+    int? showForkliftOperator,
+    @JsonKey(name: 'Show Forklift Status in Mobile App')
+    int? showForkliftStatus,
   });
 }
 
@@ -1257,6 +1281,8 @@ class __$$RoleStatusImplCopyWithImpl<$Res>
     Object? showVision = freezed,
     Object? showHardware = freezed,
     Object? showWhereIsMyMaterial = freezed,
+    Object? showForkliftOperator = freezed,
+    Object? showForkliftStatus = freezed,
   }) {
     return _then(
       _$RoleStatusImpl(
@@ -1345,6 +1371,16 @@ class __$$RoleStatusImplCopyWithImpl<$Res>
                 ? _value.showWhereIsMyMaterial
                 : showWhereIsMyMaterial // ignore: cast_nullable_to_non_nullable
                     as int?,
+        showForkliftOperator:
+            freezed == showForkliftOperator
+                ? _value.showForkliftOperator
+                : showForkliftOperator // ignore: cast_nullable_to_non_nullable
+                    as int?,
+        showForkliftStatus:
+            freezed == showForkliftStatus
+                ? _value.showForkliftStatus
+                : showForkliftStatus // ignore: cast_nullable_to_non_nullable
+                    as int?,
       ),
     );
   }
@@ -1378,6 +1414,10 @@ class _$RoleStatusImpl extends _RoleStatus {
     @JsonKey(name: 'Show Hardware Packaging in Mobile App') this.showHardware,
     @JsonKey(name: 'Show Where Is My Material in Mobile App')
     this.showWhereIsMyMaterial,
+    @JsonKey(name: 'Show Forklift Operator in Mobile App')
+    this.showForkliftOperator,
+    @JsonKey(name: 'Show Forklift Status in Mobile App')
+    this.showForkliftStatus,
   }) : super._();
 
   factory _$RoleStatusImpl.fromJson(Map<String, dynamic> json) =>
@@ -1435,10 +1475,16 @@ class _$RoleStatusImpl extends _RoleStatus {
   @override
   @JsonKey(name: 'Show Where Is My Material in Mobile App')
   final int? showWhereIsMyMaterial;
+  @override
+  @JsonKey(name: 'Show Forklift Operator in Mobile App')
+  final int? showForkliftOperator;
+  @override
+  @JsonKey(name: 'Show Forklift Status in Mobile App')
+  final int? showForkliftStatus;
 
   @override
   String toString() {
-    return 'RoleStatus(showDashboards: $showDashboards, showGateEntry: $showGateEntry, showGateExit: $showGateExit, showLogisticRequest: $showLogisticRequest, showTransporterConfirmation: $showTransporterConfirmation, showVehicleReporting: $showVehicleReporting, showLoadingConfirmation: $showLoadingConfirmation, showpod: $showpod, showgateManagement: $showgateManagement, showPallet: $showPallet, showShutter: $showShutter, showFrame: $showFrame, showStorage: $showStorage, showInstalltion: $showInstalltion, showVision: $showVision, showHardware: $showHardware, showWhereIsMyMaterial: $showWhereIsMyMaterial)';
+    return 'RoleStatus(showDashboards: $showDashboards, showGateEntry: $showGateEntry, showGateExit: $showGateExit, showLogisticRequest: $showLogisticRequest, showTransporterConfirmation: $showTransporterConfirmation, showVehicleReporting: $showVehicleReporting, showLoadingConfirmation: $showLoadingConfirmation, showpod: $showpod, showgateManagement: $showgateManagement, showPallet: $showPallet, showShutter: $showShutter, showFrame: $showFrame, showStorage: $showStorage, showInstalltion: $showInstalltion, showVision: $showVision, showHardware: $showHardware, showWhereIsMyMaterial: $showWhereIsMyMaterial, showForkliftOperator: $showForkliftOperator, showForkliftStatus: $showForkliftStatus)';
   }
 
   @override
@@ -1485,12 +1531,16 @@ class _$RoleStatusImpl extends _RoleStatus {
             (identical(other.showHardware, showHardware) ||
                 other.showHardware == showHardware) &&
             (identical(other.showWhereIsMyMaterial, showWhereIsMyMaterial) ||
-                other.showWhereIsMyMaterial == showWhereIsMyMaterial));
+                other.showWhereIsMyMaterial == showWhereIsMyMaterial) &&
+            (identical(other.showForkliftOperator, showForkliftOperator) ||
+                other.showForkliftOperator == showForkliftOperator) &&
+            (identical(other.showForkliftStatus, showForkliftStatus) ||
+                other.showForkliftStatus == showForkliftStatus));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     runtimeType,
     showDashboards,
     showGateEntry,
@@ -1509,7 +1559,9 @@ class _$RoleStatusImpl extends _RoleStatus {
     showVision,
     showHardware,
     showWhereIsMyMaterial,
-  );
+    showForkliftOperator,
+    showForkliftStatus,
+  ]);
 
   /// Create a copy of RoleStatus
   /// with the given fields replaced by the non-null parameter values.
@@ -1555,6 +1607,10 @@ abstract class _RoleStatus extends RoleStatus {
     final int? showHardware,
     @JsonKey(name: 'Show Where Is My Material in Mobile App')
     final int? showWhereIsMyMaterial,
+    @JsonKey(name: 'Show Forklift Operator in Mobile App')
+    final int? showForkliftOperator,
+    @JsonKey(name: 'Show Forklift Status in Mobile App')
+    final int? showForkliftStatus,
   }) = _$RoleStatusImpl;
   const _RoleStatus._() : super._();
 
@@ -1612,6 +1668,12 @@ abstract class _RoleStatus extends RoleStatus {
   @override
   @JsonKey(name: 'Show Where Is My Material in Mobile App')
   int? get showWhereIsMyMaterial;
+  @override
+  @JsonKey(name: 'Show Forklift Operator in Mobile App')
+  int? get showForkliftOperator;
+  @override
+  @JsonKey(name: 'Show Forklift Status in Mobile App')
+  int? get showForkliftStatus;
 
   /// Create a copy of RoleStatus
   /// with the given fields replaced by the non-null parameter values.
