@@ -7,9 +7,17 @@ import 'package:shakti_hormann/features/vision_panel/presentation/bloc/create_vi
 import 'package:shakti_hormann/features/vision_panel/presentation/widget/add_item_widget.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/widgets/sectionheader.dart';
+import 'package:shakti_hormann/widgets/table_page_controls.dart';
 
-class ProductSelectionTable extends StatelessWidget {
+class ProductSelectionTable extends StatefulWidget {
   const ProductSelectionTable({super.key});
+
+  @override
+  State<ProductSelectionTable> createState() => _ProductSelectionTableState();
+}
+
+class _ProductSelectionTableState extends State<ProductSelectionTable> {
+  int _page = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -17,6 +25,17 @@ class ProductSelectionTable extends StatelessWidget {
       builder: (context, state) {
         final cubit = context.cubit<CreateVisionPanelCubit>();
         final items = state.items;
+        final page = TablePageControls.clampPage(_page, items.length);
+        if (page != _page) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) setState(() => _page = page);
+          });
+        }
+        final start = page * TablePageControls.defaultPageSize;
+        final pageItems = items
+            .skip(start)
+            .take(TablePageControls.defaultPageSize)
+            .toList();
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -89,17 +108,17 @@ class ProductSelectionTable extends StatelessWidget {
                                 _HeaderCell('Status'),
                               ],
                             ),
-                            for (int index = 0; index < items.length; index++)
+                            for (int index = 0; index < pageItems.length; index++)
                               TableRow(
                                 decoration: BoxDecoration(
-                                  color: index.isEven
+                                  color: (start + index).isEven
                                       ? Colors.white
                                       : const Color(0xFFF8FAFC),
                                 ),
                                 children: [
                                   _Cell(
                                     child: Text(
-                                      (index + 1).toString(),
+                                      (start + index + 1).toString(),
                                       style: const TextStyle(
                                         fontWeight: FontWeight.w800,
                                         color: Color(0xFF2957A4),
@@ -109,7 +128,7 @@ class ProductSelectionTable extends StatelessWidget {
                                   ),
                                   _Cell(
                                     child: Text(
-                                      items[index].productType ?? '',
+                                      pageItems[index].productType ?? '',
                                       textAlign: TextAlign.center,
                                       maxLines: 2,
                                       overflow: TextOverflow.ellipsis,
@@ -130,7 +149,7 @@ class ProductSelectionTable extends StatelessWidget {
                                         borderRadius: BorderRadius.circular(12),
                                       ),
                                       child: Text(
-                                        items[index].noOfBoxes?.toString() ??
+                                        pageItems[index].noOfBoxes?.toString() ??
                                             '—',
                                         style: const TextStyle(
                                           fontWeight: FontWeight.w800,
@@ -142,8 +161,8 @@ class ProductSelectionTable extends StatelessWidget {
                                   ),
                                   _Cell(
                                     child: _RowStatusCell(
-                                      index: index,
-                                      item: items[index],
+                                      index: start + index,
+                                      item: pageItems[index],
                                       cubit: cubit,
                                     ),
                                   ),
@@ -152,6 +171,13 @@ class ProductSelectionTable extends StatelessWidget {
                           ],
                         ),
                       ),
+                    TablePageControls(
+                      page: page,
+                      pageSize: TablePageControls.defaultPageSize,
+                      totalCount: items.length,
+                      onPrevious: () => setState(() => _page = page - 1),
+                      onNext: () => setState(() => _page = page + 1),
+                    ),
                     const SizedBox(height: 10),
                     if (state.form.docStatus != 1)
                       Align(

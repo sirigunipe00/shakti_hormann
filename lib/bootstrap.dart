@@ -17,7 +17,6 @@ Future<void> bootstrap(void Function() runApp) async {
   await runZonedGuarded<Future<void>>(
     () async {
       WidgetsFlutterBinding.ensureInitialized();
-
       await SystemChrome.setPreferredOrientations(
           [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
       await _initInjector();

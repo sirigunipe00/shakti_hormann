@@ -311,7 +311,11 @@ class FramePackingRepoImpl extends BaseApiRepository
         'filters': jsonEncode([
           ['parent', '=', itemName],
         ]),
-        'limit': 20,
+        // Must load every line. A hard `limit: 20` truncated the table after
+        // each scan refresh, so the next updateFrame posted only ~21 rows
+        // and dropped earlier barcodes from the backend.
+        'limit_page_length': 'None',
+        'limit_start': 0,
         'order_by': 'creation desc',
         'doctype': 'Frame Packing Lines',
         'parent': 'Frame Packing',

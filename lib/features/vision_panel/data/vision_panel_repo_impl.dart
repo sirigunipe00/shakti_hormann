@@ -265,7 +265,8 @@ class VisionPanelRepoImpl extends BaseApiRepository implements VisionPanelRepo {
         'filters': jsonEncode([
           ['parent', '=', itemName],
         ]),
-        'limit': 20,
+        'limit_page_length': 'None',
+        'limit_start': 0,
         'order_by': 'idx asc',
         'doctype': 'Vision Panel Lines',
         'parent': 'Vision Panel',
@@ -293,7 +294,8 @@ class VisionPanelRepoImpl extends BaseApiRepository implements VisionPanelRepo {
         'filters': jsonEncode([
           ['parent', '=', itemName],
         ]),
-        'limit': 100,
+        'limit_page_length': 'None',
+        'limit_start': 0,
         'order_by': 'idx asc',
         'doctype': 'Vision Panel Entry Lines',
         'parent': 'Vision Panel',

@@ -341,20 +341,18 @@ final result = childResponse.process((r) => right(r.data ?? []));
       final filters = <List<dynamic>>[];
 
       final users = $sl.get<LoggedInUser>();
-      final hasRole = users.roles!.any((r) => r.role == 'Admin Role-SH');
+      final hasRole =
+          users.roles?.any((r) => r.role == 'Admin Role-SH') ?? false;
       final plantName = user().plantName;
       if (!hasRole && plantName != null && plantName.isNotEmpty) {
         filters.add(['company', '=', plantName]);
       }
       final query = name.trim();
-      if (query.isNotEmpty) {
-        filters.add(['name', 'like', '%$query%']);
-      }
-      // Cap page size — include shipping fields so SO table shows State/City
-      // immediately on select (not only after save).
-      final reqParams = {
+      // Same page on every phone. `None` downloads the full catalog (5k+ rows)
+      // and times out on some devices, so the same login saw an empty search.
+      final reqParams = <String, dynamic>{
         'limit_start': 0,
-        'limit_page_length': 40,
+        'limit_page_length': '40',
         'order_by': 'creation desc',
         'doctype': 'SAP Sales Order',
         'fields': jsonEncode([
@@ -371,6 +369,12 @@ final result = childResponse.process((r) => right(r.data ?? []));
         ]),
         'filters': jsonEncode(filters),
       };
+      if (query.isNotEmpty) {
+        reqParams['or_filters'] = jsonEncode([
+          ['name', 'like', '%$query%'],
+          ['customer_name', 'like', '%$query%'],
+        ]);
+      }
 
       final config = RequestConfig(
         url: Urls.getList,
@@ -384,7 +388,9 @@ final result = childResponse.process((r) => right(r.data ?? []));
         headers: {HttpHeaders.contentTypeHeader: 'application/json'},
       );
       $logger.devLog('salesinvoice.....$config');
+      
       final response = await get(config);
+      $logger.devLog('reqParams.....$response');
       return response.processAsync((r) async {
         return right((r.data!));
       });

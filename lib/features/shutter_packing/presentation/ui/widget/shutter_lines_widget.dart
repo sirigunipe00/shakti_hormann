@@ -3,8 +3,11 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shakti_hormann/core/consts/urls.dart';
+import 'package:shakti_hormann/core/utils/date_format_util.dart';
+import 'package:shakti_hormann/features/shutter_packing/model/shutter_lines.dart';
 import 'package:shakti_hormann/features/shutter_packing/presentation/bloc/create_shutter_cubit.dart/create_shutter_cubit.dart';
-import 'package:shakti_hormann/widgets/packing_sticker_image_preview.dart';
+import 'package:shakti_hormann/widgets/packing_record_preview.dart';
+import 'package:shakti_hormann/widgets/table_page_controls.dart';
 
 class ShutterLinesWidget extends StatefulWidget {
   const ShutterLinesWidget({super.key});
@@ -14,7 +17,7 @@ class ShutterLinesWidget extends StatefulWidget {
 }
 
 class _ShutterLinesWidgetState extends State<ShutterLinesWidget> {
-  List<int> selectedRows = [];
+  int _page = 0;
 
   List<String> resolvePhotoUrls(
     List<String>? shutterPhoto,
@@ -37,6 +40,69 @@ class _ShutterLinesWidgetState extends State<ShutterLinesWidget> {
     return urls;
   }
 
+  PackingRecordPreviewData _previewData({
+    required ShutterLines item,
+    required int absoluteIndex,
+    required List<String> photoUrls,
+    required bool canDelete,
+  }) {
+    final barcode = item.shutterBarcodeQr ?? '';
+    final itemCode = item.itemCode ?? '';
+    final addedOn = DFU.ddMMyyyyAmPmFromStr(
+      item.scanTime ?? item.creation ?? '',
+    );
+    return PackingRecordPreviewData(
+      recordNo: '# ${(absoluteIndex + 1).toString().padLeft(2, '0')}',
+      chipSecondary: barcode,
+      chipTertiary: itemCode,
+      canDelete: canDelete,
+      photoUrls: photoUrls,
+      details: [
+        PackingRecordDetailRow(label: 'Shutter Barcode', value: barcode),
+        PackingRecordDetailRow(label: 'Item Code', value: itemCode),
+        if ((item.boxSerial ?? '').isNotEmpty)
+          PackingRecordDetailRow(label: 'Box Serial', value: item.boxSerial!),
+        PackingRecordDetailRow(label: 'Added On', value: addedOn),
+        PackingRecordDetailRow(
+          label: 'Added By',
+          value: item.owner ?? item.modifiedBy ?? '',
+        ),
+      ],
+    );
+  }
+
+  Future<void> _openPreview({
+    required BuildContext context,
+    required ShutterLines item,
+    required int absoluteIndex,
+    required List<String> photoUrls,
+    required bool canDelete,
+  }) {
+    return showPackingRecordPreview(
+      context,
+      data: _previewData(
+        item: item,
+        absoluteIndex: absoluteIndex,
+        photoUrls: photoUrls,
+        canDelete: canDelete,
+      ),
+      onDelete: canDelete
+          ? () async {
+              await context.read<CreateShutterCubit>().removeLine(absoluteIndex);
+            }
+          : null,
+    );
+  }
+
+  Future<void> _deleteLine(BuildContext context, int absoluteIndex) {
+    return confirmAndDeletePackingRecord(
+      context,
+      onConfirm: () async {
+        await context.read<CreateShutterCubit>().removeLine(absoluteIndex);
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<CreateShutterCubit, CreateShutterState>(
@@ -45,18 +111,32 @@ class _ShutterLinesWidgetState extends State<ShutterLinesWidget> {
         final locked = state.isFrozen ||
             state.form.freezeQuantity == 1 ||
             state.form.palletQrPrinted == 1;
-        final showDeleteColumn =
-            state.form.docStatus != 1 &&
+        final canDelete = state.form.docStatus != 1 &&
             !state.isFrozen &&
-            state.form.freezeQuantity != 1;
-        final canDelete = showDeleteColumn && !locked && state.view != ShutterView.completed;
+            state.form.freezeQuantity != 1 &&
+            !locked &&
+            state.view != ShutterView.completed;
 
+        final page = TablePageControls.clampPage(_page, itemLines.length);
+        if (page != _page) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) setState(() => _page = page);
+          });
+        }
+        final start = page * TablePageControls.defaultPageSize;
+        final pageItems = itemLines
+            .skip(start)
+            .take(TablePageControls.defaultPageSize)
+            .toList();
+
+        // Fixed widths for # / photos / actions so eye+delete never overflow
+        // on narrow phones. Barcode + item code share the remaining space.
         final columnWidths = <int, TableColumnWidth>{
-          0: const FlexColumnWidth(0.8), // Sl No.
-          1: const FlexColumnWidth(2.0), // Barcode
-          2: const FlexColumnWidth(1.5), // Item Code
-          3: const FlexColumnWidth(1.5), // Photos
-          if (showDeleteColumn) 4: const FlexColumnWidth(1.0), 
+          0: const FixedColumnWidth(34),
+          1: const FlexColumnWidth(2.4),
+          2: const FlexColumnWidth(1.2),
+          3: const FixedColumnWidth(42),
+          4: const FixedColumnWidth(PackingRowActions.columnWidth),
         };
 
         return Column(
@@ -78,7 +158,8 @@ class _ShutterLinesWidgetState extends State<ShutterLinesWidget> {
               clipBehavior: Clip.antiAlias,
               child: itemLines.isEmpty
                   ? const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 28, horizontal: 16),
+                      padding:
+                          EdgeInsets.symmetric(vertical: 28, horizontal: 16),
                       child: Column(
                         children: [
                           Icon(
@@ -131,32 +212,41 @@ class _ShutterLinesWidgetState extends State<ShutterLinesWidget> {
                             _headerCell('Shutter\nBarcode'),
                             _headerCell('Item\nCode'),
                             _headerCell('Photos'),
-                            if (showDeleteColumn) _headerCell('Delete'),
+                            _headerCell('Actions'),
                           ],
                         ),
-                        ...List.generate(itemLines.length, (index) {
-                          final item = itemLines[index];
-                          final slNo = (index + 1).toString().padLeft(2, '0');
+                        ...List.generate(pageItems.length, (index) {
+                          final absoluteIndex = start + index;
+                          final item = pageItems[index];
+                          final slNo =
+                              (absoluteIndex + 1).toString().padLeft(2, '0');
                           final photoUrls = resolvePhotoUrls(
                             item.shutterPhoto,
                             item.shutterPhotoImg,
                           );
-                          final hasPhoto = photoUrls.isNotEmpty;
-                          final isSelected = selectedRows.contains(index);
-                          final rowColor = isSelected
-                              ? const Color(0xFFEFF6FF)
-                              : (index.isEven
-                                  ? Colors.white
-                                  : const Color(0xFFF8FAFD));
+                          final rowColor = absoluteIndex.isEven
+                              ? Colors.white
+                              : const Color(0xFFF8FAFD);
+
+                          void openPreview() {
+                            _openPreview(
+                              context: context,
+                              item: item,
+                              absoluteIndex: absoluteIndex,
+                              photoUrls: photoUrls,
+                              canDelete: canDelete,
+                            );
+                          }
 
                           return TableRow(
                             decoration: BoxDecoration(color: rowColor),
                             children: [
-                              _dataCell(
-                                Center(
+                              _tappableCell(
+                                onTap: openPreview,
+                                child: Center(
                                   child: Container(
-                                    width: 26,
-                                    height: 26,
+                                    width: 24,
+                                    height: 24,
                                     alignment: Alignment.center,
                                     decoration: BoxDecoration(
                                       color: const Color(0xFFEFF4FB),
@@ -167,73 +257,52 @@ class _ShutterLinesWidgetState extends State<ShutterLinesWidget> {
                                       style: const TextStyle(
                                         color: Color(0xFF2957A4),
                                         fontWeight: FontWeight.w800,
-                                        fontSize: 11,
+                                        fontSize: 10,
                                         fontFamily: 'Urbanist',
                                       ),
                                     ),
                                   ),
                                 ),
                               ),
-                              _dataCell(_bodyText(item.shutterBarcodeQr ?? '—')),
-                              _dataCell(_bodyText(item.itemCode ?? '—')),
-                              _dataCell(
-                                hasPhoto
-                                    ? Center(
-                                        child: _ViewButton(
-                                          count: photoUrls.length,
-                                          onTap: () => _showPhotoDialog(
-                                            context,
-                                            photoUrls,
-                                          ),
-                                        ),
-                                      )
-                                    : const Center(
-                                        child: Text(
-                                          'N/A',
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            color: Color(0xFF9CA3AF),
-                                            fontWeight: FontWeight.w600,
-                                            fontFamily: 'Urbanist',
-                                          ),
-                                        ),
-                                      ),
+                              _tappableCell(
+                                onTap: openPreview,
+                                child: _bodyText(item.shutterBarcodeQr ?? '—'),
                               ),
-                              if (showDeleteColumn)
-                                _dataCell(
-                                  Center(
-                                    child: Material(
-                                      color: const Color(0xFFFDECEC),
-                                      borderRadius: BorderRadius.circular(10),
-                                      child: InkWell(
-                                        borderRadius: BorderRadius.circular(10),
-                                        onTap: canDelete
-                                            ? () {
-                                                context
-                                                    .read<CreateShutterCubit>()
-                                                    .removeLine(index);
-                                                setState(
-                                                  () => selectedRows = [],
-                                                );
-                                              }
-                                            : null,
-                                        child: const Padding(
-                                          padding: EdgeInsets.all(8),
-                                          child: Icon(
-                                            Icons.delete_outline_rounded,
-                                            color: Color(0xFFD64545),
-                                            size: 18,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
+                              _tappableCell(
+                                onTap: openPreview,
+                                child: _bodyText(item.itemCode ?? '—'),
+                              ),
+                              _tappableCell(
+                                onTap: openPreview,
+                                child: PackingPhotoThumbCell(
+                                  photoUrls: photoUrls,
+                                  onTap: openPreview,
                                 ),
+                              ),
+                              _dataCell(
+                                PackingRowActions(
+                                  onPreview: openPreview,
+                                  canDelete: canDelete,
+                                  onDelete: canDelete
+                                      ? () => _deleteLine(
+                                            context,
+                                            absoluteIndex,
+                                          )
+                                      : null,
+                                ),
+                              ),
                             ],
                           );
                         }),
                       ],
                     ),
+            ),
+            TablePageControls(
+              page: page,
+              pageSize: TablePageControls.defaultPageSize,
+              totalCount: itemLines.length,
+              onPrevious: () => setState(() => _page = page - 1),
+              onNext: () => setState(() => _page = page + 1),
             ),
           ],
         );
@@ -265,8 +334,24 @@ class _ShutterLinesWidgetState extends State<ShutterLinesWidget> {
     return TableCell(
       verticalAlignment: TableCellVerticalAlignment.middle,
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 4),
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 2),
         child: child,
+      ),
+    );
+  }
+
+  static Widget _tappableCell({
+    required VoidCallback onTap,
+    required Widget child,
+  }) {
+    return TableCell(
+      verticalAlignment: TableCellVerticalAlignment.middle,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 2),
+          child: child,
+        ),
       ),
     );
   }
@@ -283,42 +368,6 @@ class _ShutterLinesWidgetState extends State<ShutterLinesWidget> {
         color: Color(0xFF0E1446),
         fontWeight: FontWeight.w600,
         fontFamily: 'Urbanist',
-      ),
-    );
-  }
-
-  void _showPhotoDialog(BuildContext context, List<String> photoUrls) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => PackingStickerGalleryPage(photoUrls: photoUrls),
-      ),
-    );
-  }
-}
-
-class _ViewButton extends StatelessWidget {
-  const _ViewButton({required this.onTap, required this.count});
-  final VoidCallback onTap;
-  final int count;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-        decoration: BoxDecoration(
-          color: const Color(0xFF2563EB),
-          borderRadius: BorderRadius.circular(6),
-        ),
-        child: Text(
-          count > 1 ? 'View ($count)' : 'View',
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
       ),
     );
   }

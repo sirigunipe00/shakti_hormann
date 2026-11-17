@@ -14,8 +14,10 @@ import 'package:shakti_hormann/features/vision_panel/model/product_type.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/widgets/dailogs/app_dialogs.dart';
 import 'package:shakti_hormann/widgets/input_filed.dart';
+import 'package:shakti_hormann/widgets/packing_record_preview.dart';
 import 'package:shakti_hormann/widgets/sectionheader.dart';
 import 'package:shakti_hormann/widgets/spaced_column.dart';
+import 'package:shakti_hormann/widgets/table_page_controls.dart';
 
 class InstallationEntryFormWidget extends StatefulWidget {
   const InstallationEntryFormWidget({super.key});
@@ -492,7 +494,7 @@ class _ImageViewerPage extends StatelessWidget {
   }
 }
 
-class _BoxDetailsTable extends StatelessWidget {
+class _BoxDetailsTable extends StatefulWidget {
   const _BoxDetailsTable({
     required this.lines,
     required this.printed,
@@ -511,6 +513,13 @@ class _BoxDetailsTable extends StatelessWidget {
   final void Function(int index, String boxNo) onBoxNoChanged;
   final void Function(int index, InstallationLineItems line) onViewImage;
 
+  @override
+  State<_BoxDetailsTable> createState() => _BoxDetailsTableState();
+}
+
+class _BoxDetailsTableState extends State<_BoxDetailsTable> {
+  int _page = 0;
+
   bool _hasPhoto(InstallationLineItems line) =>
       line.installtionPhotoImg != null ||
       (line.image != null && line.image!.isNotEmpty);
@@ -520,173 +529,278 @@ class _BoxDetailsTable extends StatelessWidget {
     return zone.isEmpty ? '-' : zone;
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFFE8ECF4)),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF0E1446).withValues(alpha: 0.04),
-            blurRadius: 10,
-            offset: const Offset(0, 3),
+  List<String> _photoUrls(InstallationLineItems line) {
+    final urls = <String>[];
+    final local = line.installtionPhotoImg;
+    if (local != null) urls.add(local.path);
+    final remote = line.image;
+    if (remote != null && remote.isNotEmpty) {
+      if (remote.startsWith('http://') || remote.startsWith('https://')) {
+        urls.add(remote);
+      } else {
+        final uri = Uri.parse(Urls.baseUrl);
+        final base =
+            '${uri.scheme}://${uri.host}${uri.hasPort ? ':${uri.port}' : ''}';
+        urls.add(remote.startsWith('/') ? '$base$remote' : '$base/$remote');
+      }
+    }
+    return urls;
+  }
+
+  void _openPreview(InstallationLineItems line, int absoluteIndex) {
+    final boxNo = line.boxNo ??
+        'B-${(absoluteIndex + 1).toString().padLeft(2, '0')}';
+    showPackingRecordPreview(
+      context,
+      data: PackingRecordPreviewData(
+        recordNo: '# ${(absoluteIndex + 1).toString().padLeft(2, '0')}',
+        chipSecondary: boxNo,
+        chipTertiary: line.boxCode,
+        photoUrls: _photoUrls(line),
+        details: [
+          PackingRecordDetailRow(label: 'Box No.', value: boxNo),
+          PackingRecordDetailRow(label: 'Box Code', value: line.boxCode ?? ''),
+          PackingRecordDetailRow(
+            label: 'Allocation',
+            value: line.allocationStatus ?? 'Unallocated',
+          ),
+          PackingRecordDetailRow(label: 'Zone', value: _zoneText(line)),
+          PackingRecordDetailRow(
+            label: 'Added On',
+            value: DFU.ddMMyyyyAmPmFromStr(line.creation ?? ''),
+          ),
+          PackingRecordDetailRow(
+            label: 'Added By',
+            value: line.owner ?? line.modifiedBy ?? '',
           ),
         ],
       ),
-      clipBehavior: Clip.antiAlias,
-      child: lines.isEmpty
-          ? const Padding(
-              padding: EdgeInsets.symmetric(vertical: 28, horizontal: 16),
-              child: Column(
-                children: [
-                  Icon(
-                    Icons.inventory_2_outlined,
-                    size: 32,
-                    color: Color(0xFF9CA3AF),
-                  ),
-                  SizedBox(height: 8),
-                  Text(
-                    'No box rows yet',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w800,
-                      color: Color(0xFF0E1446),
-                      fontFamily: 'Urbanist',
-                    ),
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    'Save sales order and box count, then print stickers to add rows.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Color(0xFF6B7280),
-                      fontFamily: 'Urbanist',
-                    ),
-                  ),
-                ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final lines = widget.lines;
+    final page = TablePageControls.clampPage(_page, lines.length);
+    if (page != _page) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) setState(() => _page = page);
+      });
+    }
+    final start = page * TablePageControls.defaultPageSize;
+    final pageItems = lines
+        .skip(start)
+        .take(TablePageControls.defaultPageSize)
+        .toList();
+
+    return Column(
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: const Color(0xFFE8ECF4)),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF0E1446).withValues(alpha: 0.04),
+                blurRadius: 10,
+                offset: const Offset(0, 3),
               ),
-            )
-          : Table(
-              columnWidths: const {
-                0: FixedColumnWidth(44),
-                1: FlexColumnWidth(1.1),
-                2: FlexColumnWidth(1.7),
-                3: FlexColumnWidth(1.6),
-                4: FlexColumnWidth(1.4),
-              },
-              border: const TableBorder(
-                horizontalInside: BorderSide(
-                  color: Color(0xFFE6EAF2),
-                  width: 1,
-                ),
-                verticalInside: BorderSide(
-                  color: Color(0xFFE6EAF2),
-                  width: 1,
-                ),
-              ),
-              children: [
-                const TableRow(
-                  decoration: BoxDecoration(color: Color(0xFF0E2A5C)),
-                  children: [
-                    _HeaderCell('#'),
-                    _HeaderCell('Box No.'),
-                    _HeaderCell('Box Code'),
-                    _HeaderCell('Allocation'),
-                    _HeaderCell('Photo'),
-                  ],
-                ),
-                for (var i = 0; i < lines.length; i++)
-                  TableRow(
-                    decoration: BoxDecoration(
-                      color: i.isEven
-                          ? Colors.white
-                          : const Color(0xFFF8FAFC),
-                    ),
-                    children: [
-                _Cell(
-                  child: Text(
-                    (i + 1).toString().padLeft(2, '0'),
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF2C4A9E),
-                    ),
-                  ),
-                ),
-                _Cell(
-                  child: Text(
-                    lines[i].boxNo ?? 'B-${(i + 1).toString().padLeft(2, '0')}',
-                  ),
-                ),
-                _Cell(
-                  child: Text(
-                    lines[i].boxCode ?? '-',
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-                _Cell(
+            ],
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: lines.isEmpty
+              ? const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 28, horizontal: 16),
                   child: Column(
-                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
-                        lines[i].allocationStatus ?? 'Unallocated',
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(fontWeight: FontWeight.w600),
+                      Icon(
+                        Icons.inventory_2_outlined,
+                        size: 32,
+                        color: Color(0xFF9CA3AF),
                       ),
+                      SizedBox(height: 8),
                       Text(
-                        _zoneText(lines[i]),
+                        'No box rows yet',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w800,
+                          color: Color(0xFF0E1446),
+                          fontFamily: 'Urbanist',
+                        ),
+                      ),
+                      SizedBox(height: 4),
+                      Text(
+                        'Save sales order and box count, then print stickers to add rows.',
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          color: Colors.grey.shade700,
                           fontSize: 12,
+                          color: Color(0xFF6B7280),
+                          fontFamily: 'Urbanist',
                         ),
                       ),
                     ],
                   ),
-                ),
-                _Cell(
-                  child:
-                      _hasPhoto(lines[i])
-                          ? InkWell(
-                            onTap: () => onViewImage(i, lines[i]),
-                            child: Container(
-                              width: double.infinity,
-                              color: const Color(0xFF5CB88F),
-                              padding: const EdgeInsets.symmetric(vertical: 10),
-                              alignment: Alignment.center,
-                              child: const Center(
-                                child: Text(
-                                  'View Image',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                )
+              : Table(
+                  columnWidths: const {
+                    0: FixedColumnWidth(34),
+                    1: FlexColumnWidth(1.0),
+                    2: FlexColumnWidth(1.5),
+                    3: FlexColumnWidth(1.3),
+                    4: FixedColumnWidth(52),
+                    5: FixedColumnWidth(PackingRowActions.columnWidth),
+                  },
+                  border: const TableBorder(
+                    horizontalInside: BorderSide(
+                      color: Color(0xFFE6EAF2),
+                      width: 1,
+                    ),
+                    verticalInside: BorderSide(
+                      color: Color(0xFFE6EAF2),
+                      width: 1,
+                    ),
+                  ),
+                  children: [
+                    const TableRow(
+                      decoration: BoxDecoration(color: Color(0xFF0E2A5C)),
+                      children: [
+                        _HeaderCell('#'),
+                        _HeaderCell('Box No.'),
+                        _HeaderCell('Box Code'),
+                        _HeaderCell('Allocation'),
+                        _HeaderCell('Photo'),
+                        _HeaderCell('Actions'),
+                      ],
+                    ),
+                    for (var i = 0; i < pageItems.length; i++)
+                      TableRow(
+                        decoration: BoxDecoration(
+                          color: (start + i).isEven
+                              ? Colors.white
+                              : const Color(0xFFF8FAFC),
+                        ),
+                        children: [
+                          _Cell(
+                            child: InkWell(
+                              onTap: () =>
+                                  _openPreview(pageItems[i], start + i),
+                              child: Text(
+                                (start + i + 1).toString().padLeft(2, '0'),
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF2C4A9E),
                                 ),
                               ),
                             ),
-                          )
-                          : isSubmitted
-                          ? const SizedBox()
-                          : IconButton(
-                            icon: Icon(
-                              Icons.camera_alt,
-                              color:
-                                  printed
-                                      ? AppColors.black
-                                      : Colors.grey.shade400,
-                            ),
-                            onPressed:
-                                printed && !isUpdating
-                                    ? () => onCapture(i)
-                                    : null,
                           ),
+                          _Cell(
+                            child: InkWell(
+                              onTap: () =>
+                                  _openPreview(pageItems[i], start + i),
+                              child: Text(
+                                pageItems[i].boxNo ??
+                                    'B-${(start + i + 1).toString().padLeft(2, '0')}',
+                              ),
+                            ),
+                          ),
+                          _Cell(
+                            child: InkWell(
+                              onTap: () =>
+                                  _openPreview(pageItems[i], start + i),
+                              child: Text(
+                                pageItems[i].boxCode ?? '-',
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ),
+                          _Cell(
+                            child: InkWell(
+                              onTap: () =>
+                                  _openPreview(pageItems[i], start + i),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    pageItems[i].allocationStatus ??
+                                        'Unallocated',
+                                    textAlign: TextAlign.center,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  Text(
+                                    _zoneText(pageItems[i]),
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      color: Colors.grey.shade700,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          _Cell(
+                            child: _hasPhoto(pageItems[i])
+                                ? InkWell(
+                                    onTap: () => widget.onViewImage(
+                                      start + i,
+                                      pageItems[i],
+                                    ),
+                                    child: Container(
+                                      width: double.infinity,
+                                      color: const Color(0xFF5CB88F),
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 10,
+                                      ),
+                                      alignment: Alignment.center,
+                                      child: const Center(
+                                        child: Text(
+                                          'View',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                : widget.isSubmitted
+                                    ? const SizedBox()
+                                    : IconButton(
+                                        icon: Icon(
+                                          Icons.camera_alt,
+                                          color: widget.printed
+                                              ? AppColors.black
+                                              : Colors.grey.shade400,
+                                        ),
+                                        onPressed: widget.printed &&
+                                                !widget.isUpdating
+                                            ? () =>
+                                                widget.onCapture(start + i)
+                                            : null,
+                                      ),
+                          ),
+                          _Cell(
+                            child: PackingRowActions(
+                              onPreview: () =>
+                                  _openPreview(pageItems[i], start + i),
+                            ),
+                          ),
+                        ],
+                      ),
+                  ],
                 ),
-                    ],
-                  ),
-              ],
-            ),
+        ),
+        TablePageControls(
+          page: page,
+          pageSize: TablePageControls.defaultPageSize,
+          totalCount: lines.length,
+          onPrevious: () => setState(() => _page = page - 1),
+          onNext: () => setState(() => _page = page + 1),
+        ),
+      ],
     );
   }
 }

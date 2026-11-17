@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/features/gate_entry/model/purchase_order_form.dart';
@@ -21,6 +23,7 @@ class SearchMultiDropDownList<T> extends StatefulWidget {
     this.listItemBuilder,
     this.headerBuilder,
     this.futureRequest,
+    this.serverSearch,
     this.fontSize,
     this.hintBuilder,
     this.closedFillColor,
@@ -36,6 +39,10 @@ class SearchMultiDropDownList<T> extends StatefulWidget {
   final ListMultiItemBuilder<T>? listItemBuilder;
   final HintBuilder? hintBuilder;
   final Future<List<T>> Function(String)? futureRequest;
+
+  /// When set, typing asks this callback instead of filtering [items] only.
+  /// Other screens leave it null and keep the on-device filter.
+  final Future<List<T>> Function(String query)? serverSearch;
   final List<T> defaultSelection;
   final bool isMandatory;
   final bool readOnly;
@@ -112,6 +119,7 @@ class _SearchMultiDropDownListState<T>
                       initialSelected: List<T>.from(_selectedValues),
                       listItemBuilder: widget.listItemBuilder,
                       scrollController: scrollCtlr,
+                      serverSearch: widget.serverSearch,
                     );
                   },
                 );
@@ -245,6 +253,7 @@ class _MultiSelectSearchSheet<T> extends StatefulWidget {
     required this.initialSelected,
     required this.listItemBuilder,
     required this.scrollController,
+    this.serverSearch,
   });
 
   final String title;
@@ -253,6 +262,7 @@ class _MultiSelectSearchSheet<T> extends StatefulWidget {
   final List<T> initialSelected;
   final ListMultiItemBuilder<T>? listItemBuilder;
   final ScrollController scrollController;
+  final Future<List<T>> Function(String query)? serverSearch;
 
   @override
   State<_MultiSelectSearchSheet<T>> createState() =>
@@ -263,6 +273,9 @@ class _MultiSelectSearchSheetState<T> extends State<_MultiSelectSearchSheet<T>> 
   late final TextEditingController _searchController;
   late List<T> _selected;
   late List<T> _filteredItems;
+  Timer? _searchDebounce;
+  int _searchToken = 0;
+  bool _searching = false;
 
   @override
   void initState() {
@@ -274,6 +287,7 @@ class _MultiSelectSearchSheetState<T> extends State<_MultiSelectSearchSheet<T>> 
 
   @override
   void dispose() {
+    _searchDebounce?.cancel();
     _searchController.dispose();
     super.dispose();
   }
@@ -309,12 +323,52 @@ class _MultiSelectSearchSheetState<T> extends State<_MultiSelectSearchSheet<T>> 
   void _filterItems(String query) {
     final search = query.trim().toLowerCase();
     setState(() {
+      _searching = false;
       if (search.isEmpty) {
         _filteredItems = List<T>.from(widget.items);
       } else {
         _filteredItems = widget.items
             .where((item) => _searchBlob(item).toLowerCase().contains(search))
             .toList();
+      }
+    });
+  }
+
+  void _onSearchChanged(String query) {
+    if (widget.serverSearch == null) {
+      _filterItems(query);
+      return;
+    }
+
+    final search = query.trim();
+    _searchDebounce?.cancel();
+    if (search.isEmpty) {
+      _searchToken++;
+      _filterItems('');
+      return;
+    }
+
+    // Show whatever is already on this phone while the server answers.
+    final local = widget.items
+        .where((item) => _searchBlob(item).toLowerCase().contains(search.toLowerCase()))
+        .toList();
+    setState(() {
+      _filteredItems = local;
+      _searching = true;
+    });
+
+    final token = ++_searchToken;
+    _searchDebounce = Timer(const Duration(milliseconds: 400), () async {
+      try {
+        final results = await widget.serverSearch!(search);
+        if (!mounted || token != _searchToken) return;
+        setState(() {
+          _filteredItems = results;
+          _searching = false;
+        });
+      } catch (_) {
+        if (!mounted || token != _searchToken) return;
+        setState(() => _searching = false);
       }
     });
   }
@@ -367,8 +421,8 @@ class _MultiSelectSearchSheetState<T> extends State<_MultiSelectSearchSheet<T>> 
               child: TextField(
                 controller: _searchController,
                 textInputAction: TextInputAction.search,
-                onChanged: _filterItems,
-                onSubmitted: _filterItems,
+                onChanged: _onSearchChanged,
+                onSubmitted: _onSearchChanged,
                 decoration: InputDecoration(
                   prefixIcon: const Icon(Icons.search_rounded),
                   hintText: widget.hint,
@@ -382,7 +436,9 @@ class _MultiSelectSearchSheetState<T> extends State<_MultiSelectSearchSheet<T>> 
               ),
             ),
             Expanded(
-              child: displayItems.isNotEmpty
+              child: _searching && displayItems.isEmpty
+                  ? const Center(child: CircularProgressIndicator())
+                  : displayItems.isNotEmpty
                   ? ListView.builder(
                       controller: widget.scrollController,
                       itemCount: displayItems.length,

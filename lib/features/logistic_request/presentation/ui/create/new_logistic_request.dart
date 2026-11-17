@@ -25,6 +25,15 @@ class _NewLogisticRequestState extends State<NewLogisticRequest> {
   List<SalesOrderForm> orderForm = [];
   SalesOrderForm? salesOrderForm;
 
+  /// Asks the server for this order number. The sheet used to filter only the
+  /// list already on the phone, so a Shorebird build with a different page
+  /// size could not see the same sales order.
+  Future<List<SalesOrderForm>> _searchSalesOrders(String query) {
+    return LogisticPlanningBlocProvider.get().repo.fetchSalesOrder(query).then(
+      (result) => result.fold((_) => <SalesOrderForm>[], (rows) => rows),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final logisticState = context.read<CreateLogisticCubit>().state;
@@ -83,19 +92,7 @@ class _NewLogisticRequestState extends State<NewLogisticRequest> {
                       readOnly: status == 1,
                       isloading: state.isLoading,
                       defaultSelection: orderForm,
-                      futureRequest: (query) async {
-                        if (query.isEmpty) return names;
-
-                        return names.where((item) {
-                          final orderNo = item.name?.toLowerCase() ?? '';
-                          final customer =
-                              item.customerName?.toLowerCase() ?? '';
-                          final search = query.toLowerCase();
-
-                          return orderNo.contains(search) ||
-                              customer.contains(search);
-                        }).toList();
-                      },
+                      serverSearch: _searchSalesOrders,
 
                       headerBuilder:
                           (_, item, __) => Column(
@@ -250,19 +247,7 @@ class _NewLogisticRequestState extends State<NewLogisticRequest> {
                                     ),
                                   )
                                   .toList(),
-                          futureRequest: (query) async {
-                            if (query.isEmpty) return names;
-
-                            return names.where((item) {
-                              final orderNo = item.name?.toLowerCase() ?? '';
-                              final customer =
-                                  item.customerName?.toLowerCase() ?? '';
-                              final search = query.toLowerCase();
-
-                              return orderNo.contains(search) ||
-                                  customer.contains(search);
-                            }).toList();
-                          },
+                          serverSearch: _searchSalesOrders,
 
                           headerBuilder:
                               (_, item, __) => Column(

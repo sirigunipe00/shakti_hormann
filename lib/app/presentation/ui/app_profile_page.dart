@@ -8,6 +8,7 @@ import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/features/auth/presentation/bloc/auth/auth_cubit.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/widgets/buttons/app_btn.dart';
+import 'package:shorebird_code_push/shorebird_code_push.dart';
 
 class AppProfilePage extends StatelessWidget {
   const AppProfilePage({super.key});
@@ -155,6 +156,34 @@ class AppProfilePage extends StatelessWidget {
                       label: 'App Version',
                       valueWidget: FutureBuilder<String>(
                         future: _appVersion(),
+                        builder: (_, snapshot) {
+                          if (snapshot.connectionState ==
+                                  ConnectionState.done &&
+                              snapshot.hasData) {
+                            return Text(
+                              snapshot.data!,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: Color(0xFF0E1446),
+                                fontFamily: 'Urbanist',
+                                fontWeight: FontWeight.w700,
+                              ),
+                            );
+                          }
+                          return const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    _InfoCard(
+                      icon: Icons.cloud_download_outlined,
+                      label: 'Shorebird Patch Version',
+                      valueWidget: FutureBuilder<String>(
+                        future: _shorebirdPatchVersion(),
                         builder: (_, snapshot) {
                           if (snapshot.connectionState ==
                                   ConnectionState.done &&
@@ -414,4 +443,20 @@ class _InfoCard extends StatelessWidget {
 Future<String> _appVersion() async {
   final pinfo = await PackageInfo.fromPlatform();
   return '${pinfo.version} (${pinfo.buildNumber})';
+}
+
+Future<String> _shorebirdPatchVersion() async {
+  try {
+    final updater = ShorebirdUpdater();
+    if (!updater.isAvailable) {
+      return 'No patch';
+    }
+    final patch = await updater.readCurrentPatch();
+    if (patch == null) {
+      return 'No patch';
+    }
+    return 'patch ${patch.number}';
+  } catch (_) {
+    return 'No patch';
+  }
 }

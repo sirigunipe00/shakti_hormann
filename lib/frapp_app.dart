@@ -38,6 +38,7 @@ import 'package:shakti_hormann/features/vision_panel/presentation/bloc/vision_pa
 import 'package:shakti_hormann/features/zone_transfer/presentation/bloc/bloc_provider.dart';
 import 'package:shakti_hormann/features/zone_transfer/presentation/bloc/zone_filter_cubit.dart';
 import 'package:shakti_hormann/styles/material_theme.dart';
+import 'package:shakti_hormann/widgets/shorebird_update_listener.dart';
 
 import 'features/gate_management/presentation/bloc/gate_management_filter.dart';
 
@@ -258,11 +259,11 @@ class _ShaktiHormannState extends State<ShaktiHormann>
           routerConfig: AppRouterConfig.router,
           debugShowCheckedModeBanner: false,
           builder: (context, child) {
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle.dark,
-      child: child!,
-    );
-  },
+            return AnnotatedRegion<SystemUiOverlayStyle>(
+              value: SystemUiOverlayStyle.dark,
+              child: ShorebirdUpdateListener(child: child!),
+            );
+          },
         ),
       ),
     );

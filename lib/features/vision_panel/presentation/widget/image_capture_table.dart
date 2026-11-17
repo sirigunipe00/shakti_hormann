@@ -6,6 +6,8 @@ import 'package:shakti_hormann/core/core.dart';
 import 'package:shakti_hormann/features/vision_panel/model/vision_panel_entry_lines.dart';
 import 'package:shakti_hormann/features/vision_panel/presentation/bloc/create_vision_panel/create_vision_panel.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
+import 'package:shakti_hormann/widgets/packing_record_preview.dart';
+import 'package:shakti_hormann/widgets/table_page_controls.dart';
 
 class ImageCaptureTable extends StatefulWidget {
   const ImageCaptureTable({super.key});
@@ -99,7 +101,7 @@ class _ImageCaptureTableState extends State<ImageCaptureTable> {
   }
 }
 
-class _BoxDetailsTable extends StatelessWidget {
+class _BoxDetailsTable extends StatefulWidget {
   const _BoxDetailsTable({
     required this.entries,
     required this.activeIndex,
@@ -119,6 +121,13 @@ class _BoxDetailsTable extends StatelessWidget {
   static const _headerBlue = Color(0xFF0E2A5C);
   static const _line = Color(0xFFE6EAF2);
 
+  @override
+  State<_BoxDetailsTable> createState() => _BoxDetailsTableState();
+}
+
+class _BoxDetailsTableState extends State<_BoxDetailsTable> {
+  int _page = 0;
+
   bool _hasPhoto(VisionPanelEntryLines line) =>
       line.visionPhotoImg != null ||
       (line.image != null && line.image!.isNotEmpty);
@@ -135,54 +144,138 @@ class _BoxDetailsTable extends StatelessWidget {
     return s.contains('unallocated');
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFFE8ECF4)),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF0E1446).withValues(alpha: 0.04),
-            blurRadius: 10,
-            offset: const Offset(0, 3),
+  List<String> _photoUrls(VisionPanelEntryLines line) {
+    final urls = <String>[];
+    final local = line.visionPhotoImg;
+    if (local != null) urls.add(local.path);
+    final remote = line.image;
+    if (remote != null && remote.isNotEmpty) {
+      if (remote.startsWith('http://') || remote.startsWith('https://')) {
+        urls.add(remote);
+      } else {
+        final uri = Uri.parse(Urls.baseUrl);
+        final base =
+            '${uri.scheme}://${uri.host}${uri.hasPort ? ':${uri.port}' : ''}';
+        urls.add(remote.startsWith('/') ? '$base$remote' : '$base/$remote');
+      }
+    }
+    return urls;
+  }
+
+  void _openPreview(VisionPanelEntryLines line, int absoluteIndex) {
+    showPackingRecordPreview(
+      context,
+      data: PackingRecordPreviewData(
+        recordNo: '# ${(absoluteIndex + 1).toString().padLeft(2, '0')}',
+        chipSecondary: line.boxNo,
+        chipTertiary: line.productType ?? line.boxCode,
+        photoUrls: _photoUrls(line),
+        details: [
+          PackingRecordDetailRow(label: 'Box No.', value: line.boxNo ?? ''),
+          PackingRecordDetailRow(label: 'Box Code', value: line.boxCode ?? ''),
+          PackingRecordDetailRow(
+            label: 'Product Type',
+            value: line.productType ?? '',
+          ),
+          PackingRecordDetailRow(
+            label: 'Allocation',
+            value: line.allocationStatus ?? 'Unallocated',
+          ),
+          PackingRecordDetailRow(
+            label: 'Zone',
+            value: (line.currentZone ?? '').trim().isEmpty
+                ? '-'
+                : line.currentZone!.trim(),
+          ),
+          PackingRecordDetailRow(
+            label: 'Added On',
+            value: DFU.ddMMyyyyAmPmFromStr(line.creation ?? ''),
+          ),
+          PackingRecordDetailRow(
+            label: 'Added By',
+            value: line.owner ?? line.modifiedBy ?? '',
           ),
         ],
       ),
-      clipBehavior: Clip.antiAlias,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _HeaderRow(),
-          if (entries.isEmpty)
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 24, horizontal: 16),
-              child: Text(
-                'No box rows yet. Add a product item to capture photos.',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF6B7280),
-                  fontFamily: 'Urbanist',
-                ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final entries = widget.entries;
+    final page = TablePageControls.clampPage(_page, entries.length);
+    if (page != _page) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) setState(() => _page = page);
+      });
+    }
+    final start = page * TablePageControls.defaultPageSize;
+    final pageEntries = entries
+        .skip(start)
+        .take(TablePageControls.defaultPageSize)
+        .toList();
+
+    return Column(
+      children: [
+        Container(
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: const Color(0xFFE8ECF4)),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF0E1446).withValues(alpha: 0.04),
+                blurRadius: 10,
+                offset: const Offset(0, 3),
               ),
-            )
-          else
-            for (var i = 0; i < entries.length; i++)
-              _DataRow(
-                serial: (i + 1).toString().padLeft(2, '0'),
-                line: entries[i].value,
-                isAlt: i.isOdd,
-                isLast: i == entries.length - 1,
-                allocLabel: _allocLabel(entries[i].value),
-                isUnallocated: _isUnallocated(entries[i].value),
-                photo: _buildPhotoCell(entries[i]),
-              ),
-        ],
-      ),
+            ],
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _HeaderRow(),
+              if (entries.isEmpty)
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+                  child: Text(
+                    'No box rows yet. Add a product item to capture photos.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF6B7280),
+                      fontFamily: 'Urbanist',
+                    ),
+                  ),
+                )
+              else
+                for (var i = 0; i < pageEntries.length; i++)
+                  _DataRow(
+                    serial: (start + i + 1).toString().padLeft(2, '0'),
+                    line: pageEntries[i].value,
+                    isAlt: (start + i).isOdd,
+                    isLast: i == pageEntries.length - 1,
+                    allocLabel: _allocLabel(pageEntries[i].value),
+                    isUnallocated: _isUnallocated(pageEntries[i].value),
+                    photo: _buildPhotoCell(pageEntries[i]),
+                    onPreview: () => _openPreview(
+                      pageEntries[i].value,
+                      start + i,
+                    ),
+                  ),
+            ],
+          ),
+        ),
+        TablePageControls(
+          page: page,
+          pageSize: TablePageControls.defaultPageSize,
+          totalCount: entries.length,
+          onPrevious: () => setState(() => _page = page - 1),
+          onNext: () => setState(() => _page = page + 1),
+        ),
+      ],
     );
   }
 
@@ -195,11 +288,11 @@ class _BoxDetailsTable extends StatelessWidget {
         color: const Color(0xFF16A34A),
         borderRadius: BorderRadius.circular(8),
         child: InkWell(
-          onTap: () => onViewImage(line),
+          onTap: () => widget.onViewImage(line),
           borderRadius: BorderRadius.circular(8),
           child: const SizedBox(
-            height: 34,
-            width: 64,
+            height: 32,
+            width: 48,
             child: Center(
               child: Text(
                 'View',
@@ -208,7 +301,7 @@ class _BoxDetailsTable extends StatelessWidget {
                 style: TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.w800,
-                  fontSize: 12,
+                  fontSize: 11,
                   fontFamily: 'Urbanist',
                 ),
               ),
@@ -218,7 +311,7 @@ class _BoxDetailsTable extends StatelessWidget {
       );
     }
 
-    if (isSubmitted) {
+    if (widget.isSubmitted) {
       return const Text(
         '—',
         style: TextStyle(
@@ -228,7 +321,8 @@ class _BoxDetailsTable extends StatelessWidget {
       );
     }
 
-    final isRowActive = activeIndex != null && line.itemIndex == activeIndex;
+    final isRowActive =
+        widget.activeIndex != null && line.itemIndex == widget.activeIndex;
 
     return SizedBox(
       width: 40,
@@ -241,8 +335,9 @@ class _BoxDetailsTable extends StatelessWidget {
           size: 20,
           color: isRowActive ? AppColors.darkBlue : Colors.grey.shade400,
         ),
-        onPressed:
-            isRowActive && !isUpdating ? () => onCapture(globalIndex) : null,
+        onPressed: isRowActive && !widget.isUpdating
+            ? () => widget.onCapture(globalIndex)
+            : null,
       ),
     );
   }
@@ -260,7 +355,8 @@ class _HeaderRow extends StatelessWidget {
           SizedBox(width: 48, child: _HCell('Box')),
           Expanded(flex: 3, child: _HCell('Box Code')),
           Expanded(flex: 2, child: _HCell('Alloc.')),
-          SizedBox(width: 68, child: _HCell('Photo')),
+          SizedBox(width: 56, child: _HCell('Photo')),
+          SizedBox(width: PackingRowActions.columnWidth, child: _HCell('')),
         ],
       ),
     );
@@ -299,6 +395,7 @@ class _DataRow extends StatelessWidget {
     required this.allocLabel,
     required this.isUnallocated,
     required this.photo,
+    required this.onPreview,
   });
 
   final String serial;
@@ -308,12 +405,16 @@ class _DataRow extends StatelessWidget {
   final String allocLabel;
   final bool isUnallocated;
   final Widget photo;
+  final VoidCallback onPreview;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return Material(
+      color: isAlt ? const Color(0xFFF8FAFD) : Colors.white,
+      child: InkWell(
+        onTap: onPreview,
+        child: Container(
       decoration: BoxDecoration(
-        color: isAlt ? const Color(0xFFF8FAFD) : Colors.white,
         border: isLast
             ? null
             : const Border(bottom: BorderSide(color: _BoxDetailsTable._line)),
@@ -405,10 +506,16 @@ class _DataRow extends StatelessWidget {
             ),
           ),
           SizedBox(
-            width: 68,
+            width: 56,
             child: Center(child: photo),
           ),
+          SizedBox(
+            width: PackingRowActions.columnWidth,
+            child: PackingRowActions(onPreview: onPreview),
+          ),
         ],
+      ),
+        ),
       ),
     );
   }
