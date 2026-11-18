@@ -26,6 +26,7 @@ _$VehicleReportingFormImpl _$$VehicleReportingFormImplFromJson(
   arrivalTime: json['arrival_time'] as String? ?? '',
   driverIdPhoto: json['driver_id_proof'] as String?,
   loadedByUser: json['loaded_by_user'] as String?,
+  vehicleType: json['vehicle_type'] as String?,
   status: json['status'] as String?,
   linkedTransporterConfirmation:
       json['linked_transporter_confirmation'] as String?,
@@ -55,6 +56,7 @@ Map<String, dynamic> _$$VehicleReportingFormImplToJson(
   'arrival_time': instance.arrivalTime,
   'driver_id_proof': instance.driverIdPhoto,
   'loaded_by_user': instance.loadedByUser,
+  'vehicle_type': instance.vehicleType,
   'status': instance.status,
   'linked_transporter_confirmation': instance.linkedTransporterConfirmation,
   'vehicle_number': instance.vehicleNumber,

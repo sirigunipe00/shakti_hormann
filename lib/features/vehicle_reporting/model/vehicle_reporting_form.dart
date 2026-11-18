@@ -25,6 +25,7 @@ class VehicleReportingForm with _$VehicleReportingForm {
     @JsonKey(name: 'arrival_time',defaultValue: '')  String? arrivalTime,
     @JsonKey(name: 'driver_id_proof') String? driverIdPhoto,
     @JsonKey(name: 'loaded_by_user')  String? loadedByUser,
+    @JsonKey(name: 'vehicle_type')  String? vehicleType,
     @JsonKey(name: 'status')  String? status,
     @JsonKey(name: 'linked_transporter_confirmation')  String? linkedTransporterConfirmation,
     @JsonKey(name: 'vehicle_number')  String? vehicleNumber,

@@ -125,6 +125,139 @@ final Map<String, _InfoContent> _cardInfo = {
       'Save.',
     ],
   ),
+  'Gate Entry': const _InfoContent(
+    title: 'Gate Entry Process',
+    icon: Icons.login_rounded,
+    stepsTitle: 'How to create a Gate Entry',
+    steps: [
+      'Open New Gate Entry.',
+      'Select one or more Purchase Order numbers.',
+      'Enter Vendor Invoice No and Vendor Invoice Date.',
+      'Enter the Vehicle Number.',
+      'Capture Vehicle Front Photo.',
+      'Capture Vehicle Back Photo.',
+      'Capture Vendor Invoice Photo.',
+      'Tap Create / Save to draft the entry.',
+      'Review the details, then Submit when ready.',
+    ],
+  ),
+  'Gate Exit': const _InfoContent(
+    title: 'Gate Exit Process',
+    icon: Icons.logout_rounded,
+    stepsTitle: 'How to create a Gate Exit',
+    steps: [
+      'Open New Gate Exit.',
+      'Confirm Plant Name is filled.',
+      'Select the Sales Invoice number(s).',
+      'Enter / confirm the Vehicle Number.',
+      'Capture Vehicle Front Photo.',
+      'Capture Vehicle Back Photo.',
+      'Tap Create / Save to draft the exit.',
+      'Review the details, then Submit when ready.',
+    ],
+  ),
+  'Logistic Request': const _InfoContent(
+    title: 'Logistic Request Process',
+    icon: Icons.local_shipping_rounded,
+    stepsTitle: 'How to create a Logistic Request',
+    steps: [
+      'Open New Logistic Request.',
+      'Search and select the Sales Order No.',
+      'Select Transporter Type and Dispatch Type.',
+      'Select the Transporter.',
+      'Select Preferred Vehicle Type.',
+      'Enter Requested Delivery Date and Time.',
+      'Add any special instructions if needed.',
+      'Tap Create / Save to draft the request.',
+      'Review, then Submit when ready (status moves to transporter confirmation).',
+    ],
+  ),
+  'Transport Confirmation': const _InfoContent(
+    title: 'Transport Confirmation Process',
+    icon: Icons.handshake_rounded,
+    stepsTitle: 'How to confirm transport',
+    steps: [
+      'Open the pending Transport Confirmation from the list.',
+      'Enter Driver Name.',
+      'Enter Vehicle Number.',
+      'Enter a valid 10-digit Driver Mobile No (starts with 6–9).',
+      'Enter Estimated Arrival Date and Time.',
+      'Add transporter remarks if needed.',
+      'Tap Save / Confirm to accept the request.',
+      'Use Reject only when needed, and enter a reject reason.',
+    ],
+  ),
+  'Vehicle Reporting Entry': const _InfoContent(
+    title: 'Vehicle Reporting Process',
+    icon: Icons.directions_car_filled_rounded,
+    stepsTitle: 'How to report a vehicle',
+    steps: [
+      'Open New Vehicle Reporting Entry.',
+      'Select the linked Logistic Request / Transporter Confirmation No.',
+      'Confirm Plant Name is filled.',
+      'Enter Arrival Date and Arrival Time.',
+      'Capture Driver ID Photo.',
+      'Tap Create / Save to draft the reporting entry.',
+      'Review, then Accept or Reject the vehicle reporting entry.',
+    ],
+  ),
+  'Dispatch Loading': const _InfoContent(
+    title: 'Dispatch Loading Process',
+    icon: Icons.inventory_2_rounded,
+    stepsTitle: 'How to complete Dispatch Loading',
+    steps: [
+      'Open the Vehicle Reporting / Dispatch Loading record.',
+      'Confirm item lines are available for loading.',
+      'Use Multi-Scan to scan Pallet / Box QR codes.',
+      'Capture a photo for each scanned item.',
+      'Capture the Loaded Vehicle Photo.',
+      'Save progress as needed.',
+      'Submit when all scanned items have photos and loading is complete.',
+    ],
+  ),
+  'Proof Of Delivery': const _InfoContent(
+    title: 'Proof Of Delivery Process',
+    icon: Icons.fact_check_rounded,
+    stepsTitle: 'How to create Proof of Delivery',
+    steps: [
+      'Open New Proof Of Delivery.',
+      'Select the Invoice No.',
+      'Capture POD Photo (signed delivery proof).',
+      'Capture Unloading Photo.',
+      'Add remarks if needed.',
+      'Tap Create / Save to draft the POD.',
+      'Review, then Submit to complete delivery confirmation.',
+    ],
+  ),
+  'Gate Management': const _InfoContent(
+    title: 'Gate Management Process',
+    icon: Icons.apartment_rounded,
+    stepsTitle: 'How to manage gate movement',
+    steps: [
+      'Open New Gate Management.',
+      'Select Request Type if applicable (e.g. Amazon / Swiggy special flow).',
+      'Capture Vehicle Front Photo.',
+      'Capture Vehicle Back Photo.',
+      'Capture Document / Invoice Photo (optional).',
+      'Tap Create / Save to draft the gate movement.',
+      'Before final Submit (non-special flow), enter Gate Exit Date and Gate Exit Time.',
+      'Submit when the vehicle has exited.',
+    ],
+  ),
+  'Forklift Operator': const _InfoContent(
+    title: 'Forklift Operator Process',
+    icon: Icons.forklift,
+    stepsTitle: 'How to log in / log out of a forklift',
+    steps: [
+      'Open Forklift Operator.',
+      'Tap New / Scan and scan the QR sticker on the forklift (or enter the code).',
+      'If the forklift is free, confirm Login to start your session.',
+      'If you are still logged in on another forklift, log out from that session first.',
+      'Use the forklift while your session is active.',
+      'To log out, open the active session and scan the same forklift QR again.',
+      'Logout without scanning the QR is not allowed.',
+    ],
+  ),
 };
 
 class AppHomePage extends StatefulWidget {
@@ -320,8 +453,7 @@ class _AppHomePageState extends State<AppHomePage> {
       // Show unless Role Status explicitly turns it off (0).
       // Null = backend field not shipped yet → still show.
       // Status opens from the Forklift Operator app bar icon (not a home card).
-      permissionSelector: (roleStatus) =>
-          roleStatus?.showForkliftOperator == 0 ? 0 : 1,
+      permissionSelector: (roleStatus) => roleStatus?.showForkliftOperator,
     ),
   ];
 
@@ -747,14 +879,20 @@ class _AppHomePageState extends State<AppHomePage> {
     final visibleItems =
         dashboardItems
             .where((item) {
+              // Forklift: Role Status "Show Forklift Operator in Mobile App"
+              // is source of truth. Explicit 0 must always hide — Packing
+              // Supervisor / Frappe role / get_forklift_home_summary must NOT
+              // override it (that was why keerthi still saw the card at 0).
+              if (item.title == 'Forklift Operator') {
+                final flag = roleStatus?.showForkliftOperator;
+                if (flag == 0) return false;
+                if (flag == 1) return true;
+                return hasForkliftOperatorRole ||
+                    _apiShowForkliftOperator == 1;
+              }
               if (item.canShow(roleStatus)) return true;
               if (hasPackingSupervisorRole &&
                   item.section == DashboardSection.scanningPackaging) {
-                return true;
-              }
-              if (item.title == 'Forklift Operator' &&
-                  (hasForkliftOperatorRole ||
-                      _apiShowForkliftOperator == 1)) {
                 return true;
               }
               return false;

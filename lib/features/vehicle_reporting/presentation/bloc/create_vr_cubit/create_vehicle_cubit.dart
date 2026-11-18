@@ -48,6 +48,7 @@ class CreateVehicleCubit extends AppBaseCubit<CreateVehicleState> {
     String? vehicleNo,
     String? driverContact,
     String? remarks,
+    String? vehicleType,
     String? rejectReason,
   }) {
     shouldAskForConfirmation.value = true;
@@ -73,6 +74,7 @@ class CreateVehicleCubit extends AppBaseCubit<CreateVehicleState> {
       arrivalTime: arrivalTime ?? form.arrivalTime,
       loadedByUser: loadedByUser ?? form.loadedByUser,
       status: status ?? form.status,
+      vehicleType: vehicleType ?? form.vehicleType,
       linkedTransporterConfirmation:
           linkedTransporterConfirmation ?? form.linkedTransporterConfirmation,
       driverContact: driverContact ?? form.driverContact,
@@ -239,7 +241,10 @@ class CreateVehicleCubit extends AppBaseCubit<CreateVehicleState> {
       return optionOf(const Pair('Select Logistic Request No', 0));
     } else if (form.plantName == null || form.plantName!.isEmpty) {
       return optionOf(const Pair('Plant Name is Required', 0));
-    } else if (form.arrivalDate.isNull || 
+    }else if (form.vehicleType == null || form.vehicleType!.isEmpty) {
+      return optionOf(const Pair('Vehicle Type is Required', 0));
+    }
+     else if (form.arrivalDate.isNull || 
              (form.arrivalDate?.trim().isEmpty ?? true)) {
     return optionOf(const Pair('Missing Arrival Date', 0));
   } else if (form.arrivalTime.isNull || 

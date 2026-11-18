@@ -120,6 +120,7 @@ class VehicleReportingRepoimpl extends BaseApiRepository
         'vehicle_reporting_entry_vre_date': form.vehicleReportingEntryVreDate,
         'driver_contact': form.driverContact,
         'remarks': form.remarks,
+        'vehicle_type': form.vehicleType,
       };
       if (form.plantName != null &&
           form.plantName!.trim().isNotEmpty &&
@@ -192,6 +193,7 @@ class VehicleReportingRepoimpl extends BaseApiRepository
         'vehicle_reporting_entry_vre_date': form.vehicleReportingEntryVreDate,
         'driver_contact': form.driverContact,
         'remarks': form.remarks,
+        'vehicle_type': form.vehicleType,
         'status': 'Reported',
       };
       if (form.plantName != null &&

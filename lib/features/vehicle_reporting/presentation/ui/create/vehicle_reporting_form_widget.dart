@@ -3,9 +3,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:shakti_hormann/core/core.dart';
+import 'package:shakti_hormann/features/logistic_request/model/vehicle_type_form.dart';
+import 'package:shakti_hormann/features/logistic_request/presentation/bloc/bloc_provider.dart';
 import 'package:shakti_hormann/features/vehicle_reporting/presentation/bloc/create_vr_cubit/create_vehicle_cubit.dart';
 import 'package:shakti_hormann/styles/app_color.dart';
 import 'package:shakti_hormann/widgets/input_filed.dart';
+import 'package:shakti_hormann/widgets/inputs/compact_search_select.dart';
 import 'package:shakti_hormann/widgets/inputs/date_picker_field.dart';
 import 'package:shakti_hormann/widgets/inputs/new_upload_photo_widget.dart';
 import 'package:shakti_hormann/widgets/inputs/time_picker.dart';
@@ -29,6 +32,7 @@ class _VehicleReportingFormWidget extends State<VehicleReportingFormWidget> {
   final TextEditingController remarks = TextEditingController();
   final focusNodes = List.generate(40, (index) => FocusNode());
   String? _contactError;
+  VehicleTypeForm? vehicleTypeForm;
 
   @override
   void dispose() {
@@ -167,6 +171,55 @@ class _VehicleReportingFormWidget extends State<VehicleReportingFormWidget> {
                           ),
                         ],
                       ),
+                            const SizedBox(height: 12),
+                            BlocBuilder<VehicleList, VehicleListState>(
+                              buildWhen:
+                                  (previous, current) => previous != current,
+                              builder: (_, state) {
+                                final allData = state.maybeWhen(
+                                  orElse: () => <VehicleTypeForm>[],
+                                  success: (data) => data,
+                                );
+                                final names = List<VehicleTypeForm>.from(
+                                  allData,
+                                );
+                                final selectedName =
+                                    newform.vehicleType;
+                                VehicleTypeForm? selected;
+                                if (selectedName != null &&
+                                    selectedName.isNotEmpty) {
+                                  selected = names
+                                      .where((e) => e.name == selectedName)
+                                      .firstOrNull;
+                                  if (selected == null) {
+                                    selected =
+                                        VehicleTypeForm(name: selectedName);
+                                    names.insert(0, selected);
+                                  }
+                                }
+
+                                return CompactSearchSelect<VehicleTypeForm>(
+                                  key: ValueKey(newform.vehicleType),
+                                  label: 'Vehicle Type',
+                                  hint: 'Select Vehicle Type',
+                                  isRequired: true,
+                                  locked: isCompleted,
+                                  isLoading: state.isLoading,
+                                  leadingIcon: Icons.directions_car_outlined,
+                                  options: names,
+                                  value: selected,
+                                  labelOf: (e) => e.name ?? '',
+                                  onChanged: (picked) {
+                                    setState(() => vehicleTypeForm = picked);
+                                    context
+                                        .cubit<CreateVehicleCubit>()
+                                        .onValueChanged(
+                                          vehicleType: picked.name,
+                                        );
+                                  },
+                                );
+                              },
+                            ),
                       const SizedBox(height: 12),
                       InputField(
                         title: 'Vehicle Number',

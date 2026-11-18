@@ -54,6 +54,8 @@ mixin _$VehicleReportingForm {
   String? get driverIdPhoto => throw _privateConstructorUsedError;
   @JsonKey(name: 'loaded_by_user')
   String? get loadedByUser => throw _privateConstructorUsedError;
+  @JsonKey(name: 'vehicle_type')
+  String? get vehicleType => throw _privateConstructorUsedError;
   @JsonKey(name: 'status')
   String? get status => throw _privateConstructorUsedError;
   @JsonKey(name: 'linked_transporter_confirmation')
@@ -110,6 +112,7 @@ abstract class $VehicleReportingFormCopyWith<$Res> {
     @JsonKey(name: 'arrival_time', defaultValue: '') String? arrivalTime,
     @JsonKey(name: 'driver_id_proof') String? driverIdPhoto,
     @JsonKey(name: 'loaded_by_user') String? loadedByUser,
+    @JsonKey(name: 'vehicle_type') String? vehicleType,
     @JsonKey(name: 'status') String? status,
     @JsonKey(name: 'linked_transporter_confirmation')
     String? linkedTransporterConfirmation,
@@ -161,6 +164,7 @@ class _$VehicleReportingFormCopyWithImpl<
     Object? arrivalTime = freezed,
     Object? driverIdPhoto = freezed,
     Object? loadedByUser = freezed,
+    Object? vehicleType = freezed,
     Object? status = freezed,
     Object? linkedTransporterConfirmation = freezed,
     Object? vehicleNumber = freezed,
@@ -251,6 +255,11 @@ class _$VehicleReportingFormCopyWithImpl<
                     ? _value.loadedByUser
                     : loadedByUser // ignore: cast_nullable_to_non_nullable
                         as String?,
+            vehicleType:
+                freezed == vehicleType
+                    ? _value.vehicleType
+                    : vehicleType // ignore: cast_nullable_to_non_nullable
+                        as String?,
             status:
                 freezed == status
                     ? _value.status
@@ -319,6 +328,7 @@ abstract class _$$VehicleReportingFormImplCopyWith<$Res>
     @JsonKey(name: 'arrival_time', defaultValue: '') String? arrivalTime,
     @JsonKey(name: 'driver_id_proof') String? driverIdPhoto,
     @JsonKey(name: 'loaded_by_user') String? loadedByUser,
+    @JsonKey(name: 'vehicle_type') String? vehicleType,
     @JsonKey(name: 'status') String? status,
     @JsonKey(name: 'linked_transporter_confirmation')
     String? linkedTransporterConfirmation,
@@ -366,6 +376,7 @@ class __$$VehicleReportingFormImplCopyWithImpl<$Res>
     Object? arrivalTime = freezed,
     Object? driverIdPhoto = freezed,
     Object? loadedByUser = freezed,
+    Object? vehicleType = freezed,
     Object? status = freezed,
     Object? linkedTransporterConfirmation = freezed,
     Object? vehicleNumber = freezed,
@@ -456,6 +467,11 @@ class __$$VehicleReportingFormImplCopyWithImpl<$Res>
                 ? _value.loadedByUser
                 : loadedByUser // ignore: cast_nullable_to_non_nullable
                     as String?,
+        vehicleType:
+            freezed == vehicleType
+                ? _value.vehicleType
+                : vehicleType // ignore: cast_nullable_to_non_nullable
+                    as String?,
         status:
             freezed == status
                 ? _value.status
@@ -517,6 +533,7 @@ class _$VehicleReportingFormImpl implements _VehicleReportingForm {
     @JsonKey(name: 'arrival_time', defaultValue: '') this.arrivalTime,
     @JsonKey(name: 'driver_id_proof') this.driverIdPhoto,
     @JsonKey(name: 'loaded_by_user') this.loadedByUser,
+    @JsonKey(name: 'vehicle_type') this.vehicleType,
     @JsonKey(name: 'status') this.status,
     @JsonKey(name: 'linked_transporter_confirmation')
     this.linkedTransporterConfirmation,
@@ -585,6 +602,9 @@ class _$VehicleReportingFormImpl implements _VehicleReportingForm {
   @JsonKey(name: 'loaded_by_user')
   final String? loadedByUser;
   @override
+  @JsonKey(name: 'vehicle_type')
+  final String? vehicleType;
+  @override
   @JsonKey(name: 'status')
   final String? status;
   @override
@@ -613,7 +633,7 @@ class _$VehicleReportingFormImpl implements _VehicleReportingForm {
 
   @override
   String toString() {
-    return 'VehicleReportingForm(name: $name, owner: $owner, creation: $creation, modified: $modified, modifiedBy: $modifiedBy, docstatus: $docstatus, idx: $idx, amendedFrom: $amendedFrom, plantName: $plantName, vehicleReportingEntryVreDate: $vehicleReportingEntryVreDate, transporterName: $transporterName, transporterName2: $transporterName2, arrivalDate: $arrivalDate, arrivalTime: $arrivalTime, driverIdPhoto: $driverIdPhoto, loadedByUser: $loadedByUser, status: $status, linkedTransporterConfirmation: $linkedTransporterConfirmation, vehicleNumber: $vehicleNumber, driverContact: $driverContact, remarks: $remarks, rejectReason: $rejectReason, driverIdPhotoImg: $driverIdPhotoImg)';
+    return 'VehicleReportingForm(name: $name, owner: $owner, creation: $creation, modified: $modified, modifiedBy: $modifiedBy, docstatus: $docstatus, idx: $idx, amendedFrom: $amendedFrom, plantName: $plantName, vehicleReportingEntryVreDate: $vehicleReportingEntryVreDate, transporterName: $transporterName, transporterName2: $transporterName2, arrivalDate: $arrivalDate, arrivalTime: $arrivalTime, driverIdPhoto: $driverIdPhoto, loadedByUser: $loadedByUser, vehicleType: $vehicleType, status: $status, linkedTransporterConfirmation: $linkedTransporterConfirmation, vehicleNumber: $vehicleNumber, driverContact: $driverContact, remarks: $remarks, rejectReason: $rejectReason, driverIdPhotoImg: $driverIdPhotoImg)';
   }
 
   @override
@@ -654,6 +674,8 @@ class _$VehicleReportingFormImpl implements _VehicleReportingForm {
                 other.driverIdPhoto == driverIdPhoto) &&
             (identical(other.loadedByUser, loadedByUser) ||
                 other.loadedByUser == loadedByUser) &&
+            (identical(other.vehicleType, vehicleType) ||
+                other.vehicleType == vehicleType) &&
             (identical(other.status, status) || other.status == status) &&
             (identical(
                   other.linkedTransporterConfirmation,
@@ -692,6 +714,7 @@ class _$VehicleReportingFormImpl implements _VehicleReportingForm {
     arrivalTime,
     driverIdPhoto,
     loadedByUser,
+    vehicleType,
     status,
     linkedTransporterConfirmation,
     vehicleNumber,
@@ -738,6 +761,7 @@ abstract class _VehicleReportingForm implements VehicleReportingForm {
     @JsonKey(name: 'arrival_time', defaultValue: '') final String? arrivalTime,
     @JsonKey(name: 'driver_id_proof') final String? driverIdPhoto,
     @JsonKey(name: 'loaded_by_user') final String? loadedByUser,
+    @JsonKey(name: 'vehicle_type') final String? vehicleType,
     @JsonKey(name: 'status') final String? status,
     @JsonKey(name: 'linked_transporter_confirmation')
     final String? linkedTransporterConfirmation,
@@ -805,6 +829,9 @@ abstract class _VehicleReportingForm implements VehicleReportingForm {
   @override
   @JsonKey(name: 'loaded_by_user')
   String? get loadedByUser;
+  @override
+  @JsonKey(name: 'vehicle_type')
+  String? get vehicleType;
   @override
   @JsonKey(name: 'status')
   String? get status;

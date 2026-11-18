@@ -515,6 +515,9 @@ class AppRouterConfig {
                               BlocProvider(
                                 create: (_) => bloc.logisticList()..request(''),
                               ),
+                               BlocProvider(
+                                create: (_) => blocprovider.vehicleList()..request(''),
+                              ),
                             ],
                             child: const NewVehicleReporting(),
                           );
