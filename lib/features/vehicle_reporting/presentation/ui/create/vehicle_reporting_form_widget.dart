@@ -97,6 +97,7 @@ class _VehicleReportingFormWidget extends State<VehicleReportingFormWidget> {
                   newform.vehicleReportingEntryVreDate ?? '',
                 ),
                 transporter: transporter.isEmpty ? '—' : transporter,
+                preferredVehicle: newform.preferredVehicle ?? '—',
               ),
               const SizedBox(height: 14),
               const Padding(
@@ -200,8 +201,8 @@ class _VehicleReportingFormWidget extends State<VehicleReportingFormWidget> {
 
                                 return CompactSearchSelect<VehicleTypeForm>(
                                   key: ValueKey(newform.vehicleType),
-                                  label: 'Vehicle Type',
-                                  hint: 'Select Vehicle Type',
+                                  label: 'Actual Vehicle Type',
+                                  hint: 'Select Actual Vehicle Type',
                                   isRequired: true,
                                   locked: isCompleted,
                                   isLoading: state.isLoading,
@@ -364,12 +365,14 @@ class _SummaryCard extends StatelessWidget {
     required this.logisticNo,
     required this.vreDate,
     required this.transporter,
+    required this.preferredVehicle,
   });
 
   final String plant;
   final String logisticNo;
   final String vreDate;
   final String transporter;
+  final String preferredVehicle;
 
   @override
   Widget build(BuildContext context) {
@@ -415,6 +418,12 @@ class _SummaryCard extends StatelessWidget {
               icon: Icons.apartment_outlined,
               label: 'Transporter',
               value: transporter,
+            ),
+            const SizedBox(height: 10),
+            _infoRow(
+              icon: Icons.directions_car_outlined,
+              label: 'Preferred Vehicle Type',
+              value: preferredVehicle,
             ),
           ],
         ),

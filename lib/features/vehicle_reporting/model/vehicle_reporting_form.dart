@@ -31,6 +31,7 @@ class VehicleReportingForm with _$VehicleReportingForm {
     @JsonKey(name: 'vehicle_number')  String? vehicleNumber,
     @JsonKey(name: 'driver_contact')  String? driverContact,
     @JsonKey(name: 'remarks')  String? remarks,
+    @JsonKey(name: 'preferred_vehicle_type')  String? preferredVehicle,
     @JsonKey(name: 'reject_reason') String? rejectReason,
       @JsonKey(
         includeFromJson: true,

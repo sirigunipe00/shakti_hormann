@@ -300,6 +300,7 @@ class _NewVehicleReportingState extends State<NewVehicleReporting> {
           driverContact: selected.driverContact,
           arrivalDate: selected.estimatedArrivalDate,
           arrivalTime: selected.estimatedArrivalTime,
+          preferredVehicle: selected.preferredVehicleType,
         );
   }
 
