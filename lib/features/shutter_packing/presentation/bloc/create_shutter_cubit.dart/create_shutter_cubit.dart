@@ -26,22 +26,30 @@ class _ParsedShutterQr {
   _ParsedShutterQr({
     required this.salesOrder,
     required this.itemIndex,
+    required this.handlingCode,
     required this.seqNo,
     required this.totalQty,
   });
 
   final String salesOrder;
   final String itemIndex;
+  /// Product / handling from sticker part 3 (e.g. RHAI, RHAA).
+  /// Double-door leaves share SO + item index but differ here.
+  final String handlingCode;
   final int seqNo;
   final int totalQty;
 
-  String get groupKey => '$salesOrder/$itemIndex';
+  String get groupKey => '$salesOrder/$itemIndex/$handlingCode';
 
   static _ParsedShutterQr? tryParse(String raw) {
     final cleaned = raw.replaceAll(RegExp(r'\s+'), '').trim();
     final parts = cleaned.split('/').where((e) => e.isNotEmpty).toList();
 
+    // SO / qty / product(handling) / seq / total [/ batch…]
     if (parts.length < 5) return null;
+
+    final handlingCode = parts[2].trim();
+    if (handlingCode.isEmpty) return null;
 
     final seqNo = int.tryParse(parts[3]);
     final totalQty = int.tryParse(parts[4]);
@@ -51,6 +59,7 @@ class _ParsedShutterQr {
     return _ParsedShutterQr(
       salesOrder: parts[0],
       itemIndex: parts[1],
+      handlingCode: handlingCode,
       seqNo: seqNo,
       totalQty: totalQty,
     );

@@ -853,10 +853,10 @@ class _DaywiseChartCard extends StatelessWidget {
                 : SfCartesianChart(
                     margin: const EdgeInsets.fromLTRB(0, 8, 0, 0),
                     plotAreaBorderWidth: 0,
-                    primaryXAxis: CategoryAxis(
-                      majorGridLines: const MajorGridLines(width: 0),
-                      axisLine: const AxisLine(width: 0),
-                      labelStyle: const TextStyle(
+                    primaryXAxis: const CategoryAxis(
+                      majorGridLines: MajorGridLines(width: 0),
+                      axisLine: AxisLine(width: 0),
+                      labelStyle: TextStyle(
                         fontFamily: 'Urbanist',
                         fontSize: 11,
                         color: _AppDashboardPageState._muted,
@@ -1798,9 +1798,9 @@ class _PackingModuleBar extends StatelessWidget {
                 : SfCartesianChart(
                     margin: const EdgeInsets.only(top: 8),
                     plotAreaBorderWidth: 0,
-                    primaryXAxis: CategoryAxis(
-                      majorGridLines: const MajorGridLines(width: 0),
-                      labelStyle: const TextStyle(
+                    primaryXAxis: const CategoryAxis(
+                      majorGridLines: MajorGridLines(width: 0),
+                      labelStyle: TextStyle(
                         fontFamily: 'Urbanist',
                         fontSize: 10,
                         color: _AppDashboardPageState._muted,
@@ -1903,11 +1903,11 @@ class _PackingTrendLine extends StatelessWidget {
                 : SfCartesianChart(
                     margin: const EdgeInsets.only(top: 8),
                     plotAreaBorderWidth: 0,
-                    primaryXAxis: CategoryAxis(
-                      majorGridLines: const MajorGridLines(width: 0),
+                    primaryXAxis: const CategoryAxis(
+                      majorGridLines: MajorGridLines(width: 0),
                       labelRotation: -45,
                       interval: 5,
-                      labelStyle: const TextStyle(
+                      labelStyle: TextStyle(
                         fontFamily: 'Urbanist',
                         fontSize: 9,
                         color: _AppDashboardPageState._muted,

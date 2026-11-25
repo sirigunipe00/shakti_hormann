@@ -26,11 +26,27 @@ class VehicleReportingRepoimpl extends BaseApiRepository
   ) async {
     final filters = <List<dynamic>>[];
 
+    // Status field stays "Reported" even after cancel. Cancelled tab must use
+    // document docstatus=2; other tabs must exclude cancelled docs.
     if (docStatus != null && docStatus != '4') {
-      filters
-        ..add(['status', '=', docStatus])
-        ..add(['docstatus', '!=', 2])
-        ..add(['docstatus', '!=', 1]);
+      if (docStatus == 'Cancelled') {
+        filters.add(['docstatus', '=', 2]);
+      } else if (docStatus.isEmpty) {
+        // Draft
+        filters
+          ..add(['docstatus', '=', 0])
+          ..add([
+            'status',
+            'in',
+            ['', 'Draft'],
+          ]);
+      } else {
+        // Reported / Rejected: Status field can stay "Reported" after submit.
+        // Keep only non-submitted, non-cancelled docs (docstatus = 0).
+        filters
+          ..add(['status', '=', docStatus])
+          ..add(['docstatus', '=', 0]);
+      }
     }
 
     if (serach != null && serach.isNotEmpty) {

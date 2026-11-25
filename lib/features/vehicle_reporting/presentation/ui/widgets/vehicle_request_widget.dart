@@ -17,13 +17,16 @@ class VehicleRequestWidget extends StatelessWidget {
   final VehicleReportingForm vehicleReporting;
   final VoidCallback onTap;
 
-  String get _status => vehicleReporting.docstatus == 1
-      ? 'Submitted'
-      : (vehicleReporting.docstatus == 0 &&
-              (vehicleReporting.status == null ||
-                  vehicleReporting.status == '')
-          ? 'Draft'
-          : (vehicleReporting.status ?? 'Draft'));
+  String get _status {
+    // Document cancel wins over workflow Status (often still "Reported").
+    if (vehicleReporting.docstatus == 2) return 'Cancelled';
+    if (vehicleReporting.docstatus == 1) return 'Submitted';
+    if (vehicleReporting.docstatus == 0 &&
+        (vehicleReporting.status == null || vehicleReporting.status == '')) {
+      return 'Draft';
+    }
+    return vehicleReporting.status ?? 'Draft';
+  }
 
   String get _badgeLabel {
     final raw = vehicleReporting.name;

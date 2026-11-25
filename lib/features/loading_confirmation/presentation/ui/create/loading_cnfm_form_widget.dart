@@ -2505,7 +2505,7 @@ class _ItemCodeSelectFieldState extends State<_ItemCodeSelectField> {
                                               code,
                                               maxLines: 1,
                                               overflow: TextOverflow.ellipsis,
-                                              style: TextStyle(
+                                              style: const TextStyle(
                                                 fontSize: 13,
                                                 fontWeight: FontWeight.w800,
                                                 color: _ink,

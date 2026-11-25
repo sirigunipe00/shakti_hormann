@@ -276,7 +276,7 @@ class _NewForkliftOperatorPageState extends State<NewForkliftOperatorPage>
       bottomNavigationBar: SafeArea(
         child: Container(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 10),
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             color: Colors.white,
             border: Border(top: BorderSide(color: _border)),
           ),

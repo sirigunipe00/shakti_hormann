@@ -86,7 +86,7 @@ mixin StatusModeSelectionMixin {
           'All',
         ];
       case PageMode2.vehicleReporting:
-        return ['Draft', 'Reported', 'Rejected', 'All'];
+        return ['Draft', 'Reported', 'Rejected', 'Cancelled', 'All'];
       case PageMode2.loadingConfirmation:
         return ['Reported', 'Submitted', 'All'];
       case PageMode2.forkliftOperator:
