@@ -995,9 +995,9 @@ class CreateVisionPanelCubit extends AppBaseCubit<CreateVisionPanelState> {
         if (!await file.exists()) return null;
         final compressedBytes = await FlutterImageCompress.compressWithFile(
           file.path,
-          quality: 35,
-          minWidth: 720,
-          minHeight: 720,
+          quality: 75,
+          minWidth: 1600,
+          minHeight: 1600,
           format: CompressFormat.jpeg,
         );
         final payload = compressedBytes ?? await file.readAsBytes();
